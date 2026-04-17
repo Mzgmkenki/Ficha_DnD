@@ -1,0 +1,1003 @@
+[
+  {
+    "class_id": "barbarian",
+    "level": 1,
+    "features": ["Fúria", "Defesa sem Armadura"],
+    "source": "phb"
+  },
+  {
+    "class_id": "barbarian",
+    "level": 2,
+    "features": ["Ataque Descuidado", "Sentido de Perigo"],
+    "source": "phb"
+  },
+  {
+    "class_id": "barbarian",
+    "level": 3,
+    "features": ["Caminho Primitivo"],
+    "source": "phb"
+  },
+  {
+    "class_id": "barbarian",
+    "level": 4,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "barbarian",
+    "level": 5,
+    "features": ["Ataque Extra", "Movimento Rápido"],
+    "source": "phb"
+  },
+  {
+    "class_id": "barbarian",
+    "level": 7,
+    "features": ["Instinto Feral"],
+    "source": "phb"
+  },
+  {
+    "class_id": "barbarian",
+    "level": 8,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "barbarian",
+    "level": 9,
+    "features": ["Crítico Brutal (1 dado)"],
+    "source": "phb"
+  },
+  {
+    "class_id": "barbarian",
+    "level": 11,
+    "features": ["Fúria Implacável"],
+    "source": "phb"
+  },
+  {
+    "class_id": "barbarian",
+    "level": 12,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "barbarian",
+    "level": 13,
+    "features": ["Crítico Brutal (2 dados)"],
+    "source": "phb"
+  },
+  {
+    "class_id": "barbarian",
+    "level": 15,
+    "features": ["Fúria Persistente"],
+    "source": "phb"
+  },
+  {
+    "class_id": "barbarian",
+    "level": 16,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "barbarian",
+    "level": 17,
+    "features": ["Crítico Brutal (3 dados)"],
+    "source": "phb"
+  },
+  {
+    "class_id": "barbarian",
+    "level": 18,
+    "features": ["Força Indomável"],
+    "source": "phb"
+  },
+  {
+    "class_id": "barbarian",
+    "level": 19,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "barbarian",
+    "level": 20,
+    "features": ["Campeão Primordial"],
+    "source": "phb"
+  },
+
+  {
+    "class_id": "bard",
+    "level": 1,
+    "features": ["Conjuração", "Inspiração de Bardo"],
+    "source": "phb"
+  },
+  {
+    "class_id": "bard",
+    "level": 2,
+    "features": ["Versatilidade", "Canção de Descanso"],
+    "source": "phb"
+  },
+  {
+    "class_id": "bard",
+    "level": 3,
+    "features": ["Especialização", "Colégio de Bardo"],
+    "source": "phb"
+  },
+  {
+    "class_id": "bard",
+    "level": 4,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "bard",
+    "level": 5,
+    "features": ["Fonte de Inspiração", "Inspiração de Bardo (d8)"],
+    "source": "phb"
+  },
+  {
+    "class_id": "bard",
+    "level": 6,
+    "features": ["Contracanto", "Segredo Mágico do Colégio"],
+    "source": "phb"
+  },
+  {
+    "class_id": "bard",
+    "level": 8,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "bard",
+    "level": 10,
+    "features": ["Especialização", "Segredos Mágicos", "Inspiração de Bardo (d10)", "Versatilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "bard",
+    "level": 12,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "bard",
+    "level": 14,
+    "features": ["Segredos Mágicos", "Segredo Mágico do Colégio"],
+    "source": "phb"
+  },
+  {
+    "class_id": "bard",
+    "level": 16,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "bard",
+    "level": 18,
+    "features": ["Segredos Mágicos"],
+    "source": "phb"
+  },
+  {
+    "class_id": "bard",
+    "level": 19,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "bard",
+    "level": 20,
+    "features": ["Inspiração Superior"],
+    "source": "phb"
+  },
+
+  {
+    "class_id": "cleric",
+    "level": 1,
+    "features": ["Conjuração", "Domínio Divino"],
+    "source": "phb"
+  },
+  {
+    "class_id": "cleric",
+    "level": 2,
+    "features": ["Canalizar Divindade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "cleric",
+    "level": 4,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "cleric",
+    "level": 5,
+    "features": ["Destruir Mortos-Vivos (ND 1/2)"],
+    "source": "phb"
+  },
+  {
+    "class_id": "cleric",
+    "level": 6,
+    "features": ["Canalizar Divindade (2/rest)"],
+    "source": "phb"
+  },
+  {
+    "class_id": "cleric",
+    "level": 8,
+    "features": ["Aumento no Valor de Habilidade", "Poder Divino"],
+    "source": "phb"
+  },
+  {
+    "class_id": "cleric",
+    "level": 10,
+    "features": ["Intervenção Divina"],
+    "source": "phb"
+  },
+  {
+    "class_id": "cleric",
+    "level": 11,
+    "features": ["Destruir Mortos-Vivos (ND 1)"],
+    "source": "phb"
+  },
+  {
+    "class_id": "cleric",
+    "level": 12,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "cleric",
+    "level": 14,
+    "features": ["Destruir Mortos-Vivos (ND 2)"],
+    "source": "phb"
+  },
+  {
+    "class_id": "cleric",
+    "level": 16,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "cleric",
+    "level": 17,
+    "features": ["Destruir Mortos-Vivos (ND 3)"],
+    "source": "phb"
+  },
+  {
+    "class_id": "cleric",
+    "level": 18,
+    "features": ["Canalizar Divindade (3/rest)"],
+    "source": "phb"
+  },
+  {
+    "class_id": "cleric",
+    "level": 19,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "cleric",
+    "level": 20,
+    "features": ["Intervenção Divina Aprimorada"],
+    "source": "phb"
+  },
+
+  {
+    "class_id": "druid",
+    "level": 1,
+    "features": ["Conjuração", "Idioma Druídico"],
+    "source": "phb"
+  },
+  {
+    "class_id": "druid",
+    "level": 2,
+    "features": ["Forma Selvagem", "Círculo Druídico"],
+    "source": "phb"
+  },
+  {
+    "class_id": "druid",
+    "level": 4,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "druid",
+    "level": 8,
+    "features": ["Aumento no Valor de Habilidade", "Forma Selvagem Aprimorada"],
+    "source": "phb"
+  },
+  {
+    "class_id": "druid",
+    "level": 12,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "druid",
+    "level": 16,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "druid",
+    "level": 18,
+    "features": ["Conjurar em Forma Selvagem"],
+    "source": "phb"
+  },
+  {
+    "class_id": "druid",
+    "level": 19,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "druid",
+    "level": 20,
+    "features": ["Arquidruida"],
+    "source": "phb"
+  },
+
+  {
+    "class_id": "fighter",
+    "level": 1,
+    "features": ["Estilo de Luta", "Retomar o Fôlego"],
+    "source": "phb"
+  },
+  {
+    "class_id": "fighter",
+    "level": 2,
+    "features": ["Surto de Ação"],
+    "source": "phb"
+  },
+  {
+    "class_id": "fighter",
+    "level": 3,
+    "features": ["Arquétipo Marcial"],
+    "source": "phb"
+  },
+  {
+    "class_id": "fighter",
+    "level": 4,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "fighter",
+    "level": 5,
+    "features": ["Ataque Extra"],
+    "source": "phb"
+  },
+  {
+    "class_id": "fighter",
+    "level": 6,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "fighter",
+    "level": 8,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "fighter",
+    "level": 9,
+    "features": ["Indomável (1 uso)"],
+    "source": "phb"
+  },
+  {
+    "class_id": "fighter",
+    "level": 11,
+    "features": ["Ataque Extra (2)"],
+    "source": "phb"
+  },
+  {
+    "class_id": "fighter",
+    "level": 12,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "fighter",
+    "level": 13,
+    "features": ["Indomável (2 usos)"],
+    "source": "phb"
+  },
+  {
+    "class_id": "fighter",
+    "level": 14,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "fighter",
+    "level": 16,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "fighter",
+    "level": 17,
+    "features": ["Surto de Ação (2 usos)", "Indomável (3 usos)"],
+    "source": "phb"
+  },
+  {
+    "class_id": "fighter",
+    "level": 19,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "fighter",
+    "level": 20,
+    "features": ["Ataque Extra (3)"],
+    "source": "phb"
+  },
+
+  {
+    "class_id": "monk",
+    "level": 1,
+    "features": ["Defesa sem Armadura", "Artes Marciais"],
+    "source": "phb"
+  },
+  {
+    "class_id": "monk",
+    "level": 2,
+    "features": ["Ki", "Movimento sem Armadura"],
+    "source": "phb"
+  },
+  {
+    "class_id": "monk",
+    "level": 3,
+    "features": ["Tradição Monástica", "Desviar Projéteis"],
+    "source": "phb"
+  },
+  {
+    "class_id": "monk",
+    "level": 4,
+    "features": ["Aumento no Valor de Habilidade", "Queda Lenta"],
+    "source": "phb"
+  },
+  {
+    "class_id": "monk",
+    "level": 5,
+    "features": ["Ataque Extra", "Golpe Atordoante"],
+    "source": "phb"
+  },
+  {
+    "class_id": "monk",
+    "level": 6,
+    "features": ["Golpes Ki-Empoderados"],
+    "source": "phb"
+  },
+  {
+    "class_id": "monk",
+    "level": 7,
+    "features": ["Evasão", "Mente Tranquila"],
+    "source": "phb"
+  },
+  {
+    "class_id": "monk",
+    "level": 8,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "monk",
+    "level": 9,
+    "features": ["Movimento sem Armadura Aprimorado"],
+    "source": "phb"
+  },
+  {
+    "class_id": "monk",
+    "level": 10,
+    "features": ["Pureza Corporal"],
+    "source": "phb"
+  },
+  {
+    "class_id": "monk",
+    "level": 13,
+    "features": ["Língua do Sol e da Lua"],
+    "source": "phb"
+  },
+  {
+    "class_id": "monk",
+    "level": 14,
+    "features": ["Alma de Diamante"],
+    "source": "phb"
+  },
+  {
+    "class_id": "monk",
+    "level": 16,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "monk",
+    "level": 18,
+    "features": ["Corpo Vazio"],
+    "source": "phb"
+  },
+  {
+    "class_id": "monk",
+    "level": 19,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "monk",
+    "level": 20,
+    "features": ["Eu Perfeito"],
+    "source": "phb"
+  },
+
+  {
+    "class_id": "paladin",
+    "level": 1,
+    "features": ["Sentido Divino", "Mãos Curativas"],
+    "source": "phb"
+  },
+  {
+    "class_id": "paladin",
+    "level": 2,
+    "features": ["Estilo de Luta", "Conjuração", "Golpe Divino"],
+    "source": "phb"
+  },
+  {
+    "class_id": "paladin",
+    "level": 3,
+    "features": ["Saúde Divina", "Juramento Sagrado"],
+    "source": "phb"
+  },
+  {
+    "class_id": "paladin",
+    "level": 4,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "paladin",
+    "level": 5,
+    "features": ["Ataque Extra"],
+    "source": "phb"
+  },
+  {
+    "class_id": "paladin",
+    "level": 6,
+    "features": ["Aura de Proteção"],
+    "source": "phb"
+  },
+  {
+    "class_id": "paladin",
+    "level": 8,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "paladin",
+    "level": 10,
+    "features": ["Aura de Coragem"],
+    "source": "phb"
+  },
+  {
+    "class_id": "paladin",
+    "level": 12,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "paladin",
+    "level": 14,
+    "features": ["Toque Purificador"],
+    "source": "phb"
+  },
+  {
+    "class_id": "paladin",
+    "level": 16,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "paladin",
+    "level": 18,
+    "features": ["Aura Aprimorada"],
+    "source": "phb"
+  },
+  {
+    "class_id": "paladin",
+    "level": 19,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "paladin",
+    "level": 20,
+    "features": ["Capstone do Juramento Sagrado"],
+    "source": "phb"
+  },
+
+  {
+    "class_id": "ranger",
+    "level": 1,
+    "features": ["Inimigo Favorito", "Explorador Nato"],
+    "source": "phb"
+  },
+  {
+    "class_id": "ranger",
+    "level": 2,
+    "features": ["Estilo de Luta", "Conjuração"],
+    "source": "phb"
+  },
+  {
+    "class_id": "ranger",
+    "level": 3,
+    "features": ["Arquétipo de Patrulheiro", "Consciência Primitiva"],
+    "source": "phb"
+  },
+  {
+    "class_id": "ranger",
+    "level": 4,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "ranger",
+    "level": 5,
+    "features": ["Ataque Extra"],
+    "source": "phb"
+  },
+  {
+    "class_id": "ranger",
+    "level": 8,
+    "features": ["Aumento no Valor de Habilidade", "Passo na Terra"],
+    "source": "phb"
+  },
+  {
+    "class_id": "ranger",
+    "level": 10,
+    "features": ["Esconder-se à Vista"],
+    "source": "phb"
+  },
+  {
+    "class_id": "ranger",
+    "level": 12,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "ranger",
+    "level": 14,
+    "features": ["Desaparecer"],
+    "source": "phb"
+  },
+  {
+    "class_id": "ranger",
+    "level": 16,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "ranger",
+    "level": 18,
+    "features": ["Sentidos Ferinos"],
+    "source": "phb"
+  },
+  {
+    "class_id": "ranger",
+    "level": 19,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "ranger",
+    "level": 20,
+    "features": ["Matador de Inimigos"],
+    "source": "phb"
+  },
+
+  {
+    "class_id": "rogue",
+    "level": 1,
+    "features": ["Especialização", "Ataque Furtivo", "Gíria de Ladrão"],
+    "source": "phb"
+  },
+  {
+    "class_id": "rogue",
+    "level": 2,
+    "features": ["Ação Ardilosa"],
+    "source": "phb"
+  },
+  {
+    "class_id": "rogue",
+    "level": 3,
+    "features": ["Arquétipo Ladino"],
+    "source": "phb"
+  },
+  {
+    "class_id": "rogue",
+    "level": 4,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "rogue",
+    "level": 5,
+    "features": ["Esquiva Sobrenatural"],
+    "source": "phb"
+  },
+  {
+    "class_id": "rogue",
+    "level": 6,
+    "features": ["Especialização"],
+    "source": "phb"
+  },
+  {
+    "class_id": "rogue",
+    "level": 7,
+    "features": ["Evasão"],
+    "source": "phb"
+  },
+  {
+    "class_id": "rogue",
+    "level": 8,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "rogue",
+    "level": 10,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "rogue",
+    "level": 11,
+    "features": ["Talento Confiável"],
+    "source": "phb"
+  },
+  {
+    "class_id": "rogue",
+    "level": 12,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "rogue",
+    "level": 14,
+    "features": ["Sentido Cego"],
+    "source": "phb"
+  },
+  {
+    "class_id": "rogue",
+    "level": 15,
+    "features": ["Mente Escorregadia"],
+    "source": "phb"
+  },
+  {
+    "class_id": "rogue",
+    "level": 16,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "rogue",
+    "level": 18,
+    "features": ["Elusivo"],
+    "source": "phb"
+  },
+  {
+    "class_id": "rogue",
+    "level": 19,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "rogue",
+    "level": 20,
+    "features": ["Golpe de Sorte"],
+    "source": "phb"
+  },
+
+  {
+    "class_id": "sorcerer",
+    "level": 1,
+    "features": ["Conjuração", "Origem Feiticeira"],
+    "source": "phb"
+  },
+  {
+    "class_id": "sorcerer",
+    "level": 2,
+    "features": ["Fonte de Magia"],
+    "source": "phb"
+  },
+  {
+    "class_id": "sorcerer",
+    "level": 3,
+    "features": ["Metamagia"],
+    "source": "phb"
+  },
+  {
+    "class_id": "sorcerer",
+    "level": 4,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "sorcerer",
+    "level": 8,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "sorcerer",
+    "level": 10,
+    "features": ["Metamagia adicional"],
+    "source": "phb"
+  },
+  {
+    "class_id": "sorcerer",
+    "level": 12,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "sorcerer",
+    "level": 16,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "sorcerer",
+    "level": 17,
+    "features": ["Metamagia adicional"],
+    "source": "phb"
+  },
+  {
+    "class_id": "sorcerer",
+    "level": 19,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "sorcerer",
+    "level": 20,
+    "features": ["Restauração Feiticeira"],
+    "source": "phb"
+  },
+
+  {
+    "class_id": "warlock",
+    "level": 1,
+    "features": ["Magia de Pacto", "Patrono Sobrenatural"],
+    "source": "phb"
+  },
+  {
+    "class_id": "warlock",
+    "level": 2,
+    "features": ["Invocações Místicas"],
+    "source": "phb"
+  },
+  {
+    "class_id": "warlock",
+    "level": 3,
+    "features": ["Dádiva do Pacto"],
+    "source": "phb"
+  },
+  {
+    "class_id": "warlock",
+    "level": 4,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "warlock",
+    "level": 8,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "warlock",
+    "level": 11,
+    "features": ["Arcanum Místico (6º círculo)"],
+    "source": "phb"
+  },
+  {
+    "class_id": "warlock",
+    "level": 12,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "warlock",
+    "level": 13,
+    "features": ["Arcanum Místico (7º círculo)"],
+    "source": "phb"
+  },
+  {
+    "class_id": "warlock",
+    "level": 14,
+    "features": ["Capstone do Patrono"],
+    "source": "phb"
+  },
+  {
+    "class_id": "warlock",
+    "level": 15,
+    "features": ["Arcanum Místico (8º círculo)"],
+    "source": "phb"
+  },
+  {
+    "class_id": "warlock",
+    "level": 16,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "warlock",
+    "level": 17,
+    "features": ["Arcanum Místico (9º círculo)"],
+    "source": "phb"
+  },
+  {
+    "class_id": "warlock",
+    "level": 19,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "warlock",
+    "level": 20,
+    "features": ["Mestre Místico"],
+    "source": "phb"
+  },
+
+  {
+    "class_id": "wizard",
+    "level": 1,
+    "features": ["Conjuração", "Recuperação Arcana"],
+    "source": "phb"
+  },
+  {
+    "class_id": "wizard",
+    "level": 2,
+    "features": ["Tradição Arcana"],
+    "source": "phb"
+  },
+  {
+    "class_id": "wizard",
+    "level": 4,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "wizard",
+    "level": 8,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "wizard",
+    "level": 12,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "wizard",
+    "level": 16,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "wizard",
+    "level": 18,
+    "features": ["Domínio de Magias"],
+    "source": "phb"
+  },
+  {
+    "class_id": "wizard",
+    "level": 19,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "phb"
+  },
+  {
+    "class_id": "wizard",
+    "level": 20,
+    "features": ["Magias Assinatura"],
+    "source": "phb"
+  }
+]

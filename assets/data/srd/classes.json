@@ -1,0 +1,229 @@
+[
+  {
+    "id": "barbarian",
+    "name": "Bárbaro",
+    "hit_die": "d12",
+    "primary_ability": "strength",
+    "spellcasting_type": null,
+    "saving_throws": ["strength", "constitution"],
+    "skill_options": [
+      "animalHandling",
+      "athletics",
+      "intimidation",
+      "nature",
+      "perception",
+      "survival"
+    ],
+    "source": "srd"
+  },
+  {
+    "id": "bard",
+    "name": "Bardo",
+    "hit_die": "d8",
+    "primary_ability": "charisma",
+    "spellcasting_type": "full",
+    "saving_throws": ["dexterity", "charisma"],
+    "skill_options": [
+      "acrobatics",
+      "animalHandling",
+      "arcana",
+      "athletics",
+      "deception",
+      "history",
+      "insight",
+      "intimidation",
+      "investigation",
+      "medicine",
+      "nature",
+      "perception",
+      "performance",
+      "persuasion",
+      "religion",
+      "sleightOfHand",
+      "stealth",
+      "survival"
+    ],
+    "source": "srd"
+  },
+  {
+    "id": "cleric",
+    "name": "Clérigo",
+    "hit_die": "d8",
+    "primary_ability": "wisdom",
+    "spellcasting_type": "full",
+    "saving_throws": ["wisdom", "charisma"],
+    "skill_options": [
+      "history",
+      "insight",
+      "medicine",
+      "persuasion",
+      "religion"
+    ],
+    "source": "srd"
+  },
+  {
+    "id": "druid",
+    "name": "Druida",
+    "hit_die": "d8",
+    "primary_ability": "wisdom",
+    "spellcasting_type": "full",
+    "saving_throws": ["intelligence", "wisdom"],
+    "skill_options": [
+      "arcana",
+      "animalHandling",
+      "insight",
+      "medicine",
+      "nature",
+      "perception",
+      "religion",
+      "survival"
+    ],
+    "source": "srd"
+  },
+  {
+    "id": "fighter",
+    "name": "Guerreiro",
+    "hit_die": "d10",
+    "primary_ability": "strength",
+    "spellcasting_type": null,
+    "saving_throws": ["strength", "constitution"],
+    "skill_options": [
+      "acrobatics",
+      "animalHandling",
+      "athletics",
+      "history",
+      "insight",
+      "intimidation",
+      "perception",
+      "survival"
+    ],
+    "source": "srd"
+  },
+  {
+    "id": "monk",
+    "name": "Monge",
+    "hit_die": "d8",
+    "primary_ability": "dexterity",
+    "spellcasting_type": null,
+    "saving_throws": ["strength", "dexterity"],
+    "skill_options": [
+      "acrobatics",
+      "athletics",
+      "history",
+      "insight",
+      "religion",
+      "stealth"
+    ],
+    "source": "srd"
+  },
+  {
+    "id": "paladin",
+    "name": "Paladino",
+    "hit_die": "d10",
+    "primary_ability": "charisma",
+    "spellcasting_type": "half",
+    "saving_throws": ["wisdom", "charisma"],
+    "skill_options": [
+      "athletics",
+      "insight",
+      "intimidation",
+      "medicine",
+      "persuasion",
+      "religion"
+    ],
+    "source": "srd"
+  },
+  {
+    "id": "ranger",
+    "name": "Patrulheiro",
+    "hit_die": "d10",
+    "primary_ability": "dexterity",
+    "spellcasting_type": "half",
+    "saving_throws": ["strength", "dexterity"],
+    "skill_options": [
+      "animalHandling",
+      "athletics",
+      "insight",
+      "investigation",
+      "nature",
+      "perception",
+      "stealth",
+      "survival"
+    ],
+    "source": "srd"
+  },
+  {
+    "id": "rogue",
+    "name": "Ladino",
+    "hit_die": "d8",
+    "primary_ability": "dexterity",
+    "spellcasting_type": null,
+    "saving_throws": ["dexterity", "intelligence"],
+    "skill_options": [
+      "acrobatics",
+      "athletics",
+      "deception",
+      "insight",
+      "intimidation",
+      "investigation",
+      "perception",
+      "performance",
+      "persuasion",
+      "sleightOfHand",
+      "stealth"
+    ],
+    "source": "srd"
+  },
+  {
+    "id": "sorcerer",
+    "name": "Feiticeiro",
+    "hit_die": "d6",
+    "primary_ability": "charisma",
+    "spellcasting_type": "full",
+    "saving_throws": ["constitution", "charisma"],
+    "skill_options": [
+      "arcana",
+      "deception",
+      "insight",
+      "intimidation",
+      "persuasion",
+      "religion"
+    ],
+    "source": "srd"
+  },
+  {
+    "id": "warlock",
+    "name": "Bruxo",
+    "hit_die": "d8",
+    "primary_ability": "charisma",
+    "spellcasting_type": "pact",
+    "saving_throws": ["wisdom", "charisma"],
+    "skill_options": [
+      "arcana",
+      "deception",
+      "history",
+      "intimidation",
+      "investigation",
+      "nature",
+      "religion"
+    ],
+    "source": "srd"
+  },
+  {
+    "id": "wizard",
+    "name": "Mago",
+    "hit_die": "d6",
+    "primary_ability": "intelligence",
+    "spellcasting_type": "full",
+    "saving_throws": ["intelligence", "wisdom"],
+    "skill_options": [
+      "arcana",
+      "history",
+      "insight",
+      "investigation",
+      "medicine",
+      "religion"
+    ],
+    "source": "srd"
+  }
+]

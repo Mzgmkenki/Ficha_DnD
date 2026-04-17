@@ -1,0 +1,565 @@
+import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/spellcasting_type.dart';
+import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+class EditClassLevelsPage extends ConsumerStatefulWidget {
+  const EditClassLevelsPage({
+    required this.characterId,
+    required this.initialClassLevels,
+    required this.abilityScores,
+    super.key,
+  });
+
+  final String characterId;
+  final List<ClassLevel> initialClassLevels;
+  final AbilityScores abilityScores;
+
+  @override
+  ConsumerState<EditClassLevelsPage> createState() =>
+      _EditClassLevelsPageState();
+}
+
+class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
+  late List<ClassLevel> _classLevels;
+  bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _classLevels = widget.initialClassLevels
+        .map(
+          (item) => ClassLevel(
+            classId: item.classId,
+            subclassId: item.subclassId,
+            level: item.level,
+            spellcastingAbility: item.spellcastingAbility,
+            spellcastingType: item.spellcastingType,
+          ),
+        )
+        .toList();
+  }
+
+  int get _totalLevel {
+    return _classLevels.fold(0, (sum, item) => sum + item.level);
+  }
+
+  bool get _isMulticlass => _classLevels.length > 1;
+
+  @override
+  Widget build(BuildContext context) {
+    final classesAsync = ref.watch(classEntriesProvider);
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Editar multiclasse')),
+      body: classesAsync.when(
+        data: (classes) {
+          return ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.info_outline),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Nível total atual: $_totalLevel / 20',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(
+                    'A primeira classe da lista é tratada como classe primária e não exige pré-requisito. '
+                    'Os pré-requisitos se aplicam apenas às classes adicionadas depois.',
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ..._classLevels.asMap().entries.map((entry) {
+                final index = entry.key;
+                final classLevel = entry.value;
+                final isPrimary = index == 0;
+                final className = _classNameForId(classes, classLevel.classId);
+
+                return Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                isPrimary
+                                    ? '$className (Primária)'
+                                    : className,
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                            ),
+                            if (_classLevels.length > 1 && !isPrimary)
+                              IconButton(
+                                tooltip: 'Remover classe',
+                                onPressed: () {
+                                  setState(() {
+                                    _classLevels.removeAt(index);
+                                  });
+                                },
+                                icon: const Icon(Icons.delete_outline),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            IconButton(
+                              onPressed: classLevel.level > 1
+                                  ? () {
+                                      setState(() {
+                                        _classLevels[index] = ClassLevel(
+                                          classId: classLevel.classId,
+                                          subclassId: classLevel.subclassId,
+                                          level: classLevel.level - 1,
+                                          spellcastingAbility:
+                                              classLevel.spellcastingAbility,
+                                          spellcastingType:
+                                              classLevel.spellcastingType,
+                                        );
+                                      });
+                                    }
+                                  : null,
+                              icon: const Icon(Icons.remove),
+                            ),
+                            Expanded(
+                              child: Center(
+                                child: Text(
+                                  'Nível ${classLevel.level}',
+                                  style: Theme.of(context).textTheme.titleLarge,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              onPressed:
+                                  (_totalLevel < 20 && classLevel.level < 20)
+                                      ? () {
+                                          setState(() {
+                                            _classLevels[index] = ClassLevel(
+                                              classId: classLevel.classId,
+                                              subclassId: classLevel.subclassId,
+                                              level: classLevel.level + 1,
+                                              spellcastingAbility:
+                                                  classLevel.spellcastingAbility,
+                                              spellcastingType:
+                                                  classLevel.spellcastingType,
+                                            );
+                                          });
+                                        }
+                                      : null,
+                              icon: const Icon(Icons.add),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+              const SizedBox(height: 16),
+              OutlinedButton.icon(
+                onPressed: _totalLevel < 20
+                    ? () => _showAddClassDialog(context, classes)
+                    : null,
+                icon: const Icon(Icons.add),
+                label: const Text('Adicionar classe'),
+              ),
+              const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: _saving ? null : _save,
+                icon: _saving
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.save),
+                label: Text(_saving ? 'Salvando...' : 'Salvar multiclasse'),
+              ),
+            ],
+          );
+        },
+        error: (error, stackTrace) {
+          return Center(child: Text('Erro ao carregar classes: $error'));
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+      ),
+    );
+  }
+
+  Future<void> _showAddClassDialog(
+    BuildContext context,
+    List<ClassEntry> classes,
+  ) async {
+    final usedClassIds = _classLevels.map((e) => e.classId).toSet();
+    final availableClasses =
+        classes.where((item) => !usedClassIds.contains(item.id)).toList();
+
+    if (availableClasses.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Todas as classes disponíveis já foram adicionadas.'),
+        ),
+      );
+      return;
+    }
+
+    String selectedClassId = availableClasses.first.id;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (dialogContext, setDialogState) {
+            final selectedClass = availableClasses.firstWhere(
+              (item) => item.id == selectedClassId,
+            );
+            final missingForNewClass =
+                _missingPrerequisitesForClass(selectedClass.id);
+
+            return AlertDialog(
+              title: const Text('Adicionar classe'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DropdownButtonFormField<String>(
+                    value: selectedClassId,
+                    decoration: const InputDecoration(
+                      labelText: 'Classe',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: availableClasses
+                        .map(
+                          (item) => DropdownMenuItem<String>(
+                            value: item.id,
+                            child: Text(item.name),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      if (value == null) return;
+                      setDialogState(() {
+                        selectedClassId = value;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Pré-requisito: ${_requirementTextForClassId(selectedClass.id)}',
+                    ),
+                  ),
+                  if (missingForNewClass != null) ...[
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Falta para a nova classe: $missingForNewClass',
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(false),
+                  child: const Text('Cancelar'),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(true),
+                  child: const Text('Adicionar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+
+    final selectedClass = availableClasses.firstWhere(
+      (item) => item.id == selectedClassId,
+    );
+
+    final missingForNewClass = _missingPrerequisitesForClass(selectedClass.id);
+    if (missingForNewClass != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Você não cumpre o pré-requisito para ${selectedClass.name}: $missingForNewClass',
+          ),
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _classLevels.add(
+        ClassLevel(
+          classId: selectedClass.id,
+          level: 1,
+          spellcastingAbility: _abilityFromString(selectedClass.primaryAbility),
+          spellcastingType:
+              _spellcastingTypeForClass(selectedClass.spellcastingType),
+        ),
+      );
+    });
+  }
+
+  Future<void> _save() async {
+    if (_classLevels.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('O personagem precisa ter pelo menos 1 classe.'),
+        ),
+      );
+      return;
+    }
+
+    if (_totalLevel > 20) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('O nível total não pode passar de 20.'),
+        ),
+      );
+      return;
+    }
+
+    if (_isMulticlass) {
+      final invalidRequirement = _missingPrerequisitesForSecondaryClasses();
+      if (invalidRequirement != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Pré-requisito de multiclasse não cumprido: $invalidRequirement',
+            ),
+          ),
+        );
+        return;
+      }
+    }
+
+    setState(() {
+      _saving = true;
+    });
+
+    try {
+      final useCase = ref.read(updateCharacterClassLevelsProvider);
+
+      await useCase(
+        characterId: widget.characterId,
+        classLevels: _classLevels,
+      );
+
+      if (!mounted) return;
+      Navigator.of(context).pop(true);
+    } catch (error, stackTrace) {
+      print('ERRO AO SALVAR MULTICLASSE: $error');
+      print(stackTrace);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao salvar níveis: $error')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _saving = false;
+        });
+      }
+    }
+  }
+
+  String? _missingPrerequisitesForSecondaryClasses() {
+    if (_classLevels.length <= 1) return null;
+
+    for (var i = 1; i < _classLevels.length; i++) {
+      final classId = _classLevels[i].classId;
+      final missing = _missingPrerequisitesForClass(classId);
+      if (missing != null) return missing;
+    }
+
+    return null;
+  }
+
+  String? _missingPrerequisitesForClass(String classId) {
+    final scores = widget.abilityScores;
+
+    int score(String key) {
+      switch (key) {
+        case 'strength':
+          return scores.strength;
+        case 'dexterity':
+          return scores.dexterity;
+        case 'constitution':
+          return scores.constitution;
+        case 'intelligence':
+          return scores.intelligence;
+        case 'wisdom':
+          return scores.wisdom;
+        case 'charisma':
+          return scores.charisma;
+        default:
+          return 0;
+      }
+    }
+
+    bool atLeast13(String key) => score(key) >= 13;
+
+    String label(String key) {
+      switch (key) {
+        case 'strength':
+          return 'Força 13';
+        case 'dexterity':
+          return 'Destreza 13';
+        case 'constitution':
+          return 'Constituição 13';
+        case 'intelligence':
+          return 'Inteligência 13';
+        case 'wisdom':
+          return 'Sabedoria 13';
+        case 'charisma':
+          return 'Carisma 13';
+        default:
+          return key;
+      }
+    }
+
+    switch (classId) {
+      case 'barbarian':
+        return atLeast13('strength') ? null : label('strength');
+      case 'bard':
+        return atLeast13('charisma') ? null : label('charisma');
+      case 'cleric':
+        return atLeast13('wisdom') ? null : label('wisdom');
+      case 'druid':
+        return atLeast13('wisdom') ? null : label('wisdom');
+      case 'fighter':
+        return (atLeast13('strength') || atLeast13('dexterity'))
+            ? null
+            : 'Força 13 ou Destreza 13';
+      case 'monk':
+        final missing = <String>[];
+        if (!atLeast13('dexterity')) missing.add(label('dexterity'));
+        if (!atLeast13('wisdom')) missing.add(label('wisdom'));
+        return missing.isEmpty ? null : missing.join(' e ');
+      case 'paladin':
+        final missing = <String>[];
+        if (!atLeast13('strength')) missing.add(label('strength'));
+        if (!atLeast13('charisma')) missing.add(label('charisma'));
+        return missing.isEmpty ? null : missing.join(' e ');
+      case 'ranger':
+        final missing = <String>[];
+        if (!atLeast13('dexterity')) missing.add(label('dexterity'));
+        if (!atLeast13('wisdom')) missing.add(label('wisdom'));
+        return missing.isEmpty ? null : missing.join(' e ');
+      case 'rogue':
+        return atLeast13('dexterity') ? null : label('dexterity');
+      case 'sorcerer':
+        return atLeast13('charisma') ? null : label('charisma');
+      case 'warlock':
+        return atLeast13('charisma') ? null : label('charisma');
+      case 'wizard':
+        return atLeast13('intelligence') ? null : label('intelligence');
+      default:
+        return null;
+    }
+  }
+
+  String _requirementTextForClassId(String classId) {
+    switch (classId) {
+      case 'barbarian':
+        return 'Força 13';
+      case 'bard':
+        return 'Carisma 13';
+      case 'cleric':
+        return 'Sabedoria 13';
+      case 'druid':
+        return 'Sabedoria 13';
+      case 'fighter':
+        return 'Força 13 ou Destreza 13';
+      case 'monk':
+        return 'Destreza 13 e Sabedoria 13';
+      case 'paladin':
+        return 'Força 13 e Carisma 13';
+      case 'ranger':
+        return 'Destreza 13 e Sabedoria 13';
+      case 'rogue':
+        return 'Destreza 13';
+      case 'sorcerer':
+        return 'Carisma 13';
+      case 'warlock':
+        return 'Carisma 13';
+      case 'wizard':
+        return 'Inteligência 13';
+      default:
+        return 'Sem requisito cadastrado';
+    }
+  }
+
+  String _classNameForId(List<ClassEntry> classes, String classId) {
+    for (final item in classes) {
+      if (item.id == classId) return item.name;
+    }
+    return classId;
+  }
+
+  Ability? _abilityFromString(String? value) {
+    switch (value) {
+      case 'strength':
+        return Ability.strength;
+      case 'dexterity':
+        return Ability.dexterity;
+      case 'constitution':
+        return Ability.constitution;
+      case 'intelligence':
+        return Ability.intelligence;
+      case 'wisdom':
+        return Ability.wisdom;
+      case 'charisma':
+        return Ability.charisma;
+      default:
+        return null;
+    }
+  }
+
+  SpellcastingType? _spellcastingTypeForClass(String? value) {
+    switch (value) {
+      case 'full':
+        return SpellcastingType.full;
+      case 'half':
+        return SpellcastingType.half;
+      case 'third':
+        return SpellcastingType.third;
+      case 'pact':
+        return SpellcastingType.pact;
+      default:
+        return null;
+    }
+  }
+}

@@ -1,0 +1,373 @@
+[
+  {
+    "id": "human",
+    "name": "Humano",
+    "size": "Médio",
+    "speed": 9,
+    "fixed_ability_bonuses": {
+      "strength": 1,
+      "dexterity": 1,
+      "constitution": 1,
+      "intelligence": 1,
+      "wisdom": 1,
+      "charisma": 1
+    },
+    "allows_custom_origin": true,
+    "traits": [
+      "Versatilidade Humana",
+      "Idiomas Extras"
+    ],
+    "source": "phb"
+  },
+  {
+    "id": "hill_dwarf",
+    "name": "Anão da Colina",
+    "size": "Médio",
+    "speed": 7,
+    "fixed_ability_bonuses": {
+      "constitution": 2,
+      "wisdom": 1
+    },
+    "allows_custom_origin": true,
+    "traits": [
+      "Visão no Escuro",
+      "Resiliência Anã",
+      "Treinamento de Combate Anão",
+      "Proficiência com Ferramentas",
+      "Especialização em Rochas",
+      "Robustez Anã"
+    ],
+    "source": "phb"
+  },
+  {
+    "id": "mountain_dwarf",
+    "name": "Anão da Montanha",
+    "size": "Médio",
+    "speed": 7,
+    "fixed_ability_bonuses": {
+      "constitution": 2,
+      "strength": 2
+    },
+    "allows_custom_origin": true,
+    "traits": [
+      "Visão no Escuro",
+      "Resiliência Anã",
+      "Treinamento de Combate Anão",
+      "Proficiência com Ferramentas",
+      "Especialização em Rochas",
+      "Treinamento com Armaduras Leves e Médias"
+    ],
+    "source": "phb"
+  },
+  {
+    "id": "high_elf",
+    "name": "Alto Elfo",
+    "size": "Médio",
+    "speed": 9,
+    "fixed_ability_bonuses": {
+      "dexterity": 2,
+      "intelligence": 1
+    },
+    "allows_custom_origin": true,
+    "traits": [
+      "Visão no Escuro",
+      "Sentidos Aguçados",
+      "Ancestral Feérico",
+      "Transe",
+      "Treinamento Élfico com Armas",
+      "Truque Élfico",
+      "Idioma Extra"
+    ],
+    "source": "phb"
+  },
+  {
+    "id": "wood_elf",
+    "name": "Elfo da Floresta",
+    "size": "Médio",
+    "speed": 10,
+    "fixed_ability_bonuses": {
+      "dexterity": 2,
+      "wisdom": 1
+    },
+    "allows_custom_origin": true,
+    "traits": [
+      "Visão no Escuro",
+      "Sentidos Aguçados",
+      "Ancestral Feérico",
+      "Transe",
+      "Treinamento Élfico com Armas",
+      "Pés Ligeiros",
+      "Máscara da Natureza"
+    ],
+    "source": "phb"
+  },
+  {
+    "id": "drow",
+    "name": "Drow",
+    "size": "Médio",
+    "speed": 9,
+    "fixed_ability_bonuses": {
+      "dexterity": 2,
+      "charisma": 1
+    },
+    "allows_custom_origin": true,
+    "traits": [
+      "Visão no Escuro Superior",
+      "Sentidos Aguçados",
+      "Ancestral Feérico",
+      "Transe",
+      "Sensibilidade à Luz Solar",
+      "Magia Drow",
+      "Treinamento Drow com Armas"
+    ],
+    "source": "phb"
+  },
+  {
+    "id": "lightfoot_halfling",
+    "name": "Halfling Pés-Leves",
+    "size": "Pequeno",
+    "speed": 7,
+    "fixed_ability_bonuses": {
+      "dexterity": 2,
+      "charisma": 1
+    },
+    "allows_custom_origin": true,
+    "traits": [
+      "Sortudo",
+      "Bravura",
+      "Agilidade Halfling",
+      "Furtividade Natural"
+    ],
+    "source": "phb"
+  },
+  {
+    "id": "stout_halfling",
+    "name": "Halfling Robusto",
+    "size": "Pequeno",
+    "speed": 7,
+    "fixed_ability_bonuses": {
+      "dexterity": 2,
+      "constitution": 1
+    },
+    "allows_custom_origin": true,
+    "traits": [
+      "Sortudo",
+      "Bravura",
+      "Agilidade Halfling",
+      "Resiliência Robusta"
+    ],
+    "source": "phb"
+  },
+  {
+    "id": "dragonborn",
+    "name": "Draconato",
+    "size": "Médio",
+    "speed": 9,
+    "fixed_ability_bonuses": {
+      "strength": 2,
+      "charisma": 1
+    },
+    "allows_custom_origin": true,
+    "traits": [
+      "Ancestral Dracônico",
+      "Sopro",
+      "Resistência a Dano"
+    ],
+    "source": "phb"
+  },
+  {
+    "id": "forest_gnome",
+    "name": "Gnomo da Floresta",
+    "size": "Pequeno",
+    "speed": 7,
+    "fixed_ability_bonuses": {
+      "intelligence": 2,
+      "dexterity": 1
+    },
+    "allows_custom_origin": true,
+    "traits": [
+      "Visão no Escuro",
+      "Astúcia Gnômica",
+      "Ilusionista Nato",
+      "Falar com Bestas Pequenas"
+    ],
+    "source": "phb"
+  },
+  {
+    "id": "rock_gnome",
+    "name": "Gnomo das Rochas",
+    "size": "Pequeno",
+    "speed": 7,
+    "fixed_ability_bonuses": {
+      "intelligence": 2,
+      "constitution": 1
+    },
+    "allows_custom_origin": true,
+    "traits": [
+      "Visão no Escuro",
+      "Astúcia Gnômica",
+      "Conhecimento de Artífice",
+      "Engenho"
+    ],
+    "source": "phb"
+  },
+  {
+    "id": "half_elf",
+    "name": "Meio-Elfo",
+    "size": "Médio",
+    "speed": 9,
+    "fixed_ability_bonuses": {
+      "charisma": 2,
+      "wisdom": 1,
+      "dexterity": 1
+    },
+    "allows_custom_origin": true,
+    "traits": [
+      "Visão no Escuro",
+      "Ancestral Feérico",
+      "Versatilidade de Perícias"
+    ],
+    "source": "phb"
+  },
+  {
+    "id": "half_orc",
+    "name": "Meio-Orc",
+    "size": "Médio",
+    "speed": 9,
+    "fixed_ability_bonuses": {
+      "strength": 2,
+      "constitution": 1
+    },
+    "allows_custom_origin": true,
+    "traits": [
+      "Visão no Escuro",
+      "Ameaçador",
+      "Resistência Implacável",
+      "Ataques Selvagens"
+    ],
+    "source": "phb"
+  },
+  {
+    "id": "tiefling",
+    "name": "Tiefling",
+    "size": "Médio",
+    "speed": 9,
+    "fixed_ability_bonuses": {
+      "charisma": 2,
+      "intelligence": 1
+    },
+    "allows_custom_origin": true,
+    "traits": [
+      "Visão no Escuro",
+      "Resistência Infernal",
+      "Legado Infernal"
+    ],
+    "source": "phb"
+  },
+  {
+    "id": "aasimar",
+    "name": "Aasimar",
+    "size": "Médio",
+    "speed": 9,
+    "fixed_ability_bonuses": {
+      "charisma": 2,
+      "wisdom": 1
+    },
+    "allows_custom_origin": true,
+    "traits": [
+      "Visão no Escuro",
+      "Resistência Celestial",
+      "Mãos Curativas",
+      "Portador de Luz"
+    ],
+    "source": "vgm"
+  },
+  {
+    "id": "firbolg",
+    "name": "Firbolg",
+    "size": "Médio",
+    "speed": 9,
+    "fixed_ability_bonuses": {
+      "wisdom": 2,
+      "strength": 1
+    },
+    "allows_custom_origin": true,
+    "traits": [
+      "Magia Firbolg",
+      "Passos Ocultos",
+      "Construção Poderosa",
+      "Fala da Besta e da Folha"
+    ],
+    "source": "vgm"
+  },
+  {
+    "id": "goliath",
+    "name": "Golias",
+    "size": "Médio",
+    "speed": 9,
+    "fixed_ability_bonuses": {
+      "strength": 2,
+      "constitution": 1
+    },
+    "allows_custom_origin": true,
+    "traits": [
+      "Atleta Nato",
+      "Construção Poderosa",
+      "Resistência da Pedra",
+      "Aclimatação à Montanha"
+    ],
+    "source": "ee"
+  },
+  {
+    "id": "tabaxi",
+    "name": "Tabaxi",
+    "size": "Médio",
+    "speed": 9,
+    "fixed_ability_bonuses": {
+      "dexterity": 2,
+      "charisma": 1
+    },
+    "allows_custom_origin": true,
+    "traits": [
+      "Visão no Escuro",
+      "Agilidade Felina",
+      "Garras de Gato",
+      "Talento Felino"
+    ],
+    "source": "vgm"
+  },
+  {
+    "id": "kenku",
+    "name": "Kenku",
+    "size": "Médio",
+    "speed": 9,
+    "fixed_ability_bonuses": {
+      "dexterity": 2,
+      "wisdom": 1
+    },
+    "allows_custom_origin": true,
+    "traits": [
+      "Falsificação Especializada",
+      "Treinamento Kenku",
+      "Mimetismo"
+    ],
+    "source": "vgm"
+  },
+  {
+    "id": "goblin",
+    "name": "Goblin",
+    "size": "Pequeno",
+    "speed": 9,
+    "fixed_ability_bonuses": {
+      "dexterity": 2,
+      "constitution": 1
+    },
+    "allows_custom_origin": true,
+    "traits": [
+      "Visão no Escuro",
+      "Fúria dos Pequenos",
+      "Escapar com Agilidade"
+    ],
+    "source": "vgm"
+  }
+]
