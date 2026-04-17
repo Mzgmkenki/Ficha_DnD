@@ -39,8 +39,7 @@ class CharacterRepositoryImpl implements CharacterRepository {
               speed: drift.Value(character.combatStats.speedInSquares),
               maxHitPoints: drift.Value(character.hitPoints.maximum),
               currentHitPoints: drift.Value(character.hitPoints.current),
-              temporaryHitPoints:
-                  drift.Value(character.hitPoints.temporary),
+              temporaryHitPoints: drift.Value(character.hitPoints.temporary),
               saveStrength:
                   drift.Value(character.savingThrowProficiencies.strength),
               saveDexterity:
@@ -57,38 +56,30 @@ class CharacterRepositoryImpl implements CharacterRepository {
                   drift.Value(character.skillProficiencies.acrobatics),
               skillAnimalHandling:
                   drift.Value(character.skillProficiencies.animalHandling),
-              skillArcana:
-                  drift.Value(character.skillProficiencies.arcana),
+              skillArcana: drift.Value(character.skillProficiencies.arcana),
               skillAthletics:
                   drift.Value(character.skillProficiencies.athletics),
               skillDeception:
                   drift.Value(character.skillProficiencies.deception),
-              skillHistory:
-                  drift.Value(character.skillProficiencies.history),
-              skillInsight:
-                  drift.Value(character.skillProficiencies.insight),
+              skillHistory: drift.Value(character.skillProficiencies.history),
+              skillInsight: drift.Value(character.skillProficiencies.insight),
               skillIntimidation:
                   drift.Value(character.skillProficiencies.intimidation),
               skillInvestigation:
                   drift.Value(character.skillProficiencies.investigation),
-              skillMedicine:
-                  drift.Value(character.skillProficiencies.medicine),
-              skillNature:
-                  drift.Value(character.skillProficiencies.nature),
+              skillMedicine: drift.Value(character.skillProficiencies.medicine),
+              skillNature: drift.Value(character.skillProficiencies.nature),
               skillPerception:
                   drift.Value(character.skillProficiencies.perception),
               skillPerformance:
                   drift.Value(character.skillProficiencies.performance),
               skillPersuasion:
                   drift.Value(character.skillProficiencies.persuasion),
-              skillReligion:
-                  drift.Value(character.skillProficiencies.religion),
+              skillReligion: drift.Value(character.skillProficiencies.religion),
               skillSleightOfHand:
                   drift.Value(character.skillProficiencies.sleightOfHand),
-              skillStealth:
-                  drift.Value(character.skillProficiencies.stealth),
-              skillSurvival:
-                  drift.Value(character.skillProficiencies.survival),
+              skillStealth: drift.Value(character.skillProficiencies.stealth),
+              skillSurvival: drift.Value(character.skillProficiencies.survival),
               createdAt: character.createdAt,
               updatedAt: character.updatedAt,
             ),
@@ -235,8 +226,7 @@ class CharacterRepositoryImpl implements CharacterRepository {
           speed: drift.Value(character.combatStats.speedInSquares),
           maxHitPoints: drift.Value(character.hitPoints.maximum),
           currentHitPoints: drift.Value(character.hitPoints.current),
-          temporaryHitPoints:
-              drift.Value(character.hitPoints.temporary),
+          temporaryHitPoints: drift.Value(character.hitPoints.temporary),
           saveStrength:
               drift.Value(character.savingThrowProficiencies.strength),
           saveDexterity:
@@ -253,38 +243,30 @@ class CharacterRepositoryImpl implements CharacterRepository {
               drift.Value(character.skillProficiencies.acrobatics),
           skillAnimalHandling:
               drift.Value(character.skillProficiencies.animalHandling),
-          skillArcana:
-              drift.Value(character.skillProficiencies.arcana),
+          skillArcana: drift.Value(character.skillProficiencies.arcana),
           skillAthletics:
               drift.Value(character.skillProficiencies.athletics),
           skillDeception:
               drift.Value(character.skillProficiencies.deception),
-          skillHistory:
-              drift.Value(character.skillProficiencies.history),
-          skillInsight:
-              drift.Value(character.skillProficiencies.insight),
+          skillHistory: drift.Value(character.skillProficiencies.history),
+          skillInsight: drift.Value(character.skillProficiencies.insight),
           skillIntimidation:
               drift.Value(character.skillProficiencies.intimidation),
           skillInvestigation:
               drift.Value(character.skillProficiencies.investigation),
-          skillMedicine:
-              drift.Value(character.skillProficiencies.medicine),
-          skillNature:
-              drift.Value(character.skillProficiencies.nature),
+          skillMedicine: drift.Value(character.skillProficiencies.medicine),
+          skillNature: drift.Value(character.skillProficiencies.nature),
           skillPerception:
               drift.Value(character.skillProficiencies.perception),
           skillPerformance:
               drift.Value(character.skillProficiencies.performance),
           skillPersuasion:
               drift.Value(character.skillProficiencies.persuasion),
-          skillReligion:
-              drift.Value(character.skillProficiencies.religion),
+          skillReligion: drift.Value(character.skillProficiencies.religion),
           skillSleightOfHand:
               drift.Value(character.skillProficiencies.sleightOfHand),
-          skillStealth:
-              drift.Value(character.skillProficiencies.stealth),
-          skillSurvival:
-              drift.Value(character.skillProficiencies.survival),
+          skillStealth: drift.Value(character.skillProficiencies.stealth),
+          skillSurvival: drift.Value(character.skillProficiencies.survival),
           updatedAt: drift.Value(character.updatedAt),
         ),
       );
@@ -381,6 +363,35 @@ class CharacterRepositoryImpl implements CharacterRepository {
             ),
           );
     }
+  }
+
+  @override
+  Future<void> updateMagicItemCharges({
+    required int magicItemId,
+    required int? charges,
+  }) async {
+    await (_database.update(_database.characterMagicItems)
+          ..where((tbl) => tbl.localId.equals(magicItemId)))
+        .write(
+      db.CharacterMagicItemsCompanion(
+        charges: drift.Value(charges),
+      ),
+    );
+  }
+
+  @override
+  Future<void> deleteMagicItem({
+    required int magicItemId,
+  }) async {
+    await _database.transaction(() async {
+      await (_database.delete(_database.characterMagicItemSpells)
+            ..where((tbl) => tbl.magicItemId.equals(magicItemId)))
+          .go();
+
+      await (_database.delete(_database.characterMagicItems)
+            ..where((tbl) => tbl.localId.equals(magicItemId)))
+          .go();
+    });
   }
 
   @override
