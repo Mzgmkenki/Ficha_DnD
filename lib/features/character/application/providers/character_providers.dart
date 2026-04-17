@@ -4,6 +4,7 @@ import 'package:dnd_ficha_app/features/character/application/use_cases/character
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/update_character_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/combat/update_character_hit_points.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -85,6 +86,24 @@ final removeCharacterSpellProvider = Provider<
       spellId: spellId,
       sourceType: sourceType,
       sourceId: sourceId,
+    );
+  };
+});
+
+final addCharacterMagicItemProvider = Provider<
+    Future<void> Function({
+      required String characterId,
+      required CharacterMagicItem item,
+    })>((ref) {
+  final repository = ref.watch(characterRepositoryProvider);
+
+  return ({
+    required String characterId,
+    required CharacterMagicItem item,
+  }) {
+    return repository.addMagicItem(
+      characterId: characterId,
+      item: item,
     );
   };
 });

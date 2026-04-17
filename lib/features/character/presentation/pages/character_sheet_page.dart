@@ -3,6 +3,7 @@ import 'package:dnd_ficha_app/features/character/presentation/pages/edit_ability
 import 'package:dnd_ficha_app/features/character/presentation/pages/edit_class_levels_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/edit_hit_points_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/edit_proficiencies_page.dart';
+import 'package:dnd_ficha_app/features/character/presentation/pages/manage_character_magic_items_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/manage_character_spells_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/ability_score_block.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/character_spells_panel.dart';
@@ -62,7 +63,6 @@ class CharacterSheetPage extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-
                   _SectionHeader(
                     title: 'Classes',
                     actionLabel: 'Editar nível',
@@ -94,7 +94,6 @@ class CharacterSheetPage extends ConsumerWidget {
                       );
                     }).toList(),
                   ),
-
                   const SizedBox(height: 16),
                   _SectionHeader(
                     title: 'Combate',
@@ -114,7 +113,6 @@ class CharacterSheetPage extends ConsumerWidget {
                   ),
                   const SizedBox(height: 8),
                   CombatSummaryCard(character: character),
-
                   const SizedBox(height: 16),
                   _SectionHeader(
                     title: 'Atributos',
@@ -163,7 +161,6 @@ class CharacterSheetPage extends ConsumerWidget {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 16),
                   _SectionHeader(
                     title: 'Proficiências',
@@ -185,17 +182,14 @@ class CharacterSheetPage extends ConsumerWidget {
                   ),
                   const SizedBox(height: 8),
                   SavingThrowsPanel(character: character),
-
                   const SizedBox(height: 16),
                   const _SectionHeader(title: 'Perícias'),
                   const SizedBox(height: 8),
                   SkillsPanel(character: character),
-
                   const SizedBox(height: 16),
                   const _SectionHeader(title: 'Slots de magia'),
                   const SizedBox(height: 8),
                   SpellSlotsPanel(classLevels: character.classLevels),
-
                   const SizedBox(height: 16),
                   _SectionHeader(
                     title: 'Magias do personagem',
@@ -214,22 +208,32 @@ class CharacterSheetPage extends ConsumerWidget {
                   ),
                   const SizedBox(height: 8),
                   CharacterSpellsPanel(character: character),
-
                   const SizedBox(height: 16),
-                  const _SectionHeader(title: 'Itens mágicos'),
+                  _SectionHeader(
+                    title: 'Itens mágicos',
+                    actionLabel: 'Gerenciar itens',
+                    actionIcon: Icons.inventory_2_outlined,
+                    onPressed: () async {
+                      await Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => ManageCharacterMagicItemsPage(
+                            characterId: character.id,
+                          ),
+                        ),
+                      );
+                      ref.invalidate(characterByIdProvider(characterId));
+                    },
+                  ),
                   const SizedBox(height: 8),
                   MagicItemsPanel(character: character),
-
                   const SizedBox(height: 16),
                   const _SectionHeader(title: 'Características raciais'),
                   const SizedBox(height: 8),
                   RacialTraitsPanel(speciesId: character.speciesId),
-
                   const SizedBox(height: 16),
                   const _SectionHeader(title: 'Características de classe'),
                   const SizedBox(height: 8),
                   ClassFeaturesPanel(classLevels: character.classLevels),
-
                   const SizedBox(height: 16),
                   const _SectionHeader(title: 'Anotações'),
                   const SizedBox(height: 8),
