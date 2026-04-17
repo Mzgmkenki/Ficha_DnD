@@ -25,4 +25,13 @@ abstract class CharacterRepository {
     required String characterId,
     required CharacterMagicItem item,
   });
+
+  Future<void> updateMagicItemCharges({
+    required int magicItemId,
+    required int? charges,
+  });
+
+  Future<void> deleteMagicItem({
+    required int magicItemId,
+  });
 }

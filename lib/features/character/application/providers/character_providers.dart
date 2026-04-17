@@ -107,3 +107,36 @@ final addCharacterMagicItemProvider = Provider<
     );
   };
 });
+
+final updateCharacterMagicItemChargesProvider = Provider<
+    Future<void> Function({
+      required int magicItemId,
+      required int? charges,
+    })>((ref) {
+  final repository = ref.watch(characterRepositoryProvider);
+
+  return ({
+    required int magicItemId,
+    required int? charges,
+  }) {
+    return repository.updateMagicItemCharges(
+      magicItemId: magicItemId,
+      charges: charges,
+    );
+  };
+});
+
+final deleteCharacterMagicItemProvider = Provider<
+    Future<void> Function({
+      required int magicItemId,
+    })>((ref) {
+  final repository = ref.watch(characterRepositoryProvider);
+
+  return ({
+    required int magicItemId,
+  }) {
+    return repository.deleteMagicItem(
+      magicItemId: magicItemId,
+    );
+  };
+});

@@ -1,3 +1,4 @@
+import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/spell_providers.dart';
 import 'package:flutter/material.dart';
@@ -46,9 +47,102 @@ class MagicItemsPanel extends ConsumerWidget {
                             Text(item.description),
                           ],
                           if (item.maxCharges != null) ...[
-                            const SizedBox(height: 4),
-                            Text(
-                              'Cargas: ${item.charges ?? 0}/${item.maxCharges}',
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    'Cargas: ${item.charges ?? 0}/${item.maxCharges}',
+                                  ),
+                                ),
+                                IconButton(
+                                  tooltip: 'Gastar 1 carga',
+                                  onPressed: (item.charges ?? 0) > 0
+                                      ? () async {
+                                          final updateCharges = ref.read(
+                                            updateCharacterMagicItemChargesProvider,
+                                          );
+
+                                          await updateCharges(
+                                            magicItemId: item.localId,
+                                            charges: (item.charges ?? 0) - 1,
+                                          );
+
+                                          ref.invalidate(
+                                            characterByIdProvider(character.id),
+                                          );
+                                        }
+                                      : null,
+                                  icon: const Icon(Icons.remove_circle_outline),
+                                ),
+                                IconButton(
+                                  tooltip: 'Recuperar 1 carga',
+                                  onPressed: ((item.maxCharges ?? 0) > 0 &&
+                                          (item.charges ?? 0) <
+                                              (item.maxCharges ?? 0))
+                                      ? () async {
+                                          final updateCharges = ref.read(
+                                            updateCharacterMagicItemChargesProvider,
+                                          );
+
+                                          await updateCharges(
+                                            magicItemId: item.localId,
+                                            charges: (item.charges ?? 0) + 1,
+                                          );
+
+                                          ref.invalidate(
+                                            characterByIdProvider(character.id),
+                                          );
+                                        }
+                                      : null,
+                                  icon: const Icon(Icons.add_circle_outline),
+                                ),
+                                PopupMenuButton<String>(
+                                  onSelected: (value) async {
+                                    final updateCharges = ref.read(
+                                      updateCharacterMagicItemChargesProvider,
+                                    );
+
+                                    if (value == 'zero') {
+                                      await updateCharges(
+                                        magicItemId: item.localId,
+                                        charges: 0,
+                                      );
+                                    } else if (value == 'full') {
+                                      await updateCharges(
+                                        magicItemId: item.localId,
+                                        charges: item.maxCharges,
+                                      );
+                                    } else if (value == 'delete') {
+                                      final deleteItem = ref.read(
+                                        deleteCharacterMagicItemProvider,
+                                      );
+
+                                      await deleteItem(
+                                        magicItemId: item.localId,
+                                      );
+                                    }
+
+                                    ref.invalidate(
+                                      characterByIdProvider(character.id),
+                                    );
+                                  },
+                                  itemBuilder: (context) => const [
+                                    PopupMenuItem(
+                                      value: 'zero',
+                                      child: Text('Zerar cargas'),
+                                    ),
+                                    PopupMenuItem(
+                                      value: 'full',
+                                      child: Text('Restaurar ao máximo'),
+                                    ),
+                                    PopupMenuItem(
+                                      value: 'delete',
+                                      child: Text('Excluir item'),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ],
                           if (item.rechargeRule != null &&

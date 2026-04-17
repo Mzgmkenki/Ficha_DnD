@@ -282,7 +282,7 @@ class _ManageCharacterMagicItemsPageState
   }
 }
 
-class _CurrentItemsCard extends StatelessWidget {
+class _CurrentItemsCard extends ConsumerWidget {
   const _CurrentItemsCard({
     required this.character,
   });
@@ -290,7 +290,7 @@ class _CurrentItemsCard extends StatelessWidget {
   final Character character;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -316,7 +316,7 @@ class _CurrentItemsCard extends StatelessWidget {
                   const SizedBox(height: 12),
                   ...character.magicItems.map(
                     (item) => Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
+                      padding: const EdgeInsets.only(bottom: 20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -328,20 +328,118 @@ class _CurrentItemsCard extends StatelessWidget {
                             const SizedBox(height: 4),
                             Text(item.description),
                           ],
+                          const SizedBox(height: 8),
                           if (item.maxCharges != null) ...[
-                            const SizedBox(height: 4),
                             Text(
                               'Cargas: ${item.charges ?? 0}/${item.maxCharges}',
                             ),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: [
+                                OutlinedButton.icon(
+                                  onPressed: (item.charges ?? 0) > 0
+                                      ? () async {
+                                          final updateCharges = ref.read(
+                                            updateCharacterMagicItemChargesProvider,
+                                          );
+
+                                          await updateCharges(
+                                            magicItemId: item.localId,
+                                            charges: (item.charges ?? 0) - 1,
+                                          );
+
+                                          ref.invalidate(
+                                            characterByIdProvider(character.id),
+                                          );
+                                        }
+                                      : null,
+                                  icon: const Icon(Icons.remove),
+                                  label: const Text('Gastar 1'),
+                                ),
+                                OutlinedButton.icon(
+                                  onPressed: ((item.maxCharges ?? 0) > 0 &&
+                                          (item.charges ?? 0) <
+                                              (item.maxCharges ?? 0))
+                                      ? () async {
+                                          final updateCharges = ref.read(
+                                            updateCharacterMagicItemChargesProvider,
+                                          );
+
+                                          await updateCharges(
+                                            magicItemId: item.localId,
+                                            charges: (item.charges ?? 0) + 1,
+                                          );
+
+                                          ref.invalidate(
+                                            characterByIdProvider(character.id),
+                                          );
+                                        }
+                                      : null,
+                                  icon: const Icon(Icons.add),
+                                  label: const Text('Recuperar 1'),
+                                ),
+                                OutlinedButton(
+                                  onPressed: () async {
+                                    final updateCharges = ref.read(
+                                      updateCharacterMagicItemChargesProvider,
+                                    );
+
+                                    await updateCharges(
+                                      magicItemId: item.localId,
+                                      charges: 0,
+                                    );
+
+                                    ref.invalidate(
+                                      characterByIdProvider(character.id),
+                                    );
+                                  },
+                                  child: const Text('Zerar'),
+                                ),
+                                OutlinedButton(
+                                  onPressed: () async {
+                                    final updateCharges = ref.read(
+                                      updateCharacterMagicItemChargesProvider,
+                                    );
+
+                                    await updateCharges(
+                                      magicItemId: item.localId,
+                                      charges: item.maxCharges,
+                                    );
+
+                                    ref.invalidate(
+                                      characterByIdProvider(character.id),
+                                    );
+                                  },
+                                  child: const Text('Restaurar tudo'),
+                                ),
+                              ],
+                            ),
+                          ] else ...[
+                            const Text('Este item não usa cargas.'),
                           ],
                           if (item.rechargeRule != null &&
                               item.rechargeRule!.isNotEmpty) ...[
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 8),
                             Text('Recarga: ${item.rechargeRule}'),
                           ],
-                          const SizedBox(height: 4),
-                          const Text(
-                            'Remoção por interface entra na próxima etapa.',
+                          const SizedBox(height: 8),
+                          TextButton.icon(
+                            onPressed: () async {
+                              final deleteItem =
+                                  ref.read(deleteCharacterMagicItemProvider);
+
+                              await deleteItem(
+                                magicItemId: item.localId,
+                              );
+
+                              ref.invalidate(
+                                characterByIdProvider(character.id),
+                              );
+                            },
+                            icon: const Icon(Icons.delete_outline),
+                            label: const Text('Excluir item'),
                           ),
                         ],
                       ),
