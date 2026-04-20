@@ -1,7 +1,13 @@
+import 'package:dnd_ficha_app/core/di/providers.dart';
+import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
+import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/spell_providers.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_slot_progression_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -16,76 +22,124 @@ class CharacterSpellsPanel extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final spellsAsync = ref.watch(spellEntriesProvider);
+    final classesAsync = ref.watch(classEntriesProvider);
+    final progressionsAsync = ref.watch(spellSlotProgressionsProvider);
+    final usedSlotsAsync =
+        ref.watch(characterUsedSpellSlotsProvider(character.id));
 
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: spellsAsync.when(
           data: (spellEntries) {
-            if (character.spells.isEmpty) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Magias do Personagem',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 12),
-                  const Text('Nenhuma magia vinculada ainda.'),
-                ],
-              );
-            }
+            return classesAsync.when(
+              data: (classes) {
+                return progressionsAsync.when(
+                  data: (progressions) {
+                    return usedSlotsAsync.when(
+                      data: (usedSlots) {
+                        if (character.spells.isEmpty) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Magias do Personagem',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: 12),
+                              const Text('Nenhuma magia vinculada ainda.'),
+                            ],
+                          );
+                        }
 
-            final alwaysAvailable = <CharacterSpell>[];
-            final prepared = <CharacterSpell>[];
-            final known = <CharacterSpell>[];
-            final others = <CharacterSpell>[];
+                        final slotSummary = _buildSpellcastingSummary(
+                          character.classLevels,
+                          classes,
+                          progressions,
+                        );
 
-            for (final spell in character.spells) {
-              if (spell.isAlwaysAvailable) {
-                alwaysAvailable.add(spell);
-              } else if (spell.isPrepared) {
-                prepared.add(spell);
-              } else if (spell.isKnown) {
-                known.add(spell);
-              } else {
-                others.add(spell);
-              }
-            }
+                        final alwaysAvailable = <CharacterSpell>[];
+                        final prepared = <CharacterSpell>[];
+                        final known = <CharacterSpell>[];
+                        final others = <CharacterSpell>[];
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Magias do Personagem',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 12),
-                if (alwaysAvailable.isNotEmpty)
-                  _SpellSection(
-                    title: 'Magias sempre disponíveis',
-                    spells: alwaysAvailable,
-                    spellEntries: spellEntries,
-                  ),
-                if (prepared.isNotEmpty)
-                  _SpellSection(
-                    title: 'Magias preparadas',
-                    spells: prepared,
-                    spellEntries: spellEntries,
-                  ),
-                if (known.isNotEmpty)
-                  _SpellSection(
-                    title: 'Magias conhecidas',
-                    spells: known,
-                    spellEntries: spellEntries,
-                  ),
-                if (others.isNotEmpty)
-                  _SpellSection(
-                    title: 'Outras magias',
-                    spells: others,
-                    spellEntries: spellEntries,
-                  ),
-              ],
+                        for (final spell in character.spells) {
+                          if (spell.isAlwaysAvailable) {
+                            alwaysAvailable.add(spell);
+                          } else if (spell.isPrepared) {
+                            prepared.add(spell);
+                          } else if (spell.isKnown) {
+                            known.add(spell);
+                          } else {
+                            others.add(spell);
+                          }
+                        }
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Magias do Personagem',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 12),
+                            if (alwaysAvailable.isNotEmpty)
+                              _SpellSection(
+                                title: 'Magias sempre disponíveis',
+                                spells: alwaysAvailable,
+                                spellEntries: spellEntries,
+                                character: character,
+                                slotSummary: slotSummary,
+                                usedSlots: usedSlots,
+                              ),
+                            if (prepared.isNotEmpty)
+                              _SpellSection(
+                                title: 'Magias preparadas',
+                                spells: prepared,
+                                spellEntries: spellEntries,
+                                character: character,
+                                slotSummary: slotSummary,
+                                usedSlots: usedSlots,
+                              ),
+                            if (known.isNotEmpty)
+                              _SpellSection(
+                                title: 'Magias conhecidas',
+                                spells: known,
+                                spellEntries: spellEntries,
+                                character: character,
+                                slotSummary: slotSummary,
+                                usedSlots: usedSlots,
+                              ),
+                            if (others.isNotEmpty)
+                              _SpellSection(
+                                title: 'Outras magias',
+                                spells: others,
+                                spellEntries: spellEntries,
+                                character: character,
+                                slotSummary: slotSummary,
+                                usedSlots: usedSlots,
+                              ),
+                          ],
+                        );
+                      },
+                      error: (error, stackTrace) {
+                        return Text('Erro ao carregar uso de slots: $error');
+                      },
+                      loading: () =>
+                          const Center(child: CircularProgressIndicator()),
+                    );
+                  },
+                  error: (error, stackTrace) {
+                    return Text('Erro ao carregar progressão de slots: $error');
+                  },
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                );
+              },
+              error: (error, stackTrace) {
+                return Text('Erro ao carregar classes: $error');
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
             );
           },
           error: (error, stackTrace) {
@@ -98,6 +152,124 @@ class CharacterSpellsPanel extends ConsumerWidget {
       ),
     );
   }
+
+  _SpellcastingSummaryData _buildSpellcastingSummary(
+    List<ClassLevel> classLevels,
+    List<ClassEntry> classes,
+    List<SpellSlotProgressionEntry> rows,
+  ) {
+    ClassEntry? classForId(String id) {
+      for (final item in classes) {
+        if (item.id == id) return item;
+      }
+      return null;
+    }
+
+    SpellSlotProgressionEntry? findRow(String tableId, int level) {
+      for (final row in rows) {
+        if (row.tableId == tableId && row.level == level) {
+          return row;
+        }
+      }
+      return null;
+    }
+
+    int fullCasterLevels = 0;
+    int halfCasterLevels = 0;
+    int thirdCasterLevels = 0;
+    int pactLevels = 0;
+
+    for (final classLevel in classLevels) {
+      final classEntry = classForId(classLevel.classId);
+      final type = classEntry?.spellcastingType;
+
+      switch (type) {
+        case 'full':
+          fullCasterLevels += classLevel.level;
+          break;
+        case 'half':
+          halfCasterLevels += classLevel.level;
+          break;
+        case 'third':
+          thirdCasterLevels += classLevel.level;
+          break;
+        case 'pact':
+          pactLevels += classLevel.level;
+          break;
+      }
+    }
+
+    SpellSlotProgressionEntry? standardSlots;
+    SpellSlotProgressionEntry? pactSlots;
+
+    final nonPactCastingPresent =
+        fullCasterLevels > 0 || halfCasterLevels > 0 || thirdCasterLevels > 0;
+
+    if (classLevels.length == 1) {
+      final classEntry = classForId(classLevels.first.classId);
+      final type = classEntry?.spellcastingType;
+
+      if (type == 'full' || type == 'half' || type == 'third') {
+        standardSlots = findRow(type!, classLevels.first.level);
+      } else if (type == 'pact') {
+        pactSlots = findRow('pact', classLevels.first.level);
+      }
+    } else {
+      if (nonPactCastingPresent) {
+        final effectiveCasterLevel =
+            fullCasterLevels +
+            (halfCasterLevels ~/ 2) +
+            (thirdCasterLevels ~/ 3);
+
+        if (effectiveCasterLevel > 0) {
+          standardSlots = findRow(
+            'multiclass',
+            effectiveCasterLevel > 20 ? 20 : effectiveCasterLevel,
+          );
+        }
+      }
+
+      if (pactLevels > 0) {
+        pactSlots = findRow('pact', pactLevels > 20 ? 20 : pactLevels);
+      }
+    }
+
+    final standardMap = <int, int>{};
+    if (standardSlots != null) {
+      standardMap.addAll({
+        1: standardSlots.first,
+        2: standardSlots.second,
+        3: standardSlots.third,
+        4: standardSlots.fourth,
+        5: standardSlots.fifth,
+        6: standardSlots.sixth,
+        7: standardSlots.seventh,
+        8: standardSlots.eighth,
+        9: standardSlots.ninth,
+      });
+    }
+
+    int? pactSlotLevel;
+    int? pactSlotCount;
+    if (pactSlots != null) {
+      pactSlotLevel = pactSlots.pactSlotLevel ?? 1;
+      pactSlotCount = pactSlots.first > 0
+          ? pactSlots.first
+          : pactSlots.second > 0
+              ? pactSlots.second
+              : pactSlots.third > 0
+                  ? pactSlots.third
+                  : pactSlots.fourth > 0
+                      ? pactSlots.fourth
+                      : pactSlots.fifth;
+    }
+
+    return _SpellcastingSummaryData(
+      standardSlots: standardMap,
+      pactSlotLevel: pactSlotLevel,
+      pactSlotCount: pactSlotCount,
+    );
+  }
 }
 
 class _SpellSection extends StatelessWidget {
@@ -105,11 +277,17 @@ class _SpellSection extends StatelessWidget {
     required this.title,
     required this.spells,
     required this.spellEntries,
+    required this.character,
+    required this.slotSummary,
+    required this.usedSlots,
   });
 
   final String title;
   final List<CharacterSpell> spells;
   final List<SpellEntry> spellEntries;
+  final Character character;
+  final _SpellcastingSummaryData slotSummary;
+  final Map<int, int> usedSlots;
 
   @override
   Widget build(BuildContext context) {
@@ -124,19 +302,13 @@ class _SpellSection extends StatelessWidget {
             orElse: () => null,
           );
 
-      final spellName = spell?.namePt ?? 'Magia #${entry.spellId}';
-      final spellLevel = spell?.level ?? 0;
+      if (spell == null) continue;
 
       final sourceTypeLabel = _translateSourceType(entry.sourceType);
       final key = '${entry.sourceName} ($sourceTypeLabel)';
 
       groups.putIfAbsent(key, () => []);
-      groups[key]!.add(
-        _SpellViewData(
-          name: spellName,
-          level: spellLevel,
-        ),
-      );
+      groups[key]!.add(_SpellViewData(spell: spell));
     }
 
     final sortedKeys = groups.keys.toList()..sort();
@@ -156,8 +328,8 @@ class _SpellSection extends StatelessWidget {
             final byLevel = <int, List<_SpellViewData>>{};
 
             for (final spell in groupSpells) {
-              byLevel.putIfAbsent(spell.level, () => []);
-              byLevel[spell.level]!.add(spell);
+              byLevel.putIfAbsent(spell.spell.level, () => []);
+              byLevel[spell.spell.level]!.add(spell);
             }
 
             final sortedLevels = byLevel.keys.toList()..sort();
@@ -173,12 +345,11 @@ class _SpellSection extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   ...sortedLevels.map((level) {
-                    final spellsAtLevel = byLevel[level]!..sort(
-                        (a, b) => a.name.compareTo(b.name),
-                      );
+                    final spellsAtLevel = byLevel[level]!
+                      ..sort((a, b) => a.spell.namePt.compareTo(b.spell.namePt));
 
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.only(bottom: 12),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -187,18 +358,77 @@ class _SpellSection extends StatelessWidget {
                             style: Theme.of(context).textTheme.bodyMedium
                                 ?.copyWith(fontWeight: FontWeight.w600),
                           ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 8),
                           ...spellsAtLevel.map(
-                            (spell) => Padding(
-                              padding: const EdgeInsets.only(bottom: 6),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('• '),
-                                  Expanded(
-                                    child: Text(spell.name),
+                            (spellData) => Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Theme.of(context)
+                                        .dividerColor
+                                        .withOpacity(0.5),
                                   ),
-                                ],
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Expanded(
+                                        child: InkWell(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          onTap: () => _showSpellDetails(
+                                            context,
+                                            spellData.spell,
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 6,
+                                              horizontal: 4,
+                                            ),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  spellData.spell.namePt,
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyLarge
+                                                      ?.copyWith(
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        decoration:
+                                                            TextDecoration
+                                                                .underline,
+                                                      ),
+                                                ),
+                                                const SizedBox(height: 2),
+                                                Text(
+                                                  '${_levelLabel(spellData.spell.level)} • ${spellData.spell.school}',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodySmall,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      _CastSpellButton(
+                                        character: character,
+                                        spell: spellData.spell,
+                                        slotSummary: slotSummary,
+                                        usedSlots: usedSlots,
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -213,6 +443,10 @@ class _SpellSection extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _showSpellDetails(BuildContext context, SpellEntry spell) {
+    showSpellDetailsBottomSheet(context, spell);
   }
 
   String _translateSourceType(String type) {
@@ -230,18 +464,257 @@ class _SpellSection extends StatelessWidget {
 
   String _levelLabel(int level) {
     if (level == 0) {
-      return 'Truques';
+      return 'Truque';
     }
-    return '$levelº círculo';
+    return '${level}º círculo';
+  }
+}
+
+class _CastSpellButton extends ConsumerWidget {
+  const _CastSpellButton({
+    required this.character,
+    required this.spell,
+    required this.slotSummary,
+    required this.usedSlots,
+  });
+
+  final Character character;
+  final SpellEntry spell;
+  final _SpellcastingSummaryData slotSummary;
+  final Map<int, int> usedSlots;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return FilledButton.tonal(
+      onPressed: () => _handleCast(context, ref),
+      style: FilledButton.styleFrom(
+        minimumSize: const Size(92, 40),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      ),
+      child: const Text('Conjurar'),
+    );
+  }
+
+  Future<void> _handleCast(BuildContext context, WidgetRef ref) async {
+    if (spell.level == 0) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${spell.namePt} conjurada sem gastar slot.')),
+      );
+      return;
+    }
+
+    final options = _availableCastLevels();
+    if (options.isEmpty) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Não há slots disponíveis para conjurar essa magia.'),
+        ),
+      );
+      return;
+    }
+
+    final chosenLevel = await showDialog<int>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text('Conjurar ${spell.namePt}'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: options.map((level) {
+              final remaining = _remainingSlotsAtLevel(level);
+              final max = _maxSlotsAtLevel(level);
+
+              return ListTile(
+                title: Text('${level}º círculo'),
+                subtitle: Text('Restantes: $remaining/$max'),
+                onTap: () => Navigator.of(dialogContext).pop(level),
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
+
+    if (chosenLevel == null) return;
+
+    final used = usedSlots[chosenLevel] ?? 0;
+
+    await ref.read(characterRepositoryProvider).updateUsedSpellSlot(
+          characterId: character.id,
+          slotLevel: chosenLevel,
+          used: used + 1,
+        );
+
+    ref.invalidate(characterUsedSpellSlotsProvider(character.id));
+
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '${spell.namePt} conjurada no ${chosenLevel}º círculo.',
+        ),
+      ),
+    );
+  }
+
+  List<int> _availableCastLevels() {
+    final available = <int>[];
+
+    for (var level = spell.level; level <= 9; level++) {
+      final remaining = _remainingSlotsAtLevel(level);
+      if (remaining > 0) {
+        available.add(level);
+      }
+    }
+
+    return available;
+  }
+
+  int _remainingSlotsAtLevel(int level) {
+    final max = _maxSlotsAtLevel(level);
+    final used = usedSlots[level] ?? 0;
+    return max - used;
+  }
+
+  int _maxSlotsAtLevel(int level) {
+    final standard = slotSummary.standardSlots[level] ?? 0;
+
+    if (slotSummary.pactSlotLevel == level) {
+      return standard + (slotSummary.pactSlotCount ?? 0);
+    }
+
+    return standard;
   }
 }
 
 class _SpellViewData {
   const _SpellViewData({
-    required this.name,
-    required this.level,
+    required this.spell,
   });
 
-  final String name;
-  final int level;
+  final SpellEntry spell;
+}
+
+class _SpellcastingSummaryData {
+  const _SpellcastingSummaryData({
+    required this.standardSlots,
+    required this.pactSlotLevel,
+    required this.pactSlotCount,
+  });
+
+  final Map<int, int> standardSlots;
+  final int? pactSlotLevel;
+  final int? pactSlotCount;
+}
+
+class _DetailLine extends StatelessWidget {
+  const _DetailLine({
+    required this.label,
+    required this.value,
+  });
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: RichText(
+        text: TextSpan(
+          style: DefaultTextStyle.of(context).style,
+          children: [
+            TextSpan(
+              text: '$label: ',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            TextSpan(text: value),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+void showSpellDetailsBottomSheet(BuildContext context, SpellEntry spell) {
+  String levelLabel(int level) {
+    if (level == 0) return 'Truque';
+    return '${level}º círculo';
+  }
+
+  showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    builder: (context) {
+      return SafeArea(
+        child: DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.75,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          builder: (context, scrollController) {
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: ListView(
+                controller: scrollController,
+                children: [
+                  Text(
+                    spell.namePt,
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${levelLabel(spell.level)} • ${spell.school}',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 16),
+                  _DetailLine(
+                    label: 'Tempo de conjuração',
+                    value: spell.castingTime,
+                  ),
+                  _DetailLine(label: 'Alcance', value: spell.range),
+                  _DetailLine(label: 'Componentes', value: spell.components),
+                  _DetailLine(
+                    label: 'Materiais custosos',
+                    value: spell.hasCostlyMaterials ? 'Sim' : 'Não',
+                  ),
+                  _DetailLine(label: 'Duração', value: spell.duration),
+                  _DetailLine(
+                    label: 'Concentração',
+                    value: spell.concentration ? 'Sim' : 'Não',
+                  ),
+                  _DetailLine(
+                    label: 'Ritual',
+                    value: spell.ritual ? 'Sim' : 'Não',
+                  ),
+                  _DetailLine(
+                    label: 'Fonte',
+                    value: '${spell.source} • p. ${spell.page}',
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Descrição',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(spell.description),
+                  if (spell.upcast != null && spell.upcast!.trim().isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    Text(
+                      'Conjuração em nível superior',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(spell.upcast!),
+                  ],
+                ],
+              ),
+            );
+          },
+        ),
+      );
+    },
+  );
 }
