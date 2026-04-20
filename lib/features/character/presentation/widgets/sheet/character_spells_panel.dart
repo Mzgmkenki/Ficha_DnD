@@ -1,6 +1,8 @@
 import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item_spell.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
@@ -310,7 +312,14 @@ class _SpellSection extends StatelessWidget {
       final key = '${entry.sourceName} ($sourceTypeLabel)';
 
       groups.putIfAbsent(key, () => []);
-      groups[key]!.add(_SpellViewData(spell: spell));
+      groups[key]!.add(
+        _SpellViewData(
+          spell: spell,
+          sourceType: entry.sourceType,
+          sourceId: entry.sourceId,
+          sourceName: entry.sourceName,
+        ),
+      );
     }
 
     final sortedKeys = groups.keys.toList()..sort();
@@ -424,7 +433,7 @@ class _SpellSection extends StatelessWidget {
                                       const SizedBox(width: 12),
                                       _CastSpellButton(
                                         character: character,
-                                        spell: spellData.spell,
+                                        spellData: spellData,
                                         slotSummary: slotSummary,
                                         usedSlots: usedSlots,
                                       ),
@@ -475,13 +484,13 @@ class _SpellSection extends StatelessWidget {
 class _CastSpellButton extends ConsumerWidget {
   const _CastSpellButton({
     required this.character,
-    required this.spell,
+    required this.spellData,
     required this.slotSummary,
     required this.usedSlots,
   });
 
   final Character character;
-  final SpellEntry spell;
+  final _SpellViewData spellData;
   final _SpellcastingSummaryData slotSummary;
   final Map<int, int> usedSlots;
 
@@ -500,10 +509,19 @@ class _CastSpellButton extends ConsumerWidget {
   }
 
   Future<void> _handleCast(BuildContext context, WidgetRef ref) async {
-    if (spell.level == 0) {
+    if (spellData.sourceType == 'item') {
+      await _handleItemCast(context, ref);
+      return;
+    }
+
+    if (spellData.spell.level == 0) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${spell.namePt} conjurada sem gastar slot.')),
+        SnackBar(
+          content: Text(
+            '${spellData.spell.namePt} conjurada sem gastar slot.',
+          ),
+        ),
       );
       return;
     }
@@ -523,7 +541,7 @@ class _CastSpellButton extends ConsumerWidget {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: Text('Conjurar ${spell.namePt}'),
+          title: Text('Conjurar ${spellData.spell.namePt}'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: options.map((option) {
@@ -556,16 +574,144 @@ class _CastSpellButton extends ConsumerWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          '${spell.namePt} conjurada usando ${chosen.label.toLowerCase()}.',
+          '${spellData.spell.namePt} conjurada usando ${chosen.label.toLowerCase()}.',
         ),
       ),
     );
   }
 
+  Future<void> _handleItemCast(BuildContext context, WidgetRef ref) async {
+    final item = _findSourceItem();
+    if (item == null) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Item mágico de origem não encontrado.'),
+        ),
+      );
+      return;
+    }
+
+    final itemSpell = _findItemSpell(item);
+    if (itemSpell == null) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vínculo da magia com o item não encontrado.'),
+        ),
+      );
+      return;
+    }
+
+    if (itemSpell.isAtWill || !itemSpell.usesCharges) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${spellData.spell.namePt} conjurada pelo item ${item.name} sem gastar cargas.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    final currentCharges = item.charges ?? 0;
+    final cost = itemSpell.chargeCost;
+
+    if (currentCharges < cost) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'O item ${item.name} não possui cargas suficientes.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text('Conjurar ${spellData.spell.namePt}'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Origem'),
+                subtitle: Text(item.name),
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Custo'),
+                subtitle: Text('$cost carga(s)'),
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Cargas atuais'),
+                subtitle: Text('$currentCharges/${item.maxCharges ?? '-'}'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('Conjurar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+
+    await ref.read(updateCharacterMagicItemChargesProvider)(
+          magicItemId: item.localId,
+          charges: currentCharges - cost,
+        );
+
+    ref.invalidate(characterByIdProvider(character.id));
+
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '${spellData.spell.namePt} conjurada pelo item ${item.name}, consumindo $cost carga(s).',
+        ),
+      ),
+    );
+  }
+
+  CharacterMagicItem? _findSourceItem() {
+    for (final item in character.magicItems) {
+      final itemIdAsString = item.localId.toString();
+      if (spellData.sourceId == itemIdAsString ||
+          spellData.sourceName == item.name) {
+        return item;
+      }
+    }
+    return null;
+  }
+
+  CharacterMagicItemSpell? _findItemSpell(CharacterMagicItem item) {
+    for (final itemSpell in item.spells) {
+      if (itemSpell.spellId == spellData.spell.id) {
+        return itemSpell;
+      }
+    }
+    return null;
+  }
+
   List<_CastOption> _availableCastOptions() {
     final options = <_CastOption>[];
 
-    for (var level = spell.level; level <= 9; level++) {
+    for (var level = spellData.spell.level; level <= 9; level++) {
       final normalMax = slotSummary.standardSlots[level] ?? 0;
       final normalUsed = usedSlots[level] ?? 0;
       final normalRemaining = normalMax - normalUsed;
@@ -631,9 +777,15 @@ class _CastOption {
 class _SpellViewData {
   const _SpellViewData({
     required this.spell,
+    required this.sourceType,
+    required this.sourceId,
+    required this.sourceName,
   });
 
   final SpellEntry spell;
+  final String sourceType;
+  final String sourceId;
+  final String sourceName;
 }
 
 class _SpellcastingSummaryData {
