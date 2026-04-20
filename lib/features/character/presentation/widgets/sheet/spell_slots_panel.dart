@@ -299,7 +299,7 @@ class _SlotsManager extends ConsumerWidget {
             child: Row(
               children: [
                 Expanded(
-                  child: Text('${level}º círculo: $remaining/$max'),
+                  child: Text('$levelº círculo: $remaining/$max'),
                 ),
                 IconButton(
                   tooltip: 'Recuperar 1 slot',
@@ -418,7 +418,7 @@ class _PactSlotsManager extends ConsumerWidget {
           children: [
             Expanded(
               child: Text(
-                'Slots: $remaining/$pactSlots • Nível do slot: ${slotLevel}º',
+                'Slots: $remaining/$pactSlots • Nível do slot: $slotLevelº',
               ),
             ),
             IconButton(

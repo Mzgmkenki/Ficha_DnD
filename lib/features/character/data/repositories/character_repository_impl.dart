@@ -428,7 +428,7 @@ class CharacterRepositoryImpl implements CharacterRepository {
             db.CharacterSpellSlotsUsageCompanion.insert(
               characterId: characterId,
               slotLevel: slotLevel,
-              used: used,
+              used: drift.Value(used),
             ),
           );
     } else {
