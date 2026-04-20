@@ -140,3 +140,9 @@ final deleteCharacterMagicItemProvider = Provider<
     );
   };
 });
+
+final characterUsedSpellSlotsProvider =
+    FutureProvider.family<Map<int, int>, String>((ref, characterId) {
+  final repository = ref.watch(characterRepositoryProvider);
+  return repository.getUsedSpellSlots(characterId);
+});

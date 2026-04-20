@@ -245,7 +245,7 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   DropdownButtonFormField<String>(
-                    value: selectedClassId,
+                    initialValue: selectedClassId,
                     decoration: const InputDecoration(
                       labelText: 'Classe',
                       border: OutlineInputBorder(),

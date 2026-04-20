@@ -133,9 +133,10 @@ class CharacterRepositoryImpl implements CharacterRepository {
 
     if (characterRow == null) return null;
 
-    final classLevelRows = await (_database.select(_database.characterClassLevels)
-          ..where((tbl) => tbl.characterId.equals(id)))
-        .get();
+    final classLevelRows =
+        await (_database.select(_database.characterClassLevels)
+              ..where((tbl) => tbl.characterId.equals(id)))
+            .get();
 
     final spellRows = await (_database.select(_database.characterSpells)
           ..where((tbl) => tbl.characterId.equals(id)))
@@ -337,19 +338,20 @@ class CharacterRepositoryImpl implements CharacterRepository {
     required String characterId,
     required domain_items.CharacterMagicItem item,
   }) async {
-    final insertedId = await _database.into(_database.characterMagicItems).insert(
-          db.CharacterMagicItemsCompanion.insert(
-            characterId: characterId,
-            name: item.name,
-            description: drift.Value(item.description),
-            charges: drift.Value(item.charges),
-            maxCharges: drift.Value(item.maxCharges),
-            rechargeRule: drift.Value(item.rechargeRule),
-            castingAbility: drift.Value(item.castingAbility),
-            saveDc: drift.Value(item.saveDc),
-            attackBonus: drift.Value(item.attackBonus),
-          ),
-        );
+    final insertedId =
+        await _database.into(_database.characterMagicItems).insert(
+              db.CharacterMagicItemsCompanion.insert(
+                characterId: characterId,
+                name: item.name,
+                description: drift.Value(item.description),
+                charges: drift.Value(item.charges),
+                maxCharges: drift.Value(item.maxCharges),
+                rechargeRule: drift.Value(item.rechargeRule),
+                castingAbility: drift.Value(item.castingAbility),
+                saveDc: drift.Value(item.saveDc),
+                attackBonus: drift.Value(item.attackBonus),
+              ),
+            );
 
     for (final spell in item.spells) {
       await _database.into(_database.characterMagicItemSpells).insert(
@@ -395,6 +397,52 @@ class CharacterRepositoryImpl implements CharacterRepository {
   }
 
   @override
+  Future<Map<int, int>> getUsedSpellSlots(String characterId) async {
+    final rows = await (_database.select(_database.characterSpellSlotsUsage)
+          ..where((tbl) => tbl.characterId.equals(characterId)))
+        .get();
+
+    final map = <int, int>{};
+
+    for (final row in rows) {
+      map[row.slotLevel] = row.used;
+    }
+
+    return map;
+  }
+
+  @override
+  Future<void> updateUsedSpellSlot({
+    required String characterId,
+    required int slotLevel,
+    required int used,
+  }) async {
+    final existing = await (_database.select(_database.characterSpellSlotsUsage)
+          ..where((tbl) =>
+              tbl.characterId.equals(characterId) &
+              tbl.slotLevel.equals(slotLevel)))
+        .getSingleOrNull();
+
+    if (existing == null) {
+      await _database.into(_database.characterSpellSlotsUsage).insert(
+            db.CharacterSpellSlotsUsageCompanion.insert(
+              characterId: characterId,
+              slotLevel: slotLevel,
+              used: used,
+            ),
+          );
+    } else {
+      await (_database.update(_database.characterSpellSlotsUsage)
+            ..where((tbl) => tbl.localId.equals(existing.localId)))
+          .write(
+        db.CharacterSpellSlotsUsageCompanion(
+          used: drift.Value(used),
+        ),
+      );
+    }
+  }
+
+  @override
   Stream<List<domain.Character>> watchAll() {
     return _database
         .select(_database.characters)
@@ -402,9 +450,10 @@ class CharacterRepositoryImpl implements CharacterRepository {
         .asyncMap((rows) async {
       final items = <domain.Character>[];
       for (final row in rows) {
-        final classLevels = await (_database.select(_database.characterClassLevels)
-              ..where((tbl) => tbl.characterId.equals(row.id)))
-            .get();
+        final classLevels =
+            await (_database.select(_database.characterClassLevels)
+                  ..where((tbl) => tbl.characterId.equals(row.id)))
+                .get();
 
         final mapped = CharacterMapper.fromDatabase(
           character: row,

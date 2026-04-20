@@ -1,3 +1,5 @@
+import 'package:dnd_ficha_app/core/di/providers.dart';
+import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
@@ -8,15 +10,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class SpellSlotsPanel extends ConsumerWidget {
   const SpellSlotsPanel({
     required this.classLevels,
+    required this.characterId,
     super.key,
   });
 
   final List<ClassLevel> classLevels;
+  final String characterId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final classesAsync = ref.watch(classEntriesProvider);
     final progressionsAsync = ref.watch(spellSlotProgressionsProvider);
+    final usedSlotsAsync = ref.watch(characterUsedSpellSlotsProvider(characterId));
 
     return Card(
       child: Padding(
@@ -25,44 +30,63 @@ class SpellSlotsPanel extends ConsumerWidget {
           data: (classes) {
             return progressionsAsync.when(
               data: (rows) {
-                final result = _buildSpellcastingSummary(classLevels, classes, rows);
+                final result =
+                    _buildSpellcastingSummary(classLevels, classes, rows);
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Slots de Magia',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 12),
-                    if (!result.hasAnyCasting)
-                      const Text('Este personagem não possui progressão de magia cadastrada.')
-                    else ...[
-                      if (result.modeLabel != null) ...[
+                return usedSlotsAsync.when(
+                  data: (usedSlots) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Text(
-                          result.modeLabel!,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        const SizedBox(height: 6),
-                      ],
-                      if (result.explanation != null) ...[
-                        Text(
-                          result.explanation!,
-                          style: Theme.of(context).textTheme.bodySmall,
+                          'Slots de Magia',
+                          style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 12),
+                        if (!result.hasAnyCasting)
+                          const Text(
+                            'Este personagem não possui progressão de magia cadastrada.',
+                          )
+                        else ...[
+                          if (result.modeLabel != null) ...[
+                            Text(
+                              result.modeLabel!,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            const SizedBox(height: 6),
+                          ],
+                          if (result.explanation != null) ...[
+                            Text(
+                              result.explanation!,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            const SizedBox(height: 12),
+                          ],
+                          if (result.standardSlots != null)
+                            _SlotsManager(
+                              title: 'Slots principais',
+                              row: result.standardSlots!,
+                              usedSlots: usedSlots,
+                              characterId: characterId,
+                            ),
+                          if (result.pactSlots != null) ...[
+                            if (result.standardSlots != null)
+                              const SizedBox(height: 16),
+                            _PactSlotsManager(
+                              row: result.pactSlots!,
+                              characterId: characterId,
+                              usedSlots: usedSlots,
+                            ),
+                          ],
+                        ],
                       ],
-                      if (result.standardSlots != null)
-                        _SlotsTable(
-                          title: 'Slots principais',
-                          row: result.standardSlots!,
-                        ),
-                      if (result.pactSlots != null) ...[
-                        if (result.standardSlots != null) const SizedBox(height: 16),
-                        _PactSlotsBlock(row: result.pactSlots!),
-                      ],
-                    ],
-                  ],
+                    );
+                  },
+                  error: (error, stackTrace) {
+                    return Text('Erro ao carregar uso de slots: $error');
+                  },
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
                 );
               },
               error: (error, stackTrace) {
@@ -157,16 +181,19 @@ class SpellSlotsPanel extends ConsumerWidget {
       if (type == 'full' || type == 'half' || type == 'third') {
         standardSlots = findRow(type!, classLevels.first.level);
         modeLabel = 'Progressão de ${classEntry?.name ?? classLevels.first.classId}';
-        explanation = 'Tabela usada: ${_tableLabel(type)} • nível de conjuração: ${classLevels.first.level}';
+        explanation =
+            'Tabela usada: ${_tableLabel(type)} • nível de conjuração: ${classLevels.first.level}';
       } else if (type == 'pact') {
         pactSlots = findRow('pact', classLevels.first.level);
         modeLabel = 'Magia de Pacto';
-        explanation = 'Bruxo usa progressão própria de slots de pacto.';
+        explanation =
+            'Bruxo usa progressão própria de slots de pacto.';
       }
     } else {
       if (nonPactCastingPresent) {
-        final effectiveCasterLevel =
-            fullCasterLevels + (halfCasterLevels ~/ 2) + (thirdCasterLevels ~/ 3);
+        final effectiveCasterLevel = fullCasterLevels +
+            (halfCasterLevels ~/ 2) +
+            (thirdCasterLevels ~/ 3);
 
         if (effectiveCasterLevel > 0) {
           standardSlots = findRow(
@@ -185,11 +212,12 @@ class SpellSlotsPanel extends ConsumerWidget {
       }
 
       if (pactLevels > 0 && nonPactCastingPresent) {
-        explanation = '${explanation ?? ''} '
-            'Magia de Pacto permanece separada dos slots normais.';
+        explanation =
+            '${explanation ?? ''} Magia de Pacto permanece separada dos slots normais.';
       } else if (pactLevels > 0 && !nonPactCastingPresent) {
         modeLabel = 'Magia de Pacto';
-        explanation = 'Bruxo usa progressão própria de slots de pacto.';
+        explanation =
+            'Bruxo usa progressão própria de slots de pacto.';
       }
     }
 
@@ -218,30 +246,35 @@ class SpellSlotsPanel extends ConsumerWidget {
   }
 }
 
-class _SlotsTable extends StatelessWidget {
-  const _SlotsTable({
+class _SlotsManager extends ConsumerWidget {
+  const _SlotsManager({
     required this.title,
     required this.row,
+    required this.usedSlots,
+    required this.characterId,
   });
 
   final String title;
   final SpellSlotProgressionEntry row;
+  final Map<int, int> usedSlots;
+  final String characterId;
 
   @override
-  Widget build(BuildContext context) {
-    final entries = <String, int>{
-      '1º': row.first,
-      '2º': row.second,
-      '3º': row.third,
-      '4º': row.fourth,
-      '5º': row.fifth,
-      '6º': row.sixth,
-      '7º': row.seventh,
-      '8º': row.eighth,
-      '9º': row.ninth,
+  Widget build(BuildContext context, WidgetRef ref) {
+    final entries = <int, int>{
+      1: row.first,
+      2: row.second,
+      3: row.third,
+      4: row.fourth,
+      5: row.fifth,
+      6: row.sixth,
+      7: row.seventh,
+      8: row.eighth,
+      9: row.ninth,
     };
 
-    final visibleEntries = entries.entries.where((e) => e.value > 0).toList();
+    final visibleEntries =
+        entries.entries.where((entry) => entry.value > 0).toList();
 
     if (visibleEntries.isEmpty) {
       return Text('$title: sem slots disponíveis.');
@@ -255,27 +288,111 @@ class _SlotsTable extends StatelessWidget {
           style: Theme.of(context).textTheme.titleSmall,
         ),
         const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: visibleEntries
-              .map((entry) => Chip(label: Text('${entry.key}: ${entry.value}')))
-              .toList(),
-        ),
+        ...visibleEntries.map((entry) {
+          final level = entry.key;
+          final max = entry.value;
+          final used = usedSlots[level] ?? 0;
+          final remaining = max - used;
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text('${level}º círculo: $remaining/$max'),
+                ),
+                IconButton(
+                  tooltip: 'Recuperar 1 slot',
+                  onPressed: used > 0
+                      ? () async {
+                          await ref
+                              .read(characterRepositoryProvider)
+                              .updateUsedSpellSlot(
+                                characterId: characterId,
+                                slotLevel: level,
+                                used: used - 1,
+                              );
+                          ref.invalidate(
+                            characterUsedSpellSlotsProvider(characterId),
+                          );
+                        }
+                      : null,
+                  icon: const Icon(Icons.remove_circle_outline),
+                ),
+                IconButton(
+                  tooltip: 'Gastar 1 slot',
+                  onPressed: remaining > 0
+                      ? () async {
+                          await ref
+                              .read(characterRepositoryProvider)
+                              .updateUsedSpellSlot(
+                                characterId: characterId,
+                                slotLevel: level,
+                                used: used + 1,
+                              );
+                          ref.invalidate(
+                            characterUsedSpellSlotsProvider(characterId),
+                          );
+                        }
+                      : null,
+                  icon: const Icon(Icons.add_circle_outline),
+                ),
+                PopupMenuButton<String>(
+                  onSelected: (value) async {
+                    if (value == 'zero') {
+                      await ref
+                          .read(characterRepositoryProvider)
+                          .updateUsedSpellSlot(
+                            characterId: characterId,
+                            slotLevel: level,
+                            used: 0,
+                          );
+                    } else if (value == 'full') {
+                      await ref
+                          .read(characterRepositoryProvider)
+                          .updateUsedSpellSlot(
+                            characterId: characterId,
+                            slotLevel: level,
+                            used: max,
+                          );
+                    }
+
+                    ref.invalidate(characterUsedSpellSlotsProvider(characterId));
+                  },
+                  itemBuilder: (context) => const [
+                    PopupMenuItem(
+                      value: 'zero',
+                      child: Text('Restaurar tudo'),
+                    ),
+                    PopupMenuItem(
+                      value: 'full',
+                      child: Text('Gastar tudo'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        }),
       ],
     );
   }
 }
 
-class _PactSlotsBlock extends StatelessWidget {
-  const _PactSlotsBlock({
+class _PactSlotsManager extends ConsumerWidget {
+  const _PactSlotsManager({
     required this.row,
+    required this.characterId,
+    required this.usedSlots,
   });
 
   final SpellSlotProgressionEntry row;
+  final String characterId;
+  final Map<int, int> usedSlots;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final slotLevel = row.pactSlotLevel ?? 1;
     final pactSlots = row.first > 0
         ? row.first
         : row.second > 0
@@ -286,6 +403,9 @@ class _PactSlotsBlock extends StatelessWidget {
                     ? row.fourth
                     : row.fifth;
 
+    final used = usedSlots[slotLevel] ?? 0;
+    final remaining = pactSlots - used;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -294,8 +414,46 @@ class _PactSlotsBlock extends StatelessWidget {
           style: Theme.of(context).textTheme.titleSmall,
         ),
         const SizedBox(height: 8),
-        Text(
-          'Slots: $pactSlots • Nível do slot: ${row.pactSlotLevel ?? 1}º',
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Slots: $remaining/$pactSlots • Nível do slot: ${slotLevel}º',
+              ),
+            ),
+            IconButton(
+              tooltip: 'Recuperar 1 slot de pacto',
+              onPressed: used > 0
+                  ? () async {
+                      await ref
+                          .read(characterRepositoryProvider)
+                          .updateUsedSpellSlot(
+                            characterId: characterId,
+                            slotLevel: slotLevel,
+                            used: used - 1,
+                          );
+                      ref.invalidate(characterUsedSpellSlotsProvider(characterId));
+                    }
+                  : null,
+              icon: const Icon(Icons.remove_circle_outline),
+            ),
+            IconButton(
+              tooltip: 'Gastar 1 slot de pacto',
+              onPressed: remaining > 0
+                  ? () async {
+                      await ref
+                          .read(characterRepositoryProvider)
+                          .updateUsedSpellSlot(
+                            characterId: characterId,
+                            slotLevel: slotLevel,
+                            used: used + 1,
+                          );
+                      ref.invalidate(characterUsedSpellSlotsProvider(characterId));
+                    }
+                  : null,
+              icon: const Icon(Icons.add_circle_outline),
+            ),
+          ],
         ),
       ],
     );

@@ -34,4 +34,12 @@ abstract class CharacterRepository {
   Future<void> deleteMagicItem({
     required int magicItemId,
   });
+
+  Future<Map<int, int>> getUsedSpellSlots(String characterId);
+
+  Future<void> updateUsedSpellSlot({
+    required String characterId,
+    required int slotLevel,
+    required int used,
+  });
 }

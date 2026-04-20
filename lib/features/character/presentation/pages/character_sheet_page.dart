@@ -189,7 +189,10 @@ class CharacterSheetPage extends ConsumerWidget {
                   const SizedBox(height: 16),
                   const _SectionHeader(title: 'Slots de magia'),
                   const SizedBox(height: 8),
-                  SpellSlotsPanel(classLevels: character.classLevels),
+                  SpellSlotsPanel(
+                    classLevels: character.classLevels,
+                    characterId: character.id,
+                  ),
                   const SizedBox(height: 16),
                   _SectionHeader(
                     title: 'Magias do personagem',
