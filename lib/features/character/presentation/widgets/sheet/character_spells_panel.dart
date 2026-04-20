@@ -19,6 +19,8 @@ class CharacterSpellsPanel extends ConsumerWidget {
 
   final Character character;
 
+  static int pactUsageKey(int slotLevel) => 100 + slotLevel;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final spellsAsync = ref.watch(spellEntriesProvider);
@@ -483,6 +485,8 @@ class _CastSpellButton extends ConsumerWidget {
   final _SpellcastingSummaryData slotSummary;
   final Map<int, int> usedSlots;
 
+  static int pactUsageKey(int slotLevel) => 100 + slotLevel;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return FilledButton.tonal(
@@ -504,7 +508,7 @@ class _CastSpellButton extends ConsumerWidget {
       return;
     }
 
-    final options = _availableCastLevels();
+    final options = _availableCastOptions();
     if (options.isEmpty) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -515,21 +519,20 @@ class _CastSpellButton extends ConsumerWidget {
       return;
     }
 
-    final chosenLevel = await showDialog<int>(
+    final chosen = await showDialog<_CastOption>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
           title: Text('Conjurar ${spell.namePt}'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            children: options.map((level) {
-              final remaining = _remainingSlotsAtLevel(level);
-              final max = _maxSlotsAtLevel(level);
-
+            children: options.map((option) {
               return ListTile(
-                title: Text('${level}º círculo'),
-                subtitle: Text('Restantes: $remaining/$max'),
-                onTap: () => Navigator.of(dialogContext).pop(level),
+                title: Text(option.label),
+                subtitle: Text(
+                  'Restantes: ${option.remaining}/${option.max}',
+                ),
+                onTap: () => Navigator.of(dialogContext).pop(option),
               );
             }).toList(),
           ),
@@ -537,13 +540,13 @@ class _CastSpellButton extends ConsumerWidget {
       },
     );
 
-    if (chosenLevel == null) return;
+    if (chosen == null) return;
 
-    final used = usedSlots[chosenLevel] ?? 0;
+    final used = usedSlots[chosen.usageKey] ?? 0;
 
     await ref.read(characterRepositoryProvider).updateUsedSpellSlot(
           characterId: character.id,
-          slotLevel: chosenLevel,
+          slotLevel: chosen.usageKey,
           used: used + 1,
         );
 
@@ -553,40 +556,76 @@ class _CastSpellButton extends ConsumerWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          '${spell.namePt} conjurada no ${chosenLevel}º círculo.',
+          '${spell.namePt} conjurada usando ${chosen.label.toLowerCase()}.',
         ),
       ),
     );
   }
 
-  List<int> _availableCastLevels() {
-    final available = <int>[];
+  List<_CastOption> _availableCastOptions() {
+    final options = <_CastOption>[];
 
     for (var level = spell.level; level <= 9; level++) {
-      final remaining = _remainingSlotsAtLevel(level);
-      if (remaining > 0) {
-        available.add(level);
+      final normalMax = slotSummary.standardSlots[level] ?? 0;
+      final normalUsed = usedSlots[level] ?? 0;
+      final normalRemaining = normalMax - normalUsed;
+
+      if (normalRemaining > 0) {
+        options.add(
+          _CastOption(
+            castLevel: level,
+            usageKey: level,
+            label: '${level}º círculo — slot normal',
+            max: normalMax,
+            remaining: normalRemaining,
+          ),
+        );
+      }
+
+      final hasPactAtThisLevel =
+          slotSummary.pactSlotLevel != null &&
+          slotSummary.pactSlotCount != null &&
+          slotSummary.pactSlotLevel == level &&
+          slotSummary.pactSlotCount! > 0;
+
+      if (hasPactAtThisLevel) {
+        final usageKey = pactUsageKey(level);
+        final pactUsed = usedSlots[usageKey] ?? 0;
+        final pactMax = slotSummary.pactSlotCount!;
+        final pactRemaining = pactMax - pactUsed;
+
+        if (pactRemaining > 0) {
+          options.add(
+            _CastOption(
+              castLevel: level,
+              usageKey: usageKey,
+              label: '${level}º círculo — slot de pacto',
+              max: pactMax,
+              remaining: pactRemaining,
+            ),
+          );
+        }
       }
     }
 
-    return available;
+    return options;
   }
+}
 
-  int _remainingSlotsAtLevel(int level) {
-    final max = _maxSlotsAtLevel(level);
-    final used = usedSlots[level] ?? 0;
-    return max - used;
-  }
+class _CastOption {
+  const _CastOption({
+    required this.castLevel,
+    required this.usageKey,
+    required this.label,
+    required this.max,
+    required this.remaining,
+  });
 
-  int _maxSlotsAtLevel(int level) {
-    final standard = slotSummary.standardSlots[level] ?? 0;
-
-    if (slotSummary.pactSlotLevel == level) {
-      return standard + (slotSummary.pactSlotCount ?? 0);
-    }
-
-    return standard;
-  }
+  final int castLevel;
+  final int usageKey;
+  final String label;
+  final int max;
+  final int remaining;
 }
 
 class _SpellViewData {

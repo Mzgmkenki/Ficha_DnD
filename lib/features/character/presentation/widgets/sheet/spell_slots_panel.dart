@@ -17,6 +17,8 @@ class SpellSlotsPanel extends ConsumerWidget {
   final List<ClassLevel> classLevels;
   final String characterId;
 
+  static int pactUsageKey(int slotLevel) => 100 + slotLevel;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final classesAsync = ref.watch(classEntriesProvider);
@@ -390,6 +392,8 @@ class _PactSlotsManager extends ConsumerWidget {
   final String characterId;
   final Map<int, int> usedSlots;
 
+  static int pactUsageKey(int slotLevel) => 100 + slotLevel;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final slotLevel = row.pactSlotLevel ?? 1;
@@ -403,7 +407,8 @@ class _PactSlotsManager extends ConsumerWidget {
                     ? row.fourth
                     : row.fifth;
 
-    final used = usedSlots[slotLevel] ?? 0;
+    final usageKey = pactUsageKey(slotLevel);
+    final used = usedSlots[usageKey] ?? 0;
     final remaining = pactSlots - used;
 
     return Column(
@@ -429,7 +434,7 @@ class _PactSlotsManager extends ConsumerWidget {
                           .read(characterRepositoryProvider)
                           .updateUsedSpellSlot(
                             characterId: characterId,
-                            slotLevel: slotLevel,
+                            slotLevel: usageKey,
                             used: used + 1,
                           );
                       ref.invalidate(
@@ -447,7 +452,7 @@ class _PactSlotsManager extends ConsumerWidget {
                           .read(characterRepositoryProvider)
                           .updateUsedSpellSlot(
                             characterId: characterId,
-                            slotLevel: slotLevel,
+                            slotLevel: usageKey,
                             used: used - 1,
                           );
                       ref.invalidate(
