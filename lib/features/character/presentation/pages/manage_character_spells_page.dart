@@ -1,6 +1,7 @@
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/character_spells_panel.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/spell_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
@@ -70,7 +71,7 @@ class _ManageCharacterSpellsPageState
                       : (classes.isNotEmpty ? classes.first.id : null);
 
                   final filteredSpells =
-                      _applySpellFilters(spells, character, classes);
+                      _applySpellFilters(spells, classes);
 
                   return ListView(
                     padding: const EdgeInsets.all(16),
@@ -292,192 +293,108 @@ class _ManageCharacterSpellsPageState
               builder: (context, constraints) {
                 final useColumn = constraints.maxWidth < 560;
 
+                final sourceField = DropdownButtonFormField<String>(
+                  initialValue: _selectedSourceType,
+                  decoration: const InputDecoration(
+                    labelText: 'Tipo de origem',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'class',
+                      child: Text('Classe'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'item',
+                      child: Text('Item mágico'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'custom',
+                      child: Text('Origem customizada'),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    if (value == null) return;
+                    setState(() {
+                      _selectedSourceType = value;
+                    });
+                  },
+                );
+
+                final levelField = DropdownButtonFormField<int?>(
+                  initialValue: _selectedSpellLevel,
+                  decoration: const InputDecoration(
+                    labelText: 'Nível da magia',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: const [
+                    DropdownMenuItem<int?>(
+                      value: null,
+                      child: Text('Todos'),
+                    ),
+                    DropdownMenuItem<int?>(
+                      value: 0,
+                      child: Text('Truque'),
+                    ),
+                    DropdownMenuItem<int?>(
+                      value: 1,
+                      child: Text('1º círculo'),
+                    ),
+                    DropdownMenuItem<int?>(
+                      value: 2,
+                      child: Text('2º círculo'),
+                    ),
+                    DropdownMenuItem<int?>(
+                      value: 3,
+                      child: Text('3º círculo'),
+                    ),
+                    DropdownMenuItem<int?>(
+                      value: 4,
+                      child: Text('4º círculo'),
+                    ),
+                    DropdownMenuItem<int?>(
+                      value: 5,
+                      child: Text('5º círculo'),
+                    ),
+                    DropdownMenuItem<int?>(
+                      value: 6,
+                      child: Text('6º círculo'),
+                    ),
+                    DropdownMenuItem<int?>(
+                      value: 7,
+                      child: Text('7º círculo'),
+                    ),
+                    DropdownMenuItem<int?>(
+                      value: 8,
+                      child: Text('8º círculo'),
+                    ),
+                    DropdownMenuItem<int?>(
+                      value: 9,
+                      child: Text('9º círculo'),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedSpellLevel = value;
+                    });
+                  },
+                );
+
                 if (useColumn) {
                   return Column(
                     children: [
-                      DropdownButtonFormField<String>(
-                        initialValue: _selectedSourceType,
-                        decoration: const InputDecoration(
-                          labelText: 'Tipo de origem',
-                          border: OutlineInputBorder(),
-                        ),
-                        items: const [
-                          DropdownMenuItem(
-                            value: 'class',
-                            child: Text('Classe'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'item',
-                            child: Text('Item mágico'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'custom',
-                            child: Text('Origem customizada'),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          if (value == null) return;
-                          setState(() {
-                            _selectedSourceType = value;
-                          });
-                        },
-                      ),
+                      sourceField,
                       const SizedBox(height: 12),
-                      DropdownButtonFormField<int?>(
-                        initialValue: _selectedSpellLevel,
-                        decoration: const InputDecoration(
-                          labelText: 'Nível da magia',
-                          border: OutlineInputBorder(),
-                        ),
-                        items: const [
-                          DropdownMenuItem<int?>(
-                            value: null,
-                            child: Text('Todos'),
-                          ),
-                          DropdownMenuItem<int?>(
-                            value: 0,
-                            child: Text('Truque'),
-                          ),
-                          DropdownMenuItem<int?>(
-                            value: 1,
-                            child: Text('1º círculo'),
-                          ),
-                          DropdownMenuItem<int?>(
-                            value: 2,
-                            child: Text('2º círculo'),
-                          ),
-                          DropdownMenuItem<int?>(
-                            value: 3,
-                            child: Text('3º círculo'),
-                          ),
-                          DropdownMenuItem<int?>(
-                            value: 4,
-                            child: Text('4º círculo'),
-                          ),
-                          DropdownMenuItem<int?>(
-                            value: 5,
-                            child: Text('5º círculo'),
-                          ),
-                          DropdownMenuItem<int?>(
-                            value: 6,
-                            child: Text('6º círculo'),
-                          ),
-                          DropdownMenuItem<int?>(
-                            value: 7,
-                            child: Text('7º círculo'),
-                          ),
-                          DropdownMenuItem<int?>(
-                            value: 8,
-                            child: Text('8º círculo'),
-                          ),
-                          DropdownMenuItem<int?>(
-                            value: 9,
-                            child: Text('9º círculo'),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedSpellLevel = value;
-                          });
-                        },
-                      ),
+                      levelField,
                     ],
                   );
                 }
 
                 return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: DropdownButtonFormField<String>(
-                        initialValue: _selectedSourceType,
-                        decoration: const InputDecoration(
-                          labelText: 'Tipo de origem',
-                          border: OutlineInputBorder(),
-                        ),
-                        items: const [
-                          DropdownMenuItem(
-                            value: 'class',
-                            child: Text('Classe'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'item',
-                            child: Text('Item mágico'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'custom',
-                            child: Text('Origem customizada'),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          if (value == null) return;
-                          setState(() {
-                            _selectedSourceType = value;
-                          });
-                        },
-                      ),
-                    ),
+                    Expanded(child: sourceField),
                     const SizedBox(width: 12),
-                    Expanded(
-                      child: DropdownButtonFormField<int?>(
-                        initialValue: _selectedSpellLevel,
-                        decoration: const InputDecoration(
-                          labelText: 'Nível da magia',
-                          border: OutlineInputBorder(),
-                        ),
-                        items: const [
-                          DropdownMenuItem<int?>(
-                            value: null,
-                            child: Text('Todos'),
-                          ),
-                          DropdownMenuItem<int?>(
-                            value: 0,
-                            child: Text('Truque'),
-                          ),
-                          DropdownMenuItem<int?>(
-                            value: 1,
-                            child: Text('1º círculo'),
-                          ),
-                          DropdownMenuItem<int?>(
-                            value: 2,
-                            child: Text('2º círculo'),
-                          ),
-                          DropdownMenuItem<int?>(
-                            value: 3,
-                            child: Text('3º círculo'),
-                          ),
-                          DropdownMenuItem<int?>(
-                            value: 4,
-                            child: Text('4º círculo'),
-                          ),
-                          DropdownMenuItem<int?>(
-                            value: 5,
-                            child: Text('5º círculo'),
-                          ),
-                          DropdownMenuItem<int?>(
-                            value: 6,
-                            child: Text('6º círculo'),
-                          ),
-                          DropdownMenuItem<int?>(
-                            value: 7,
-                            child: Text('7º círculo'),
-                          ),
-                          DropdownMenuItem<int?>(
-                            value: 8,
-                            child: Text('8º círculo'),
-                          ),
-                          DropdownMenuItem<int?>(
-                            value: 9,
-                            child: Text('9º círculo'),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedSpellLevel = value;
-                          });
-                        },
-                      ),
-                    ),
+                    Expanded(child: levelField),
                   ],
                 );
               },
@@ -577,89 +494,132 @@ class _ManageCharacterSpellsPageState
                             ),
                             const SizedBox(height: 6),
                             ...levelSpells.map(
-                              (spell) => ListTile(
-                                contentPadding: EdgeInsets.zero,
-                                title: Text(spell.namePt),
-                                subtitle: Text(spell.school),
-                                trailing: IconButton(
-                                  tooltip: 'Adicionar magia',
-                                  onPressed: () async {
-                                    final sourceData = _buildSourceData(classes);
-                                    if (sourceData == null) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'Preencha a origem da magia.',
-                                          ),
+                              (spell) => Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Theme.of(context)
+                                          .dividerColor
+                                          .withOpacity(0.5),
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: ListTile(
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 4,
+                                    ),
+                                    title: InkWell(
+                                      onTap: () =>
+                                          showSpellDetailsBottomSheet(
+                                        context,
+                                        spell,
+                                      ),
+                                      child: Text(
+                                        spell.namePt,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          decoration: TextDecoration.underline,
                                         ),
-                                      );
-                                      return;
-                                    }
+                                      ),
+                                    ),
+                                    subtitle: Padding(
+                                      padding: const EdgeInsets.only(top: 4),
+                                      child: Text(
+                                        '${_levelLabel(spell.level)} • ${spell.school}',
+                                      ),
+                                    ),
+                                    trailing: IconButton(
+                                      tooltip: 'Adicionar magia',
+                                      onPressed: () async {
+                                        final sourceData =
+                                            _buildSourceData(classes);
+                                        if (sourceData == null) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                'Preencha a origem da magia.',
+                                              ),
+                                            ),
+                                          );
+                                          return;
+                                        }
 
-                                    final alreadyExists = character.spells.any(
-                                      (item) =>
-                                          item.spellId == spell.id &&
-                                          item.sourceType == sourceData.type &&
-                                          item.sourceId == sourceData.id,
-                                    );
+                                        final alreadyExists =
+                                            character.spells.any(
+                                          (item) =>
+                                              item.spellId == spell.id &&
+                                              item.sourceType ==
+                                                  sourceData.type &&
+                                              item.sourceId ==
+                                                  sourceData.id,
+                                        );
 
-                                    if (alreadyExists) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'Essa magia já foi adicionada nessa origem.',
-                                          ),
-                                        ),
-                                      );
-                                      return;
-                                    }
+                                        if (alreadyExists) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                'Essa magia já foi adicionada nessa origem.',
+                                              ),
+                                            ),
+                                          );
+                                          return;
+                                        }
 
-                                    try {
-                                      final addSpell =
-                                          ref.read(addCharacterSpellProvider);
+                                        try {
+                                          final addSpell = ref.read(
+                                            addCharacterSpellProvider,
+                                          );
 
-                                      await addSpell(
-                                        characterId: character.id,
-                                        spell: CharacterSpell(
-                                          spellId: spell.id,
-                                          sourceType: sourceData.type,
-                                          sourceId: sourceData.id,
-                                          sourceName: sourceData.name,
-                                          isPrepared: _isPrepared,
-                                          isKnown: _isKnown,
-                                          isAlwaysAvailable:
-                                              _isAlwaysAvailable,
-                                        ),
-                                      );
+                                          await addSpell(
+                                            characterId: character.id,
+                                            spell: CharacterSpell(
+                                              spellId: spell.id,
+                                              sourceType: sourceData.type,
+                                              sourceId: sourceData.id,
+                                              sourceName: sourceData.name,
+                                              isPrepared: _isPrepared,
+                                              isKnown: _isKnown,
+                                              isAlwaysAvailable:
+                                                  _isAlwaysAvailable,
+                                            ),
+                                          );
 
-                                      ref.invalidate(
-                                        characterByIdProvider(character.id),
-                                      );
+                                          ref.invalidate(
+                                            characterByIdProvider(
+                                              character.id,
+                                            ),
+                                          );
 
-                                      if (!mounted) return;
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            'Magia adicionada: ${spell.namePt}',
-                                          ),
-                                        ),
-                                      );
-                                    } catch (error) {
-                                      if (!mounted) return;
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            'Erro ao adicionar magia: $error',
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  icon: const Icon(Icons.add_circle_outline),
+                                          if (!mounted) return;
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                'Magia adicionada: ${spell.namePt}',
+                                              ),
+                                            ),
+                                          );
+                                        } catch (error) {
+                                          if (!mounted) return;
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                'Erro ao adicionar magia: $error',
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      },
+                                      icon: const Icon(
+                                        Icons.add_circle_outline,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -689,7 +649,6 @@ class _ManageCharacterSpellsPageState
 
   List<SpellEntry> _applySpellFilters(
     List<SpellEntry> spells,
-    Character character,
     List<ClassEntry> classes,
   ) {
     String? classFilter;
@@ -784,8 +743,8 @@ class _ManageCharacterSpellsPageState
   }
 
   String _levelLabel(int level) {
-    if (level == 0) return 'Truques';
-    return '$levelº círculo';
+    if (level == 0) return 'Truque';
+    return '${level}º círculo';
   }
 }
 

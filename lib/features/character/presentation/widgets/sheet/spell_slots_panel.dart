@@ -180,18 +180,19 @@ class SpellSlotsPanel extends ConsumerWidget {
 
       if (type == 'full' || type == 'half' || type == 'third') {
         standardSlots = findRow(type!, classLevels.first.level);
-        modeLabel = 'Progressão de ${classEntry?.name ?? classLevels.first.classId}';
+        modeLabel =
+            'Progressão de ${classEntry?.name ?? classLevels.first.classId}';
         explanation =
             'Tabela usada: ${_tableLabel(type)} • nível de conjuração: ${classLevels.first.level}';
       } else if (type == 'pact') {
         pactSlots = findRow('pact', classLevels.first.level);
         modeLabel = 'Magia de Pacto';
-        explanation =
-            'Bruxo usa progressão própria de slots de pacto.';
+        explanation = 'Bruxo usa progressão própria de slots de pacto.';
       }
     } else {
       if (nonPactCastingPresent) {
-        final effectiveCasterLevel = fullCasterLevels +
+        final effectiveCasterLevel =
+            fullCasterLevels +
             (halfCasterLevels ~/ 2) +
             (thirdCasterLevels ~/ 3);
 
@@ -216,8 +217,7 @@ class SpellSlotsPanel extends ConsumerWidget {
             '${explanation ?? ''} Magia de Pacto permanece separada dos slots normais.';
       } else if (pactLevels > 0 && !nonPactCastingPresent) {
         modeLabel = 'Magia de Pacto';
-        explanation =
-            'Bruxo usa progressão própria de slots de pacto.';
+        explanation = 'Bruxo usa progressão própria de slots de pacto.';
       }
     }
 
@@ -299,25 +299,7 @@ class _SlotsManager extends ConsumerWidget {
             child: Row(
               children: [
                 Expanded(
-                  child: Text('$levelº círculo: $remaining/$max'),
-                ),
-                IconButton(
-                  tooltip: 'Recuperar 1 slot',
-                  onPressed: used > 0
-                      ? () async {
-                          await ref
-                              .read(characterRepositoryProvider)
-                              .updateUsedSpellSlot(
-                                characterId: characterId,
-                                slotLevel: level,
-                                used: used - 1,
-                              );
-                          ref.invalidate(
-                            characterUsedSpellSlotsProvider(characterId),
-                          );
-                        }
-                      : null,
-                  icon: const Icon(Icons.remove_circle_outline),
+                  child: Text('${level}º círculo: $remaining/$max'),
                 ),
                 IconButton(
                   tooltip: 'Gastar 1 slot',
@@ -329,6 +311,24 @@ class _SlotsManager extends ConsumerWidget {
                                 characterId: characterId,
                                 slotLevel: level,
                                 used: used + 1,
+                              );
+                          ref.invalidate(
+                            characterUsedSpellSlotsProvider(characterId),
+                          );
+                        }
+                      : null,
+                  icon: const Icon(Icons.remove_circle_outline),
+                ),
+                IconButton(
+                  tooltip: 'Recuperar 1 slot',
+                  onPressed: used > 0
+                      ? () async {
+                          await ref
+                              .read(characterRepositoryProvider)
+                              .updateUsedSpellSlot(
+                                characterId: characterId,
+                                slotLevel: level,
+                                used: used - 1,
                               );
                           ref.invalidate(
                             characterUsedSpellSlotsProvider(characterId),
@@ -418,24 +418,8 @@ class _PactSlotsManager extends ConsumerWidget {
           children: [
             Expanded(
               child: Text(
-                'Slots: $remaining/$pactSlots • Nível do slot: $slotLevelº',
+                'Slots: $remaining/$pactSlots • Nível do slot: ${slotLevel}º',
               ),
-            ),
-            IconButton(
-              tooltip: 'Recuperar 1 slot de pacto',
-              onPressed: used > 0
-                  ? () async {
-                      await ref
-                          .read(characterRepositoryProvider)
-                          .updateUsedSpellSlot(
-                            characterId: characterId,
-                            slotLevel: slotLevel,
-                            used: used - 1,
-                          );
-                      ref.invalidate(characterUsedSpellSlotsProvider(characterId));
-                    }
-                  : null,
-              icon: const Icon(Icons.remove_circle_outline),
             ),
             IconButton(
               tooltip: 'Gastar 1 slot de pacto',
@@ -448,7 +432,27 @@ class _PactSlotsManager extends ConsumerWidget {
                             slotLevel: slotLevel,
                             used: used + 1,
                           );
-                      ref.invalidate(characterUsedSpellSlotsProvider(characterId));
+                      ref.invalidate(
+                        characterUsedSpellSlotsProvider(characterId),
+                      );
+                    }
+                  : null,
+              icon: const Icon(Icons.remove_circle_outline),
+            ),
+            IconButton(
+              tooltip: 'Recuperar 1 slot de pacto',
+              onPressed: used > 0
+                  ? () async {
+                      await ref
+                          .read(characterRepositoryProvider)
+                          .updateUsedSpellSlot(
+                            characterId: characterId,
+                            slotLevel: slotLevel,
+                            used: used - 1,
+                          );
+                      ref.invalidate(
+                        characterUsedSpellSlotsProvider(characterId),
+                      );
                     }
                   : null,
               icon: const Icon(Icons.add_circle_outline),

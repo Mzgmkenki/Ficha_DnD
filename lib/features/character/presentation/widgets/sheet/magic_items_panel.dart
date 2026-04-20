@@ -35,158 +35,187 @@ class MagicItemsPanel extends ConsumerWidget {
                   ...character.magicItems.map(
                     (item) => Padding(
                       padding: const EdgeInsets.only(bottom: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            item.name,
-                            style: Theme.of(context).textTheme.titleSmall,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color:
+                                Theme.of(context).dividerColor.withOpacity(0.5),
                           ),
-                          if (item.description.isNotEmpty) ...[
-                            const SizedBox(height: 4),
-                            Text(item.description),
-                          ],
-                          if (item.maxCharges != null) ...[
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    'Cargas: ${item.charges ?? 0}/${item.maxCharges}',
-                                  ),
-                                ),
-                                IconButton(
-                                  tooltip: 'Gastar 1 carga',
-                                  onPressed: (item.charges ?? 0) > 0
-                                      ? () async {
-                                          final updateCharges = ref.read(
-                                            updateCharacterMagicItemChargesProvider,
-                                          );
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.name,
+                                style: Theme.of(context).textTheme.titleSmall,
+                              ),
+                              if (item.description.isNotEmpty) ...[
+                                const SizedBox(height: 4),
+                                Text(item.description),
+                              ],
+                              if (item.maxCharges != null) ...[
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        'Cargas: ${item.charges ?? 0}/${item.maxCharges}',
+                                      ),
+                                    ),
+                                    IconButton(
+                                      tooltip: 'Gastar 1 carga',
+                                      onPressed: (item.charges ?? 0) > 0
+                                          ? () async {
+                                              final updateCharges = ref.read(
+                                                updateCharacterMagicItemChargesProvider,
+                                              );
 
+                                              await updateCharges(
+                                                magicItemId: item.localId,
+                                                charges:
+                                                    (item.charges ?? 0) - 1,
+                                              );
+
+                                              ref.invalidate(
+                                                characterByIdProvider(
+                                                  character.id,
+                                                ),
+                                              );
+                                            }
+                                          : null,
+                                      icon: const Icon(
+                                        Icons.remove_circle_outline,
+                                      ),
+                                    ),
+                                    IconButton(
+                                      tooltip: 'Recuperar 1 carga',
+                                      onPressed: ((item.maxCharges ?? 0) > 0 &&
+                                              (item.charges ?? 0) <
+                                                  (item.maxCharges ?? 0))
+                                          ? () async {
+                                              final updateCharges = ref.read(
+                                                updateCharacterMagicItemChargesProvider,
+                                              );
+
+                                              await updateCharges(
+                                                magicItemId: item.localId,
+                                                charges:
+                                                    (item.charges ?? 0) + 1,
+                                              );
+
+                                              ref.invalidate(
+                                                characterByIdProvider(
+                                                  character.id,
+                                                ),
+                                              );
+                                            }
+                                          : null,
+                                      icon:
+                                          const Icon(Icons.add_circle_outline),
+                                    ),
+                                    PopupMenuButton<String>(
+                                      onSelected: (value) async {
+                                        final updateCharges = ref.read(
+                                          updateCharacterMagicItemChargesProvider,
+                                        );
+
+                                        if (value == 'zero') {
                                           await updateCharges(
                                             magicItemId: item.localId,
-                                            charges: (item.charges ?? 0) - 1,
+                                            charges: 0,
                                           );
-
-                                          ref.invalidate(
-                                            characterByIdProvider(character.id),
-                                          );
-                                        }
-                                      : null,
-                                  icon: const Icon(Icons.remove_circle_outline),
-                                ),
-                                IconButton(
-                                  tooltip: 'Recuperar 1 carga',
-                                  onPressed: ((item.maxCharges ?? 0) > 0 &&
-                                          (item.charges ?? 0) <
-                                              (item.maxCharges ?? 0))
-                                      ? () async {
-                                          final updateCharges = ref.read(
-                                            updateCharacterMagicItemChargesProvider,
-                                          );
-
+                                        } else if (value == 'full') {
                                           await updateCharges(
                                             magicItemId: item.localId,
-                                            charges: (item.charges ?? 0) + 1,
+                                            charges: item.maxCharges,
+                                          );
+                                        } else if (value == 'delete') {
+                                          final deleteItem = ref.read(
+                                            deleteCharacterMagicItemProvider,
                                           );
 
-                                          ref.invalidate(
-                                            characterByIdProvider(character.id),
+                                          await deleteItem(
+                                            magicItemId: item.localId,
                                           );
                                         }
-                                      : null,
-                                  icon: const Icon(Icons.add_circle_outline),
-                                ),
-                                PopupMenuButton<String>(
-                                  onSelected: (value) async {
-                                    final updateCharges = ref.read(
-                                      updateCharacterMagicItemChargesProvider,
-                                    );
 
-                                    if (value == 'zero') {
-                                      await updateCharges(
-                                        magicItemId: item.localId,
-                                        charges: 0,
-                                      );
-                                    } else if (value == 'full') {
-                                      await updateCharges(
-                                        magicItemId: item.localId,
-                                        charges: item.maxCharges,
-                                      );
-                                    } else if (value == 'delete') {
-                                      final deleteItem = ref.read(
-                                        deleteCharacterMagicItemProvider,
-                                      );
-
-                                      await deleteItem(
-                                        magicItemId: item.localId,
-                                      );
-                                    }
-
-                                    ref.invalidate(
-                                      characterByIdProvider(character.id),
-                                    );
-                                  },
-                                  itemBuilder: (context) => const [
-                                    PopupMenuItem(
-                                      value: 'zero',
-                                      child: Text('Zerar cargas'),
-                                    ),
-                                    PopupMenuItem(
-                                      value: 'full',
-                                      child: Text('Restaurar ao máximo'),
-                                    ),
-                                    PopupMenuItem(
-                                      value: 'delete',
-                                      child: Text('Excluir item'),
+                                        ref.invalidate(
+                                          characterByIdProvider(character.id),
+                                        );
+                                      },
+                                      itemBuilder: (context) => const [
+                                        PopupMenuItem(
+                                          value: 'zero',
+                                          child: Text('Zerar cargas'),
+                                        ),
+                                        PopupMenuItem(
+                                          value: 'full',
+                                          child: Text('Restaurar ao máximo'),
+                                        ),
+                                        PopupMenuItem(
+                                          value: 'delete',
+                                          child: Text('Excluir item'),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
+                              ] else ...[
+                                const SizedBox(height: 8),
+                                const Text('Este item não usa cargas.'),
                               ],
-                            ),
-                          ],
-                          if (item.rechargeRule != null &&
-                              item.rechargeRule!.isNotEmpty) ...[
-                            const SizedBox(height: 4),
-                            Text('Recarga: ${item.rechargeRule}'),
-                          ],
-                          if (item.spells.isNotEmpty) ...[
-                            const SizedBox(height: 8),
-                            ...item.spells.map(
-                              (spellLink) {
-                                final spell = spellEntries
-                                    .where((s) => s.id == spellLink.spellId)
-                                    .cast<dynamic>()
-                                    .firstWhere(
-                                      (s) => s != null,
-                                      orElse: () => null,
-                                    );
+                              if (item.rechargeRule != null &&
+                                  item.rechargeRule!.isNotEmpty) ...[
+                                const SizedBox(height: 4),
+                                Text('Recarga: ${item.rechargeRule}'),
+                              ],
+                              if (item.spells.isNotEmpty) ...[
+                                const SizedBox(height: 8),
+                                ...item.spells.map(
+                                  (spellLink) {
+                                    final spell = spellEntries
+                                        .where((s) => s.id == spellLink.spellId)
+                                        .cast<dynamic>()
+                                        .firstWhere(
+                                          (s) => s != null,
+                                          orElse: () => null,
+                                        );
 
-                                final spellName =
-                                    spell?.namePt ?? 'Magia #${spellLink.spellId}';
+                                    final spellName =
+                                        spell?.namePt ??
+                                            'Magia #${spellLink.spellId}';
 
-                                final extra = spellLink.isAtWill
-                                    ? 'À vontade'
-                                    : spellLink.usesCharges
+                                    final extra = spellLink.isAtWill
+                                        ? 'À vontade'
+                                        : spellLink.usesCharges
                                         ? '${spellLink.chargeCost} carga(s)'
                                         : 'Disponível';
 
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 6),
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const Text('• '),
-                                      Expanded(
-                                        child: Text('$spellName • $extra'),
+                                    return Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 6),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Text('• '),
+                                          Expanded(
+                                            child: Text(
+                                              '$spellName • $extra',
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        ],
+                                    );
+                                  },
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ),

@@ -214,7 +214,9 @@ class _ManageCharacterMagicItemsPageState
         currentCharges > maxCharges) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('As cargas atuais não podem ser maiores que as máximas.'),
+          content: Text(
+            'As cargas atuais não podem ser maiores que as máximas.',
+          ),
         ),
       );
       return;
@@ -317,131 +319,150 @@ class _CurrentItemsCard extends ConsumerWidget {
                   ...character.magicItems.map(
                     (item) => Padding(
                       padding: const EdgeInsets.only(bottom: 20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            item.name,
-                            style: Theme.of(context).textTheme.titleSmall,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color:
+                                Theme.of(context).dividerColor.withOpacity(0.5),
                           ),
-                          if (item.description.isNotEmpty) ...[
-                            const SizedBox(height: 4),
-                            Text(item.description),
-                          ],
-                          const SizedBox(height: 8),
-                          if (item.maxCharges != null) ...[
-                            Text(
-                              'Cargas: ${item.charges ?? 0}/${item.maxCharges}',
-                            ),
-                            const SizedBox(height: 8),
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: [
-                                OutlinedButton.icon(
-                                  onPressed: (item.charges ?? 0) > 0
-                                      ? () async {
-                                          final updateCharges = ref.read(
-                                            updateCharacterMagicItemChargesProvider,
-                                          );
-
-                                          await updateCharges(
-                                            magicItemId: item.localId,
-                                            charges: (item.charges ?? 0) - 1,
-                                          );
-
-                                          ref.invalidate(
-                                            characterByIdProvider(character.id),
-                                          );
-                                        }
-                                      : null,
-                                  icon: const Icon(Icons.remove),
-                                  label: const Text('Gastar 1'),
-                                ),
-                                OutlinedButton.icon(
-                                  onPressed: ((item.maxCharges ?? 0) > 0 &&
-                                          (item.charges ?? 0) <
-                                              (item.maxCharges ?? 0))
-                                      ? () async {
-                                          final updateCharges = ref.read(
-                                            updateCharacterMagicItemChargesProvider,
-                                          );
-
-                                          await updateCharges(
-                                            magicItemId: item.localId,
-                                            charges: (item.charges ?? 0) + 1,
-                                          );
-
-                                          ref.invalidate(
-                                            characterByIdProvider(character.id),
-                                          );
-                                        }
-                                      : null,
-                                  icon: const Icon(Icons.add),
-                                  label: const Text('Recuperar 1'),
-                                ),
-                                OutlinedButton(
-                                  onPressed: () async {
-                                    final updateCharges = ref.read(
-                                      updateCharacterMagicItemChargesProvider,
-                                    );
-
-                                    await updateCharges(
-                                      magicItemId: item.localId,
-                                      charges: 0,
-                                    );
-
-                                    ref.invalidate(
-                                      characterByIdProvider(character.id),
-                                    );
-                                  },
-                                  child: const Text('Zerar'),
-                                ),
-                                OutlinedButton(
-                                  onPressed: () async {
-                                    final updateCharges = ref.read(
-                                      updateCharacterMagicItemChargesProvider,
-                                    );
-
-                                    await updateCharges(
-                                      magicItemId: item.localId,
-                                      charges: item.maxCharges,
-                                    );
-
-                                    ref.invalidate(
-                                      characterByIdProvider(character.id),
-                                    );
-                                  },
-                                  child: const Text('Restaurar tudo'),
-                                ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.name,
+                                style: Theme.of(context).textTheme.titleSmall,
+                              ),
+                              if (item.description.isNotEmpty) ...[
+                                const SizedBox(height: 4),
+                                Text(item.description),
                               ],
-                            ),
-                          ] else ...[
-                            const Text('Este item não usa cargas.'),
-                          ],
-                          if (item.rechargeRule != null &&
-                              item.rechargeRule!.isNotEmpty) ...[
-                            const SizedBox(height: 8),
-                            Text('Recarga: ${item.rechargeRule}'),
-                          ],
-                          const SizedBox(height: 8),
-                          TextButton.icon(
-                            onPressed: () async {
-                              final deleteItem =
-                                  ref.read(deleteCharacterMagicItemProvider);
+                              const SizedBox(height: 8),
+                              if (item.maxCharges != null) ...[
+                                Text(
+                                  'Cargas: ${item.charges ?? 0}/${item.maxCharges}',
+                                ),
+                                const SizedBox(height: 8),
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children: [
+                                    OutlinedButton.icon(
+                                      onPressed: (item.charges ?? 0) > 0
+                                          ? () async {
+                                              final updateCharges = ref.read(
+                                                updateCharacterMagicItemChargesProvider,
+                                              );
 
-                              await deleteItem(
-                                magicItemId: item.localId,
-                              );
+                                              await updateCharges(
+                                                magicItemId: item.localId,
+                                                charges:
+                                                    (item.charges ?? 0) - 1,
+                                              );
 
-                              ref.invalidate(
-                                characterByIdProvider(character.id),
-                              );
-                            },
-                            icon: const Icon(Icons.delete_outline),
-                            label: const Text('Excluir item'),
+                                              ref.invalidate(
+                                                characterByIdProvider(
+                                                  character.id,
+                                                ),
+                                              );
+                                            }
+                                          : null,
+                                      icon: const Icon(Icons.remove),
+                                      label: const Text('Gastar 1'),
+                                    ),
+                                    OutlinedButton.icon(
+                                      onPressed:
+                                          ((item.maxCharges ?? 0) > 0 &&
+                                                  (item.charges ?? 0) <
+                                                      (item.maxCharges ?? 0))
+                                              ? () async {
+                                                  final updateCharges = ref.read(
+                                                    updateCharacterMagicItemChargesProvider,
+                                                  );
+
+                                                  await updateCharges(
+                                                    magicItemId: item.localId,
+                                                    charges:
+                                                        (item.charges ?? 0) + 1,
+                                                  );
+
+                                                  ref.invalidate(
+                                                    characterByIdProvider(
+                                                      character.id,
+                                                    ),
+                                                  );
+                                                }
+                                              : null,
+                                      icon: const Icon(Icons.add),
+                                      label: const Text('Recuperar 1'),
+                                    ),
+                                    OutlinedButton(
+                                      onPressed: () async {
+                                        final updateCharges = ref.read(
+                                          updateCharacterMagicItemChargesProvider,
+                                        );
+
+                                        await updateCharges(
+                                          magicItemId: item.localId,
+                                          charges: 0,
+                                        );
+
+                                        ref.invalidate(
+                                          characterByIdProvider(character.id),
+                                        );
+                                      },
+                                      child: const Text('Zerar'),
+                                    ),
+                                    OutlinedButton(
+                                      onPressed: () async {
+                                        final updateCharges = ref.read(
+                                          updateCharacterMagicItemChargesProvider,
+                                        );
+
+                                        await updateCharges(
+                                          magicItemId: item.localId,
+                                          charges: item.maxCharges,
+                                        );
+
+                                        ref.invalidate(
+                                          characterByIdProvider(character.id),
+                                        );
+                                      },
+                                      child: const Text('Restaurar tudo'),
+                                    ),
+                                  ],
+                                ),
+                              ] else ...[
+                                const Text('Este item não usa cargas.'),
+                              ],
+                              if (item.rechargeRule != null &&
+                                  item.rechargeRule!.isNotEmpty) ...[
+                                const SizedBox(height: 8),
+                                Text('Recarga: ${item.rechargeRule}'),
+                              ],
+                              const SizedBox(height: 8),
+                              TextButton.icon(
+                                onPressed: () async {
+                                  final deleteItem =
+                                      ref.read(deleteCharacterMagicItemProvider);
+
+                                  await deleteItem(
+                                    magicItemId: item.localId,
+                                  );
+
+                                  ref.invalidate(
+                                    characterByIdProvider(character.id),
+                                  );
+                                },
+                                icon: const Icon(Icons.delete_outline),
+                                label: const Text('Excluir item'),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
