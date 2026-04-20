@@ -4719,6 +4719,329 @@ class CharacterMagicItemSpellsCompanion
   }
 }
 
+class $CharacterSpellSlotsUsageTable extends CharacterSpellSlotsUsage
+    with
+        TableInfo<
+          $CharacterSpellSlotsUsageTable,
+          CharacterSpellSlotsUsageData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CharacterSpellSlotsUsageTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _localIdMeta = const VerificationMeta(
+    'localId',
+  );
+  @override
+  late final GeneratedColumn<int> localId = GeneratedColumn<int>(
+    'local_id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _characterIdMeta = const VerificationMeta(
+    'characterId',
+  );
+  @override
+  late final GeneratedColumn<String> characterId = GeneratedColumn<String>(
+    'character_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES characters (id)',
+    ),
+  );
+  static const VerificationMeta _slotLevelMeta = const VerificationMeta(
+    'slotLevel',
+  );
+  @override
+  late final GeneratedColumn<int> slotLevel = GeneratedColumn<int>(
+    'slot_level',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _usedMeta = const VerificationMeta('used');
+  @override
+  late final GeneratedColumn<int> used = GeneratedColumn<int>(
+    'used',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [localId, characterId, slotLevel, used];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'character_spell_slots_usage';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CharacterSpellSlotsUsageData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('local_id')) {
+      context.handle(
+        _localIdMeta,
+        localId.isAcceptableOrUnknown(data['local_id']!, _localIdMeta),
+      );
+    }
+    if (data.containsKey('character_id')) {
+      context.handle(
+        _characterIdMeta,
+        characterId.isAcceptableOrUnknown(
+          data['character_id']!,
+          _characterIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_characterIdMeta);
+    }
+    if (data.containsKey('slot_level')) {
+      context.handle(
+        _slotLevelMeta,
+        slotLevel.isAcceptableOrUnknown(data['slot_level']!, _slotLevelMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_slotLevelMeta);
+    }
+    if (data.containsKey('used')) {
+      context.handle(
+        _usedMeta,
+        used.isAcceptableOrUnknown(data['used']!, _usedMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {localId};
+  @override
+  CharacterSpellSlotsUsageData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CharacterSpellSlotsUsageData(
+      localId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}local_id'],
+          )!,
+      characterId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}character_id'],
+          )!,
+      slotLevel:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}slot_level'],
+          )!,
+      used:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}used'],
+          )!,
+    );
+  }
+
+  @override
+  $CharacterSpellSlotsUsageTable createAlias(String alias) {
+    return $CharacterSpellSlotsUsageTable(attachedDatabase, alias);
+  }
+}
+
+class CharacterSpellSlotsUsageData extends DataClass
+    implements Insertable<CharacterSpellSlotsUsageData> {
+  final int localId;
+  final String characterId;
+  final int slotLevel;
+  final int used;
+  const CharacterSpellSlotsUsageData({
+    required this.localId,
+    required this.characterId,
+    required this.slotLevel,
+    required this.used,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['local_id'] = Variable<int>(localId);
+    map['character_id'] = Variable<String>(characterId);
+    map['slot_level'] = Variable<int>(slotLevel);
+    map['used'] = Variable<int>(used);
+    return map;
+  }
+
+  CharacterSpellSlotsUsageCompanion toCompanion(bool nullToAbsent) {
+    return CharacterSpellSlotsUsageCompanion(
+      localId: Value(localId),
+      characterId: Value(characterId),
+      slotLevel: Value(slotLevel),
+      used: Value(used),
+    );
+  }
+
+  factory CharacterSpellSlotsUsageData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CharacterSpellSlotsUsageData(
+      localId: serializer.fromJson<int>(json['localId']),
+      characterId: serializer.fromJson<String>(json['characterId']),
+      slotLevel: serializer.fromJson<int>(json['slotLevel']),
+      used: serializer.fromJson<int>(json['used']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'localId': serializer.toJson<int>(localId),
+      'characterId': serializer.toJson<String>(characterId),
+      'slotLevel': serializer.toJson<int>(slotLevel),
+      'used': serializer.toJson<int>(used),
+    };
+  }
+
+  CharacterSpellSlotsUsageData copyWith({
+    int? localId,
+    String? characterId,
+    int? slotLevel,
+    int? used,
+  }) => CharacterSpellSlotsUsageData(
+    localId: localId ?? this.localId,
+    characterId: characterId ?? this.characterId,
+    slotLevel: slotLevel ?? this.slotLevel,
+    used: used ?? this.used,
+  );
+  CharacterSpellSlotsUsageData copyWithCompanion(
+    CharacterSpellSlotsUsageCompanion data,
+  ) {
+    return CharacterSpellSlotsUsageData(
+      localId: data.localId.present ? data.localId.value : this.localId,
+      characterId:
+          data.characterId.present ? data.characterId.value : this.characterId,
+      slotLevel: data.slotLevel.present ? data.slotLevel.value : this.slotLevel,
+      used: data.used.present ? data.used.value : this.used,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CharacterSpellSlotsUsageData(')
+          ..write('localId: $localId, ')
+          ..write('characterId: $characterId, ')
+          ..write('slotLevel: $slotLevel, ')
+          ..write('used: $used')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(localId, characterId, slotLevel, used);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CharacterSpellSlotsUsageData &&
+          other.localId == this.localId &&
+          other.characterId == this.characterId &&
+          other.slotLevel == this.slotLevel &&
+          other.used == this.used);
+}
+
+class CharacterSpellSlotsUsageCompanion
+    extends UpdateCompanion<CharacterSpellSlotsUsageData> {
+  final Value<int> localId;
+  final Value<String> characterId;
+  final Value<int> slotLevel;
+  final Value<int> used;
+  const CharacterSpellSlotsUsageCompanion({
+    this.localId = const Value.absent(),
+    this.characterId = const Value.absent(),
+    this.slotLevel = const Value.absent(),
+    this.used = const Value.absent(),
+  });
+  CharacterSpellSlotsUsageCompanion.insert({
+    this.localId = const Value.absent(),
+    required String characterId,
+    required int slotLevel,
+    this.used = const Value.absent(),
+  }) : characterId = Value(characterId),
+       slotLevel = Value(slotLevel);
+  static Insertable<CharacterSpellSlotsUsageData> custom({
+    Expression<int>? localId,
+    Expression<String>? characterId,
+    Expression<int>? slotLevel,
+    Expression<int>? used,
+  }) {
+    return RawValuesInsertable({
+      if (localId != null) 'local_id': localId,
+      if (characterId != null) 'character_id': characterId,
+      if (slotLevel != null) 'slot_level': slotLevel,
+      if (used != null) 'used': used,
+    });
+  }
+
+  CharacterSpellSlotsUsageCompanion copyWith({
+    Value<int>? localId,
+    Value<String>? characterId,
+    Value<int>? slotLevel,
+    Value<int>? used,
+  }) {
+    return CharacterSpellSlotsUsageCompanion(
+      localId: localId ?? this.localId,
+      characterId: characterId ?? this.characterId,
+      slotLevel: slotLevel ?? this.slotLevel,
+      used: used ?? this.used,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (localId.present) {
+      map['local_id'] = Variable<int>(localId.value);
+    }
+    if (characterId.present) {
+      map['character_id'] = Variable<String>(characterId.value);
+    }
+    if (slotLevel.present) {
+      map['slot_level'] = Variable<int>(slotLevel.value);
+    }
+    if (used.present) {
+      map['used'] = Variable<int>(used.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CharacterSpellSlotsUsageCompanion(')
+          ..write('localId: $localId, ')
+          ..write('characterId: $characterId, ')
+          ..write('slotLevel: $slotLevel, ')
+          ..write('used: $used')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $ClassEntriesTable extends ClassEntries
     with TableInfo<$ClassEntriesTable, ClassEntry> {
   @override
@@ -5099,6 +5422,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $CharacterMagicItemsTable(this);
   late final $CharacterMagicItemSpellsTable characterMagicItemSpells =
       $CharacterMagicItemSpellsTable(this);
+  late final $CharacterSpellSlotsUsageTable characterSpellSlotsUsage =
+      $CharacterSpellSlotsUsageTable(this);
   late final $ClassEntriesTable classEntries = $ClassEntriesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -5110,6 +5435,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     characterSpells,
     characterMagicItems,
     characterMagicItemSpells,
+    characterSpellSlotsUsage,
     classEntries,
   ];
 }
@@ -5287,6 +5613,34 @@ final class $$CharactersTableReferences
 
     final cache = $_typedResult.readTableOrNull(
       _characterMagicItemsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $CharacterSpellSlotsUsageTable,
+    List<CharacterSpellSlotsUsageData>
+  >
+  _characterSpellSlotsUsageRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.characterSpellSlotsUsage,
+        aliasName: $_aliasNameGenerator(
+          db.characters.id,
+          db.characterSpellSlotsUsage.characterId,
+        ),
+      );
+
+  $$CharacterSpellSlotsUsageTableProcessedTableManager
+  get characterSpellSlotsUsageRefs {
+    final manager = $$CharacterSpellSlotsUsageTableTableManager(
+      $_db,
+      $_db.characterSpellSlotsUsage,
+    ).filter((f) => f.characterId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _characterSpellSlotsUsageRefsTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -5595,6 +5949,33 @@ class $$CharactersTableFilterComposer
                 $removeJoinBuilderFromRootComposer,
           ),
     );
+    return f(composer);
+  }
+
+  Expression<bool> characterSpellSlotsUsageRefs(
+    Expression<bool> Function($$CharacterSpellSlotsUsageTableFilterComposer f)
+    f,
+  ) {
+    final $$CharacterSpellSlotsUsageTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.characterSpellSlotsUsage,
+          getReferencedColumn: (t) => t.characterId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CharacterSpellSlotsUsageTableFilterComposer(
+                $db: $db,
+                $table: $db.characterSpellSlotsUsage,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
     return f(composer);
   }
 }
@@ -6112,6 +6493,33 @@ class $$CharactersTableAnnotationComposer
         );
     return f(composer);
   }
+
+  Expression<T> characterSpellSlotsUsageRefs<T extends Object>(
+    Expression<T> Function($$CharacterSpellSlotsUsageTableAnnotationComposer a)
+    f,
+  ) {
+    final $$CharacterSpellSlotsUsageTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.characterSpellSlotsUsage,
+          getReferencedColumn: (t) => t.characterId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CharacterSpellSlotsUsageTableAnnotationComposer(
+                $db: $db,
+                $table: $db.characterSpellSlotsUsage,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$CharactersTableTableManager
@@ -6131,6 +6539,7 @@ class $$CharactersTableTableManager
             bool characterClassLevelsRefs,
             bool characterSpellsRefs,
             bool characterMagicItemsRefs,
+            bool characterSpellSlotsUsageRefs,
           })
         > {
   $$CharactersTableTableManager(_$AppDatabase db, $CharactersTable table)
@@ -6346,6 +6755,7 @@ class $$CharactersTableTableManager
             characterClassLevelsRefs = false,
             characterSpellsRefs = false,
             characterMagicItemsRefs = false,
+            characterSpellSlotsUsageRefs = false,
           }) {
             return PrefetchHooks(
               db: db,
@@ -6353,6 +6763,7 @@ class $$CharactersTableTableManager
                 if (characterClassLevelsRefs) db.characterClassLevels,
                 if (characterSpellsRefs) db.characterSpells,
                 if (characterMagicItemsRefs) db.characterMagicItems,
+                if (characterSpellSlotsUsageRefs) db.characterSpellSlotsUsage,
               ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
@@ -6423,6 +6834,28 @@ class $$CharactersTableTableManager
                           ),
                       typedResults: items,
                     ),
+                  if (characterSpellSlotsUsageRefs)
+                    await $_getPrefetchedData<
+                      Character,
+                      $CharactersTable,
+                      CharacterSpellSlotsUsageData
+                    >(
+                      currentTable: table,
+                      referencedTable: $$CharactersTableReferences
+                          ._characterSpellSlotsUsageRefsTable(db),
+                      managerFromTypedResult:
+                          (p0) =>
+                              $$CharactersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).characterSpellSlotsUsageRefs,
+                      referencedItemsForCurrentItem:
+                          (item, referencedItems) => referencedItems.where(
+                            (e) => e.characterId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
                 ];
               },
             );
@@ -6447,6 +6880,7 @@ typedef $$CharactersTableProcessedTableManager =
         bool characterClassLevelsRefs,
         bool characterSpellsRefs,
         bool characterMagicItemsRefs,
+        bool characterSpellSlotsUsageRefs,
       })
     >;
 typedef $$CharacterClassLevelsTableCreateCompanionBuilder =
@@ -8215,6 +8649,333 @@ typedef $$CharacterMagicItemSpellsTableProcessedTableManager =
       CharacterMagicItemSpell,
       PrefetchHooks Function({bool magicItemId})
     >;
+typedef $$CharacterSpellSlotsUsageTableCreateCompanionBuilder =
+    CharacterSpellSlotsUsageCompanion Function({
+      Value<int> localId,
+      required String characterId,
+      required int slotLevel,
+      Value<int> used,
+    });
+typedef $$CharacterSpellSlotsUsageTableUpdateCompanionBuilder =
+    CharacterSpellSlotsUsageCompanion Function({
+      Value<int> localId,
+      Value<String> characterId,
+      Value<int> slotLevel,
+      Value<int> used,
+    });
+
+final class $$CharacterSpellSlotsUsageTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $CharacterSpellSlotsUsageTable,
+          CharacterSpellSlotsUsageData
+        > {
+  $$CharacterSpellSlotsUsageTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $CharactersTable _characterIdTable(_$AppDatabase db) =>
+      db.characters.createAlias(
+        $_aliasNameGenerator(
+          db.characterSpellSlotsUsage.characterId,
+          db.characters.id,
+        ),
+      );
+
+  $$CharactersTableProcessedTableManager get characterId {
+    final $_column = $_itemColumn<String>('character_id')!;
+
+    final manager = $$CharactersTableTableManager(
+      $_db,
+      $_db.characters,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_characterIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$CharacterSpellSlotsUsageTableFilterComposer
+    extends Composer<_$AppDatabase, $CharacterSpellSlotsUsageTable> {
+  $$CharacterSpellSlotsUsageTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get slotLevel => $composableBuilder(
+    column: $table.slotLevel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get used => $composableBuilder(
+    column: $table.used,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CharactersTableFilterComposer get characterId {
+    final $$CharactersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableFilterComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterSpellSlotsUsageTableOrderingComposer
+    extends Composer<_$AppDatabase, $CharacterSpellSlotsUsageTable> {
+  $$CharacterSpellSlotsUsageTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get slotLevel => $composableBuilder(
+    column: $table.slotLevel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get used => $composableBuilder(
+    column: $table.used,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CharactersTableOrderingComposer get characterId {
+    final $$CharactersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableOrderingComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterSpellSlotsUsageTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CharacterSpellSlotsUsageTable> {
+  $$CharacterSpellSlotsUsageTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get localId =>
+      $composableBuilder(column: $table.localId, builder: (column) => column);
+
+  GeneratedColumn<int> get slotLevel =>
+      $composableBuilder(column: $table.slotLevel, builder: (column) => column);
+
+  GeneratedColumn<int> get used =>
+      $composableBuilder(column: $table.used, builder: (column) => column);
+
+  $$CharactersTableAnnotationComposer get characterId {
+    final $$CharactersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterSpellSlotsUsageTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CharacterSpellSlotsUsageTable,
+          CharacterSpellSlotsUsageData,
+          $$CharacterSpellSlotsUsageTableFilterComposer,
+          $$CharacterSpellSlotsUsageTableOrderingComposer,
+          $$CharacterSpellSlotsUsageTableAnnotationComposer,
+          $$CharacterSpellSlotsUsageTableCreateCompanionBuilder,
+          $$CharacterSpellSlotsUsageTableUpdateCompanionBuilder,
+          (
+            CharacterSpellSlotsUsageData,
+            $$CharacterSpellSlotsUsageTableReferences,
+          ),
+          CharacterSpellSlotsUsageData,
+          PrefetchHooks Function({bool characterId})
+        > {
+  $$CharacterSpellSlotsUsageTableTableManager(
+    _$AppDatabase db,
+    $CharacterSpellSlotsUsageTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer:
+              () => $$CharacterSpellSlotsUsageTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer:
+              () => $$CharacterSpellSlotsUsageTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer:
+              () => $$CharacterSpellSlotsUsageTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> localId = const Value.absent(),
+                Value<String> characterId = const Value.absent(),
+                Value<int> slotLevel = const Value.absent(),
+                Value<int> used = const Value.absent(),
+              }) => CharacterSpellSlotsUsageCompanion(
+                localId: localId,
+                characterId: characterId,
+                slotLevel: slotLevel,
+                used: used,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> localId = const Value.absent(),
+                required String characterId,
+                required int slotLevel,
+                Value<int> used = const Value.absent(),
+              }) => CharacterSpellSlotsUsageCompanion.insert(
+                localId: localId,
+                characterId: characterId,
+                slotLevel: slotLevel,
+                used: used,
+              ),
+          withReferenceMapper:
+              (p0) =>
+                  p0
+                      .map(
+                        (e) => (
+                          e.readTable(table),
+                          $$CharacterSpellSlotsUsageTableReferences(
+                            db,
+                            table,
+                            e,
+                          ),
+                        ),
+                      )
+                      .toList(),
+          prefetchHooksCallback: ({characterId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                T extends TableManagerState<
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic
+                >
+              >(state) {
+                if (characterId) {
+                  state =
+                      state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.characterId,
+                            referencedTable:
+                                $$CharacterSpellSlotsUsageTableReferences
+                                    ._characterIdTable(db),
+                            referencedColumn:
+                                $$CharacterSpellSlotsUsageTableReferences
+                                    ._characterIdTable(db)
+                                    .id,
+                          )
+                          as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$CharacterSpellSlotsUsageTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CharacterSpellSlotsUsageTable,
+      CharacterSpellSlotsUsageData,
+      $$CharacterSpellSlotsUsageTableFilterComposer,
+      $$CharacterSpellSlotsUsageTableOrderingComposer,
+      $$CharacterSpellSlotsUsageTableAnnotationComposer,
+      $$CharacterSpellSlotsUsageTableCreateCompanionBuilder,
+      $$CharacterSpellSlotsUsageTableUpdateCompanionBuilder,
+      (CharacterSpellSlotsUsageData, $$CharacterSpellSlotsUsageTableReferences),
+      CharacterSpellSlotsUsageData,
+      PrefetchHooks Function({bool characterId})
+    >;
 typedef $$ClassEntriesTableCreateCompanionBuilder =
     ClassEntriesCompanion Function({
       required String id,
@@ -8441,6 +9202,11 @@ class $AppDatabaseManager {
       $$CharacterMagicItemSpellsTableTableManager(
         _db,
         _db.characterMagicItemSpells,
+      );
+  $$CharacterSpellSlotsUsageTableTableManager get characterSpellSlotsUsage =>
+      $$CharacterSpellSlotsUsageTableTableManager(
+        _db,
+        _db.characterSpellSlotsUsage,
       );
   $$ClassEntriesTableTableManager get classEntries =>
       $$ClassEntriesTableTableManager(_db, _db.classEntries);
