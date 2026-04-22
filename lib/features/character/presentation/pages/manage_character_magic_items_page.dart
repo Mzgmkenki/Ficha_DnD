@@ -538,7 +538,20 @@ class _ItemSpellsSectionState extends ConsumerState<_ItemSpellsSection> {
         .toList()
       ..sort((a, b) => a.namePt.compareTo(b.namePt));
 
-    _selectedSpellId ??= availableSpells.isNotEmpty ? availableSpells.first.id : null;
+    final validSelectedSpellId = availableSpells.any(
+      (spell) => spell.id == _selectedSpellId,
+    )
+        ? _selectedSpellId
+        : (availableSpells.isNotEmpty ? availableSpells.first.id : null);
+
+    if (validSelectedSpellId != _selectedSpellId) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        setState(() {
+          _selectedSpellId = validSelectedSpellId;
+        });
+      });
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -575,18 +588,35 @@ class _ItemSpellsSectionState extends ConsumerState<_ItemSpellsSection> {
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('• '),
-                  Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Theme.of(context).dividerColor.withOpacity(0.4),
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: ListTile(
+                  dense: true,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
+                  ),
+                  title: InkWell(
+                    onTap: spell == null
+                        ? null
+                        : () => showSpellDetailsBottomSheet(context, spell),
                     child: Text(
-                      parts.isEmpty
-                          ? spellName
-                          : '$spellName • ${parts.join(' • ')}',
+                      spellName,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        decoration: spell == null
+                            ? TextDecoration.none
+                            : TextDecoration.underline,
+                      ),
                     ),
                   ),
-                  IconButton(
+                  subtitle: parts.isEmpty ? null : Text(parts.join(' • ')),
+                  trailing: IconButton(
                     tooltip: 'Remover magia do item',
                     onPressed: () async {
                       final remove = ref.read(removeMagicItemSpellProvider);
@@ -600,126 +630,166 @@ class _ItemSpellsSectionState extends ConsumerState<_ItemSpellsSection> {
                     },
                     icon: const Icon(Icons.delete_outline),
                   ),
-                ],
+                ),
               ),
             );
           }),
         const SizedBox(height: 12),
         if (availableSpells.isEmpty)
-          const Text('Todas as magias disponíveis já foram vinculadas a este item.')
+          const Text(
+            'Todas as magias disponíveis já foram vinculadas a este item.',
+          )
         else ...[
-          DropdownButtonFormField<int>(
-            initialValue: _selectedSpellId,
-            decoration: const InputDecoration(
-              labelText: 'Magia do compêndio',
-              border: OutlineInputBorder(),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(12),
             ),
-            items: availableSpells
-                .map(
-                  (spell) => DropdownMenuItem<int>(
-                    value: spell.id,
-                    child: Text(spell.namePt),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DropdownButtonFormField<int>(
+                  value: validSelectedSpellId,
+                  isExpanded: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Magia do compêndio',
+                    border: OutlineInputBorder(),
                   ),
-                )
-                .toList(),
-            onChanged: (value) {
-              setState(() {
-                _selectedSpellId = value;
-              });
-            },
-          ),
-          const SizedBox(height: 12),
-          CheckboxListTile(
-            contentPadding: EdgeInsets.zero,
-            title: const Text('Usa cargas'),
-            value: _usesCharges,
-            onChanged: (value) {
-              setState(() {
-                _usesCharges = value ?? true;
-                if (!_usesCharges) {
-                  _chargeCost = 1;
-                }
-              });
-            },
-          ),
-          CheckboxListTile(
-            contentPadding: EdgeInsets.zero,
-            title: const Text('À vontade'),
-            value: _isAtWill,
-            onChanged: (value) {
-              setState(() {
-                _isAtWill = value ?? false;
-                if (_isAtWill) {
-                  _usesCharges = false;
-                }
-              });
-            },
-          ),
-          CheckboxListTile(
-            contentPadding: EdgeInsets.zero,
-            title: const Text('Sempre disponível'),
-            value: _isAlwaysAvailable,
-            onChanged: (value) {
-              setState(() {
-                _isAlwaysAvailable = value ?? true;
-              });
-            },
-          ),
-          const SizedBox(height: 12),
-          if (_usesCharges && !_isAtWill)
-            DropdownButtonFormField<int>(
-              initialValue: _chargeCost,
-              decoration: const InputDecoration(
-                labelText: 'Custo em cargas',
-                border: OutlineInputBorder(),
-              ),
-              items: List.generate(
-                10,
-                (index) => DropdownMenuItem<int>(
-                  value: index + 1,
-                  child: Text('${index + 1} carga(s)'),
-                ),
-              ),
-              onChanged: (value) {
-                if (value == null) return;
-                setState(() {
-                  _chargeCost = value;
-                });
-              },
-            ),
-          const SizedBox(height: 12),
-          FilledButton.icon(
-            onPressed: _selectedSpellId == null
-                ? null
-                : () async {
-                    final add = ref.read(addMagicItemSpellProvider);
-
-                    await add(
-                      magicItemId: widget.item.localId,
-                      spell: CharacterMagicItemSpell(
-                        spellId: _selectedSpellId!,
-                        usesCharges: _isAtWill ? false : _usesCharges,
-                        chargeCost: _isAtWill ? 0 : _chargeCost,
-                        isAtWill: _isAtWill,
-                        isAlwaysAvailable: _isAlwaysAvailable,
-                      ),
-                    );
-
-                    if (!mounted) return;
-                    ref.invalidate(
-                      characterByIdProvider(widget.characterId),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Magia vinculada ao item com sucesso.'),
-                      ),
-                    );
+                  items: availableSpells
+                      .map(
+                        (spell) => DropdownMenuItem<int>(
+                          value: spell.id,
+                          child: Text(
+                            spell.namePt,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedSpellId = value;
+                    });
                   },
-            icon: const Icon(Icons.add),
-            label: const Text('Vincular magia ao item'),
+                ),
+                const SizedBox(height: 12),
+                _CompactSwitchRow(
+                  title: 'Usa cargas',
+                  value: _usesCharges,
+                  onChanged: (value) {
+                    setState(() {
+                      _usesCharges = value;
+                      if (!_usesCharges) {
+                        _chargeCost = 1;
+                      }
+                    });
+                  },
+                ),
+                _CompactSwitchRow(
+                  title: 'À vontade',
+                  value: _isAtWill,
+                  onChanged: (value) {
+                    setState(() {
+                      _isAtWill = value;
+                      if (_isAtWill) {
+                        _usesCharges = false;
+                      }
+                    });
+                  },
+                ),
+                _CompactSwitchRow(
+                  title: 'Sempre disponível',
+                  value: _isAlwaysAvailable,
+                  onChanged: (value) {
+                    setState(() {
+                      _isAlwaysAvailable = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 12),
+                if (_usesCharges && !_isAtWill)
+                  DropdownButtonFormField<int>(
+                    value: _chargeCost,
+                    isExpanded: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Custo em cargas',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: List.generate(
+                      10,
+                      (index) => DropdownMenuItem<int>(
+                        value: index + 1,
+                        child: Text('${index + 1} carga(s)'),
+                      ),
+                    ),
+                    onChanged: (value) {
+                      if (value == null) return;
+                      setState(() {
+                        _chargeCost = value;
+                      });
+                    },
+                  ),
+                if (_usesCharges && !_isAtWill) const SizedBox(height: 12),
+                FilledButton.icon(
+                  onPressed: validSelectedSpellId == null
+                      ? null
+                      : () async {
+                          final add = ref.read(addMagicItemSpellProvider);
+
+                          await add(
+                            magicItemId: widget.item.localId,
+                            spell: CharacterMagicItemSpell(
+                              spellId: validSelectedSpellId,
+                              usesCharges: _isAtWill ? false : _usesCharges,
+                              chargeCost: _isAtWill ? 0 : _chargeCost,
+                              isAtWill: _isAtWill,
+                              isAlwaysAvailable: _isAlwaysAvailable,
+                            ),
+                          );
+
+                          if (!mounted) return;
+                          ref.invalidate(
+                            characterByIdProvider(widget.characterId),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content:
+                                  Text('Magia vinculada ao item com sucesso.'),
+                            ),
+                          );
+                        },
+                  icon: const Icon(Icons.add),
+                  label: const Text('Vincular magia ao item'),
+                ),
+              ],
+            ),
           ),
         ],
       ],
+    );
+  }
+}
+
+class _CompactSwitchRow extends StatelessWidget {
+  const _CompactSwitchRow({
+    required this.title,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String title;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return SwitchListTile(
+      contentPadding: EdgeInsets.zero,
+      dense: true,
+      title: Text(title),
+      value: value,
+      onChanged: onChanged,
     );
   }
 }

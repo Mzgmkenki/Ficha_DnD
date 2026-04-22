@@ -1,6 +1,10 @@
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item_spell.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/character_spells_panel.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/spell_providers.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -173,12 +177,12 @@ class MagicItemsPanel extends ConsumerWidget {
                                 Text('Recarga: ${item.rechargeRule}'),
                               ],
                               if (item.spells.isNotEmpty) ...[
-                                const SizedBox(height: 8),
+                                const SizedBox(height: 10),
                                 ...item.spells.map(
                                   (spellLink) {
                                     final spell = spellEntries
                                         .where((s) => s.id == spellLink.spellId)
-                                        .cast<dynamic>()
+                                        .cast<SpellEntry?>()
                                         .firstWhere(
                                           (s) => s != null,
                                           orElse: () => null,
@@ -188,26 +192,29 @@ class MagicItemsPanel extends ConsumerWidget {
                                         spell?.namePt ??
                                             'Magia #${spellLink.spellId}';
 
-                                    final extra = spellLink.isAtWill
-                                        ? 'À vontade'
-                                        : spellLink.usesCharges
-                                        ? '${spellLink.chargeCost} carga(s)'
-                                        : 'Disponível';
+                                    final subtitleParts = <String>[];
+                                    if (spellLink.isAtWill) {
+                                      subtitleParts.add('À vontade');
+                                    }
+                                    if (spellLink.usesCharges) {
+                                      subtitleParts.add(
+                                        '${spellLink.chargeCost} carga(s)',
+                                      );
+                                    }
+                                    if (spellLink.isAlwaysAvailable) {
+                                      subtitleParts.add('Sempre disponível');
+                                    }
 
                                     return Padding(
                                       padding:
-                                          const EdgeInsets.only(bottom: 6),
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const Text('• '),
-                                          Expanded(
-                                            child: Text(
-                                              '$spellName • $extra',
-                                            ),
-                                          ),
-                                        ],
+                                          const EdgeInsets.only(bottom: 8),
+                                      child: _ItemSpellCastTile(
+                                        character: character,
+                                        item: item,
+                                        itemSpell: spellLink,
+                                        spell: spell,
+                                        spellName: spellName,
+                                        subtitle: subtitleParts.join(' • '),
                                       ),
                                     );
                                   },
@@ -226,6 +233,195 @@ class MagicItemsPanel extends ConsumerWidget {
             return Text('Erro ao carregar itens mágicos: $error');
           },
           loading: () => const Center(child: CircularProgressIndicator()),
+        ),
+      ),
+    );
+  }
+}
+
+class _ItemSpellCastTile extends ConsumerWidget {
+  const _ItemSpellCastTile({
+    required this.character,
+    required this.item,
+    required this.itemSpell,
+    required this.spell,
+    required this.spellName,
+    required this.subtitle,
+  });
+
+  final Character character;
+  final CharacterMagicItem item;
+  final CharacterMagicItemSpell itemSpell;
+  final SpellEntry? spell;
+  final String spellName;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Theme.of(context).dividerColor.withOpacity(0.4),
+        ),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final useColumn = constraints.maxWidth < 520;
+
+            final info = Expanded(
+              child: InkWell(
+                onTap: spell == null
+                    ? null
+                    : () => showSpellDetailsBottomSheet(context, spell!),
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 6,
+                    horizontal: 4,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        spellName,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          decoration: spell == null
+                              ? TextDecoration.none
+                              : TextDecoration.underline,
+                        ),
+                      ),
+                      if (subtitle.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          subtitle,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            );
+
+            final actions = FilledButton.tonal(
+              onPressed: () => _castItemSpell(context, ref),
+              child: const Text('Conjurar'),
+            );
+
+            if (useColumn) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [info],
+                  ),
+                  const SizedBox(height: 8),
+                  actions,
+                ],
+              );
+            }
+
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                info,
+                const SizedBox(width: 12),
+                actions,
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<void> _castItemSpell(BuildContext context, WidgetRef ref) async {
+    if (itemSpell.isAtWill || !itemSpell.usesCharges) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '$spellName conjurada pelo item ${item.name} sem gastar cargas.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    final currentCharges = item.charges ?? 0;
+    final cost = itemSpell.chargeCost;
+
+    if (currentCharges < cost) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'O item ${item.name} não possui cargas suficientes.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text('Conjurar $spellName'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Origem'),
+                subtitle: Text(item.name),
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Custo'),
+                subtitle: Text('$cost carga(s)'),
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Cargas atuais'),
+                subtitle: Text('${item.charges ?? 0}/${item.maxCharges ?? '-'}'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('Conjurar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+
+    final updateCharges = ref.read(updateCharacterMagicItemChargesProvider);
+
+    await updateCharges(
+      magicItemId: item.localId,
+      charges: currentCharges - cost,
+    );
+
+    ref.invalidate(characterByIdProvider(character.id));
+
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '$spellName conjurada pelo item ${item.name}, consumindo $cost carga(s).',
         ),
       ),
     );
