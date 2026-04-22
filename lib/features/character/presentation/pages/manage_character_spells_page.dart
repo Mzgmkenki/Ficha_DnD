@@ -77,6 +77,9 @@ class _ManageCharacterSpellsPageState
                       : (classes.isNotEmpty ? classes.first.id : null);
 
                   final filteredSpells = _applySpellFilters(spells);
+                  final classLimit = _selectedSourceType == 'class'
+                      ? _buildClassLimitInfo(character, classes, spells)
+                      : null;
 
                   return ListView(
                     padding: const EdgeInsets.all(16),
@@ -89,6 +92,7 @@ class _ManageCharacterSpellsPageState
                         character: character,
                         classes: classes,
                         spells: filteredSpells,
+                        classLimit: classLimit,
                       ),
                     ],
                   );
@@ -160,7 +164,7 @@ class _ManageCharacterSpellsPageState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        entry.key,
+                        '${entry.key} (${entry.value.length})',
                         style: Theme.of(context).textTheme.titleSmall,
                       ),
                       const SizedBox(height: 8),
@@ -277,6 +281,7 @@ class _ManageCharacterSpellsPageState
     required Character character,
     required List<ClassEntry> classes,
     required List<SpellEntry> spells,
+    required _ClassLimitInfo? classLimit,
   }) {
     final groupedSpells = _groupSpellsByLevel(spells);
     final sortedLevels = groupedSpells.keys.toList()..sort();
@@ -436,7 +441,6 @@ class _ManageCharacterSpellsPageState
               },
             ),
             const SizedBox(height: 12),
-
             if (_selectedSourceType == 'class')
               DropdownButtonFormField<String>(
                 initialValue: _selectedClassSourceId,
@@ -458,7 +462,6 @@ class _ManageCharacterSpellsPageState
                   });
                 },
               ),
-
             if (_selectedSourceType == 'item')
               TextField(
                 controller: _itemSourceNameController,
@@ -467,7 +470,6 @@ class _ManageCharacterSpellsPageState
                   border: OutlineInputBorder(),
                 ),
               ),
-
             if (_selectedSourceType == 'race')
               TextField(
                 controller: _raceSourceNameController,
@@ -476,7 +478,6 @@ class _ManageCharacterSpellsPageState
                   border: OutlineInputBorder(),
                 ),
               ),
-
             if (_selectedSourceType == 'feat')
               TextField(
                 controller: _featSourceNameController,
@@ -485,7 +486,6 @@ class _ManageCharacterSpellsPageState
                   border: OutlineInputBorder(),
                 ),
               ),
-
             if (_selectedSourceType == 'custom')
               TextField(
                 controller: _customSourceNameController,
@@ -494,7 +494,35 @@ class _ManageCharacterSpellsPageState
                   border: OutlineInputBorder(),
                 ),
               ),
-
+            if (classLimit != null) ...[
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      classLimit.title,
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(classLimit.summary),
+                    if (classLimit.note != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        classLimit.note!,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: 12),
             CheckboxListTile(
               contentPadding: EdgeInsets.zero,
@@ -544,7 +572,7 @@ class _ManageCharacterSpellsPageState
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              _levelLabel(level),
+                              '${_levelLabel(level)} (${levelSpells.length})',
                               style: Theme.of(context)
                                   .textTheme
                                   .titleSmall
@@ -627,6 +655,23 @@ class _ManageCharacterSpellsPageState
                                           return;
                                         }
 
+                                        if (classLimit != null) {
+                                          final blockReason =
+                                              _validateAgainstClassLimit(
+                                            classLimit: classLimit,
+                                            spell: spell,
+                                          );
+                                          if (blockReason != null) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(blockReason),
+                                              ),
+                                            );
+                                            return;
+                                          }
+                                        }
+
                                         try {
                                           final addSpell = ref.read(
                                             addCharacterSpellProvider,
@@ -692,6 +737,29 @@ class _ManageCharacterSpellsPageState
         ),
       ),
     );
+  }
+
+  String? _validateAgainstClassLimit({
+    required _ClassLimitInfo classLimit,
+    required SpellEntry spell,
+  }) {
+    if (spell.level == 0) {
+      return null;
+    }
+
+    if (classLimit.mode == _ClassLimitMode.known && _isKnown) {
+      if (classLimit.current >= classLimit.limit) {
+        return 'Limite de magias conhecidas dessa classe atingido.';
+      }
+    }
+
+    if (classLimit.mode == _ClassLimitMode.prepared && _isPrepared) {
+      if (classLimit.current >= classLimit.limit) {
+        return 'Limite de magias preparadas dessa classe atingido.';
+      }
+    }
+
+    return null;
   }
 
   Map<int, List<SpellEntry>> _groupSpellsByLevel(List<SpellEntry> spells) {
@@ -789,6 +857,318 @@ class _ManageCharacterSpellsPageState
     }
   }
 
+  _ClassLimitInfo? _buildClassLimitInfo(
+    Character character,
+    List<ClassEntry> classes,
+    List<SpellEntry> allSpells,
+  ) {
+    if (_selectedClassSourceId == null) return null;
+
+    final classId = _selectedClassSourceId!;
+    final classEntry = classes
+        .where((item) => item.id == classId)
+        .cast<ClassEntry?>()
+        .firstWhere(
+          (item) => item != null,
+          orElse: () => null,
+        );
+
+    final className = classEntry?.name ?? classId;
+    final classLevel = character.classLevels
+        .where((item) => item.classId == classId)
+        .cast<dynamic>()
+        .firstWhere(
+          (item) => item != null,
+          orElse: () => null,
+        );
+
+    final level = classLevel?.level as int?;
+    if (level == null) return null;
+
+    final classSpells = character.spells.where((spell) {
+      return spell.sourceType == 'class' &&
+          spell.sourceId == classId;
+    }).toList(growable: false);
+
+    int countKnownLevel1Plus() {
+      return classSpells.where((spell) {
+        if (!spell.isKnown) return false;
+        final entry = allSpells
+            .where((s) => s.id == spell.spellId)
+            .cast<SpellEntry?>()
+            .firstWhere(
+              (s) => s != null,
+              orElse: () => null,
+            );
+        return (entry?.level ?? 0) > 0;
+      }).length;
+    }
+
+    int countPreparedLevel1Plus() {
+      return classSpells.where((spell) {
+        if (!spell.isPrepared) return false;
+        final entry = allSpells
+            .where((s) => s.id == spell.spellId)
+            .cast<SpellEntry?>()
+            .firstWhere(
+              (s) => s != null,
+              orElse: () => null,
+            );
+        return (entry?.level ?? 0) > 0;
+      }).length;
+    }
+
+    int abilityModifier(String abilityName) {
+      switch (abilityName) {
+        case 'wisdom':
+          return ((character.abilityScores.wisdom - 10) / 2).floor();
+        case 'charisma':
+          return ((character.abilityScores.charisma - 10) / 2).floor();
+        case 'intelligence':
+          return ((character.abilityScores.intelligence - 10) / 2).floor();
+        default:
+          return 0;
+      }
+    }
+
+    final key = classId.trim().toLowerCase();
+
+    switch (key) {
+      case 'cleric':
+      case 'clérigo':
+        final limit = (abilityModifier('wisdom') + level).clamp(1, 999);
+        return _ClassLimitInfo(
+          mode: _ClassLimitMode.prepared,
+          title: '$className • limite de preparadas',
+          summary:
+              'Preparadas de 1º nível+ nessa classe: ${countPreparedLevel1Plus()}/$limit',
+          current: countPreparedLevel1Plus(),
+          limit: limit,
+          note: 'Truques não entram nesse limite.',
+        );
+
+      case 'druid':
+      case 'druida':
+        final limit = (abilityModifier('wisdom') + level).clamp(1, 999);
+        return _ClassLimitInfo(
+          mode: _ClassLimitMode.prepared,
+          title: '$className • limite de preparadas',
+          summary:
+              'Preparadas de 1º nível+ nessa classe: ${countPreparedLevel1Plus()}/$limit',
+          current: countPreparedLevel1Plus(),
+          limit: limit,
+          note: 'Truques não entram nesse limite.',
+        );
+
+      case 'paladin':
+      case 'paladino':
+        if (level < 2) {
+          return const _ClassLimitInfo(
+            mode: _ClassLimitMode.prepared,
+            title: 'Paladino • sem magia ainda',
+            summary: 'Paladino só ganha Magia no 2º nível.',
+            current: 0,
+            limit: 0,
+            note: null,
+          );
+        }
+        final limit =
+            (abilityModifier('charisma') + (level ~/ 2)).clamp(1, 999);
+        return _ClassLimitInfo(
+          mode: _ClassLimitMode.prepared,
+          title: '$className • limite de preparadas',
+          summary:
+              'Preparadas de 1º nível+ nessa classe: ${countPreparedLevel1Plus()}/$limit',
+          current: countPreparedLevel1Plus(),
+          limit: limit,
+          note: 'Truques não entram nesse limite.',
+        );
+
+      case 'wizard':
+      case 'mago':
+        final limit =
+            (abilityModifier('intelligence') + level).clamp(1, 999);
+        return _ClassLimitInfo(
+          mode: _ClassLimitMode.prepared,
+          title: '$className • limite de preparadas',
+          summary:
+              'Preparadas de 1º nível+ nessa classe: ${countPreparedLevel1Plus()}/$limit',
+          current: countPreparedLevel1Plus(),
+          limit: limit,
+          note:
+              'No app, as magias de origem Classe do mago funcionam como o conjunto disponível do grimório. Truques não entram no limite.',
+        );
+
+      case 'bard':
+      case 'bardo':
+        final limit = _bardKnownLimit(level);
+        return _ClassLimitInfo(
+          mode: _ClassLimitMode.known,
+          title: '$className • limite de conhecidas',
+          summary:
+              'Conhecidas de 1º nível+ nessa classe: ${countKnownLevel1Plus()}/$limit',
+          current: countKnownLevel1Plus(),
+          limit: limit,
+          note: 'Truques não entram nesse limite.',
+        );
+
+      case 'sorcerer':
+      case 'feiticeiro':
+        final limit = _sorcererKnownLimit(level);
+        return _ClassLimitInfo(
+          mode: _ClassLimitMode.known,
+          title: '$className • limite de conhecidas',
+          summary:
+              'Conhecidas de 1º nível+ nessa classe: ${countKnownLevel1Plus()}/$limit',
+          current: countKnownLevel1Plus(),
+          limit: limit,
+          note: 'Truques não entram nesse limite.',
+        );
+
+      case 'warlock':
+      case 'bruxo':
+        final limit = _warlockKnownLimit(level);
+        return _ClassLimitInfo(
+          mode: _ClassLimitMode.known,
+          title: '$className • limite de conhecidas',
+          summary:
+              'Conhecidas de 1º nível+ nessa classe: ${countKnownLevel1Plus()}/$limit',
+          current: countKnownLevel1Plus(),
+          limit: limit,
+          note: 'Truques não entram nesse limite.',
+        );
+
+      case 'ranger':
+      case 'patrulheiro':
+        if (level < 2) {
+          return const _ClassLimitInfo(
+            mode: _ClassLimitMode.known,
+            title: 'Patrulheiro • sem magia ainda',
+            summary: 'Patrulheiro só ganha Magia no 2º nível.',
+            current: 0,
+            limit: 0,
+            note: null,
+          );
+        }
+        final limit = _rangerKnownLimit(level);
+        return _ClassLimitInfo(
+          mode: _ClassLimitMode.known,
+          title: '$className • limite de conhecidas',
+          summary:
+              'Conhecidas de 1º nível+ nessa classe: ${countKnownLevel1Plus()}/$limit',
+          current: countKnownLevel1Plus(),
+          limit: limit,
+          note: 'Truques não entram nesse limite.',
+        );
+
+      default:
+        return null;
+    }
+  }
+
+  int _bardKnownLimit(int level) {
+    const table = {
+      1: 4,
+      2: 5,
+      3: 6,
+      4: 7,
+      5: 8,
+      6: 9,
+      7: 10,
+      8: 11,
+      9: 12,
+      10: 14,
+      11: 15,
+      12: 15,
+      13: 16,
+      14: 18,
+      15: 19,
+      16: 19,
+      17: 20,
+      18: 22,
+      19: 22,
+      20: 22,
+    };
+    return table[level] ?? 0;
+  }
+
+  int _sorcererKnownLimit(int level) {
+    const table = {
+      1: 2,
+      2: 3,
+      3: 4,
+      4: 5,
+      5: 6,
+      6: 7,
+      7: 8,
+      8: 9,
+      9: 10,
+      10: 11,
+      11: 12,
+      12: 12,
+      13: 13,
+      14: 13,
+      15: 14,
+      16: 14,
+      17: 15,
+      18: 15,
+      19: 15,
+      20: 15,
+    };
+    return table[level] ?? 0;
+  }
+
+  int _warlockKnownLimit(int level) {
+    const table = {
+      1: 2,
+      2: 3,
+      3: 4,
+      4: 5,
+      5: 6,
+      6: 7,
+      7: 8,
+      8: 9,
+      9: 10,
+      10: 10,
+      11: 11,
+      12: 11,
+      13: 12,
+      14: 12,
+      15: 13,
+      16: 13,
+      17: 14,
+      18: 14,
+      19: 15,
+      20: 15,
+    };
+    return table[level] ?? 0;
+  }
+
+  int _rangerKnownLimit(int level) {
+    const table = {
+      2: 2,
+      3: 3,
+      4: 3,
+      5: 4,
+      6: 4,
+      7: 5,
+      8: 5,
+      9: 6,
+      10: 6,
+      11: 7,
+      12: 7,
+      13: 8,
+      14: 8,
+      15: 9,
+      16: 9,
+      17: 10,
+      18: 10,
+      19: 11,
+      20: 11,
+    };
+    return table[level] ?? 0;
+  }
+
   String _slugify(String value) {
     return value.trim().toLowerCase().replaceAll(RegExp(r'\s+'), '_');
   }
@@ -814,6 +1194,29 @@ class _ManageCharacterSpellsPageState
     if (level == 0) return 'Truque';
     return '${level}º círculo';
   }
+}
+
+enum _ClassLimitMode {
+  known,
+  prepared,
+}
+
+class _ClassLimitInfo {
+  const _ClassLimitInfo({
+    required this.mode,
+    required this.title,
+    required this.summary,
+    required this.current,
+    required this.limit,
+    required this.note,
+  });
+
+  final _ClassLimitMode mode;
+  final String title;
+  final String summary;
+  final int current;
+  final int limit;
+  final String? note;
 }
 
 class _SourceData {
