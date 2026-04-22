@@ -5,6 +5,7 @@ import 'package:dnd_ficha_app/features/character/application/use_cases/character
 import 'package:dnd_ficha_app/features/character/application/use_cases/combat/update_character_hit_points.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item_spell.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -137,6 +138,42 @@ final deleteCharacterMagicItemProvider = Provider<
   }) {
     return repository.deleteMagicItem(
       magicItemId: magicItemId,
+    );
+  };
+});
+
+final addMagicItemSpellProvider = Provider<
+    Future<void> Function({
+      required int magicItemId,
+      required CharacterMagicItemSpell spell,
+    })>((ref) {
+  final repository = ref.watch(characterRepositoryProvider);
+
+  return ({
+    required int magicItemId,
+    required CharacterMagicItemSpell spell,
+  }) {
+    return repository.addMagicItemSpell(
+      magicItemId: magicItemId,
+      spell: spell,
+    );
+  };
+});
+
+final removeMagicItemSpellProvider = Provider<
+    Future<void> Function({
+      required int magicItemId,
+      required int spellId,
+    })>((ref) {
+  final repository = ref.watch(characterRepositoryProvider);
+
+  return ({
+    required int magicItemId,
+    required int spellId,
+  }) {
+    return repository.removeMagicItemSpell(
+      magicItemId: magicItemId,
+      spellId: spellId,
     );
   };
 });

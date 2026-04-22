@@ -1,5 +1,6 @@
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item_spell.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
 
 abstract class CharacterRepository {
@@ -33,6 +34,16 @@ abstract class CharacterRepository {
 
   Future<void> deleteMagicItem({
     required int magicItemId,
+  });
+
+  Future<void> addMagicItemSpell({
+    required int magicItemId,
+    required CharacterMagicItemSpell spell,
+  });
+
+  Future<void> removeMagicItemSpell({
+    required int magicItemId,
+    required int spellId,
   });
 
   Future<Map<int, int>> getUsedSpellSlots(String characterId);

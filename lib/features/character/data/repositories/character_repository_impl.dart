@@ -397,6 +397,35 @@ class CharacterRepositoryImpl implements CharacterRepository {
   }
 
   @override
+  Future<void> addMagicItemSpell({
+    required int magicItemId,
+    required domain_item_spells.CharacterMagicItemSpell spell,
+  }) async {
+    await _database.into(_database.characterMagicItemSpells).insert(
+          db.CharacterMagicItemSpellsCompanion.insert(
+            magicItemId: magicItemId,
+            spellId: spell.spellId,
+            usesCharges: drift.Value(spell.usesCharges),
+            chargeCost: drift.Value(spell.chargeCost),
+            isAtWill: drift.Value(spell.isAtWill),
+            isAlwaysAvailable: drift.Value(spell.isAlwaysAvailable),
+          ),
+        );
+  }
+
+  @override
+  Future<void> removeMagicItemSpell({
+    required int magicItemId,
+    required int spellId,
+  }) async {
+    await (_database.delete(_database.characterMagicItemSpells)
+          ..where((tbl) =>
+              tbl.magicItemId.equals(magicItemId) &
+              tbl.spellId.equals(spellId)))
+        .go();
+  }
+
+  @override
   Future<Map<int, int>> getUsedSpellSlots(String characterId) async {
     final rows = await (_database.select(_database.characterSpellSlotsUsage)
           ..where((tbl) => tbl.characterId.equals(characterId)))
