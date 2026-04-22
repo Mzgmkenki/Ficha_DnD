@@ -14,19 +14,27 @@ import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/raci
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/saving_throws_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/skills_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/spell_slots_panel.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/spellcasting_summary_panel.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CharacterSheetPage extends ConsumerWidget {
+class CharacterSheetPage extends ConsumerStatefulWidget {
   const CharacterSheetPage({required this.characterId, super.key});
 
   final String characterId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final characterAsync = ref.watch(characterByIdProvider(characterId));
+  ConsumerState<CharacterSheetPage> createState() => _CharacterSheetPageState();
+}
+
+class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
+  bool? _showSpellcasting;
+
+  @override
+  Widget build(BuildContext context) {
+    final characterAsync = ref.watch(characterByIdProvider(widget.characterId));
     final classesAsync = ref.watch(classEntriesProvider);
 
     return Scaffold(
@@ -39,6 +47,9 @@ class CharacterSheetPage extends ConsumerWidget {
 
           return classesAsync.when(
             data: (classes) {
+              final isCaster = _isCaster(character, classes);
+              _showSpellcasting ??= isCaster;
+
               return ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
@@ -63,6 +74,7 @@ class CharacterSheetPage extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
+
                   _SectionHeader(
                     title: 'Classes',
                     actionLabel: 'Editar nível',
@@ -77,7 +89,7 @@ class CharacterSheetPage extends ConsumerWidget {
                           ),
                         ),
                       );
-                      ref.invalidate(characterByIdProvider(characterId));
+                      ref.invalidate(characterByIdProvider(widget.characterId));
                     },
                   ),
                   const SizedBox(height: 8),
@@ -94,6 +106,7 @@ class CharacterSheetPage extends ConsumerWidget {
                       );
                     }).toList(),
                   ),
+
                   const SizedBox(height: 16),
                   _SectionHeader(
                     title: 'Combate',
@@ -108,11 +121,12 @@ class CharacterSheetPage extends ConsumerWidget {
                           ),
                         ),
                       );
-                      ref.invalidate(characterByIdProvider(characterId));
+                      ref.invalidate(characterByIdProvider(widget.characterId));
                     },
                   ),
                   const SizedBox(height: 8),
                   CombatSummaryCard(character: character),
+
                   const SizedBox(height: 16),
                   _SectionHeader(
                     title: 'Atributos',
@@ -127,7 +141,7 @@ class CharacterSheetPage extends ConsumerWidget {
                           ),
                         ),
                       );
-                      ref.invalidate(characterByIdProvider(characterId));
+                      ref.invalidate(characterByIdProvider(widget.characterId));
                     },
                   ),
                   const SizedBox(height: 8),
@@ -161,6 +175,7 @@ class CharacterSheetPage extends ConsumerWidget {
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 16),
                   _SectionHeader(
                     title: 'Proficiências',
@@ -177,15 +192,17 @@ class CharacterSheetPage extends ConsumerWidget {
                           ),
                         ),
                       );
-                      ref.invalidate(characterByIdProvider(characterId));
+                      ref.invalidate(characterByIdProvider(widget.characterId));
                     },
                   ),
                   const SizedBox(height: 8),
                   SavingThrowsPanel(character: character),
+
                   const SizedBox(height: 16),
                   const _SectionHeader(title: 'Perícias'),
                   const SizedBox(height: 8),
                   SkillsPanel(character: character),
+
                   const SizedBox(height: 16),
                   const _SectionHeader(title: 'Slots de magia'),
                   const SizedBox(height: 8),
@@ -193,6 +210,28 @@ class CharacterSheetPage extends ConsumerWidget {
                     classLevels: character.classLevels,
                     characterId: character.id,
                   ),
+
+                  const SizedBox(height: 16),
+                  _SectionHeader(
+                    title: 'Conjuração',
+                    actionLabel: _showSpellcasting == true ? 'Ocultar' : 'Mostrar',
+                    actionIcon: _showSpellcasting == true
+                        ? Icons.expand_less
+                        : Icons.expand_more,
+                    onPressed: () {
+                      setState(() {
+                        _showSpellcasting = !(_showSpellcasting ?? false);
+                      });
+                    },
+                  ),
+                  if (_showSpellcasting == true) ...[
+                    const SizedBox(height: 8),
+                    SpellcastingSummaryPanel(
+                      character: character,
+                      classes: classes,
+                    ),
+                  ],
+
                   const SizedBox(height: 16),
                   _SectionHeader(
                     title: 'Magias do personagem',
@@ -206,11 +245,12 @@ class CharacterSheetPage extends ConsumerWidget {
                           ),
                         ),
                       );
-                      ref.invalidate(characterByIdProvider(characterId));
+                      ref.invalidate(characterByIdProvider(widget.characterId));
                     },
                   ),
                   const SizedBox(height: 8),
                   CharacterSpellsPanel(character: character),
+
                   const SizedBox(height: 16),
                   _SectionHeader(
                     title: 'Itens mágicos',
@@ -224,19 +264,22 @@ class CharacterSheetPage extends ConsumerWidget {
                           ),
                         ),
                       );
-                      ref.invalidate(characterByIdProvider(characterId));
+                      ref.invalidate(characterByIdProvider(widget.characterId));
                     },
                   ),
                   const SizedBox(height: 8),
                   MagicItemsPanel(character: character),
+
                   const SizedBox(height: 16),
                   const _SectionHeader(title: 'Características raciais'),
                   const SizedBox(height: 8),
                   RacialTraitsPanel(speciesId: character.speciesId),
+
                   const SizedBox(height: 16),
                   const _SectionHeader(title: 'Características de classe'),
                   const SizedBox(height: 8),
                   ClassFeaturesPanel(classLevels: character.classLevels),
+
                   const SizedBox(height: 16),
                   const _SectionHeader(title: 'Anotações'),
                   const SizedBox(height: 8),
@@ -263,6 +306,46 @@ class CharacterSheetPage extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
       ),
     );
+  }
+
+  bool _isCaster(dynamic character, List<ClassEntry> classes) {
+    for (final classLevel in character.classLevels) {
+      final entry = classes.where((c) => c.id == classLevel.classId).cast<ClassEntry?>().firstWhere(
+            (c) => c != null,
+            orElse: () => null,
+          );
+
+      final id = classLevel.classId.toString().trim().toLowerCase();
+      final type = entry?.spellcastingType?.trim().toLowerCase();
+
+      if (type == 'full' || type == 'half' || type == 'third' || type == 'pact') {
+        return true;
+      }
+
+      switch (id) {
+        case 'wizard':
+        case 'mago':
+        case 'cleric':
+        case 'clérigo':
+        case 'druid':
+        case 'druida':
+        case 'bard':
+        case 'bardo':
+        case 'sorcerer':
+        case 'feiticeiro':
+        case 'warlock':
+        case 'bruxo':
+        case 'paladin':
+        case 'paladino':
+        case 'ranger':
+        case 'patrulheiro':
+        case 'artificer':
+        case 'artífice':
+          return true;
+      }
+    }
+
+    return false;
   }
 
   String _classNameForId(List<ClassEntry> classes, String classId) {

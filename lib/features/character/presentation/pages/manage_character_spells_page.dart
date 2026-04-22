@@ -29,6 +29,10 @@ class _ManageCharacterSpellsPageState
       TextEditingController();
   final TextEditingController _itemSourceNameController =
       TextEditingController();
+  final TextEditingController _raceSourceNameController =
+      TextEditingController();
+  final TextEditingController _featSourceNameController =
+      TextEditingController();
 
   String _search = '';
   String _selectedSourceType = 'class';
@@ -43,6 +47,8 @@ class _ManageCharacterSpellsPageState
     _searchController.dispose();
     _customSourceNameController.dispose();
     _itemSourceNameController.dispose();
+    _raceSourceNameController.dispose();
+    _featSourceNameController.dispose();
     super.dispose();
   }
 
@@ -70,8 +76,7 @@ class _ManageCharacterSpellsPageState
                       ? character.classLevels.first.classId
                       : (classes.isNotEmpty ? classes.first.id : null);
 
-                  final filteredSpells =
-                      _applySpellFilters(spells, classes);
+                  final filteredSpells = _applySpellFilters(spells);
 
                   return ListView(
                     padding: const EdgeInsets.all(16),
@@ -180,18 +185,41 @@ class _ManageCharacterSpellsPageState
 
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 8),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('• '),
-                              Expanded(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: Theme.of(context)
+                                    .dividerColor
+                                    .withOpacity(0.4),
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 4,
+                              ),
+                              title: InkWell(
+                                onTap: spell == null
+                                    ? null
+                                    : () => showSpellDetailsBottomSheet(
+                                          context,
+                                          spell,
+                                        ),
                                 child: Text(
-                                  tags.isEmpty
-                                      ? spellName
-                                      : '$spellName • ${tags.join(' • ')}',
+                                  spellName,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    decoration: spell == null
+                                        ? TextDecoration.none
+                                        : TextDecoration.underline,
+                                  ),
                                 ),
                               ),
-                              IconButton(
+                              subtitle: tags.isEmpty
+                                  ? null
+                                  : Text(tags.join(' • ')),
+                              trailing: IconButton(
                                 tooltip: 'Remover magia',
                                 onPressed: () async {
                                   try {
@@ -229,7 +257,7 @@ class _ManageCharacterSpellsPageState
                                 },
                                 icon: const Icon(Icons.delete_outline),
                               ),
-                            ],
+                            ),
                           ),
                         );
                       }),
@@ -307,6 +335,14 @@ class _ManageCharacterSpellsPageState
                     DropdownMenuItem(
                       value: 'item',
                       child: Text('Item mágico'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'race',
+                      child: Text('Raça'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'feat',
+                      child: Text('Talento'),
                     ),
                     DropdownMenuItem(
                       value: 'custom',
@@ -400,6 +436,7 @@ class _ManageCharacterSpellsPageState
               },
             ),
             const SizedBox(height: 12),
+
             if (_selectedSourceType == 'class')
               DropdownButtonFormField<String>(
                 initialValue: _selectedClassSourceId,
@@ -421,6 +458,7 @@ class _ManageCharacterSpellsPageState
                   });
                 },
               ),
+
             if (_selectedSourceType == 'item')
               TextField(
                 controller: _itemSourceNameController,
@@ -429,6 +467,25 @@ class _ManageCharacterSpellsPageState
                   border: OutlineInputBorder(),
                 ),
               ),
+
+            if (_selectedSourceType == 'race')
+              TextField(
+                controller: _raceSourceNameController,
+                decoration: const InputDecoration(
+                  labelText: 'Nome da raça',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+
+            if (_selectedSourceType == 'feat')
+              TextField(
+                controller: _featSourceNameController,
+                decoration: const InputDecoration(
+                  labelText: 'Nome do talento',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+
             if (_selectedSourceType == 'custom')
               TextField(
                 controller: _customSourceNameController,
@@ -437,6 +494,7 @@ class _ManageCharacterSpellsPageState
                   border: OutlineInputBorder(),
                 ),
               ),
+
             const SizedBox(height: 12),
             CheckboxListTile(
               contentPadding: EdgeInsets.zero,
@@ -647,15 +705,7 @@ class _ManageCharacterSpellsPageState
     return grouped;
   }
 
-  List<SpellEntry> _applySpellFilters(
-    List<SpellEntry> spells,
-    List<ClassEntry> classes,
-  ) {
-    String? classFilter;
-    if (_selectedSourceType == 'class' && _selectedClassSourceId != null) {
-      classFilter = _selectedClassSourceId;
-    }
-
+  List<SpellEntry> _applySpellFilters(List<SpellEntry> spells) {
     return spells.where((spell) {
       if (_search.isNotEmpty) {
         final matchPt = spell.namePt.toLowerCase().contains(_search);
@@ -664,10 +714,6 @@ class _ManageCharacterSpellsPageState
         if (!matchPt && !matchOriginal) {
           return false;
         }
-      }
-
-      if (classFilter != null && !spell.classes.contains(classFilter)) {
-        return false;
       }
 
       if (_selectedSpellLevel != null && spell.level != _selectedSpellLevel) {
@@ -711,6 +757,24 @@ class _ManageCharacterSpellsPageState
           name: name,
         );
 
+      case 'race':
+        final name = _raceSourceNameController.text.trim();
+        if (name.isEmpty) return null;
+        return _SourceData(
+          type: 'race',
+          id: _slugify(name),
+          name: name,
+        );
+
+      case 'feat':
+        final name = _featSourceNameController.text.trim();
+        if (name.isEmpty) return null;
+        return _SourceData(
+          type: 'feat',
+          id: _slugify(name),
+          name: name,
+        );
+
       case 'custom':
         final name = _customSourceNameController.text.trim();
         if (name.isEmpty) return null;
@@ -735,6 +799,10 @@ class _ManageCharacterSpellsPageState
         return 'classe';
       case 'item':
         return 'item';
+      case 'race':
+        return 'raça';
+      case 'feat':
+        return 'talento';
       case 'custom':
         return 'custom';
       default:

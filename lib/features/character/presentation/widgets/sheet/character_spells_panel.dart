@@ -62,20 +62,33 @@ class CharacterSpellsPanel extends ConsumerWidget {
                           progressions,
                         );
 
-                        final alwaysAvailable = <CharacterSpell>[];
-                        final prepared = <CharacterSpell>[];
-                        final known = <CharacterSpell>[];
-                        final others = <CharacterSpell>[];
+                        final classSpells = <CharacterSpell>[];
+                        final raceSpells = <CharacterSpell>[];
+                        final featSpells = <CharacterSpell>[];
+                        final itemSpells = <CharacterSpell>[];
+                        final customSpells = <CharacterSpell>[];
+                        final otherSpells = <CharacterSpell>[];
 
                         for (final spell in character.spells) {
-                          if (spell.isAlwaysAvailable) {
-                            alwaysAvailable.add(spell);
-                          } else if (spell.isPrepared) {
-                            prepared.add(spell);
-                          } else if (spell.isKnown) {
-                            known.add(spell);
-                          } else {
-                            others.add(spell);
+                          switch (spell.sourceType) {
+                            case 'class':
+                              classSpells.add(spell);
+                              break;
+                            case 'race':
+                              raceSpells.add(spell);
+                              break;
+                            case 'feat':
+                              featSpells.add(spell);
+                              break;
+                            case 'item':
+                              itemSpells.add(spell);
+                              break;
+                            case 'custom':
+                              customSpells.add(spell);
+                              break;
+                            default:
+                              otherSpells.add(spell);
+                              break;
                           }
                         }
 
@@ -87,37 +100,55 @@ class CharacterSpellsPanel extends ConsumerWidget {
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             const SizedBox(height: 12),
-                            if (alwaysAvailable.isNotEmpty)
-                              _SpellSection(
-                                title: 'Magias sempre disponíveis',
-                                spells: alwaysAvailable,
+                            if (classSpells.isNotEmpty)
+                              _OriginSection(
+                                title: 'Magias de Classe',
+                                spells: classSpells,
                                 spellEntries: spellEntries,
                                 character: character,
                                 slotSummary: slotSummary,
                                 usedSlots: usedSlots,
                               ),
-                            if (prepared.isNotEmpty)
-                              _SpellSection(
-                                title: 'Magias preparadas',
-                                spells: prepared,
+                            if (raceSpells.isNotEmpty)
+                              _OriginSection(
+                                title: 'Magias Raciais',
+                                spells: raceSpells,
                                 spellEntries: spellEntries,
                                 character: character,
                                 slotSummary: slotSummary,
                                 usedSlots: usedSlots,
                               ),
-                            if (known.isNotEmpty)
-                              _SpellSection(
-                                title: 'Magias conhecidas',
-                                spells: known,
+                            if (featSpells.isNotEmpty)
+                              _OriginSection(
+                                title: 'Magias de Talento',
+                                spells: featSpells,
                                 spellEntries: spellEntries,
                                 character: character,
                                 slotSummary: slotSummary,
                                 usedSlots: usedSlots,
                               ),
-                            if (others.isNotEmpty)
-                              _SpellSection(
-                                title: 'Outras magias',
-                                spells: others,
+                            if (itemSpells.isNotEmpty)
+                              _OriginSection(
+                                title: 'Magias de Item',
+                                spells: itemSpells,
+                                spellEntries: spellEntries,
+                                character: character,
+                                slotSummary: slotSummary,
+                                usedSlots: usedSlots,
+                              ),
+                            if (customSpells.isNotEmpty)
+                              _OriginSection(
+                                title: 'Origens Customizadas',
+                                spells: customSpells,
+                                spellEntries: spellEntries,
+                                character: character,
+                                slotSummary: slotSummary,
+                                usedSlots: usedSlots,
+                              ),
+                            if (otherSpells.isNotEmpty)
+                              _OriginSection(
+                                title: 'Outras Origens',
+                                spells: otherSpells,
                                 spellEntries: spellEntries,
                                 character: character,
                                 slotSummary: slotSummary,
@@ -276,8 +307,8 @@ class CharacterSpellsPanel extends ConsumerWidget {
   }
 }
 
-class _SpellSection extends StatelessWidget {
-  const _SpellSection({
+class _OriginSection extends StatelessWidget {
+  const _OriginSection({
     required this.title,
     required this.spells,
     required this.spellEntries,
@@ -308,8 +339,7 @@ class _SpellSection extends StatelessWidget {
 
       if (spell == null) continue;
 
-      final sourceTypeLabel = _translateSourceType(entry.sourceType);
-      final key = '${entry.sourceName} ($sourceTypeLabel)';
+      final key = entry.sourceName;
 
       groups.putIfAbsent(key, () => []);
       groups[key]!.add(
@@ -318,6 +348,9 @@ class _SpellSection extends StatelessWidget {
           sourceType: entry.sourceType,
           sourceId: entry.sourceId,
           sourceName: entry.sourceName,
+          isPrepared: entry.isPrepared,
+          isKnown: entry.isKnown,
+          isAlwaysAvailable: entry.isAlwaysAvailable,
         ),
       );
     }
@@ -392,7 +425,8 @@ class _SpellSection extends StatelessWidget {
                                         child: InkWell(
                                           borderRadius:
                                               BorderRadius.circular(8),
-                                          onTap: () => _showSpellDetails(
+                                          onTap: () =>
+                                              showSpellDetailsBottomSheet(
                                             context,
                                             spellData.spell,
                                           ),
@@ -420,7 +454,7 @@ class _SpellSection extends StatelessWidget {
                                                 ),
                                                 const SizedBox(height: 2),
                                                 Text(
-                                                  '${_levelLabel(spellData.spell.level)} • ${spellData.spell.school}',
+                                                  _buildSubtitle(spellData),
                                                   style: Theme.of(context)
                                                       .textTheme
                                                       .bodySmall,
@@ -456,27 +490,21 @@ class _SpellSection extends StatelessWidget {
     );
   }
 
-  void _showSpellDetails(BuildContext context, SpellEntry spell) {
-    showSpellDetailsBottomSheet(context, spell);
-  }
+  String _buildSubtitle(_SpellViewData spellData) {
+    final parts = <String>[
+      _levelLabel(spellData.spell.level),
+      spellData.spell.school,
+    ];
 
-  String _translateSourceType(String type) {
-    switch (type) {
-      case 'class':
-        return 'Classe';
-      case 'item':
-        return 'Item mágico';
-      case 'custom':
-        return 'Origem customizada';
-      default:
-        return type;
-    }
+    if (spellData.isPrepared) parts.add('Preparada');
+    if (spellData.isKnown) parts.add('Conhecida');
+    if (spellData.isAlwaysAvailable) parts.add('Sempre disponível');
+
+    return parts.join(' • ');
   }
 
   String _levelLabel(int level) {
-    if (level == 0) {
-      return 'Truque';
-    }
+    if (level == 0) return 'Truque';
     return '${level}º círculo';
   }
 }
@@ -780,12 +808,18 @@ class _SpellViewData {
     required this.sourceType,
     required this.sourceId,
     required this.sourceName,
+    required this.isPrepared,
+    required this.isKnown,
+    required this.isAlwaysAvailable,
   });
 
   final SpellEntry spell;
   final String sourceType;
   final String sourceId;
   final String sourceName;
+  final bool isPrepared;
+  final bool isKnown;
+  final bool isAlwaysAvailable;
 }
 
 class _SpellcastingSummaryData {
