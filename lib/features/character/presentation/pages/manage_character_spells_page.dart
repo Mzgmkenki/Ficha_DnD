@@ -939,9 +939,9 @@ class _ManageCharacterSpellsPageState
         final limit = (abilityModifier('wisdom') + level).clamp(1, 999);
         return _ClassLimitInfo(
           mode: _ClassLimitMode.prepared,
-          title: '$className • limite de preparadas',
+          title: className,
           summary:
-              'Preparadas de 1º nível+ nessa classe: ${countPreparedLevel1Plus()}/$limit',
+              'Magias preparadas dessa classe: ${countPreparedLevel1Plus()}/$limit',
           current: countPreparedLevel1Plus(),
           limit: limit,
           note: 'Truques não entram nesse limite.',
@@ -952,9 +952,9 @@ class _ManageCharacterSpellsPageState
         final limit = (abilityModifier('wisdom') + level).clamp(1, 999);
         return _ClassLimitInfo(
           mode: _ClassLimitMode.prepared,
-          title: '$className • limite de preparadas',
+          title: className,
           summary:
-              'Preparadas de 1º nível+ nessa classe: ${countPreparedLevel1Plus()}/$limit',
+              'Magias preparadas dessa classe: ${countPreparedLevel1Plus()}/$limit',
           current: countPreparedLevel1Plus(),
           limit: limit,
           note: 'Truques não entram nesse limite.',
@@ -963,10 +963,10 @@ class _ManageCharacterSpellsPageState
       case 'paladin':
       case 'paladino':
         if (level < 2) {
-          return const _ClassLimitInfo(
+          return _ClassLimitInfo(
             mode: _ClassLimitMode.prepared,
-            title: 'Paladino • sem magia ainda',
-            summary: 'Paladino só ganha Magia no 2º nível.',
+            title: className,
+            summary: 'Essa classe ainda não possui magia nesse nível.',
             current: 0,
             limit: 0,
             note: null,
@@ -976,9 +976,9 @@ class _ManageCharacterSpellsPageState
             (abilityModifier('charisma') + (level ~/ 2)).clamp(1, 999);
         return _ClassLimitInfo(
           mode: _ClassLimitMode.prepared,
-          title: '$className • limite de preparadas',
+          title: className,
           summary:
-              'Preparadas de 1º nível+ nessa classe: ${countPreparedLevel1Plus()}/$limit',
+              'Magias preparadas dessa classe: ${countPreparedLevel1Plus()}/$limit',
           current: countPreparedLevel1Plus(),
           limit: limit,
           note: 'Truques não entram nesse limite.',
@@ -990,13 +990,13 @@ class _ManageCharacterSpellsPageState
             (abilityModifier('intelligence') + level).clamp(1, 999);
         return _ClassLimitInfo(
           mode: _ClassLimitMode.prepared,
-          title: '$className • limite de preparadas',
+          title: className,
           summary:
-              'Preparadas de 1º nível+ nessa classe: ${countPreparedLevel1Plus()}/$limit',
+              'Magias preparadas dessa classe: ${countPreparedLevel1Plus()}/$limit',
           current: countPreparedLevel1Plus(),
           limit: limit,
           note:
-              'No app, as magias de origem Classe do mago funcionam como o conjunto disponível do grimório. Truques não entram no limite.',
+              'Truques não entram nesse limite.',
         );
 
       case 'bard':
@@ -1004,9 +1004,9 @@ class _ManageCharacterSpellsPageState
         final limit = _bardKnownLimit(level);
         return _ClassLimitInfo(
           mode: _ClassLimitMode.known,
-          title: '$className • limite de conhecidas',
+          title: className,
           summary:
-              'Conhecidas de 1º nível+ nessa classe: ${countKnownLevel1Plus()}/$limit',
+              'Magias conhecidas dessa classe: ${countKnownLevel1Plus()}/$limit',
           current: countKnownLevel1Plus(),
           limit: limit,
           note: 'Truques não entram nesse limite.',
@@ -1017,9 +1017,9 @@ class _ManageCharacterSpellsPageState
         final limit = _sorcererKnownLimit(level);
         return _ClassLimitInfo(
           mode: _ClassLimitMode.known,
-          title: '$className • limite de conhecidas',
+          title: className,
           summary:
-              'Conhecidas de 1º nível+ nessa classe: ${countKnownLevel1Plus()}/$limit',
+              'Magias conhecidas dessa classe: ${countKnownLevel1Plus()}/$limit',
           current: countKnownLevel1Plus(),
           limit: limit,
           note: 'Truques não entram nesse limite.',
@@ -1030,9 +1030,9 @@ class _ManageCharacterSpellsPageState
         final limit = _warlockKnownLimit(level);
         return _ClassLimitInfo(
           mode: _ClassLimitMode.known,
-          title: '$className • limite de conhecidas',
+          title: className,
           summary:
-              'Conhecidas de 1º nível+ nessa classe: ${countKnownLevel1Plus()}/$limit',
+              'Magias conhecidas dessa classe: ${countKnownLevel1Plus()}/$limit',
           current: countKnownLevel1Plus(),
           limit: limit,
           note: 'Truques não entram nesse limite.',
@@ -1041,10 +1041,10 @@ class _ManageCharacterSpellsPageState
       case 'ranger':
       case 'patrulheiro':
         if (level < 2) {
-          return const _ClassLimitInfo(
+          return _ClassLimitInfo(
             mode: _ClassLimitMode.known,
-            title: 'Patrulheiro • sem magia ainda',
-            summary: 'Patrulheiro só ganha Magia no 2º nível.',
+            title: className,
+            summary: 'Essa classe ainda não possui magia nesse nível.',
             current: 0,
             limit: 0,
             note: null,
@@ -1053,9 +1053,9 @@ class _ManageCharacterSpellsPageState
         final limit = _rangerKnownLimit(level);
         return _ClassLimitInfo(
           mode: _ClassLimitMode.known,
-          title: '$className • limite de conhecidas',
+          title: className,
           summary:
-              'Conhecidas de 1º nível+ nessa classe: ${countKnownLevel1Plus()}/$limit',
+              'Magias conhecidas dessa classe: ${countKnownLevel1Plus()}/$limit',
           current: countKnownLevel1Plus(),
           limit: limit,
           note: 'Truques não entram nesse limite.',
