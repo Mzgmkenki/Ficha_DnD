@@ -1,5 +1,8 @@
 import 'package:dnd_ficha_app/core/routing/app_router.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
+import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/presentation/pages/spell_compendium_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +13,7 @@ class CharacterListPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final charactersAsync = ref.watch(charactersProvider);
+    final classesAsync = ref.watch(classEntriesProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -28,92 +32,118 @@ class CharacterListPage extends ConsumerWidget {
           ),
         ],
       ),
-      body: charactersAsync.when(
-        data: (characters) {
-          if (characters.isEmpty) {
-            return const Center(
-              child: Text('Nenhum personagem criado ainda.'),
-            );
-          }
+      body: classesAsync.when(
+        data: (classes) {
+          return charactersAsync.when(
+            data: (characters) {
+              if (characters.isEmpty) {
+                return const Center(
+                  child: Text('Nenhum personagem criado ainda.'),
+                );
+              }
 
-          return ListView.separated(
-            itemCount: characters.length,
-            separatorBuilder: (_, __) => const Divider(height: 1),
-            itemBuilder: (context, index) {
-              final character = characters[index];
+              return ListView.separated(
+                itemCount: characters.length,
+                separatorBuilder: (_, __) => const Divider(height: 1),
+                itemBuilder: (context, index) {
+                  final character = characters[index];
 
-              return ListTile(
-                title: Text(character.name),
-                subtitle: Text(
-                  'Nível ${character.totalLevel} • Proficiência +${character.proficiencyBonus}',
-                ),
-                onTap: () {
-                  Navigator.of(context).pushNamed(
-                    AppRoutes.characterSheet,
-                    arguments: character.id,
+                  return ListTile(
+                    title: Text(
+                      character.name,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: 4),
+                        Text(_buildClassSummary(character, classes)),
+                        const SizedBox(height: 2),
+                        Text('Nível total ${character.totalLevel}'),
+                      ],
+                    ),
+                    isThreeLine: true,
+                    onTap: () {
+                      Navigator.of(context).pushNamed(
+                        AppRoutes.characterSheet,
+                        arguments: character.id,
+                      );
+                    },
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete_outline),
+                      tooltip: 'Apagar personagem',
+                      onPressed: () async {
+                        final confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (dialogContext) {
+                            return AlertDialog(
+                              title: const Text('Apagar personagem'),
+                              content: Text(
+                                'Deseja apagar "${character.name}"? Essa ação não pode ser desfeita.',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(dialogContext).pop(false);
+                                  },
+                                  child: const Text('Cancelar'),
+                                ),
+                                FilledButton(
+                                  onPressed: () {
+                                    Navigator.of(dialogContext).pop(true);
+                                  },
+                                  child: const Text('Apagar'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+
+                        if (confirmed != true) return;
+
+                        try {
+                          final deleteCharacter =
+                              ref.read(deleteCharacterProvider);
+                          await deleteCharacter(character.id);
+
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Personagem "${character.name}" apagado.',
+                              ),
+                            ),
+                          );
+                        } catch (error) {
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Erro ao apagar personagem: $error',
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                    ),
                   );
                 },
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete_outline),
-                  tooltip: 'Apagar personagem',
-                  onPressed: () async {
-                    final confirmed = await showDialog<bool>(
-                      context: context,
-                      builder: (dialogContext) {
-                        return AlertDialog(
-                          title: const Text('Apagar personagem'),
-                          content: Text(
-                            'Deseja apagar "${character.name}"? Essa ação não pode ser desfeita.',
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(dialogContext).pop(false);
-                              },
-                              child: const Text('Cancelar'),
-                            ),
-                            FilledButton(
-                              onPressed: () {
-                                Navigator.of(dialogContext).pop(true);
-                              },
-                              child: const Text('Apagar'),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-
-                    if (confirmed != true) return;
-
-                    try {
-                      final deleteCharacter = ref.read(deleteCharacterProvider);
-                      await deleteCharacter(character.id);
-
-                      if (!context.mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Personagem "${character.name}" apagado.',
-                          ),
-                        ),
-                      );
-                    } catch (error) {
-                      if (!context.mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Erro ao apagar personagem: $error'),
-                        ),
-                      );
-                    }
-                  },
-                ),
               );
             },
+            error: (error, stackTrace) {
+              return Center(
+                child: Text('Erro ao carregar personagens: $error'),
+              );
+            },
+            loading: () => const Center(
+              child: CircularProgressIndicator(),
+            ),
           );
         },
         error: (error, stackTrace) {
           return Center(
-            child: Text('Erro ao carregar personagens: $error'),
+            child: Text('Erro ao carregar classes: $error'),
           );
         },
         loading: () => const Center(
@@ -128,5 +158,25 @@ class CharacterListPage extends ConsumerWidget {
         label: const Text('Novo personagem'),
       ),
     );
+  }
+
+  String _buildClassSummary(Character character, List<ClassEntry> classes) {
+    if (character.classLevels.isEmpty) {
+      return 'Sem classe';
+    }
+
+    return character.classLevels.map((classLevel) {
+      final className = _classNameForId(classes, classLevel.classId);
+      return '$className Nv. ${classLevel.level}';
+    }).join(' • ');
+  }
+
+  String _classNameForId(List<ClassEntry> classes, String classId) {
+    for (final item in classes) {
+      if (item.id == classId) {
+        return item.name;
+      }
+    }
+    return classId;
   }
 }
