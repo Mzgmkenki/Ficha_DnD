@@ -650,7 +650,7 @@ class _ItemSpellsSectionState extends ConsumerState<_ItemSpellsSection> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 DropdownButtonFormField<int>(
-                  value: validSelectedSpellId,
+                  initialValue: validSelectedSpellId,
                   isExpanded: true,
                   decoration: const InputDecoration(
                     labelText: 'Magia do compêndio',
@@ -710,7 +710,7 @@ class _ItemSpellsSectionState extends ConsumerState<_ItemSpellsSection> {
                 const SizedBox(height: 12),
                 if (_usesCharges && !_isAtWill)
                   DropdownButtonFormField<int>(
-                    value: _chargeCost,
+                    initialValue: _chargeCost,
                     isExpanded: true,
                     decoration: const InputDecoration(
                       labelText: 'Custo em cargas',

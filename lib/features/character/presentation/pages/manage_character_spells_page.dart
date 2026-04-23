@@ -38,6 +38,7 @@ class _ManageCharacterSpellsPageState
   String _selectedSourceType = 'class';
   String? _selectedClassSourceId;
   int? _selectedSpellLevel;
+  String? _selectedSpellClassFilter;
   bool _isPrepared = false;
   bool _isKnown = true;
   bool _isAlwaysAvailable = false;
@@ -76,7 +77,7 @@ class _ManageCharacterSpellsPageState
                       ? character.classLevels.first.classId
                       : (classes.isNotEmpty ? classes.first.id : null);
 
-                  final filteredSpells = _applySpellFilters(spells);
+                  final filteredSpells = _applySpellFilters(spells, classes);
                   final classLimit = _selectedSourceType == 'class'
                       ? _buildClassLimitInfo(character, classes, spells)
                       : null;
@@ -285,6 +286,16 @@ class _ManageCharacterSpellsPageState
   }) {
     final groupedSpells = _groupSpellsByLevel(spells);
     final sortedLevels = groupedSpells.keys.toList()..sort();
+    final selectedClassEntry = _selectedClassSourceId == null
+        ? null
+        : classes
+            .where((item) => item.id == _selectedClassSourceId)
+            .cast<ClassEntry?>()
+            .firstWhere(
+              (item) => item != null,
+              orElse: () => null,
+            );
+    final isWizardSelected = _isWizardClassId(_selectedClassSourceId);
 
     return Card(
       child: Padding(
@@ -338,6 +349,10 @@ class _ManageCharacterSpellsPageState
                       child: Text('Classe'),
                     ),
                     DropdownMenuItem(
+                      value: 'grimorio',
+                      child: Text('Grimório'),
+                    ),
+                    DropdownMenuItem(
                       value: 'item',
                       child: Text('Item mágico'),
                     ),
@@ -358,6 +373,10 @@ class _ManageCharacterSpellsPageState
                     if (value == null) return;
                     setState(() {
                       _selectedSourceType = value;
+                      if (value == 'grimorio') {
+                        _isKnown = true;
+                        _isPrepared = false;
+                      }
                     });
                   },
                 );
@@ -441,12 +460,40 @@ class _ManageCharacterSpellsPageState
               },
             ),
             const SizedBox(height: 12),
-            if (_selectedSourceType == 'class')
+            DropdownButtonFormField<String?>(
+              initialValue: _selectedSpellClassFilter,
+              decoration: const InputDecoration(
+                labelText: 'Filtro por classe da magia',
+                border: OutlineInputBorder(),
+              ),
+              items: [
+                const DropdownMenuItem<String?>(
+                  value: null,
+                  child: Text('Todas'),
+                ),
+                ...classes.map(
+                  (item) => DropdownMenuItem<String?>(
+                    value: item.id,
+                    child: Text(item.name),
+                  ),
+                ),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  _selectedSpellClassFilter = value;
+                });
+              },
+            ),
+            const SizedBox(height: 12),
+            if (_selectedSourceType == 'class' ||
+                _selectedSourceType == 'grimorio')
               DropdownButtonFormField<String>(
                 initialValue: _selectedClassSourceId,
-                decoration: const InputDecoration(
-                  labelText: 'Classe de origem',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: _selectedSourceType == 'grimorio'
+                      ? 'Classe do grimório'
+                      : 'Classe de origem',
+                  border: const OutlineInputBorder(),
                 ),
                 items: classes
                     .map(
@@ -494,6 +541,24 @@ class _ManageCharacterSpellsPageState
                   border: OutlineInputBorder(),
                 ),
               ),
+            if (_selectedSourceType == 'class' &&
+                isWizardSelected &&
+                selectedClassEntry != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                'Para ${selectedClassEntry.name}, origem Classe representa magias preparadas.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+            if (_selectedSourceType == 'grimorio' &&
+                isWizardSelected &&
+                selectedClassEntry != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                'Para ${selectedClassEntry.name}, origem Grimório representa magias anotadas no grimório e não interfere no limite de magias preparadas.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
             if (classLimit != null) ...[
               const SizedBox(height: 12),
               Container(
@@ -512,6 +577,10 @@ class _ManageCharacterSpellsPageState
                     ),
                     const SizedBox(height: 4),
                     Text(classLimit.summary),
+                    if (classLimit.cantripSummary != null) ...[
+                      const SizedBox(height: 4),
+                      Text(classLimit.cantripSummary!),
+                    ],
                     if (classLimit.note != null) ...[
                       const SizedBox(height: 4),
                       Text(
@@ -527,22 +596,28 @@ class _ManageCharacterSpellsPageState
             CheckboxListTile(
               contentPadding: EdgeInsets.zero,
               title: const Text('Conhecida'),
-              value: _isKnown,
-              onChanged: (value) {
-                setState(() {
-                  _isKnown = value ?? true;
-                });
-              },
+              value: _effectiveIsKnown(isWizardSelected),
+              onChanged: (_selectedSourceType == 'grimorio' ||
+                      (_selectedSourceType == 'class' && isWizardSelected))
+                  ? null
+                  : (value) {
+                      setState(() {
+                        _isKnown = value ?? true;
+                      });
+                    },
             ),
             CheckboxListTile(
               contentPadding: EdgeInsets.zero,
               title: const Text('Preparada'),
-              value: _isPrepared,
-              onChanged: (value) {
-                setState(() {
-                  _isPrepared = value ?? false;
-                });
-              },
+              value: _effectiveIsPrepared(isWizardSelected),
+              onChanged: (_selectedSourceType == 'grimorio' ||
+                      (_selectedSourceType == 'class' && isWizardSelected))
+                  ? null
+                  : (value) {
+                      setState(() {
+                        _isPrepared = value ?? false;
+                      });
+                    },
             ),
             CheckboxListTile(
               contentPadding: EdgeInsets.zero,
@@ -672,6 +747,12 @@ class _ManageCharacterSpellsPageState
                                           }
                                         }
 
+                                        final isWizardClass =
+                                            sourceData.type == 'class' &&
+                                                _isWizardClassId(sourceData.id);
+                                        final isGrimorio =
+                                            sourceData.type == 'grimorio';
+
                                         try {
                                           final addSpell = ref.read(
                                             addCharacterSpellProvider,
@@ -684,8 +765,16 @@ class _ManageCharacterSpellsPageState
                                               sourceType: sourceData.type,
                                               sourceId: sourceData.id,
                                               sourceName: sourceData.name,
-                                              isPrepared: _isPrepared,
-                                              isKnown: _isKnown,
+                                              isPrepared: isGrimorio
+                                                  ? false
+                                                  : (isWizardClass
+                                                      ? true
+                                                      : _isPrepared),
+                                              isKnown: isGrimorio
+                                                  ? true
+                                                  : (isWizardClass
+                                                      ? false
+                                                      : _isKnown),
                                               isAlwaysAvailable:
                                                   _isAlwaysAvailable,
                                             ),
@@ -739,21 +828,44 @@ class _ManageCharacterSpellsPageState
     );
   }
 
+  bool _isWizardClassId(String? classId) {
+    final normalized = classId?.trim().toLowerCase();
+    return normalized == 'wizard' || normalized == 'mago';
+  }
+
+  bool _effectiveIsKnown(bool isWizardSelected) {
+    if (_selectedSourceType == 'grimorio') return true;
+    if (_selectedSourceType == 'class' && isWizardSelected) return false;
+    return _isKnown;
+  }
+
+  bool _effectiveIsPrepared(bool isWizardSelected) {
+    if (_selectedSourceType == 'grimorio') return false;
+    if (_selectedSourceType == 'class' && isWizardSelected) return true;
+    return _isPrepared;
+  }
+
   String? _validateAgainstClassLimit({
     required _ClassLimitInfo classLimit,
     required SpellEntry spell,
   }) {
     if (spell.level == 0) {
+      if (classLimit.cantripLimit != null &&
+          classLimit.currentCantrips >= classLimit.cantripLimit!) {
+        return 'Limite de truques dessa classe atingido.';
+      }
       return null;
     }
 
-    if (classLimit.mode == _ClassLimitMode.known && _isKnown) {
+    if (classLimit.mode == _ClassLimitMode.known &&
+        _effectiveIsKnown(_isWizardClassId(_selectedClassSourceId))) {
       if (classLimit.current >= classLimit.limit) {
         return 'Limite de magias conhecidas dessa classe atingido.';
       }
     }
 
-    if (classLimit.mode == _ClassLimitMode.prepared && _isPrepared) {
+    if (classLimit.mode == _ClassLimitMode.prepared &&
+        _effectiveIsPrepared(_isWizardClassId(_selectedClassSourceId))) {
       if (classLimit.current >= classLimit.limit) {
         return 'Limite de magias preparadas dessa classe atingido.';
       }
@@ -773,7 +885,10 @@ class _ManageCharacterSpellsPageState
     return grouped;
   }
 
-  List<SpellEntry> _applySpellFilters(List<SpellEntry> spells) {
+  List<SpellEntry> _applySpellFilters(
+    List<SpellEntry> spells,
+    List<ClassEntry> classes,
+  ) {
     return spells.where((spell) {
       if (_search.isNotEmpty) {
         final matchPt = spell.namePt.toLowerCase().contains(_search);
@@ -788,6 +903,27 @@ class _ManageCharacterSpellsPageState
         return false;
       }
 
+      if (_selectedSpellClassFilter != null) {
+        final selectedClassId = _selectedSpellClassFilter!;
+        final normalizedSelectedIds = _classAliasesForId(
+          selectedClassId,
+          classes,
+        );
+
+        final normalizedSpellClasses = spell.classes
+            .map(_normalizeClassText)
+            .whereType<String>()
+            .toSet();
+
+        final hasMatch = normalizedSelectedIds.any(
+          (item) => normalizedSpellClasses.contains(item),
+        );
+
+        if (!hasMatch) {
+          return false;
+        }
+      }
+
       return true;
     }).toList(growable: false)
       ..sort((a, b) {
@@ -795,6 +931,87 @@ class _ManageCharacterSpellsPageState
         if (levelCompare != 0) return levelCompare;
         return a.namePt.compareTo(b.namePt);
       });
+  }
+
+  Set<String> _classAliasesForId(
+    String classId,
+    List<ClassEntry> classes,
+  ) {
+    final aliases = <String>{};
+
+    final entry = classes
+        .where((item) => item.id == classId)
+        .cast<ClassEntry?>()
+        .firstWhere(
+          (item) => item != null,
+          orElse: () => null,
+        );
+
+    aliases.add(classId.trim().toLowerCase());
+
+    if (entry != null) {
+      aliases.add(entry.name.trim().toLowerCase());
+      aliases.add(_normalizeClassText(entry.name) ?? '');
+    }
+
+    switch (classId.trim().toLowerCase()) {
+      case 'wizard':
+      case 'mago':
+        aliases.addAll({'wizard', 'mago'});
+        break;
+      case 'cleric':
+      case 'clérigo':
+        aliases.addAll({'cleric', 'clérigo', 'clerigo'});
+        break;
+      case 'druid':
+      case 'druida':
+        aliases.addAll({'druid', 'druida'});
+        break;
+      case 'bard':
+      case 'bardo':
+        aliases.addAll({'bard', 'bardo'});
+        break;
+      case 'sorcerer':
+      case 'feiticeiro':
+        aliases.addAll({'sorcerer', 'feiticeiro'});
+        break;
+      case 'warlock':
+      case 'bruxo':
+        aliases.addAll({'warlock', 'bruxo'});
+        break;
+      case 'paladin':
+      case 'paladino':
+        aliases.addAll({'paladin', 'paladino'});
+        break;
+      case 'ranger':
+      case 'patrulheiro':
+        // ignore: equal_elements_in_set
+        aliases.addAll({'ranger', 'patrulheiro', 'patrulheiro'});
+        break;
+    }
+
+    aliases.removeWhere((item) => item.trim().isEmpty);
+    return aliases;
+  }
+
+  String? _normalizeClassText(String? value) {
+    if (value == null) return null;
+
+    return value
+        .trim()
+        .toLowerCase()
+        .replaceAll('á', 'a')
+        .replaceAll('à', 'a')
+        .replaceAll('ã', 'a')
+        .replaceAll('â', 'a')
+        .replaceAll('é', 'e')
+        .replaceAll('ê', 'e')
+        .replaceAll('í', 'i')
+        .replaceAll('ó', 'o')
+        .replaceAll('ô', 'o')
+        .replaceAll('õ', 'o')
+        .replaceAll('ú', 'u')
+        .replaceAll('ç', 'c');
   }
 
   _SourceData? _buildSourceData(List<ClassEntry> classes) {
@@ -814,6 +1031,24 @@ class _ManageCharacterSpellsPageState
           type: 'class',
           id: _selectedClassSourceId!,
           name: classEntry?.name ?? _selectedClassSourceId!,
+        );
+
+      case 'grimorio':
+        if (_selectedClassSourceId == null) return null;
+
+        final classEntry = classes
+            .where((item) => item.id == _selectedClassSourceId)
+            .cast<ClassEntry?>()
+            .firstWhere(
+              (item) => item != null,
+              orElse: () => null,
+            );
+
+        final className = classEntry?.name ?? _selectedClassSourceId!;
+        return _SourceData(
+          type: 'grimorio',
+          id: 'grimorio_${_selectedClassSourceId!}',
+          name: 'Grimório de $className',
         );
 
       case 'item':
@@ -863,6 +1098,7 @@ class _ManageCharacterSpellsPageState
     List<SpellEntry> allSpells,
   ) {
     if (_selectedClassSourceId == null) return null;
+    if (_selectedSourceType != 'class') return null;
 
     final classId = _selectedClassSourceId!;
     final classEntry = classes
@@ -886,8 +1122,7 @@ class _ManageCharacterSpellsPageState
     if (level == null) return null;
 
     final classSpells = character.spells.where((spell) {
-      return spell.sourceType == 'class' &&
-          spell.sourceId == classId;
+      return spell.sourceType == 'class' && spell.sourceId == classId;
     }).toList(growable: false);
 
     int countKnownLevel1Plus() {
@@ -918,6 +1153,19 @@ class _ManageCharacterSpellsPageState
       }).length;
     }
 
+    int countClassCantrips() {
+      return classSpells.where((spell) {
+        final entry = allSpells
+            .where((s) => s.id == spell.spellId)
+            .cast<SpellEntry?>()
+            .firstWhere(
+              (s) => s != null,
+              orElse: () => null,
+            );
+        return (entry?.level ?? 1) == 0;
+      }).length;
+    }
+
     int abilityModifier(String abilityName) {
       switch (abilityName) {
         case 'wisdom':
@@ -932,6 +1180,8 @@ class _ManageCharacterSpellsPageState
     }
 
     final key = classId.trim().toLowerCase();
+    final currentCantrips = countClassCantrips();
+    final cantripLimit = _cantripLimit(key, level);
 
     switch (key) {
       case 'cleric':
@@ -944,7 +1194,12 @@ class _ManageCharacterSpellsPageState
               'Magias preparadas dessa classe: ${countPreparedLevel1Plus()}/$limit',
           current: countPreparedLevel1Plus(),
           limit: limit,
-          note: 'Truques não entram nesse limite.',
+          cantripSummary: cantripLimit == null
+              ? null
+              : 'Truques dessa classe: $currentCantrips/$cantripLimit',
+          currentCantrips: currentCantrips,
+          cantripLimit: cantripLimit,
+          note: 'Outras origens não entram nesses limites.',
         );
 
       case 'druid':
@@ -957,7 +1212,12 @@ class _ManageCharacterSpellsPageState
               'Magias preparadas dessa classe: ${countPreparedLevel1Plus()}/$limit',
           current: countPreparedLevel1Plus(),
           limit: limit,
-          note: 'Truques não entram nesse limite.',
+          cantripSummary: cantripLimit == null
+              ? null
+              : 'Truques dessa classe: $currentCantrips/$cantripLimit',
+          currentCantrips: currentCantrips,
+          cantripLimit: cantripLimit,
+          note: 'Outras origens não entram nesses limites.',
         );
 
       case 'paladin':
@@ -969,7 +1229,12 @@ class _ManageCharacterSpellsPageState
             summary: 'Essa classe ainda não possui magia nesse nível.',
             current: 0,
             limit: 0,
-            note: null,
+            cantripSummary: cantripLimit == null
+                ? null
+                : 'Truques dessa classe: $currentCantrips/$cantripLimit',
+            currentCantrips: currentCantrips,
+            cantripLimit: cantripLimit,
+            note: 'Outras origens não entram nesses limites.',
           );
         }
         final limit =
@@ -981,7 +1246,12 @@ class _ManageCharacterSpellsPageState
               'Magias preparadas dessa classe: ${countPreparedLevel1Plus()}/$limit',
           current: countPreparedLevel1Plus(),
           limit: limit,
-          note: 'Truques não entram nesse limite.',
+          cantripSummary: cantripLimit == null
+              ? null
+              : 'Truques dessa classe: $currentCantrips/$cantripLimit',
+          currentCantrips: currentCantrips,
+          cantripLimit: cantripLimit,
+          note: 'Outras origens não entram nesses limites.',
         );
 
       case 'wizard':
@@ -995,8 +1265,13 @@ class _ManageCharacterSpellsPageState
               'Magias preparadas dessa classe: ${countPreparedLevel1Plus()}/$limit',
           current: countPreparedLevel1Plus(),
           limit: limit,
+          cantripSummary: cantripLimit == null
+              ? null
+              : 'Truques dessa classe: $currentCantrips/$cantripLimit',
+          currentCantrips: currentCantrips,
+          cantripLimit: cantripLimit,
           note:
-              'Truques não entram nesse limite.',
+              'Somente magias da origem Classe contam aqui. Magias do Grimório e outras origens não entram nesses limites.',
         );
 
       case 'bard':
@@ -1009,7 +1284,12 @@ class _ManageCharacterSpellsPageState
               'Magias conhecidas dessa classe: ${countKnownLevel1Plus()}/$limit',
           current: countKnownLevel1Plus(),
           limit: limit,
-          note: 'Truques não entram nesse limite.',
+          cantripSummary: cantripLimit == null
+              ? null
+              : 'Truques dessa classe: $currentCantrips/$cantripLimit',
+          currentCantrips: currentCantrips,
+          cantripLimit: cantripLimit,
+          note: 'Outras origens não entram nesses limites.',
         );
 
       case 'sorcerer':
@@ -1022,7 +1302,12 @@ class _ManageCharacterSpellsPageState
               'Magias conhecidas dessa classe: ${countKnownLevel1Plus()}/$limit',
           current: countKnownLevel1Plus(),
           limit: limit,
-          note: 'Truques não entram nesse limite.',
+          cantripSummary: cantripLimit == null
+              ? null
+              : 'Truques dessa classe: $currentCantrips/$cantripLimit',
+          currentCantrips: currentCantrips,
+          cantripLimit: cantripLimit,
+          note: 'Outras origens não entram nesses limites.',
         );
 
       case 'warlock':
@@ -1035,7 +1320,12 @@ class _ManageCharacterSpellsPageState
               'Magias conhecidas dessa classe: ${countKnownLevel1Plus()}/$limit',
           current: countKnownLevel1Plus(),
           limit: limit,
-          note: 'Truques não entram nesse limite.',
+          cantripSummary: cantripLimit == null
+              ? null
+              : 'Truques dessa classe: $currentCantrips/$cantripLimit',
+          currentCantrips: currentCantrips,
+          cantripLimit: cantripLimit,
+          note: 'Outras origens não entram nesses limites.',
         );
 
       case 'ranger':
@@ -1047,7 +1337,12 @@ class _ManageCharacterSpellsPageState
             summary: 'Essa classe ainda não possui magia nesse nível.',
             current: 0,
             limit: 0,
-            note: null,
+            cantripSummary: cantripLimit == null
+                ? null
+                : 'Truques dessa classe: $currentCantrips/$cantripLimit',
+            currentCantrips: currentCantrips,
+            cantripLimit: cantripLimit,
+            note: 'Outras origens não entram nesses limites.',
           );
         }
         final limit = _rangerKnownLimit(level);
@@ -1058,7 +1353,12 @@ class _ManageCharacterSpellsPageState
               'Magias conhecidas dessa classe: ${countKnownLevel1Plus()}/$limit',
           current: countKnownLevel1Plus(),
           limit: limit,
-          note: 'Truques não entram nesse limite.',
+          cantripSummary: cantripLimit == null
+              ? null
+              : 'Truques dessa classe: $currentCantrips/$cantripLimit',
+          currentCantrips: currentCantrips,
+          cantripLimit: cantripLimit,
+          note: 'Outras origens não entram nesses limites.',
         );
 
       default:
@@ -1169,6 +1469,49 @@ class _ManageCharacterSpellsPageState
     return table[level] ?? 0;
   }
 
+  int? _cantripLimit(String classId, int level) {
+    switch (classId) {
+      case 'wizard':
+      case 'mago':
+        if (level >= 10) return 5;
+        if (level >= 4) return 4;
+        return 3;
+
+      case 'sorcerer':
+      case 'feiticeiro':
+        if (level >= 10) return 6;
+        if (level >= 4) return 5;
+        return 4;
+
+      case 'warlock':
+      case 'bruxo':
+        if (level >= 10) return 4;
+        if (level >= 4) return 3;
+        return 2;
+
+      case 'bard':
+      case 'bardo':
+        if (level >= 10) return 4;
+        if (level >= 4) return 3;
+        return 2;
+
+      case 'cleric':
+      case 'clérigo':
+        if (level >= 10) return 5;
+        if (level >= 4) return 4;
+        return 3;
+
+      case 'druid':
+      case 'druida':
+        if (level >= 10) return 4;
+        if (level >= 4) return 3;
+        return 2;
+
+      default:
+        return null;
+    }
+  }
+
   String _slugify(String value) {
     return value.trim().toLowerCase().replaceAll(RegExp(r'\s+'), '_');
   }
@@ -1177,6 +1520,8 @@ class _ManageCharacterSpellsPageState
     switch (value) {
       case 'class':
         return 'classe';
+      case 'grimorio':
+        return 'grimório';
       case 'item':
         return 'item';
       case 'race':
@@ -1192,7 +1537,7 @@ class _ManageCharacterSpellsPageState
 
   String _levelLabel(int level) {
     if (level == 0) return 'Truque';
-    return '${level}º círculo';
+    return '$levelº círculo';
   }
 }
 
@@ -1209,6 +1554,9 @@ class _ClassLimitInfo {
     required this.current,
     required this.limit,
     required this.note,
+    required this.currentCantrips,
+    required this.cantripLimit,
+    this.cantripSummary,
   });
 
   final _ClassLimitMode mode;
@@ -1217,6 +1565,9 @@ class _ClassLimitInfo {
   final int current;
   final int limit;
   final String? note;
+  final int currentCantrips;
+  final int? cantripLimit;
+  final String? cantripSummary;
 }
 
 class _SourceData {

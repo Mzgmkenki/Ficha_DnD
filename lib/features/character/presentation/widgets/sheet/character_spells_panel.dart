@@ -13,7 +13,7 @@ import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_slot_pro
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CharacterSpellsPanel extends ConsumerWidget {
+class CharacterSpellsPanel extends ConsumerStatefulWidget {
   const CharacterSpellsPanel({
     required this.character,
     super.key,
@@ -24,7 +24,16 @@ class CharacterSpellsPanel extends ConsumerWidget {
   static int pactUsageKey(int slotLevel) => 100 + slotLevel;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CharacterSpellsPanel> createState() =>
+      _CharacterSpellsPanelState();
+}
+
+class _CharacterSpellsPanelState extends ConsumerState<CharacterSpellsPanel> {
+  bool _showGrimorio = true;
+
+  @override
+  Widget build(BuildContext context) {
+    final character = widget.character;
     final spellsAsync = ref.watch(spellEntriesProvider);
     final classesAsync = ref.watch(classEntriesProvider);
     final progressionsAsync = ref.watch(spellSlotProgressionsProvider);
@@ -63,6 +72,7 @@ class CharacterSpellsPanel extends ConsumerWidget {
                         );
 
                         final classSpells = <CharacterSpell>[];
+                        final grimorioSpells = <CharacterSpell>[];
                         final raceSpells = <CharacterSpell>[];
                         final featSpells = <CharacterSpell>[];
                         final itemSpells = <CharacterSpell>[];
@@ -73,6 +83,9 @@ class CharacterSpellsPanel extends ConsumerWidget {
                           switch (spell.sourceType) {
                             case 'class':
                               classSpells.add(spell);
+                              break;
+                            case 'grimorio':
+                              grimorioSpells.add(spell);
                               break;
                             case 'race':
                               raceSpells.add(spell);
@@ -109,6 +122,47 @@ class CharacterSpellsPanel extends ConsumerWidget {
                                 slotSummary: slotSummary,
                                 usedSlots: usedSlots,
                               ),
+                            if (grimorioSpells.isNotEmpty) ...[
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      'Magias do Grimório (${grimorioSpells.length})',
+                                      style:
+                                          Theme.of(context).textTheme.titleSmall,
+                                    ),
+                                  ),
+                                  TextButton.icon(
+                                    onPressed: () {
+                                      setState(() {
+                                        _showGrimorio = !_showGrimorio;
+                                      });
+                                    },
+                                    icon: Icon(
+                                      _showGrimorio
+                                          ? Icons.expand_less
+                                          : Icons.expand_more,
+                                    ),
+                                    label: Text(
+                                      _showGrimorio ? 'Ocultar' : 'Mostrar',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (_showGrimorio) ...[
+                                const SizedBox(height: 10),
+                                _OriginSection(
+                                  title: 'Magias do Grimório',
+                                  spells: grimorioSpells,
+                                  spellEntries: spellEntries,
+                                  character: character,
+                                  slotSummary: slotSummary,
+                                  usedSlots: usedSlots,
+                                  showOwnTitle: false,
+                                ),
+                              ],
+                              const SizedBox(height: 8),
+                            ],
                             if (raceSpells.isNotEmpty)
                               _OriginSection(
                                 title: 'Magias Raciais',
@@ -315,6 +369,7 @@ class _OriginSection extends StatelessWidget {
     required this.character,
     required this.slotSummary,
     required this.usedSlots,
+    this.showOwnTitle = true,
   });
 
   final String title;
@@ -323,6 +378,7 @@ class _OriginSection extends StatelessWidget {
   final Character character;
   final _SpellcastingSummaryData slotSummary;
   final Map<int, int> usedSlots;
+  final bool showOwnTitle;
 
   @override
   Widget build(BuildContext context) {
@@ -362,11 +418,13 @@ class _OriginSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '$title (${spells.length})',
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
-          const SizedBox(height: 10),
+          if (showOwnTitle) ...[
+            Text(
+              '$title (${spells.length})',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            const SizedBox(height: 10),
+          ],
           ...sortedKeys.map((groupKey) {
             final groupSpells = groups[groupKey]!;
             final byLevel = <int, List<_SpellViewData>>{};
@@ -505,7 +563,7 @@ class _OriginSection extends StatelessWidget {
 
   String _levelLabel(int level) {
     if (level == 0) return 'Truque';
-    return '${level}º círculo';
+    return '$levelº círculo';
   }
 }
 
@@ -749,7 +807,7 @@ class _CastSpellButton extends ConsumerWidget {
           _CastOption(
             castLevel: level,
             usageKey: level,
-            label: '${level}º círculo — slot normal',
+            label: '$levelº círculo — slot normal',
             max: normalMax,
             remaining: normalRemaining,
           ),
@@ -773,7 +831,7 @@ class _CastSpellButton extends ConsumerWidget {
             _CastOption(
               castLevel: level,
               usageKey: usageKey,
-              label: '${level}º círculo — slot de pacto',
+              label: '$levelº círculo — slot de pacto',
               max: pactMax,
               remaining: pactRemaining,
             ),
@@ -866,7 +924,7 @@ class _DetailLine extends StatelessWidget {
 void showSpellDetailsBottomSheet(BuildContext context, SpellEntry spell) {
   String levelLabel(int level) {
     if (level == 0) return 'Truque';
-    return '${level}º círculo';
+    return '$levelº círculo';
   }
 
   showModalBottomSheet<void>(
