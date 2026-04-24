@@ -1,114 +1,1839 @@
 [
   {
+  "id": "human_phb",
+  "name": "Humano",
+  "source": "phb",
+  "size": "medium",
+  "size_options": ["medium"],
+  "speed": 9,
+  "allows_custom_origin": true,
+  "fixed_ability_bonuses": {
+    "strength": 1,
+    "dexterity": 1,
+    "constitution": 1,
+    "intelligence": 1,
+    "wisdom": 1,
+    "charisma": 1
+  },
+  "traits": [
+    "Versatilidade Humana: recebe bônus em todos os atributos.",
+    "Adaptabilidade: humanos se encaixam em praticamente qualquer cultura, classe ou origem."
+  ],
+  "description": "A raça mais versátil e difundida dos mundos de Dungeons & Dragons.",
+  "creature_type": "humanoid",
+  "darkvision": null,
+  "languages": ["Comum", "um idioma extra"],
+  "skill_options": [],
+  "ability_score_rules": [],
+  "spellcasting": [],
+  "choice_groups": [],
+  "tags": ["phb", "base"]
+},
+{
+  "id": "human_variant_phb",
+  "name": "Humano Variante",
+  "source": "phb",
+  "size": "medium",
+  "size_options": ["medium"],
+  "speed": 9,
+  "allows_custom_origin": true,
+  "fixed_ability_bonuses": {
+    "dois_atributos_escolhidos": 1
+  },
+  "traits": [
+    "Versatilidade: recebe bônus em dois atributos à escolha.",
+    "Talento Inicial: recebe um talento no 1º nível.",
+    "Perícia Adicional: recebe proficiência em uma perícia à escolha."
+  ],
+  "description": "Uma versão mais personalizável do humano, ideal para personagens especializados desde o início.",
+  "creature_type": "humanoid",
+  "darkvision": null,
+  "languages": ["Comum", "um idioma extra"],
+  "skill_options": [],
+  "ability_score_rules": [],
+  "spellcasting": [],
+  "choice_groups": [],
+  "tags": ["phb", "base", "variant"]
+},
+{
+  "id": "elf_phb",
+  "name": "Elfo",
+  "source": "phb",
+  "size": "medium",
+  "size_options": ["medium"],
+  "speed": 9,
+  "allows_custom_origin": true,
+  "fixed_ability_bonuses": {
+    "dexterity": 2
+  },
+  "traits": [
+    "Visão no Escuro.",
+    "Sentidos Aguçados: proficiência em Percepção.",
+    "Ancestralidade Feérica: resistência contra encantamento e sono mágico.",
+    "Transe: repousa em meditação profunda em vez de dormir normalmente."
+  ],
+  "description": "Povo antigo, gracioso e naturalmente ligado à magia e aos sentidos aguçados.",
+  "creature_type": "humanoid",
+  "darkvision": 18,
+  "languages": ["Comum", "Élfico"],
+  "skill_options": ["perception"],
+  "ability_score_rules": [],
+  "spellcasting": [],
+  "choice_groups": [],
+  "tags": ["phb", "base", "elf"]
+},
+{
+  "id": "elf_high_phb",
+  "name": "Alto Elfo",
+  "source": "phb",
+  "parent_race_id": "elf_phb",
+  "is_subrace": true,
+  "size": "medium",
+  "size_options": ["medium"],
+  "speed": 9,
+  "allows_custom_origin": true,
+  "fixed_ability_bonuses": {
+    "intelligence": 1
+  },
+  "traits": [
+    "Treinamento Élfico com Armas.",
+    "Truque de Mago: conhece um truque da lista de magias de mago.",
+    "Idioma Extra."
+  ],
+  "description": "Elfo de tradição arcana, educação refinada e forte ligação com magia.",
+  "creature_type": "humanoid",
+  "darkvision": 18,
+  "languages": ["Comum", "Élfico", "um idioma extra"],
+  "skill_options": [],
+  "ability_score_rules": [],
+  "spellcasting": [],
+  "choice_groups": [],
+  "tags": ["phb", "elf", "subrace", "arcane"]
+},
+{
+  "id": "elf_wood_phb",
+  "name": "Elfo da Floresta",
+  "source": "phb",
+  "parent_race_id": "elf_phb",
+  "is_subrace": true,
+  "size": "medium",
+  "size_options": ["medium"],
+  "speed": 10,
+  "allows_custom_origin": true,
+  "fixed_ability_bonuses": {
+    "wisdom": 1
+  },
+  "traits": [
+    "Treinamento Élfico com Armas.",
+    "Pés Ligeiros: deslocamento aumentado.",
+    "Máscara da Natureza: facilidade para se esconder em ambientes naturais."
+  ],
+  "description": "Elfo ligado às florestas, à furtividade e à sobrevivência natural.",
+  "creature_type": "humanoid",
+  "darkvision": 18,
+  "languages": ["Comum", "Élfico"],
+  "skill_options": [],
+  "ability_score_rules": [],
+  "spellcasting": [],
+  "choice_groups": [],
+  "tags": ["phb", "elf", "subrace", "forest"]
+},
+{
+  "id": "elf_drow_phb",
+  "name": "Drow",
+  "source": "phb",
+  "parent_race_id": "elf_phb",
+  "is_subrace": true,
+  "size": "medium",
+  "size_options": ["medium"],
+  "speed": 9,
+  "allows_custom_origin": true,
+  "fixed_ability_bonuses": {
+    "charisma": 1
+  },
+  "traits": [
+    "Visão no Escuro Superior.",
+    "Sensibilidade à Luz Solar.",
+    "Magia Drow: acesso a magias sombrias conforme o nível.",
+    "Treinamento com Armas Drow."
+  ],
+  "description": "Elfo subterrâneo marcado por magia sombria e tradição do Subterrâneo.",
+  "creature_type": "humanoid",
+  "darkvision": 36,
+  "languages": ["Comum", "Élfico", "Subcomum"],
+  "skill_options": [],
+  "ability_score_rules": [],
+  "spellcasting": [],
+  "choice_groups": [],
+  "tags": ["phb", "elf", "subrace", "underdark"]
+},
+{
+  "id": "dwarf_phb",
+  "name": "Anão",
+  "source": "phb",
+  "size": "medium",
+  "size_options": ["medium"],
+  "speed": 7,
+  "allows_custom_origin": true,
+  "fixed_ability_bonuses": {
+    "constitution": 2
+  },
+  "traits": [
+    "Visão no Escuro.",
+    "Resiliência Anã: resistência contra veneno.",
+    "Treinamento Anão em Combate.",
+    "Proficiência com Ferramentas.",
+    "Especialização em Pedra."
+  ],
+  "description": "Povo resistente, antigo, ligado à pedra, metalurgia e tradição.",
+  "creature_type": "humanoid",
+  "darkvision": 18,
+  "languages": ["Comum", "Anão"],
+  "skill_options": [],
+  "ability_score_rules": [],
+  "spellcasting": [],
+  "choice_groups": [],
+  "tags": ["phb", "base", "dwarf"]
+},
+{
+  "id": "dwarf_hill_phb",
+  "name": "Anão da Colina",
+  "source": "phb",
+  "parent_race_id": "dwarf_phb",
+  "is_subrace": true,
+  "size": "medium",
+  "size_options": ["medium"],
+  "speed": 7,
+  "allows_custom_origin": true,
+  "fixed_ability_bonuses": {
+    "wisdom": 1
+  },
+  "traits": [
+    "Tenacidade Anã: recebe pontos de vida adicionais conforme sobe de nível."
+  ],
+  "description": "Anão robusto e resistente, famoso por sua durabilidade.",
+  "creature_type": "humanoid",
+  "darkvision": 18,
+  "languages": ["Comum", "Anão"],
+  "skill_options": [],
+  "ability_score_rules": [],
+  "spellcasting": [],
+  "choice_groups": [],
+  "tags": ["phb", "dwarf", "subrace"]
+},
+{
+  "id": "dwarf_mountain_phb",
+  "name": "Anão da Montanha",
+  "source": "phb",
+  "parent_race_id": "dwarf_phb",
+  "is_subrace": true,
+  "size": "medium",
+  "size_options": ["medium"],
+  "speed": 7,
+  "allows_custom_origin": true,
+  "fixed_ability_bonuses": {
+    "strength": 2
+  },
+  "traits": [
+    "Treinamento com Armaduras Anãs: proficiência com armaduras leves e médias."
+  ],
+  "description": "Anão forte e marcial, criado entre fortalezas e montanhas.",
+  "creature_type": "humanoid",
+  "darkvision": 18,
+  "languages": ["Comum", "Anão"],
+  "skill_options": [],
+  "ability_score_rules": [],
+  "spellcasting": [],
+  "choice_groups": [],
+  "tags": ["phb", "dwarf", "subrace"]
+},
+{
+  "id": "halfling_phb",
+  "name": "Halfling",
+  "source": "phb",
+  "size": "small",
+  "size_options": ["small"],
+  "speed": 7,
+  "allows_custom_origin": true,
+  "fixed_ability_bonuses": {
+    "dexterity": 2
+  },
+  "traits": [
+    "Sortudo: pode refazer certos resultados ruins em testes.",
+    "Bravura: vantagem contra medo.",
+    "Agilidade Halfling: pode se mover pelo espaço de criaturas maiores."
+  ],
+  "description": "Povo pequeno, ágil, sortudo e surpreendentemente corajoso.",
+  "creature_type": "humanoid",
+  "darkvision": null,
+  "languages": ["Comum", "Halfling"],
+  "skill_options": [],
+  "ability_score_rules": [],
+  "spellcasting": [],
+  "choice_groups": [],
+  "tags": ["phb", "base", "halfling"]
+},
+{
+  "id": "halfling_lightfoot_phb",
+  "name": "Halfling Pés-Leves",
+  "source": "phb",
+  "parent_race_id": "halfling_phb",
+  "is_subrace": true,
+  "size": "small",
+  "size_options": ["small"],
+  "speed": 7,
+  "allows_custom_origin": true,
+  "fixed_ability_bonuses": {
+    "charisma": 1
+  },
+  "traits": [
+    "Furtividade Natural: facilidade para se esconder atrás de criaturas maiores."
+  ],
+  "description": "Halfling discreto, carismático e naturalmente furtivo.",
+  "creature_type": "humanoid",
+  "darkvision": null,
+  "languages": ["Comum", "Halfling"],
+  "skill_options": [],
+  "ability_score_rules": [],
+  "spellcasting": [],
+  "choice_groups": [],
+  "tags": ["phb", "halfling", "subrace"]
+},
+{
+  "id": "halfling_stout_phb",
+  "name": "Halfling Robusto",
+  "source": "phb",
+  "parent_race_id": "halfling_phb",
+  "is_subrace": true,
+  "size": "small",
+  "size_options": ["small"],
+  "speed": 7,
+  "allows_custom_origin": true,
+  "fixed_ability_bonuses": {
+    "constitution": 1
+  },
+  "traits": [
+    "Resiliência Robusta: resistência contra veneno."
+  ],
+  "description": "Halfling mais resistente, firme e vigoroso.",
+  "creature_type": "humanoid",
+  "darkvision": null,
+  "languages": ["Comum", "Halfling"],
+  "skill_options": [],
+  "ability_score_rules": [],
+  "spellcasting": [],
+  "choice_groups": [],
+  "tags": ["phb", "halfling", "subrace"]
+},
+{
+  "id": "dragonborn_phb",
+  "name": "Draconato",
+  "source": "phb",
+  "size": "medium",
+  "size_options": ["medium"],
+  "speed": 9,
+  "allows_custom_origin": true,
+  "fixed_ability_bonuses": {
+    "strength": 2,
+    "charisma": 1
+  },
+  "traits": [
+    "Ancestralidade Dracônica.",
+    "Arma de Sopro.",
+    "Resistência a dano associada à ancestralidade dracônica."
+  ],
+  "description": "Humanoide dracônico marcado por ancestralidade elemental.",
+  "creature_type": "humanoid",
+  "darkvision": null,
+  "languages": ["Comum", "Dracônico"],
+  "skill_options": [],
+  "ability_score_rules": [],
+  "spellcasting": [],
+  "choice_groups": [
+    {
+      "id": "dragonborn_phb_ancestry",
+      "name": "Escolha a ancestralidade dracônica",
+      "options": ["black", "blue", "brass", "bronze", "copper", "gold", "green", "red", "silver", "white"],
+      "choose": 1
+    }
+  ],
+  "tags": ["phb", "base", "dragonborn"]
+},
+{
+  "id": "gnome_phb",
+  "name": "Gnomo",
+  "source": "phb",
+  "size": "small",
+  "size_options": ["small"],
+  "speed": 7,
+  "allows_custom_origin": true,
+  "fixed_ability_bonuses": {
+    "intelligence": 2
+  },
+  "traits": [
+    "Visão no Escuro.",
+    "Esperteza Gnômica: vantagem em testes mentais contra magia."
+  ],
+  "description": "Povo pequeno, curioso, inventivo e mentalmente resistente.",
+  "creature_type": "humanoid",
+  "darkvision": 18,
+  "languages": ["Comum", "Gnômico"],
+  "skill_options": [],
+  "ability_score_rules": [],
+  "spellcasting": [],
+  "choice_groups": [],
+  "tags": ["phb", "base", "gnome"]
+},
+{
+  "id": "gnome_forest_phb",
+  "name": "Gnomo da Floresta",
+  "source": "phb",
+  "parent_race_id": "gnome_phb",
+  "is_subrace": true,
+  "size": "small",
+  "size_options": ["small"],
+  "speed": 7,
+  "allows_custom_origin": true,
+  "fixed_ability_bonuses": {
+    "dexterity": 1
+  },
+  "traits": [
+    "Ilusionista Natural: conhece um truque ilusório.",
+    "Falar com Pequenos Animais."
+  ],
+  "description": "Gnomo reservado, ilusionista e próximo de pequenos animais.",
+  "creature_type": "humanoid",
+  "darkvision": 18,
+  "languages": ["Comum", "Gnômico"],
+  "skill_options": [],
+  "ability_score_rules": [],
+  "spellcasting": [],
+  "choice_groups": [],
+  "tags": ["phb", "gnome", "subrace", "illusion"]
+},
+{
+  "id": "gnome_rock_phb",
+  "name": "Gnomo das Rochas",
+  "source": "phb",
+  "parent_race_id": "gnome_phb",
+  "is_subrace": true,
+  "size": "small",
+  "size_options": ["small"],
+  "speed": 7,
+  "allows_custom_origin": true,
+  "fixed_ability_bonuses": {
+    "constitution": 1
+  },
+  "traits": [
+    "Conhecimento de Artífice.",
+    "Engenhoqueiro: cria pequenos dispositivos mecânicos."
+  ],
+  "description": "Gnomo engenhoso, técnico e fascinado por mecanismos.",
+  "creature_type": "humanoid",
+  "darkvision": 18,
+  "languages": ["Comum", "Gnômico"],
+  "skill_options": [],
+  "ability_score_rules": [],
+  "spellcasting": [],
+  "choice_groups": [],
+  "tags": ["phb", "gnome", "subrace", "tinker"]
+},
+{
+  "id": "half_elf_phb",
+  "name": "Meio-Elfo",
+  "source": "phb",
+  "size": "medium",
+  "size_options": ["medium"],
+  "speed": 9,
+  "allows_custom_origin": true,
+  "fixed_ability_bonuses": {
+    "charisma": 2,
+    "dois_atributos_escolhidos": 1
+  },
+  "traits": [
+    "Visão no Escuro.",
+    "Ancestralidade Feérica.",
+    "Versatilidade em Perícias: recebe proficiência em duas perícias.",
+    "Herança dupla entre humanos e elfos."
+  ],
+  "description": "Descendente de humanos e elfos, versátil, carismático e socialmente adaptável.",
+  "creature_type": "humanoid",
+  "darkvision": 18,
+  "languages": ["Comum", "Élfico", "um idioma extra"],
+  "skill_options": [],
+  "ability_score_rules": [],
+  "spellcasting": [],
+  "choice_groups": [],
+  "tags": ["phb", "base", "half_elf"]
+},
+{
+  "id": "half_orc_phb",
+  "name": "Meio-Orc",
+  "source": "phb",
+  "size": "medium",
+  "size_options": ["medium"],
+  "speed": 9,
+  "allows_custom_origin": true,
+  "fixed_ability_bonuses": {
+    "strength": 2,
+    "constitution": 1
+  },
+  "traits": [
+    "Visão no Escuro.",
+    "Ameaçador: proficiência em Intimidação.",
+    "Resistência Implacável: evita cair quando seria reduzido a 0 pontos de vida.",
+    "Ataques Selvagens: causa dano extra em acertos críticos corpo a corpo."
+  ],
+  "description": "Humanoide forte e resistente, herdeiro de vigor orc e adaptabilidade humana.",
+  "creature_type": "humanoid",
+  "darkvision": 18,
+  "languages": ["Comum", "Orc"],
+  "skill_options": ["intimidation"],
+  "ability_score_rules": [],
+  "spellcasting": [],
+  "choice_groups": [],
+  "tags": ["phb", "base", "half_orc"]
+},
+{
+  "id": "tiefling_phb",
+  "name": "Tiefling",
+  "source": "phb",
+  "size": "medium",
+  "size_options": ["medium"],
+  "speed": 9,
+  "allows_custom_origin": true,
+  "fixed_ability_bonuses": {
+    "charisma": 2,
+    "intelligence": 1
+  },
+  "traits": [
+    "Visão no Escuro.",
+    "Resistência Infernal: resistência a dano de fogo.",
+    "Legado Infernal: acesso a magias infernais conforme o nível."
+  ],
+  "description": "Humanoide marcado por herança infernal, presença intensa e magia sombria.",
+  "creature_type": "humanoid",
+  "darkvision": 18,
+  "languages": ["Comum", "Infernal"],
+  "skill_options": [],
+  "ability_score_rules": [],
+  "spellcasting": [],
+  "choice_groups": [],
+  "tags": ["phb", "base", "tiefling"]
+},
+  {
+    "id": "custom_lineage_tcoe",
+    "name": "Custom Lineage",
+    "source": "tcoe",
+    "size": "medium",
+    "size_options": ["small", "medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Origem Customizada: representa uma linhagem personalizada definida pelo jogador.",
+      "Tamanho flexível: escolha Pequeno ou Médio.",
+      "Talento inicial: esta linhagem é adequada para personagens criados com uma característica especial inicial.",
+      "Traço variável: pode representar visão no escuro, perícia ou outro detalhe aprovado pelo mestre."
+    ],
+    "description": "Uma linhagem personalizada criada a partir das regras opcionais de Tasha.",
+    "creature_type": "humanoid",
+    "darkvision": null,
+    "languages": ["Common", "um idioma extra"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 1,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [
+      {
+        "id": "custom_lineage_size",
+        "name": "Escolha o tamanho",
+        "options": ["small", "medium"],
+        "choose": 1
+      }
+    ],
+    "tags": ["tcoe", "custom", "lineage"]
+  },
+  {
     "id": "aarakocra_motm",
     "name": "Aarakocra",
     "source": "motm",
-    "size": null,
-    "speed": null,
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
     "allows_custom_origin": true,
     "fixed_ability_bonuses": {},
-    "traits": []
+    "traits": [
+      "Voo: possui deslocamento de voo.",
+      "Garras: ataques naturais com as garras.",
+      "Natureza aviária: povo alado adaptado aos céus."
+    ],
+    "description": "Humanoide aviário com asas, garras e grande mobilidade aérea.",
+    "creature_type": "humanoid",
+    "darkvision": null,
+    "languages": ["Common", "Aarakocra"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "flight"]
   },
   {
     "id": "aasimar_motm",
     "name": "Aasimar",
     "source": "motm",
-    "size": null,
-    "speed": null,
+    "size": "medium",
+    "size_options": ["small", "medium"],
+    "speed": 9,
     "allows_custom_origin": true,
     "fixed_ability_bonuses": {},
-    "traits": []
+    "traits": [
+      "Visão no Escuro.",
+      "Resistência Celestial: resistência a dano necrótico e radiante.",
+      "Mãos Curativas: pode restaurar pontos de vida.",
+      "Revelação Celestial: manifesta uma forma angelical temporária."
+    ],
+    "description": "Humanoide tocado por poder celestial, capaz de curar e manifestar energia divina.",
+    "creature_type": "humanoid",
+    "darkvision": 18,
+    "languages": ["Common", "Celestial"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [
+      {
+        "id": "aasimar_revelation_choice",
+        "name": "Escolha a Revelação Celestial",
+        "options": ["necrotoic_shroud", "radiant_consumption", "radiant_soul"],
+        "choose": 1
+      }
+    ],
+    "tags": ["motm", "celestial", "healing"]
   },
   {
     "id": "bugbear_motm",
     "name": "Bugbear",
     "source": "motm",
-    "size": null,
-    "speed": null,
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
     "allows_custom_origin": true,
     "fixed_ability_bonuses": {},
-    "traits": []
+    "traits": [
+      "Visão no Escuro.",
+      "Membros Longos: alcance ampliado em ataques corpo a corpo durante o próprio turno.",
+      "Construção Poderosa: conta como maior para carregar, empurrar, puxar ou erguer.",
+      "Ataque Surpresa: causa dano extra contra criaturas que ainda não agiram."
+    ],
+    "description": "Goblinoide grande, sorrateiro e perigoso em emboscadas.",
+    "creature_type": "humanoid",
+    "darkvision": 18,
+    "languages": ["Common", "Goblin"],
+    "skill_options": ["stealth"],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "goblinoid", "ambush"]
   },
   {
     "id": "centaur_motm",
     "name": "Centaur",
     "source": "motm",
-    "size": null,
-    "speed": null,
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 12,
     "allows_custom_origin": true,
     "fixed_ability_bonuses": {},
-    "traits": []
+    "traits": [
+      "Carga: pode usar o ímpeto do movimento para ataques adicionais.",
+      "Cascos: possui ataque natural com os cascos.",
+      "Corpo Equino: possui considerações especiais para escalada e anatomia.",
+      "Construção Forte: carrega peso como se fosse maior."
+    ],
+    "description": "Ser de corpo parcialmente equino, veloz e poderoso em investidas.",
+    "creature_type": "fey",
+    "darkvision": null,
+    "languages": ["Common", "Sylvan"],
+    "skill_options": ["animalHandling", "medicine", "nature", "survival"],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "fey", "mobility"]
   },
   {
     "id": "changeling_motm",
     "name": "Changeling",
     "source": "motm",
-    "size": null,
-    "speed": null,
+    "size": "medium",
+    "size_options": ["small", "medium"],
+    "speed": 9,
     "allows_custom_origin": true,
     "fixed_ability_bonuses": {},
-    "traits": []
+    "traits": [
+      "Metamorfo: altera aparência física como ação.",
+      "Instintos Sociais: treinamento em perícias sociais.",
+      "Identidade fluida: adapta-se facilmente a diferentes papéis."
+    ],
+    "description": "Humanoide capaz de alterar sua aparência para assumir diversas identidades.",
+    "creature_type": "fey",
+    "darkvision": null,
+    "languages": ["Common", "dois idiomas extras"],
+    "skill_options": ["deception", "insight", "intimidation", "performance", "persuasion"],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [
+      {
+        "id": "changeling_skill_choice_motm",
+        "name": "Escolha perícias sociais",
+        "options": ["deception", "insight", "intimidation", "performance", "persuasion"],
+        "choose": 2
+      }
+    ],
+    "tags": ["motm", "shapeshifter", "social"]
   },
   {
     "id": "deep_gnome_motm",
     "name": "Deep Gnome",
     "source": "motm",
-    "size": null,
-    "speed": null,
+    "size": "small",
+    "size_options": ["small"],
+    "speed": 9,
     "allows_custom_origin": true,
     "fixed_ability_bonuses": {},
-    "traits": []
+    "traits": [
+      "Visão no Escuro Superior.",
+      "Resistência Gnômica à Magia: defesa mental contra certos efeitos mágicos.",
+      "Camuflagem Svirfneblin: aptidão para se esconder em ambientes rochosos.",
+      "Magia Svirfneblin: acesso a magias temáticas conforme o nível."
+    ],
+    "description": "Gnomo das profundezas, furtivo e resistente a magia.",
+    "creature_type": "humanoid",
+    "darkvision": 36,
+    "languages": ["Common", "Gnomish", "Undercommon"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "gnome", "underdark", "magic"]
   },
   {
     "id": "duergar_motm",
     "name": "Duergar",
     "source": "motm",
-    "size": null,
-    "speed": null,
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
     "allows_custom_origin": true,
     "fixed_ability_bonuses": {},
-    "traits": []
+    "traits": [
+      "Visão no Escuro Superior.",
+      "Resiliência Anã: resistência contra veneno.",
+      "Magia Duergar: acesso a magias de aumento e invisibilidade conforme o nível.",
+      "Fortitude Psíquica: resistência a certas influências mentais."
+    ],
+    "description": "Anão das profundezas marcado por poderes psíquicos e magia sombria.",
+    "creature_type": "humanoid",
+    "darkvision": 36,
+    "languages": ["Common", "Dwarvish", "Undercommon"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "dwarf", "underdark", "magic"]
   },
   {
     "id": "eladrin_motm",
     "name": "Eladrin",
     "source": "motm",
-    "size": null,
-    "speed": null,
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
     "allows_custom_origin": true,
     "fixed_ability_bonuses": {},
-    "traits": []
+    "traits": [
+      "Visão no Escuro.",
+      "Ancestralidade Feérica: resistência a encantamento e sono mágico.",
+      "Transe: repouso meditativo.",
+      "Passo Feérico: teleporte curto com efeito sazonal."
+    ],
+    "description": "Elfo feérico ligado às estações e à magia do Feywild.",
+    "creature_type": "humanoid",
+    "darkvision": 18,
+    "languages": ["Common", "Elvish"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [
+      {
+        "id": "eladrin_season_choice",
+        "name": "Escolha a estação",
+        "options": ["autumn", "winter", "spring", "summer"],
+        "choose": 1
+      }
+    ],
+    "tags": ["motm", "elf", "fey", "teleport"]
   },
   {
     "id": "fairy_motm",
     "name": "Fairy",
     "source": "motm",
-    "size": null,
-    "speed": null,
+    "size": "small",
+    "size_options": ["small"],
+    "speed": 9,
     "allows_custom_origin": true,
     "fixed_ability_bonuses": {},
-    "traits": []
+    "traits": [
+      "Tipo Feérico.",
+      "Voo: possui deslocamento de voo igual ao deslocamento de caminhada.",
+      "Magia Feérica: conhece magias temáticas de fada conforme o nível."
+    ],
+    "description": "Pequeno ser feérico alado, naturalmente ligado à magia.",
+    "creature_type": "fey",
+    "darkvision": null,
+    "languages": ["Common", "Sylvan"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "fey", "flight", "magic"]
   },
   {
     "id": "firbolg_motm",
     "name": "Firbolg",
     "source": "motm",
-    "size": null,
-    "speed": null,
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
     "allows_custom_origin": true,
     "fixed_ability_bonuses": {},
-    "traits": []
+    "traits": [
+      "Magia Firbolg: acesso a magia discreta e ilusória.",
+      "Passo Oculto: invisibilidade breve.",
+      "Construção Poderosa.",
+      "Fala com Feras e Folhas: comunicação limitada com animais e plantas."
+    ],
+    "description": "Gigante feérico gentil, ligado à natureza e à magia sutil.",
+    "creature_type": "humanoid",
+    "darkvision": null,
+    "languages": ["Common", "Giant", "Sylvan"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "nature", "giantkin"]
   },
-
+  {
+    "id": "genasi_air_motm",
+    "name": "Air Genasi",
+    "source": "motm",
+    "size": "medium",
+    "size_options": ["small", "medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Visão no Escuro.",
+      "Respiração Infinita: pode prender a respiração indefinidamente enquanto não estiver incapacitado.",
+      "Magia do Ar: acesso a magias ligadas ao vento e à levitação."
+    ],
+    "description": "Descendente elemental ligado ao ar, leveza e mobilidade.",
+    "creature_type": "humanoid",
+    "darkvision": 18,
+    "languages": ["Common", "Primordial"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "genasi", "air", "magic"]
+  },
+  {
+    "id": "genasi_earth_motm",
+    "name": "Earth Genasi",
+    "source": "motm",
+    "size": "medium",
+    "size_options": ["small", "medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Visão no Escuro.",
+      "Caminhada Terrestre: move-se bem sobre terreno difícil de pedra ou terra.",
+      "Magia da Terra: acesso a magias protetoras e ligadas ao solo."
+    ],
+    "description": "Descendente elemental ligado à terra, resistência e estabilidade.",
+    "creature_type": "humanoid",
+    "darkvision": 18,
+    "languages": ["Common", "Primordial"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "genasi", "earth", "magic"]
+  },
+  {
+    "id": "genasi_fire_motm",
+    "name": "Fire Genasi",
+    "source": "motm",
+    "size": "medium",
+    "size_options": ["small", "medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Visão no Escuro.",
+      "Resistência ao Fogo.",
+      "Magia do Fogo: acesso a truques e magias flamejantes."
+    ],
+    "description": "Descendente elemental ligado ao fogo, calor e energia arcana.",
+    "creature_type": "humanoid",
+    "darkvision": 18,
+    "languages": ["Common", "Primordial"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "genasi", "fire", "magic"]
+  },
+  {
+    "id": "genasi_water_motm",
+    "name": "Water Genasi",
+    "source": "motm",
+    "size": "medium",
+    "size_options": ["small", "medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Visão no Escuro.",
+      "Resistência a Ácido.",
+      "Anfíbio: respira ar e água.",
+      "Natação: possui deslocamento de natação.",
+      "Magia da Água: acesso a magias aquáticas."
+    ],
+    "description": "Descendente elemental ligado à água, fluidez e adaptação.",
+    "creature_type": "humanoid",
+    "darkvision": 18,
+    "languages": ["Common", "Primordial"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "genasi", "water", "swim", "magic"]
+  },
+  {
+    "id": "githyanki_motm",
+    "name": "Githyanki",
+    "source": "motm",
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Conhecimento Astral: proficiência temporária escolhida após descanso.",
+      "Resistência Psíquica.",
+      "Magia Githyanki: acesso a magias psíquicas e de mobilidade."
+    ],
+    "description": "Gith guerreiro do Plano Astral, treinado em disciplina marcial e poderes psíquicos.",
+    "creature_type": "humanoid",
+    "darkvision": null,
+    "languages": ["Common", "Gith"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "gith", "psychic", "magic"]
+  },
+  {
+    "id": "githzerai_motm",
+    "name": "Githzerai",
+    "source": "motm",
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Disciplina Mental: defesa contra certas condições mentais.",
+      "Resistência Psíquica.",
+      "Magia Githzerai: acesso a magias defensivas e mentais."
+    ],
+    "description": "Gith disciplinado, treinado em autocontrole mental e poderes psíquicos.",
+    "creature_type": "humanoid",
+    "darkvision": null,
+    "languages": ["Common", "Gith"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "gith", "psychic", "discipline"]
+  },
+  {
+    "id": "goblin_motm",
+    "name": "Goblin",
+    "source": "motm",
+    "size": "small",
+    "size_options": ["small"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Visão no Escuro.",
+      "Fúria dos Pequenos: causa dano extra em certas circunstâncias.",
+      "Escapada Ágil: pode se desengajar ou esconder rapidamente."
+    ],
+    "description": "Goblinoide pequeno, rápido, furtivo e perigoso quando subestimado.",
+    "creature_type": "humanoid",
+    "darkvision": 18,
+    "languages": ["Common", "Goblin"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "goblinoid", "nimble"]
+  },
+  {
+    "id": "goliath_motm",
+    "name": "Goliath",
+    "source": "motm",
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Resistência ao Frio.",
+      "Resistência da Pedra: reduz dano recebido algumas vezes.",
+      "Construção Poderosa.",
+      "Aclimatação Montanhosa."
+    ],
+    "description": "Humanoide grande e resistente, adaptado a montanhas e clima severo.",
+    "creature_type": "humanoid",
+    "darkvision": null,
+    "languages": ["Common", "Giant"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "giantkin", "resilience"]
+  },
+  {
+    "id": "harengon_motm",
+    "name": "Harengon",
+    "source": "motm",
+    "size": "medium",
+    "size_options": ["small", "medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Iniciativa leporina: adiciona bônus à iniciativa.",
+      "Sentidos de Lebre: proficiência em Percepção.",
+      "Sorte dos Pés de Lebre: melhora testes falhos de Destreza.",
+      "Salto de Coelho: salto especial como ação bônus."
+    ],
+    "description": "Humanoide leporino ágil, perceptivo e veloz.",
+    "creature_type": "humanoid",
+    "darkvision": null,
+    "languages": ["Common", "Sylvan"],
+    "skill_options": ["perception"],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "feywild", "mobility"]
+  },
+  {
+    "id": "hobgoblin_motm",
+    "name": "Hobgoblin",
+    "source": "motm",
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Visão no Escuro.",
+      "Ancestralidade Feérica.",
+      "Fortuna dos Muitos: recebe bônus com base em aliados próximos.",
+      "Dádiva Feérica: ajuda aliados com efeitos adicionais."
+    ],
+    "description": "Goblinoide disciplinado, marcado por magia feérica e táticas de grupo.",
+    "creature_type": "humanoid",
+    "darkvision": 18,
+    "languages": ["Common", "Goblin"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "goblinoid", "support"]
+  },
+  {
+    "id": "kenku_motm",
+    "name": "Kenku",
+    "source": "motm",
+    "size": "medium",
+    "size_options": ["small", "medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Especialista Kenku: proficiência aprimorada em perícias escolhidas.",
+      "Memória Eficiente: lembra e reproduz sons e detalhes com precisão.",
+      "Mimetismo: imita sons e vozes."
+    ],
+    "description": "Humanoide corvídeo com memória apurada e capacidade de imitação.",
+    "creature_type": "humanoid",
+    "darkvision": null,
+    "languages": ["Common", "Auran"],
+    "skill_options": ["acrobatics", "deception", "stealth", "sleightOfHand"],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "mimicry", "skill"]
+  },
+  {
+    "id": "kobold_motm",
+    "name": "Kobold",
+    "source": "motm",
+    "size": "small",
+    "size_options": ["small"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Visão no Escuro.",
+      "Grito Dracônico: concede vantagem contra inimigos próximos por breve período.",
+      "Legado Kobold: escolha uma aptidão herdada."
+    ],
+    "description": "Pequeno humanoide dracônico, astuto e perigoso em grupo.",
+    "creature_type": "humanoid",
+    "darkvision": 18,
+    "languages": ["Common", "Draconic"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [
+      {
+        "id": "kobold_legacy_choice",
+        "name": "Escolha o legado kobold",
+        "options": ["craftiness", "defiance", "draconic_sorcery"],
+        "choose": 1
+      }
+    ],
+    "tags": ["motm", "draconic", "small"]
+  },
+  {
+    "id": "lizardfolk_motm",
+    "name": "Lizardfolk",
+    "source": "motm",
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Mordida: ataque natural.",
+      "Armadura Natural: pele resistente.",
+      "Segurar Respiração.",
+      "Sabedoria do Caçador: proficiência em perícias ligadas à sobrevivência."
+    ],
+    "description": "Humanoide reptiliano pragmático, resistente e adaptado à caça.",
+    "creature_type": "humanoid",
+    "darkvision": null,
+    "languages": ["Common", "Draconic"],
+    "skill_options": ["animalHandling", "medicine", "nature", "perception", "stealth", "survival"],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [
+      {
+        "id": "lizardfolk_hungry_jaws_skill_choice",
+        "name": "Escolha perícias de caçador",
+        "options": ["animalHandling", "medicine", "nature", "perception", "stealth", "survival"],
+        "choose": 2
+      }
+    ],
+    "tags": ["motm", "reptile", "survival"]
+  },
+  {
+    "id": "minotaur_motm",
+    "name": "Minotaur",
+    "source": "motm",
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Chifres: ataque natural.",
+      "Investida com Chifres.",
+      "Memória Labiríntica: excelente senso de direção.",
+      "Presença Imponente: proficiência em perícia social ou física."
+    ],
+    "description": "Humanoide bovino forte, orientado e feroz em investidas.",
+    "creature_type": "humanoid",
+    "darkvision": null,
+    "languages": ["Common", "Minotaur"],
+    "skill_options": ["intimidation", "persuasion"],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "charge", "horns"]
+  },
+  {
+    "id": "orc_motm",
+    "name": "Orc",
+    "source": "motm",
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Visão no Escuro.",
+      "Adrenalina: pode avançar rapidamente e ganhar pontos de vida temporários.",
+      "Construção Poderosa.",
+      "Resistência Implacável: evita cair quando seria reduzido a 0 pontos de vida."
+    ],
+    "description": "Humanoide vigoroso, resiliente e agressivo em combate.",
+    "creature_type": "humanoid",
+    "darkvision": 18,
+    "languages": ["Common", "Orc"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "orc", "resilience"]
+  },
+  {
+    "id": "satyr_motm",
+    "name": "Satyr",
+    "source": "motm",
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 10,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Tipo Feérico.",
+      "Chifres: ataque natural.",
+      "Saltos Alegres: melhora saltos.",
+      "Resistência à Magia.",
+      "Performance festiva: afinidade com música, atuação e persuasão."
+    ],
+    "description": "Ser feérico brincalhão, ágil e resistente a magia.",
+    "creature_type": "fey",
+    "darkvision": null,
+    "languages": ["Common", "Sylvan"],
+    "skill_options": ["performance", "persuasion"],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "fey", "magic_resistance"]
+  },
+  {
+    "id": "sea_elf_motm",
+    "name": "Sea Elf",
+    "source": "motm",
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Visão no Escuro.",
+      "Ancestralidade Feérica.",
+      "Transe.",
+      "Filho do Mar: deslocamento de natação e respiração aquática.",
+      "Amigo do Mar: comunicação limitada com criaturas aquáticas."
+    ],
+    "description": "Elfo adaptado ao mar, com mobilidade aquática e sentidos élficos.",
+    "creature_type": "humanoid",
+    "darkvision": 18,
+    "languages": ["Common", "Elvish", "Aquan"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "elf", "aquatic"]
+  },
+  {
+    "id": "shadar_kai_motm",
+    "name": "Shadar-kai",
+    "source": "motm",
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Visão no Escuro.",
+      "Ancestralidade Feérica.",
+      "Transe.",
+      "Resistência Necrótica.",
+      "Bênção da Rainha Corvo: teleporte curto com proteção temporária em níveis maiores."
+    ],
+    "description": "Elfo sombrio ligado ao Shadowfell e à Rainha Corvo.",
+    "creature_type": "humanoid",
+    "darkvision": 18,
+    "languages": ["Common", "Elvish"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "elf", "shadowfell", "teleport"]
+  },
+  {
+    "id": "shifter_motm",
+    "name": "Shifter",
+    "source": "motm",
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Visão no Escuro.",
+      "Mudança: assume aspecto bestial temporário.",
+      "Instinto Bestial: escolha uma aptidão associada ao aspecto."
+    ],
+    "description": "Humanoide de herança bestial, capaz de manifestar traços animalescos.",
+    "creature_type": "humanoid",
+    "darkvision": 18,
+    "languages": ["Common", "outro idioma"],
+    "skill_options": ["acrobatics", "athletics", "intimidation", "survival"],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [
+      {
+        "id": "shifter_aspect_choice_motm",
+        "name": "Escolha o aspecto bestial",
+        "options": ["beasthide", "longtooth", "swiftstride", "wildhunt"],
+        "choose": 1
+      }
+    ],
+    "tags": ["motm", "shifter", "lycanthrope_theme"]
+  },
+  {
+    "id": "tabaxi_motm",
+    "name": "Tabaxi",
+    "source": "motm",
+    "size": "medium",
+    "size_options": ["small", "medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Visão no Escuro.",
+      "Agilidade Felina: explosão de velocidade.",
+      "Garras de Gato: ataque natural e escalada.",
+      "Talento Felino: proficiência em furtividade e percepção."
+    ],
+    "description": "Humanoide felino curioso, rápido e furtivo.",
+    "creature_type": "humanoid",
+    "darkvision": 18,
+    "languages": ["Common", "outro idioma"],
+    "skill_options": ["perception", "stealth"],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "feline", "mobility"]
+  },
+  {
+    "id": "tortle_motm",
+    "name": "Tortle",
+    "source": "motm",
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Garras: ataque natural.",
+      "Casco Natural: defesa natural elevada.",
+      "Recolher-se no Casco: postura defensiva.",
+      "Segurar Respiração por longo período."
+    ],
+    "description": "Humanoide quelônio resistente, protegido por um casco natural.",
+    "creature_type": "humanoid",
+    "darkvision": null,
+    "languages": ["Common", "Aquan"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "natural_armor"]
+  },
+  {
+    "id": "triton_motm",
+    "name": "Triton",
+    "source": "motm",
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Anfíbio: respira ar e água.",
+      "Natação: possui deslocamento de natação.",
+      "Resistência ao Frio.",
+      "Emissário do Mar: comunicação limitada com criaturas aquáticas.",
+      "Controle do Ar e da Água: acesso a magias elementais."
+    ],
+    "description": "Guardião marinho adaptado a ambientes aquáticos e magia elemental.",
+    "creature_type": "humanoid",
+    "darkvision": 18,
+    "languages": ["Common", "Primordial"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "aquatic", "magic"]
+  },
+  {
+    "id": "yuan_ti_motm",
+    "name": "Yuan-ti",
+    "source": "motm",
+    "size": "medium",
+    "size_options": ["small", "medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Visão no Escuro.",
+      "Resistência à Magia.",
+      "Resiliência a Veneno.",
+      "Magia Serpentina: acesso a magias temáticas de serpente."
+    ],
+    "description": "Humanoide serpentiforme com resistência mágica e natureza venenosa.",
+    "creature_type": "humanoid",
+    "darkvision": 18,
+    "languages": ["Common", "Abyssal", "Draconic"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["motm", "serpent", "magic_resistance"]
+  },
+  {
+    "id": "astral_elf_aag",
+    "name": "Astral Elf",
+    "source": "aag",
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Visão no Escuro.",
+      "Ancestralidade Feérica.",
+      "Transe Astral.",
+      "Passo Estelar: teleporte curto.",
+      "Memória Astral: proficiência variável após repouso."
+    ],
+    "description": "Elfo influenciado pelo Plano Astral, memória ancestral e teleporte.",
+    "creature_type": "humanoid",
+    "darkvision": 18,
+    "languages": ["Common", "Elvish", "um idioma extra"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["aag", "elf", "astral", "teleport"]
+  },
+  {
+    "id": "autognome_aag",
+    "name": "Autognome",
+    "source": "aag",
+    "size": "small",
+    "size_options": ["small"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Tipo Construto.",
+      "Armadura Integrada.",
+      "Construído para o Sucesso: adiciona bônus a testes selecionados.",
+      "Natureza Mecânica: não precisa comer, beber ou respirar.",
+      "Cura por Reparos: pode receber reparos e certas curas."
+    ],
+    "description": "Construto pequeno, inteligente e autônomo, parecido com um gnomo mecânico.",
+    "creature_type": "construct",
+    "darkvision": null,
+    "languages": ["Common", "Gnomish"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["aag", "construct", "mechanical"]
+  },
+  {
+    "id": "giff_aag",
+    "name": "Giff",
+    "source": "aag",
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Construção Forte: grande capacidade de carregar peso.",
+      "Hipopótamo Astral: vantagem em certas tarefas de força.",
+      "Centelha de Fogo: afinidade com armas de fogo."
+    ],
+    "description": "Humanoide hipopótamo disciplinado, forte e marcial.",
+    "creature_type": "humanoid",
+    "darkvision": null,
+    "languages": ["Common", "um idioma extra"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["aag", "martial", "firearms"]
+  },
+  {
+    "id": "hadozee_aag",
+    "name": "Hadozee",
+    "source": "aag",
+    "size": "medium",
+    "size_options": ["small", "medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Pés Hábeis: pode manipular objetos com os pés em certas situações.",
+      "Pele Planadora: reduz quedas e permite planar.",
+      "Resiliência Hadozee: reduz dano recebido em certas circunstâncias."
+    ],
+    "description": "Humanoide simiesco ágil, capaz de planar e se mover com destreza.",
+    "creature_type": "humanoid",
+    "darkvision": null,
+    "languages": ["Common", "um idioma extra"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["aag", "glide", "mobility"]
+  },
+  {
+    "id": "plasmoid_aag",
+    "name": "Plasmoid",
+    "source": "aag",
+    "size": "medium",
+    "size_options": ["small", "medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Tipo Gosma.",
+      "Amorfo: pode atravessar espaços estreitos em condições apropriadas.",
+      "Visão no Escuro.",
+      "Segurar Respiração.",
+      "Resiliência Natural contra ácido e veneno."
+    ],
+    "description": "Ser gelatinoso sem forma fixa, adaptável e incomum.",
+    "creature_type": "ooze",
+    "darkvision": 18,
+    "languages": ["Common", "um idioma extra"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["aag", "ooze", "amorphous"]
+  },
+  {
+    "id": "thri_kreen_aag",
+    "name": "Thri-kreen",
+    "source": "aag",
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {},
+    "traits": [
+      "Tipo Monstruosidade.",
+      "Carapaça Camaleônica: melhora defesa e furtividade em certas situações.",
+      "Braços Secundários: membros adicionais com uso limitado.",
+      "Insônia Thri-kreen: não dorme normalmente.",
+      "Telepatia limitada."
+    ],
+    "description": "Insetoide psíquico com múltiplos braços e carapaça adaptável.",
+    "creature_type": "monstrosity",
+    "darkvision": 18,
+    "languages": ["Common", "Thri-kreen", "telepatia limitada"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["aag", "insectoid", "telepathy", "extra_limbs"]
+  },
   {
     "id": "dragonborn_ftd",
     "name": "Dragonborn",
     "source": "ftd",
-    "size": null,
-    "speed": null,
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
     "allows_custom_origin": true,
     "fixed_ability_bonuses": {},
-    "traits": []
+    "traits": [
+      "Ancestralidade Dracônica.",
+      "Arma de Sopro.",
+      "Resistência Dracônica."
+    ],
+    "description": "Humanoide dracônico cuja linhagem manifesta energia elemental ou psíquica.",
+    "creature_type": "humanoid",
+    "darkvision": null,
+    "languages": ["Common", "Draconic"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["ftd", "dragonborn", "base"]
   },
   {
     "id": "dragonborn_chromatic_ftd",
@@ -116,11 +1841,33 @@
     "source": "ftd",
     "parent_race_id": "dragonborn_ftd",
     "is_subrace": true,
-    "size": null,
-    "speed": null,
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
     "allows_custom_origin": true,
     "fixed_ability_bonuses": {},
-    "traits": []
+    "traits": [
+      "Ancestralidade Cromática.",
+      "Arma de Sopro elemental.",
+      "Resistência associada ao tipo cromático.",
+      "Proteção Cromática temporária em níveis maiores."
+    ],
+    "description": "Dragonborn descendente de dragões cromáticos.",
+    "creature_type": "humanoid",
+    "darkvision": null,
+    "languages": ["Common", "Draconic"],
+    "skill_options": [],
+    "ability_score_rules": [],
+    "spellcasting": [],
+    "choice_groups": [
+      {
+        "id": "chromatic_ancestry_choice",
+        "name": "Escolha a ancestralidade cromática",
+        "options": ["black", "blue", "green", "red", "white"],
+        "choose": 1
+      }
+    ],
+    "tags": ["ftd", "dragonborn", "chromatic"]
   },
   {
     "id": "dragonborn_gem_ftd",
@@ -128,11 +1875,34 @@
     "source": "ftd",
     "parent_race_id": "dragonborn_ftd",
     "is_subrace": true,
-    "size": null,
-    "speed": null,
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
     "allows_custom_origin": true,
     "fixed_ability_bonuses": {},
-    "traits": []
+    "traits": [
+      "Ancestralidade de Gema.",
+      "Arma de Sopro associada à gema.",
+      "Resistência associada à ancestralidade.",
+      "Mente Psíquica: comunicação mental limitada.",
+      "Voo temporário em níveis maiores."
+    ],
+    "description": "Dragonborn descendente de dragões de gema.",
+    "creature_type": "humanoid",
+    "darkvision": null,
+    "languages": ["Common", "Draconic"],
+    "skill_options": [],
+    "ability_score_rules": [],
+    "spellcasting": [],
+    "choice_groups": [
+      {
+        "id": "gem_ancestry_choice",
+        "name": "Escolha a ancestralidade de gema",
+        "options": ["amethyst", "crystal", "emerald", "sapphire", "topaz"],
+        "choose": 1
+      }
+    ],
+    "tags": ["ftd", "dragonborn", "gem", "psionic"]
   },
   {
     "id": "dragonborn_metallic_ftd",
@@ -140,74 +1910,510 @@
     "source": "ftd",
     "parent_race_id": "dragonborn_ftd",
     "is_subrace": true,
-    "size": null,
-    "speed": null,
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
     "allows_custom_origin": true,
     "fixed_ability_bonuses": {},
-    "traits": []
+    "traits": [
+      "Ancestralidade Metálica.",
+      "Arma de Sopro elemental.",
+      "Resistência associada ao tipo metálico.",
+      "Arma de Sopro Metálica secundária em níveis maiores."
+    ],
+    "description": "Dragonborn descendente de dragões metálicos.",
+    "creature_type": "humanoid",
+    "darkvision": null,
+    "languages": ["Common", "Draconic"],
+    "skill_options": [],
+    "ability_score_rules": [],
+    "spellcasting": [],
+    "choice_groups": [
+      {
+        "id": "metallic_ancestry_choice",
+        "name": "Escolha a ancestralidade metálica",
+        "options": ["brass", "bronze", "copper", "gold", "silver"],
+        "choose": 1
+      }
+    ],
+    "tags": ["ftd", "dragonborn", "metallic"]
   },
-
   {
     "id": "dhampir_vrgr",
     "name": "Dhampir",
     "source": "vrgr",
-    "size": null,
-    "speed": null,
+    "size": "medium",
+    "size_options": ["small", "medium"],
+    "speed": 9,
     "allows_custom_origin": true,
     "fixed_ability_bonuses": {},
-    "traits": []
+    "traits": [
+      "Visão no Escuro.",
+      "Legado Ancestral: pode manter certos traços de origem anterior.",
+      "Mordida Vampírica.",
+      "Escalada Aracnídea em níveis apropriados.",
+      "Não precisa respirar."
+    ],
+    "description": "Linhagem sobrenatural entre mortalidade e vampirismo.",
+    "creature_type": "humanoid",
+    "darkvision": 18,
+    "languages": ["Common", "um idioma extra"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["vrgr", "lineage", "vampiric"]
   },
   {
     "id": "hexblood_vrgr",
     "name": "Hexblood",
     "source": "vrgr",
-    "size": null,
-    "speed": null,
+    "size": "medium",
+    "size_options": ["small", "medium"],
+    "speed": 9,
     "allows_custom_origin": true,
     "fixed_ability_bonuses": {},
-    "traits": []
+    "traits": [
+      "Tipo Feérico.",
+      "Visão no Escuro.",
+      "Legado Ancestral: pode manter certos traços de origem anterior.",
+      "Eirdo: cria ligação mágica com outra criatura.",
+      "Magia Hexblood: magias temáticas de bruxaria."
+    ],
+    "description": "Linhagem marcada por pactos, maldições, fadas ou bruxaria.",
+    "creature_type": "fey",
+    "darkvision": 18,
+    "languages": ["Common", "um idioma extra"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["vrgr", "lineage", "fey", "witch"]
   },
   {
     "id": "reborn_vrgr",
     "name": "Reborn",
     "source": "vrgr",
-    "size": null,
-    "speed": null,
+    "size": "medium",
+    "size_options": ["small", "medium"],
+    "speed": 9,
     "allows_custom_origin": true,
     "fixed_ability_bonuses": {},
-    "traits": []
+    "traits": [
+      "Legado Ancestral: pode manter certos traços de origem anterior.",
+      "Natureza sem Morte: não precisa comer, beber ou respirar.",
+      "Resiliência contra veneno e doença.",
+      "Conhecimento de uma Vida Passada: adiciona bônus a testes selecionados."
+    ],
+    "description": "Ser que retornou da morte, foi reconstruído ou recebeu uma nova existência.",
+    "creature_type": "humanoid",
+    "darkvision": null,
+    "languages": ["Common", "um idioma extra"],
+    "skill_options": [],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["vrgr", "lineage", "undead_theme"]
   },
-
   {
-    "id": "warforged_erlw",
-    "name": "Warforged",
-    "source": "erlw",
-    "size": null,
-    "speed": null,
+    "id": "leonin_moot",
+    "name": "Leonin",
+    "source": "moot",
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {
+      "constitution": 2,
+      "strength": 1
+    },
+    "traits": [
+      "Visão no Escuro.",
+      "Garras: ataque natural.",
+      "Instintos de Caçador: proficiência em perícia escolhida.",
+      "Rugido Aterrador: pode assustar inimigos próximos."
+    ],
+    "description": "Povo leonino orgulhoso, forte e intimidador.",
+    "creature_type": "humanoid",
+    "darkvision": 18,
+    "languages": ["Common", "Leonin"],
+    "skill_options": ["athletics", "intimidation", "perception", "survival"],
+    "ability_score_rules": [],
+    "spellcasting": [],
+    "choice_groups": [
+      {
+        "id": "leonin_hunter_instincts",
+        "name": "Escolha Instintos de Caçador",
+        "options": ["athletics", "intimidation", "perception", "survival"],
+        "choose": 1
+      }
+    ],
+    "tags": ["moot", "leonin"]
+  },
+  {
+    "id": "satyr_moot",
+    "name": "Satyr",
+    "source": "moot",
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 10,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {
+      "charisma": 2,
+      "dexterity": 1
+    },
+    "traits": [
+      "Tipo Feérico.",
+      "Chifres: ataque natural.",
+      "Saltador Alegre.",
+      "Resistência à Magia.",
+      "Proficiência em atuação e persuasão."
+    ],
+    "description": "Ser feérico festivo, ágil e resistente à magia.",
+    "creature_type": "fey",
+    "darkvision": null,
+    "languages": ["Common", "Sylvan"],
+    "skill_options": ["performance", "persuasion"],
+    "ability_score_rules": [],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["moot", "satyr", "fey"]
+  },
+  {
+    "id": "centaur_ggr",
+    "name": "Centaur",
+    "source": "ggr",
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 12,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {
+      "strength": 2,
+      "wisdom": 1
+    },
+    "traits": [
+      "Tipo Feérico.",
+      "Carga.",
+      "Cascos: ataque natural.",
+      "Corpo Equino.",
+      "Sobrevivente."
+    ],
+    "description": "Centauro veloz e poderoso, ligado a ambientes selvagens.",
+    "creature_type": "fey",
+    "darkvision": null,
+    "languages": ["Common", "Sylvan"],
+    "skill_options": ["animalHandling", "medicine", "nature", "survival"],
+    "ability_score_rules": [],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["ggr", "centaur"]
+  },
+  {
+    "id": "loxodon_ggr",
+    "name": "Loxodon",
+    "source": "ggr",
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {
+      "constitution": 2,
+      "wisdom": 1
+    },
+    "traits": [
+      "Serenidade Loxodon: vantagem contra medo e encantamento.",
+      "Armadura Natural.",
+      "Tronco: pode manipular objetos simples.",
+      "Olfato Apurado."
+    ],
+    "description": "Humanoide elefantino calmo, resistente e disciplinado.",
+    "creature_type": "humanoid",
+    "darkvision": null,
+    "languages": ["Common", "Loxodon"],
+    "skill_options": [],
+    "ability_score_rules": [],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["ggr", "loxodon"]
+  },
+  {
+    "id": "minotaur_ggr",
+    "name": "Minotaur",
+    "source": "ggr",
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {
+      "strength": 2,
+      "constitution": 1
+    },
+    "traits": [
+      "Chifres: ataque natural.",
+      "Investida com Chifres.",
+      "Chifrada Arremessadora.",
+      "Memória Labiríntica."
+    ],
+    "description": "Humanoide bovino forte, feroz e orientado por instinto labiríntico.",
+    "creature_type": "humanoid",
+    "darkvision": null,
+    "languages": ["Common", "Minotaur"],
+    "skill_options": ["intimidation", "persuasion"],
+    "ability_score_rules": [],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["ggr", "minotaur"]
+  },
+  {
+    "id": "simic_hybrid_ggr",
+    "name": "Simic Hybrid",
+    "source": "ggr",
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {
+      "constitution": 2,
+      "um_escolhido": 1
+    },
+    "traits": [
+      "Melhorias Animais: escolhe adaptações biológicas.",
+      "Adaptação de nível inicial.",
+      "Nova adaptação em níveis maiores."
+    ],
+    "description": "Humanoide alterado por biomagia, com adaptações animais.",
+    "creature_type": "humanoid",
+    "darkvision": null,
+    "languages": ["Common", "Elvish ou Vedalken"],
+    "skill_options": [],
+    "ability_score_rules": [],
+    "spellcasting": [],
+    "choice_groups": [
+      {
+        "id": "simic_adaptation_choice_level1",
+        "name": "Escolha uma adaptação inicial",
+        "options": ["manta_glide", "nimble_climber", "underwater_adaptation"],
+        "choose": 1
+      }
+    ],
+    "tags": ["ggr", "biomancy"]
+  },
+  {
+    "id": "vedalken_ggr",
+    "name": "Vedalken",
+    "source": "ggr",
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {
+      "intelligence": 2,
+      "wisdom": 1
+    },
+    "traits": [
+      "Calma Vedalken: vantagem em testes mentais específicos.",
+      "Precisão Incansável: proficiência aprimorada em perícia ou ferramenta.",
+      "Parcialmente Anfíbio."
+    ],
+    "description": "Povo analítico, disciplinado e mentalmente focado.",
+    "creature_type": "humanoid",
+    "darkvision": null,
+    "languages": ["Common", "Vedalken", "um idioma extra"],
+    "skill_options": ["arcana", "history", "investigation", "medicine", "performance", "sleightOfHand"],
+    "ability_score_rules": [],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["ggr", "intellect"]
+  },
+  {
+    "id": "owlin_scc",
+    "name": "Owlin",
+    "source": "scc",
+    "size": "medium",
+    "size_options": ["small", "medium"],
+    "speed": 9,
     "allows_custom_origin": true,
     "fixed_ability_bonuses": {},
-    "traits": []
+    "traits": [
+      "Visão no Escuro Superior.",
+      "Voo: possui deslocamento de voo.",
+      "Furtividade Silenciosa: proficiência em Furtividade."
+    ],
+    "description": "Humanoide coruja silencioso, alado e de sentidos apurados.",
+    "creature_type": "humanoid",
+    "darkvision": 36,
+    "languages": ["Common", "um idioma extra"],
+    "skill_options": ["stealth"],
+    "ability_score_rules": [
+      {
+        "type": "flexible",
+        "choose": 2,
+        "max_per_ability": 2
+      }
+    ],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["scc", "flight", "stealth"]
   },
   {
     "id": "changeling_erlw",
     "name": "Changeling",
     "source": "erlw",
-    "size": null,
-    "speed": null,
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
     "allows_custom_origin": true,
-    "fixed_ability_bonuses": {},
-    "traits": []
+    "fixed_ability_bonuses": {
+      "charisma": 2,
+      "um_escolhido": 1
+    },
+    "traits": [
+      "Metamorfo: altera aparência física.",
+      "Instintos Sociais.",
+      "Identidade fluida."
+    ],
+    "description": "Mestre da mudança de forma e da adaptação social.",
+    "creature_type": "humanoid",
+    "darkvision": null,
+    "languages": ["Common", "dois idiomas extras"],
+    "skill_options": ["deception", "insight", "intimidation", "persuasion"],
+    "ability_score_rules": [],
+    "spellcasting": [],
+    "choice_groups": [
+      {
+        "id": "changeling_skill_choice_erlw",
+        "name": "Escolha perícias sociais",
+        "options": ["deception", "insight", "intimidation", "persuasion"],
+        "choose": 2
+      }
+    ],
+    "tags": ["erlw", "shapeshifter"]
   },
-
+  {
+    "id": "kalashtar_erlw",
+    "name": "Kalashtar",
+    "source": "erlw",
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {
+      "wisdom": 2,
+      "charisma": 1
+    },
+    "traits": [
+      "Mente Dual: vantagem em testes de Sabedoria específicos.",
+      "Disciplina Mental: resistência a dano psíquico.",
+      "Ligação Mental: comunicação telepática.",
+      "Separado dos Sonhos."
+    ],
+    "description": "Humanoide ligado espiritualmente a entidades dos sonhos.",
+    "creature_type": "humanoid",
+    "darkvision": null,
+    "languages": ["Common", "Quori", "um idioma extra"],
+    "skill_options": [],
+    "ability_score_rules": [],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["erlw", "psychic", "telepathy"]
+  },
+  {
+    "id": "orc_erlw",
+    "name": "Orc",
+    "source": "erlw",
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {
+      "strength": 2,
+      "constitution": 1
+    },
+    "traits": [
+      "Visão no Escuro.",
+      "Agressivo: movimento rápido em direção ao inimigo.",
+      "Construção Poderosa.",
+      "Resistência implacável em combate."
+    ],
+    "description": "Orc forte, agressivo e resistente.",
+    "creature_type": "humanoid",
+    "darkvision": 18,
+    "languages": ["Common", "Orc"],
+    "skill_options": [],
+    "ability_score_rules": [],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["erlw", "orc"]
+  },
+  {
+    "id": "warforged_erlw",
+    "name": "Warforged",
+    "source": "erlw",
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
+    "allows_custom_origin": true,
+    "fixed_ability_bonuses": {
+      "constitution": 2,
+      "um_escolhido": 1
+    },
+    "traits": [
+      "Resiliência de Construto.",
+      "Proteção Integrada.",
+      "Descanso do Sentinela.",
+      "Especialização Projetada."
+    ],
+    "description": "Construto vivo criado para guerra, resistência e adaptação.",
+    "creature_type": "construct",
+    "darkvision": null,
+    "languages": ["Common", "um idioma extra"],
+    "skill_options": [],
+    "ability_score_rules": [],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["erlw", "warforged", "construct"]
+  },
   {
     "id": "shifter_erlw",
     "name": "Shifter",
     "source": "erlw",
-    "size": null,
-    "speed": null,
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
     "allows_custom_origin": true,
     "fixed_ability_bonuses": {},
-    "traits": []
+    "traits": [
+      "Visão no Escuro.",
+      "Mudança: manifesta aspecto bestial temporariamente.",
+      "Sub-raças definem o tipo de manifestação bestial."
+    ],
+    "description": "Humanoide de herança feral, capaz de manifestar traços animalescos.",
+    "creature_type": "humanoid",
+    "darkvision": 18,
+    "languages": ["Common", "outro idioma"],
+    "skill_options": [],
+    "ability_score_rules": [],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["erlw", "shifter", "base"]
   },
   {
     "id": "shifter_beasthide_erlw",
@@ -215,11 +2421,28 @@
     "source": "erlw",
     "parent_race_id": "shifter_erlw",
     "is_subrace": true,
-    "size": null,
-    "speed": null,
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
     "allows_custom_origin": true,
-    "fixed_ability_bonuses": {},
-    "traits": []
+    "fixed_ability_bonuses": {
+      "constitution": 2,
+      "strength": 1
+    },
+    "traits": [
+      "Mudança resistente.",
+      "Pele endurecida.",
+      "Durabilidade aumentada durante a transformação."
+    ],
+    "description": "Shifter de constituição robusta e resistência superior.",
+    "creature_type": "humanoid",
+    "darkvision": 18,
+    "languages": ["Common", "outro idioma"],
+    "skill_options": ["athletics"],
+    "ability_score_rules": [],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["erlw", "shifter", "beasthide"]
   },
   {
     "id": "shifter_longtooth_erlw",
@@ -227,11 +2450,28 @@
     "source": "erlw",
     "parent_race_id": "shifter_erlw",
     "is_subrace": true,
-    "size": null,
-    "speed": null,
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
     "allows_custom_origin": true,
-    "fixed_ability_bonuses": {},
-    "traits": []
+    "fixed_ability_bonuses": {
+      "strength": 2,
+      "dexterity": 1
+    },
+    "traits": [
+      "Mordida bestial.",
+      "Mudança agressiva.",
+      "Foco em combate corpo a corpo."
+    ],
+    "description": "Shifter feroz com natureza predatória e ofensiva.",
+    "creature_type": "humanoid",
+    "darkvision": 18,
+    "languages": ["Common", "outro idioma"],
+    "skill_options": ["intimidation"],
+    "ability_score_rules": [],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["erlw", "shifter", "longtooth"]
   },
   {
     "id": "shifter_swiftstride_erlw",
@@ -239,11 +2479,28 @@
     "source": "erlw",
     "parent_race_id": "shifter_erlw",
     "is_subrace": true,
-    "size": null,
-    "speed": null,
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
     "allows_custom_origin": true,
-    "fixed_ability_bonuses": {},
-    "traits": []
+    "fixed_ability_bonuses": {
+      "dexterity": 2,
+      "charisma": 1
+    },
+    "traits": [
+      "Velocidade elevada.",
+      "Mudança evasiva.",
+      "Grande mobilidade e reposicionamento."
+    ],
+    "description": "Shifter veloz e esquivo, com reflexos predatórios.",
+    "creature_type": "humanoid",
+    "darkvision": 18,
+    "languages": ["Common", "outro idioma"],
+    "skill_options": ["acrobatics"],
+    "ability_score_rules": [],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["erlw", "shifter", "swiftstride"]
   },
   {
     "id": "shifter_wildhunt_erlw",
@@ -251,10 +2508,27 @@
     "source": "erlw",
     "parent_race_id": "shifter_erlw",
     "is_subrace": true,
-    "size": null,
-    "speed": null,
+    "size": "medium",
+    "size_options": ["medium"],
+    "speed": 9,
     "allows_custom_origin": true,
-    "fixed_ability_bonuses": {},
-    "traits": []
+    "fixed_ability_bonuses": {
+      "wisdom": 2,
+      "dexterity": 1
+    },
+    "traits": [
+      "Sentidos aguçados.",
+      "Mudança focada em rastreamento e percepção.",
+      "Instinto de caçada."
+    ],
+    "description": "Shifter atento, rastreador e perceptivo.",
+    "creature_type": "humanoid",
+    "darkvision": 18,
+    "languages": ["Common", "outro idioma"],
+    "skill_options": ["survival"],
+    "ability_score_rules": [],
+    "spellcasting": [],
+    "choice_groups": [],
+    "tags": ["erlw", "shifter", "wildhunt"]
   }
 ]
