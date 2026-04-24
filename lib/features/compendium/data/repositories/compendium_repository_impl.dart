@@ -31,10 +31,12 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
         primaryAbility: item['primary_ability'] as String?,
         spellcastingType: item['spellcasting_type'] as String?,
         source: item['source'] as String? ?? 'srd',
-        skillOptions:
-            skillOptionsRaw.map((e) => e as String).toList(growable: false),
-        savingThrows:
-            savingThrowsRaw.map((e) => e as String).toList(growable: false),
+        skillOptions: skillOptionsRaw
+            .map((e) => e.toString())
+            .toList(growable: false),
+        savingThrows: savingThrowsRaw
+            .map((e) => e.toString())
+            .toList(growable: false),
       );
     }).toList(growable: false);
   }
@@ -44,61 +46,66 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
     final items = await _source.loadJsonList('assets/data/srd/races.json');
 
     return items.map((item) {
-      final rawBonuses =
-          item['fixed_ability_bonuses'] as Map<String, dynamic>? ?? const {};
-      final rawTraits = item['traits'] as List<dynamic>? ?? const [];
-      final rawSizeOptions = item['size_options'] as List<dynamic>? ?? const [];
-      final rawLanguages = item['languages'] as List<dynamic>? ?? const [];
-      final rawSkillOptions =
-          item['skill_options'] as List<dynamic>? ?? const [];
-      final rawAbilityRules =
-          item['ability_score_rules'] as List<dynamic>? ?? const [];
-      final rawSpellcasting =
-          item['spellcasting'] as List<dynamic>? ?? const [];
-      final rawChoiceGroups =
-          item['choice_groups'] as List<dynamic>? ?? const [];
-      final rawTags = item['tags'] as List<dynamic>? ?? const [];
+      final rawBonuses = _asMap(item['fixed_ability_bonuses']);
+      final rawTraits = _asList(item['traits']);
+      final rawSizeOptions = _asList(item['size_options']);
+      final rawLanguages = _asList(item['languages']);
+      final rawSkillOptions = _asList(item['skill_options']);
+      final rawAbilityRules = _asList(item['ability_score_rules']);
+      final rawSpellcasting = _asList(item['spellcasting']);
+      final rawChoiceGroups = _asList(item['choice_groups']);
+      final rawTags = _asList(item['tags']);
 
       return RaceEntry(
         id: item['id'] as String,
         name: item['name'] as String,
         source: item['source'] as String? ?? 'srd',
 
-        // Compatibilidade atual
         size: item['size'] as String?,
-        speed: item['speed'] as int?,
-        allowsCustomOrigin: item['allows_custom_origin'] as bool? ?? true,
+        speed: _asInt(item['speed']),
+        allowsCustomOrigin: _asBool(item['allows_custom_origin'], fallback: true),
         fixedAbilityBonuses: rawBonuses.map(
-          (key, value) => MapEntry(key, value as int),
+          (key, value) => MapEntry(key, _asInt(value) ?? 0),
         ),
-        traits: rawTraits.map((e) {
-          if (e is String) return e;
-          if (e is Map<String, dynamic>) {
-            return e['description'] as String? ?? '';
-          }
-          return e.toString();
-        }).where((e) => e.trim().isNotEmpty).toList(growable: false),
+        traits: rawTraits
+            .map((e) {
+              if (e is String) return e;
+              if (e is Map<String, dynamic>) {
+                return e['description']?.toString() ?? '';
+              }
+              if (e is Map) {
+                return e['description']?.toString() ?? '';
+              }
+              return e.toString();
+            })
+            .where((e) => e.trim().isNotEmpty)
+            .toList(growable: false),
 
-        // Estrutura nova
         parentRaceId: item['parent_race_id'] as String?,
-        isSubrace: item['is_subrace'] as bool? ?? false,
+        isSubrace: _asBool(item['is_subrace']),
         description: item['description'] as String?,
-        sizeOptions:
-            rawSizeOptions.map((e) => e.toString()).toList(growable: false),
+        sizeOptions: rawSizeOptions
+            .map((e) => e.toString())
+            .toList(growable: false),
         creatureType: item['creature_type'] as String?,
-        darkvision: item['darkvision'] as int?,
-        languages:
-            rawLanguages.map((e) => e.toString()).toList(growable: false),
-        skillOptions:
-            rawSkillOptions.map((e) => e.toString()).toList(growable: false),
+        darkvision: _asInt(item['darkvision']),
+        languages: rawLanguages
+            .map((e) => e.toString())
+            .toList(growable: false),
+        skillOptions: rawSkillOptions
+            .map((e) => e.toString())
+            .toList(growable: false),
         abilityScoreRules: rawAbilityRules
-            .map((e) => _parseAbilityScoreRule(Map<String, dynamic>.from(e as Map)))
+            .whereType<Map>()
+            .map((e) => _parseAbilityScoreRule(Map<String, dynamic>.from(e)))
             .toList(growable: false),
         spellcasting: rawSpellcasting
-            .map((e) => _parseRaceSpellFeature(Map<String, dynamic>.from(e as Map)))
+            .whereType<Map>()
+            .map((e) => _parseRaceSpellFeature(Map<String, dynamic>.from(e)))
             .toList(growable: false),
         choiceGroups: rawChoiceGroups
-            .map((e) => _parseRaceChoiceGroup(Map<String, dynamic>.from(e as Map)))
+            .whereType<Map>()
+            .map((e) => _parseRaceChoiceGroup(Map<String, dynamic>.from(e)))
             .toList(growable: false),
         tags: rawTags.map((e) => e.toString()).toList(growable: false),
       );
@@ -116,8 +123,9 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
       return ClassFeatureEntry(
         classId: item['class_id'] as String,
         level: item['level'] as int,
-        features:
-            rawFeatures.map((e) => e as String).toList(growable: false),
+        features: rawFeatures
+            .map((e) => e.toString())
+            .toList(growable: false),
         source: item['source'] as String? ?? 'srd',
       );
     }).toList(growable: false);
@@ -192,37 +200,36 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
   }
 
   AbilityScoreRule _parseAbilityScoreRule(Map<String, dynamic> item) {
-    final rawBonuses =
-        item['fixed_bonuses'] as Map<String, dynamic>? ?? const {};
+    final rawBonuses = _asMap(item['fixed_bonuses']);
 
     return AbilityScoreRule(
       type: item['type'] as String? ?? 'fixed',
       fixedBonuses: rawBonuses.isEmpty
           ? null
-          : rawBonuses.map((key, value) => MapEntry(key, value as int)),
-      choose: item['choose'] as int?,
-      maxPerAbility: item['max_per_ability'] as int?,
+          : rawBonuses.map((key, value) => MapEntry(key, _asInt(value) ?? 0)),
+      choose: _asInt(item['choose']),
+      maxPerAbility: _asInt(item['max_per_ability']),
     );
   }
 
   RaceSpellFeature _parseRaceSpellFeature(Map<String, dynamic> item) {
     return RaceSpellFeature(
-      spellId: item['spell_id'] as int,
-      level: item['level'] as int?,
-      isAtWill: item['is_at_will'] as bool? ?? false,
-      usesPerRest: item['uses_per_rest'] as int?,
+      spellId: _asInt(item['spell_id']) ?? 0,
+      level: _asInt(item['level']),
+      isAtWill: _asBool(item['is_at_will']),
+      usesPerRest: _asInt(item['uses_per_rest']),
       notes: item['notes'] as String?,
     );
   }
 
   RaceChoiceGroup _parseRaceChoiceGroup(Map<String, dynamic> item) {
-    final rawOptions = item['options'] as List<dynamic>? ?? const [];
+    final rawOptions = _asList(item['options']);
 
     return RaceChoiceGroup(
       id: item['id'] as String,
       name: item['name'] as String,
       options: rawOptions.map((e) => e.toString()).toList(growable: false),
-      choose: item['choose'] as int? ?? 1,
+      choose: _asInt(item['choose']) ?? 1,
     );
   }
 
@@ -277,5 +284,39 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
       default:
         return null;
     }
+  }
+
+  List<dynamic> _asList(dynamic value) {
+    if (value is List<dynamic>) return value;
+    if (value is List) return value.toList();
+    return const [];
+  }
+
+  Map<String, dynamic> _asMap(dynamic value) {
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) return Map<String, dynamic>.from(value);
+    return const {};
+  }
+
+  int? _asInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value);
+    return null;
+  }
+
+  bool _asBool(dynamic value, {bool fallback = false}) {
+    if (value == null) return fallback;
+    if (value is bool) return value;
+    if (value is num) return value != 0;
+    if (value is String) {
+      final normalized = value.trim().toLowerCase();
+      return normalized == 'true' ||
+          normalized == '1' ||
+          normalized == 'yes' ||
+          normalized == 'sim';
+    }
+    return fallback;
   }
 }

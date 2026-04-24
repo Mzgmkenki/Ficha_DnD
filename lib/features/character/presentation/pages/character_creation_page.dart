@@ -9,7 +9,8 @@ import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_pr
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/spellcasting_type.dart';
-import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
+import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart'
+    as compendium_providers;
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
 import 'package:flutter/material.dart';
@@ -23,14 +24,15 @@ class CharacterCreationPage extends ConsumerStatefulWidget {
       _CharacterCreationPageState();
 }
 
-class _CharacterCreationPageState
-    extends ConsumerState<CharacterCreationPage> {
+class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _playerController = TextEditingController();
 
   String? _selectedClassId;
   String? _selectedRaceId;
+  String? _selectedSubraceId;
+
   final Set<String> _selectedSkills = {};
 
   bool _useCustomOrigin = false;
@@ -158,11 +160,11 @@ class _CharacterCreationPageState
 
   @override
   Widget build(BuildContext context) {
-    final classesAsync = ref.watch(classEntriesProvider);
-    final racesAsync = ref.watch(raceEntriesProvider);
+    final classesAsync = ref.watch(compendium_providers.classEntriesProvider);
+    final racesAsync = ref.watch(compendium_providers.raceEntriesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Criar personagem')),
+      appBar: AppBar(title: const Text('Criar Personagem')),
       body: classesAsync.when(
         data: (classes) {
           return racesAsync.when(
@@ -179,17 +181,42 @@ class _CharacterCreationPageState
                 );
               }
 
+              final baseRaces = races
+                  .where((race) => !race.shouldBeTreatedAsSubrace)
+                  .toList(growable: false);
+
+              if (baseRaces.isEmpty) {
+                return const Center(
+                  child: Text('Nenhuma raça base encontrada no compêndio.'),
+                );
+              }
+
               final effectiveClassId = _resolveSelectedClassId(classes);
-              final effectiveRaceId = _resolveSelectedRaceId(races);
+              final effectiveRaceId = _resolveSelectedBaseRaceId(baseRaces);
 
               final selectedClass = classes.firstWhere(
                 (item) => item.id == effectiveClassId,
               );
-              final selectedRace = races.firstWhere(
+
+              final selectedRace = baseRaces.firstWhere(
                 (item) => item.id == effectiveRaceId,
               );
 
-              if (!selectedRace.allowsCustomOrigin && _useCustomOrigin) {
+              final subraces = races
+                  .where((race) => race.parentRaceId == selectedRace.id)
+                  .toList(growable: false);
+
+              final effectiveSubraceId = _resolveSelectedSubraceId(subraces);
+              final selectedSubrace = effectiveSubraceId == null
+                  ? null
+                  : subraces.firstWhere((item) => item.id == effectiveSubraceId);
+
+              final combinedRace = _combineRaceAndSubrace(
+                selectedRace,
+                selectedSubrace,
+              );
+
+              if (!combinedRace.allowsCustomOrigin && _useCustomOrigin) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   if (!mounted) return;
                   setState(() {
@@ -219,16 +246,16 @@ class _CharacterCreationPageState
                     TextFormField(
                       controller: _playerController,
                       decoration: const InputDecoration(
-                        labelText: 'Nome do jogador',
+                        labelText: 'Jogador (opcional)',
                       ),
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<String>(
                       initialValue: effectiveRaceId,
                       decoration: const InputDecoration(
-                        labelText: 'Raça',
+                        labelText: 'Raça base',
                       ),
-                      items: races
+                      items: baseRaces
                           .map(
                             (item) => DropdownMenuItem<String>(
                               value: item.id,
@@ -239,6 +266,7 @@ class _CharacterCreationPageState
                       onChanged: (value) {
                         setState(() {
                           _selectedRaceId = value;
+                          _selectedSubraceId = null;
                         });
                       },
                       validator: (value) {
@@ -248,25 +276,44 @@ class _CharacterCreationPageState
                         return null;
                       },
                     ),
-                    const SizedBox(height: 12),
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Bônus raciais de ${selectedRace.name}',
-                              style: Theme.of(context).textTheme.titleSmall,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(_formatRaceBonuses(selectedRace)),
-                          ],
+                    if (subraces.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<String>(
+                        initialValue: effectiveSubraceId,
+                        decoration: const InputDecoration(
+                          labelText: 'Sub-raça / linhagem',
                         ),
+                        items: subraces
+                            .map(
+                              (item) => DropdownMenuItem<String>(
+                                value: item.id,
+                                child: Text(item.name),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedSubraceId = value;
+                          });
+                        },
+                        validator: (value) {
+                          if (subraces.isNotEmpty &&
+                              (value == null || value.isEmpty)) {
+                            return 'Selecione uma sub-raça.';
+                          }
+                          return null;
+                        },
                       ),
+                    ],
+                    const SizedBox(height: 12),
+                    _RaceSummaryCard(
+                      race: combinedRace,
+                      useCustomOrigin: _useCustomOrigin,
+                      customPlusTwo: _customPlusTwo,
+                      customPlusOne: _customPlusOne,
                     ),
                     const SizedBox(height: 12),
-                    if (selectedRace.allowsCustomOrigin) ...[
+                    if (combinedRace.allowsCustomOrigin) ...[
                       SwitchListTile(
                         value: _useCustomOrigin,
                         onChanged: (value) {
@@ -278,10 +325,10 @@ class _CharacterCreationPageState
                             }
                           });
                         },
-                        title: const Text('Usar origem customizada (Tasha)'),
+                        title: const Text('Usar origem customizada'),
                         subtitle: const Text(
-                          'Desative para usar os bônus raciais clássicos. '
-                          'Ative para escolher manualmente um +2 e um +1.',
+                          'Ative para escolher manualmente um atributo com +2 '
+                          'e outro atributo com +1.',
                         ),
                         contentPadding: EdgeInsets.zero,
                       ),
@@ -349,9 +396,7 @@ class _CharacterCreationPageState
                     const SizedBox(height: 12),
                     DropdownButtonFormField<String>(
                       initialValue: effectiveClassId,
-                      decoration: const InputDecoration(
-                        labelText: 'Classe inicial',
-                      ),
+                      decoration: const InputDecoration(labelText: 'Classe'),
                       items: classes
                           .map(
                             (item) => DropdownMenuItem<String>(
@@ -379,8 +424,8 @@ class _CharacterCreationPageState
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'As perícias destacadas são oferecidas pela classe selecionada. '
-                      'Você pode marcar livremente as que quiser por enquanto.',
+                      'Perícias destacadas pertencem à classe selecionada.\n'
+                      'Você pode escolher livremente por enquanto.',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 12),
@@ -393,7 +438,7 @@ class _CharacterCreationPageState
                             ? Theme.of(context)
                                 .colorScheme
                                 .primaryContainer
-                                .withOpacity(0.55)
+                                .withOpacity(0.35)
                             : null,
                         child: CheckboxListTile(
                           value: _selectedSkills.contains(skill.id),
@@ -420,7 +465,11 @@ class _CharacterCreationPageState
                     FilledButton.icon(
                       onPressed: _saving
                           ? null
-                          : () => _save(classes, races, effectiveClassId, effectiveRaceId),
+                          : () => _save(
+                                classes,
+                                combinedRace,
+                                effectiveClassId,
+                              ),
                       icon: _saving
                           ? const SizedBox(
                               width: 18,
@@ -429,9 +478,7 @@ class _CharacterCreationPageState
                             )
                           : const Icon(Icons.save),
                       label: Text(
-                        _saving
-                            ? 'Salvando personagem...'
-                            : 'Salvar personagem base',
+                        _saving ? 'Criando personagem...' : 'Criar personagem',
                       ),
                     ),
                   ],
@@ -460,24 +507,86 @@ class _CharacterCreationPageState
     return classes.first.id;
   }
 
-  String _resolveSelectedRaceId(List<RaceEntry> races) {
+  String _resolveSelectedBaseRaceId(List<RaceEntry> baseRaces) {
     final current = _selectedRaceId;
-    if (current != null && races.any((item) => item.id == current)) {
+    if (current != null && baseRaces.any((item) => item.id == current)) {
       return current;
     }
-    return races.first.id;
+
+    return baseRaces.first.id;
+  }
+
+  String? _resolveSelectedSubraceId(List<RaceEntry> subraces) {
+    if (subraces.isEmpty) return null;
+
+    final current = _selectedSubraceId;
+    if (current != null && subraces.any((item) => item.id == current)) {
+      return current;
+    }
+
+    return subraces.first.id;
+  }
+
+  _CombinedRaceData _combineRaceAndSubrace(
+    RaceEntry baseRace,
+    RaceEntry? subrace,
+  ) {
+    final bonuses = <String, int>{};
+
+    for (final entry in baseRace.fixedAbilityBonuses.entries) {
+      bonuses[entry.key] = (bonuses[entry.key] ?? 0) + entry.value;
+    }
+
+    if (subrace != null) {
+      for (final entry in subrace.fixedAbilityBonuses.entries) {
+        bonuses[entry.key] = (bonuses[entry.key] ?? 0) + entry.value;
+      }
+    }
+
+    final traits = <String>[
+      ...baseRace.traits,
+      if (subrace != null) ...subrace.traits,
+    ];
+
+    final languages = <String>{
+      ...baseRace.languages,
+      if (subrace != null) ...subrace.languages,
+    }.toList(growable: false);
+
+    final name = subrace == null
+        ? baseRace.name
+        : '${baseRace.name} — ${subrace.name}';
+
+    final description = subrace?.description?.trim().isNotEmpty == true
+        ? '${baseRace.description ?? ''}\n\n${subrace!.description}'
+        : baseRace.description;
+
+    return _CombinedRaceData(
+      idToSave: subrace?.id ?? baseRace.id,
+      name: name,
+      description: description,
+      size: subrace?.size ?? baseRace.size,
+      speed: subrace?.speed ?? baseRace.speed,
+      creatureType: subrace?.creatureType ?? baseRace.creatureType,
+      darkvision: subrace?.darkvision ?? baseRace.darkvision,
+      allowsCustomOrigin:
+          baseRace.allowsCustomOrigin && (subrace?.allowsCustomOrigin ?? true),
+      fixedAbilityBonuses: bonuses,
+      traits: traits,
+      languages: languages,
+    );
   }
 
   Future<void> _save(
     List<ClassEntry> classes,
-    List<RaceEntry> races,
+    _CombinedRaceData selectedRace,
     String effectiveClassId,
-    String effectiveRaceId,
   ) async {
     if (!_formKey.currentState!.validate()) return;
 
-    final selectedClass = classes.firstWhere((item) => item.id == effectiveClassId);
-    final selectedRace = races.firstWhere((item) => item.id == effectiveRaceId);
+    final selectedClass = classes.firstWhere(
+      (item) => item.id == effectiveClassId,
+    );
 
     setState(() {
       _saving = true;
@@ -501,7 +610,7 @@ class _CharacterCreationPageState
         playerName: _playerController.text.trim().isEmpty
             ? null
             : _playerController.text.trim(),
-        speciesId: selectedRace.id,
+        speciesId: selectedRace.idToSave,
         abilityScores: finalScores,
         classLevels: [
           ClassLevel(
@@ -512,10 +621,7 @@ class _CharacterCreationPageState
             spellcastingType: spellcastingType,
           ),
         ],
-        hitPoints: HitPoints(
-          current: maxHp,
-          maximum: maxHp,
-        ),
+        hitPoints: HitPoints(current: maxHp, maximum: maxHp),
         combatStats: CombatStats(
           armorClass: 10,
           initiativeBonus: 0,
@@ -535,8 +641,8 @@ class _CharacterCreationPageState
         arguments: id,
       );
     } catch (error, stackTrace) {
-      print('ERRO AO CRIAR PERSONAGEM: $error');
-      print(stackTrace);
+      debugPrint('ERRO AO CRIAR PERSONAGEM: $error');
+      debugPrint('$stackTrace');
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -551,7 +657,7 @@ class _CharacterCreationPageState
     }
   }
 
-  AbilityScores _buildFinalAbilityScores(RaceEntry race) {
+  AbilityScores _buildFinalAbilityScores(_CombinedRaceData race) {
     final bonuses =
         _useCustomOrigin ? _customOriginBonuses() : race.fixedAbilityBonuses;
 
@@ -579,31 +685,6 @@ class _CharacterCreationPageState
       if (ability != current) return ability;
     }
     return 'dexterity';
-  }
-
-  String _formatRaceBonuses(RaceEntry race) {
-    if (_useCustomOrigin && race.allowsCustomOrigin) {
-      return 'Origem customizada ativa: '
-          '${_abilityLabels[_customPlusTwo]} +2 • '
-          '${_abilityLabels[_customPlusOne]} +1';
-    }
-
-    if (race.fixedAbilityBonuses.isEmpty) {
-      return 'Sem bônus raciais definidos.';
-    }
-
-    const labels = <String, String>{
-      'strength': 'FOR',
-      'dexterity': 'DES',
-      'constitution': 'CON',
-      'intelligence': 'INT',
-      'wisdom': 'SAB',
-      'charisma': 'CAR',
-    };
-
-    return race.fixedAbilityBonuses.entries
-        .map((entry) => '${labels[entry.key] ?? entry.key} +${entry.value}')
-        .join(' • ');
   }
 
   int _startingHitPointsForClass(ClassEntry classEntry) {
@@ -677,6 +758,177 @@ class _CharacterCreationPageState
         return SpellcastingType.pact;
       default:
         return null;
+    }
+  }
+}
+
+class _CombinedRaceData {
+  const _CombinedRaceData({
+    required this.idToSave,
+    required this.name,
+    required this.allowsCustomOrigin,
+    required this.fixedAbilityBonuses,
+    required this.traits,
+    required this.languages,
+    this.description,
+    this.size,
+    this.speed,
+    this.creatureType,
+    this.darkvision,
+  });
+
+  final String idToSave;
+  final String name;
+  final String? description;
+  final String? size;
+  final int? speed;
+  final String? creatureType;
+  final int? darkvision;
+  final bool allowsCustomOrigin;
+  final Map<String, int> fixedAbilityBonuses;
+  final List<String> traits;
+  final List<String> languages;
+}
+
+class _RaceSummaryCard extends StatelessWidget {
+  const _RaceSummaryCard({
+    required this.race,
+    required this.useCustomOrigin,
+    required this.customPlusTwo,
+    required this.customPlusOne,
+  });
+
+  final _CombinedRaceData race;
+  final bool useCustomOrigin;
+  final String customPlusTwo;
+  final String customPlusOne;
+
+  @override
+  Widget build(BuildContext context) {
+    final bonuses = useCustomOrigin && race.allowsCustomOrigin
+        ? {customPlusTwo: 2, customPlusOne: 1}
+        : race.fixedAbilityBonuses;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(race.name, style: Theme.of(context).textTheme.titleSmall),
+            if (race.description != null &&
+                race.description!.trim().isNotEmpty) ...[
+              const SizedBox(height: 6),
+              Text(race.description!),
+            ],
+            const SizedBox(height: 8),
+            Text(
+              'Tipo: ${_translateCreatureType(race.creatureType)} • '
+              'Tamanho: ${_translateSize(race.size)} • '
+              'Deslocamento: ${race.speed ?? 9}m',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            if (race.darkvision != null) ...[
+              const SizedBox(height: 4),
+              Text(
+                'Visão no Escuro: ${race.darkvision}m',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+            if (race.languages.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(
+                'Idiomas: ${race.languages.join(', ')}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+            const SizedBox(height: 12),
+            Text(
+              'Bônus de atributos',
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+            const SizedBox(height: 8),
+            if (bonuses.isEmpty)
+              const Text('Sem bônus de atributos definidos.')
+            else
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: bonuses.entries.map((entry) {
+                  return Chip(
+                    label: Text(
+                      '${_abilityShortLabel(entry.key)} +${entry.value}',
+                    ),
+                  );
+                }).toList(),
+              ),
+            if (race.traits.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text(
+                'Características raciais',
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+              const SizedBox(height: 6),
+              ...race.traits.take(8).map(
+                    (trait) => Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text('• $trait'),
+                    ),
+                  ),
+              if (race.traits.length > 8)
+                Text(
+                  '+${race.traits.length - 8} característica(s) adicional(is).',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _abilityShortLabel(String key) {
+    const labels = <String, String>{
+      'strength': 'FOR',
+      'dexterity': 'DES',
+      'constitution': 'CON',
+      'intelligence': 'INT',
+      'wisdom': 'SAB',
+      'charisma': 'CAR',
+      'dois_atributos_escolhidos': '2 atributos',
+      'um_escolhido': '1 atributo',
+    };
+
+    return labels[key] ?? key;
+  }
+
+  String _translateCreatureType(String? value) {
+    switch (value) {
+      case 'humanoid':
+        return 'Humanoide';
+      case 'fey':
+        return 'Feérico';
+      case 'construct':
+        return 'Construto';
+      case 'ooze':
+        return 'Gosma';
+      case 'monstrosity':
+        return 'Monstruosidade';
+      default:
+        return 'Humanoide';
+    }
+  }
+
+  String _translateSize(String? value) {
+    switch (value) {
+      case 'small':
+        return 'Pequeno';
+      case 'medium':
+        return 'Médio';
+      case 'large':
+        return 'Grande';
+      default:
+        return 'Não definido';
     }
   }
 }

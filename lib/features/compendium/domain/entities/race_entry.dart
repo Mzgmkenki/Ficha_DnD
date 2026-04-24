@@ -8,15 +8,11 @@ class RaceEntry {
     required this.id,
     required this.name,
     required this.source,
-
-    // Compatibilidade com o que já existe
     this.size,
     this.speed,
     this.allowsCustomOrigin = true,
     this.fixedAbilityBonuses = const {},
     this.traits = const [],
-
-    // Estrutura nova
     this.parentRaceId,
     this.isSubrace = false,
     this.description,
@@ -35,16 +31,15 @@ class RaceEntry {
   final String name;
   final String source;
 
-  // ===== COMPATIBILIDADE ANTIGA =====
   final String? size;
   final int? speed;
   final bool allowsCustomOrigin;
   final Map<String, int> fixedAbilityBonuses;
   final List<String> traits;
 
-  // ===== ESTRUTURA NOVA =====
   final String? parentRaceId;
   final bool isSubrace;
+
   final String? description;
   final List<String> sizeOptions;
   final String? creatureType;
@@ -56,7 +51,13 @@ class RaceEntry {
   final List<RaceChoiceGroup> choiceGroups;
   final List<String> tags;
 
-  bool get hasSubraceParent => parentRaceId != null && parentRaceId!.isNotEmpty;
+  bool get hasParentRace {
+    return parentRaceId != null && parentRaceId!.trim().isNotEmpty;
+  }
+
+  bool get shouldBeTreatedAsSubrace {
+    return isSubrace || hasParentRace;
+  }
 
   List<String> get effectiveSizeOptions {
     if (sizeOptions.isNotEmpty) return sizeOptions;
