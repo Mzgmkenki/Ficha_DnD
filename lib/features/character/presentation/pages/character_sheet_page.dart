@@ -1,14 +1,7 @@
+import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
-import 'package:dnd_ficha_app/features/character/presentation/pages/edit_ability_scores_page.dart';
-import 'package:dnd_ficha_app/features/character/presentation/pages/edit_armor_class_page.dart';
-import 'package:dnd_ficha_app/features/character/presentation/pages/edit_class_levels_page.dart';
-import 'package:dnd_ficha_app/features/character/presentation/pages/edit_hit_points_page.dart';
-import 'package:dnd_ficha_app/features/character/presentation/pages/edit_identity_page.dart';
-import 'package:dnd_ficha_app/features/character/presentation/pages/edit_proficiencies_page.dart';
-import 'package:dnd_ficha_app/features/character/presentation/pages/manage_character_magic_items_page.dart';
-import 'package:dnd_ficha_app/features/character/presentation/pages/manage_character_spells_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/ability_score_block.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/background_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/character_spells_panel.dart';
@@ -99,17 +92,8 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                     title: 'Classes',
                     actionLabel: 'Editar nível',
                     actionIcon: Icons.trending_up,
-                    onPressed: () async {
-                      await Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => EditClassLevelsPage(
-                            characterId: character.id,
-                            initialClassLevels: character.classLevels,
-                            abilityScores: character.abilityScores,
-                          ),
-                        ),
-                      );
-                    },
+                    onPressed: () =>
+                        AppNavigator.toEditClassLevels(context, character: character),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
@@ -131,28 +115,16 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                     title: 'Combate',
                     actionLabel: 'Editar HP',
                     actionIcon: Icons.favorite,
-                    onPressed: () async {
-                      await Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => EditHitPointsPage(
-                            characterId: character.id,
-                            initialHitPoints: character.hitPoints,
-                          ),
-                        ),
-                      );
-                    },
+                    onPressed: () =>
+                        AppNavigator.toEditHitPoints(context, character: character),
                   ),
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton.icon(
-                      onPressed: () async {
-                        await Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                EditArmorClassPage(character: character),
-                          ),
-                        );
-                      },
+                      onPressed: () => AppNavigator.toEditArmorClass(
+                        context,
+                        character: character,
+                      ),
                       icon: const Icon(Icons.shield_outlined),
                       label: const Text('Calcular CA'),
                     ),
@@ -173,16 +145,10 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                     title: 'Atributos',
                     actionLabel: 'Editar atributos',
                     actionIcon: Icons.tune,
-                    onPressed: () async {
-                      await Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => EditAbilityScoresPage(
-                            characterId: character.id,
-                            initialScores: character.abilityScores,
-                          ),
-                        ),
-                      );
-                    },
+                    onPressed: () => AppNavigator.toEditAbilityScores(
+                      context,
+                      character: character,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
@@ -202,18 +168,10 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                     title: 'Proficiências',
                     actionLabel: 'Editar proficiências',
                     actionIcon: Icons.tune,
-                    onPressed: () async {
-                      await Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => EditProficienciesPage(
-                            characterId: character.id,
-                            initialSavingThrows:
-                                character.savingThrowProficiencies,
-                            initialSkills: character.skillProficiencies,
-                          ),
-                        ),
-                      );
-                    },
+                    onPressed: () => AppNavigator.toEditProficiencies(
+                      context,
+                      character: character,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   SavingThrowsPanel(character: character),
@@ -257,15 +215,10 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                     title: 'Magias do personagem',
                     actionLabel: 'Gerenciar magias',
                     actionIcon: Icons.menu_book,
-                    onPressed: () async {
-                      await Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => ManageCharacterSpellsPage(
-                            characterId: character.id,
-                          ),
-                        ),
-                      );
-                    },
+                    onPressed: () => AppNavigator.toManageSpells(
+                      context,
+                      characterId: character.id,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   CharacterSpellsPanel(character: character),
@@ -275,15 +228,10 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                     title: 'Itens mágicos',
                     actionLabel: 'Gerenciar itens',
                     actionIcon: Icons.inventory_2_outlined,
-                    onPressed: () async {
-                      await Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => ManageCharacterMagicItemsPage(
-                            characterId: character.id,
-                          ),
-                        ),
-                      );
-                    },
+                    onPressed: () => AppNavigator.toManageMagicItems(
+                      context,
+                      characterId: character.id,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   MagicItemsPanel(character: character),
@@ -347,19 +295,8 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
     );
   }
 
-  Future<void> _openIdentityEditor(Character character) async {
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => EditIdentityPage(
-          characterId: character.id,
-          initialName: character.name,
-          initialNotes: character.notes,
-          initialPlayerName: character.playerName,
-          initialBackgroundId: character.backgroundId,
-          initialCustomBackground: character.customBackground,
-        ),
-      ),
-    );
+  Future<void> _openIdentityEditor(Character character) {
+    return AppNavigator.toEditIdentity(context, character: character);
   }
 
   /// Usa o compêndio como fonte da verdade.

@@ -1,9 +1,8 @@
-import 'package:dnd_ficha_app/core/routing/app_router.dart';
+import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
-import 'package:dnd_ficha_app/features/compendium/presentation/pages/spell_compendium_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -20,14 +19,13 @@ class CharacterListPage extends ConsumerWidget {
         title: const Text('Personagens'),
         actions: [
           IconButton(
+            tooltip: 'Exportar e importar',
+            onPressed: () => AppNavigator.toCharacterTransfer(context),
+            icon: const Icon(Icons.swap_vert),
+          ),
+          IconButton(
             tooltip: 'Compêndio de magias',
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const SpellCompendiumPage(),
-                ),
-              );
-            },
+            onPressed: () => AppNavigator.toSpellCompendium(context),
             icon: const Icon(Icons.menu_book),
           ),
         ],
@@ -64,12 +62,10 @@ class CharacterListPage extends ConsumerWidget {
                       ],
                     ),
                     isThreeLine: true,
-                    onTap: () {
-                      Navigator.of(context).pushNamed(
-                        AppRoutes.characterSheet,
-                        arguments: character.id,
-                      );
-                    },
+                    onTap: () => AppNavigator.toCharacterSheet(
+                      context,
+                      characterId: character.id,
+                    ),
                     trailing: IconButton(
                       icon: const Icon(Icons.delete_outline),
                       tooltip: 'Apagar personagem',
@@ -152,7 +148,7 @@ class CharacterListPage extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          Navigator.of(context).pushNamed(AppRoutes.characterCreation);
+          AppNavigator.toCharacterCreation(context);
         },
         icon: const Icon(Icons.add),
         label: const Text('Novo personagem'),

@@ -1,0 +1,496 @@
+import 'dart:convert';
+
+import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item_spell.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/combat_stats.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/currency.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/custom_background.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/proficiency_level.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/spellcasting_type.dart';
+
+/// Erro de leitura de uma ficha exportada, com mensagem pronta para a tela.
+class CharacterImportException implements Exception {
+  const CharacterImportException(this.message);
+
+  final String message;
+
+  @override
+  String toString() => message;
+}
+
+/// Converte o personagem para JSON e de volta, para exportar e importar.
+///
+/// O formato é versionado: uma ficha gerada por uma versão futura do app é
+/// recusada com mensagem clara em vez de ser lida pela metade.
+class CharacterJsonCodec {
+  const CharacterJsonCodec._();
+
+  /// Versão do formato de arquivo (não confundir com o schema do banco).
+  static const int formatVersion = 1;
+
+  static const String _formatKey = 'format';
+  static const String _versionKey = 'version';
+  static const String _formatName = 'dnd_ficha_app/character';
+
+  static String encode(Character character, {bool pretty = true}) {
+    final payload = <String, dynamic>{
+      _formatKey: _formatName,
+      _versionKey: formatVersion,
+      'character': toMap(character),
+    };
+
+    return pretty
+        ? const JsonEncoder.withIndent('  ').convert(payload)
+        : jsonEncode(payload);
+  }
+
+  /// Lê o JSON exportado.
+  ///
+  /// [newId] permite importar como um personagem novo, sem sobrescrever o
+  /// original — é o comportamento usado pela tela de importação.
+  static Character decode(String source, {String? newId}) {
+    final Object? decoded;
+    try {
+      decoded = jsonDecode(source);
+    } on FormatException catch (error) {
+      throw CharacterImportException(
+        'O texto não é um JSON válido: ${error.message}',
+      );
+    }
+
+    if (decoded is! Map<String, dynamic>) {
+      throw const CharacterImportException(
+        'O JSON precisa ser um objeto com os dados da ficha.',
+      );
+    }
+
+    final format = decoded[_formatKey];
+    if (format != null && format != _formatName) {
+      throw CharacterImportException(
+        'Este arquivo não é uma ficha deste app (formato "$format").',
+      );
+    }
+
+    final version = _asInt(decoded[_versionKey]) ?? formatVersion;
+    if (version > formatVersion) {
+      throw CharacterImportException(
+        'A ficha foi exportada por uma versão mais nova do app '
+        '(formato $version, este app lê até $formatVersion).',
+      );
+    }
+
+    final raw = decoded['character'];
+    if (raw is! Map<String, dynamic>) {
+      throw const CharacterImportException(
+        'O JSON não tem o objeto "character".',
+      );
+    }
+
+    try {
+      return fromMap(raw, newId: newId);
+    } on CharacterImportException {
+      rethrow;
+    } catch (error) {
+      throw CharacterImportException('Ficha inválida: $error');
+    }
+  }
+
+  static Map<String, dynamic> toMap(Character character) {
+    return <String, dynamic>{
+      'id': character.id,
+      'name': character.name,
+      'playerName': character.playerName,
+      'speciesId': character.speciesId,
+      'backgroundId': character.backgroundId,
+      'customBackground': <String, dynamic>{
+        'name': character.customBackground.name,
+        'skillIds': character.customBackground.skillIds,
+        'features': character.customBackground.features,
+      },
+      'notes': character.notes,
+      'abilityScores': <String, dynamic>{
+        for (final ability in Ability.values)
+          ability.name: character.abilityScores.valueFor(ability),
+      },
+      'classLevels': [
+        for (final level in character.classLevels)
+          <String, dynamic>{
+            'classId': level.classId,
+            'subclassId': level.subclassId,
+            'level': level.level,
+            'spellcastingAbility': level.spellcastingAbility?.name,
+            'spellcastingType': level.spellcastingType?.name,
+          },
+      ],
+      'hitPoints': <String, dynamic>{
+        'current': character.hitPoints.current,
+        'maximum': character.hitPoints.maximum,
+        'temporary': character.hitPoints.temporary,
+      },
+      'combatStats': <String, dynamic>{
+        'armorClass': character.combatStats.armorClass,
+        'initiativeBonus': character.combatStats.initiativeBonus,
+        'speedInSquares': character.combatStats.speedInSquares,
+      },
+      'savingThrows': <String, dynamic>{
+        'strength': character.savingThrowProficiencies.strength,
+        'dexterity': character.savingThrowProficiencies.dexterity,
+        'constitution': character.savingThrowProficiencies.constitution,
+        'intelligence': character.savingThrowProficiencies.intelligence,
+        'wisdom': character.savingThrowProficiencies.wisdom,
+        'charisma': character.savingThrowProficiencies.charisma,
+      },
+      // Só as perícias com algum nível, para o arquivo não encher de zeros.
+      'skills': <String, dynamic>{
+        for (final entry in character.skillProficiencies.activeLevels.entries)
+          entry.key.id: entry.value.dbValue,
+      },
+      'spells': [
+        for (final spell in character.spells)
+          <String, dynamic>{
+            'spellId': spell.spellId,
+            'sourceType': spell.sourceType,
+            'sourceId': spell.sourceId,
+            'sourceName': spell.sourceName,
+            'isPrepared': spell.isPrepared,
+            'isKnown': spell.isKnown,
+            'isAlwaysAvailable': spell.isAlwaysAvailable,
+            'notes': spell.notes,
+          },
+      ],
+      'magicItems': [
+        for (final item in character.magicItems)
+          <String, dynamic>{
+            'name': item.name,
+            'description': item.description,
+            'charges': item.charges,
+            'maxCharges': item.maxCharges,
+            'rechargeRule': item.rechargeRule,
+            'castingAbility': item.castingAbility,
+            'saveDc': item.saveDc,
+            'attackBonus': item.attackBonus,
+            'spells': [
+              for (final spell in item.spells)
+                <String, dynamic>{
+                  'spellId': spell.spellId,
+                  'usesCharges': spell.usesCharges,
+                  'chargeCost': spell.chargeCost,
+                  'isAtWill': spell.isAtWill,
+                  'isAlwaysAvailable': spell.isAlwaysAvailable,
+                },
+            ],
+          },
+      ],
+      'inspiration': character.inspiration,
+      'exhaustion': character.exhaustion,
+      'hitDiceUsed': character.hitDiceUsed,
+      'currency': <String, dynamic>{
+        'copper': character.currency.copper,
+        'silver': character.currency.silver,
+        'electrum': character.currency.electrum,
+        'gold': character.currency.gold,
+        'platinum': character.currency.platinum,
+      },
+      'createdAt': character.createdAt.toIso8601String(),
+      'updatedAt': character.updatedAt.toIso8601String(),
+    };
+  }
+
+  static Character fromMap(Map<String, dynamic> map, {String? newId}) {
+    final name = _asString(map['name'])?.trim();
+    if (name == null || name.isEmpty) {
+      throw const CharacterImportException('A ficha não tem nome.');
+    }
+
+    final id = newId ?? _asString(map['id']);
+    if (id == null || id.isEmpty) {
+      throw const CharacterImportException('A ficha não tem id.');
+    }
+
+    final classLevels = _parseClassLevels(map['classLevels']);
+    if (classLevels.isEmpty) {
+      throw const CharacterImportException(
+        'A ficha precisa de pelo menos uma classe.',
+      );
+    }
+
+    final maximum = _asInt(_asMap(map['hitPoints'])['maximum']) ?? 1;
+    final safeMaximum = maximum < 1 ? 1 : maximum;
+    final current = _asInt(_asMap(map['hitPoints'])['current']) ?? safeMaximum;
+
+    final customBackground = _asMap(map['customBackground']);
+    final now = DateTime.now();
+
+    return Character(
+      id: id,
+      name: name,
+      playerName: _asString(map['playerName']),
+      speciesId: _asString(map['speciesId']),
+      backgroundId: _asString(map['backgroundId']),
+      customBackground: CustomBackground(
+        name: _asString(customBackground['name']),
+        skillIds: _asStringList(customBackground['skillIds']),
+        features: _asString(customBackground['features']) ?? '',
+      ),
+      notes: _asString(map['notes']) ?? '',
+      abilityScores: _parseAbilityScores(map['abilityScores']),
+      classLevels: classLevels,
+      hitPoints: HitPoints(
+        current: current.clamp(0, safeMaximum),
+        maximum: safeMaximum,
+        temporary: (_asInt(_asMap(map['hitPoints'])['temporary']) ?? 0)
+            .clamp(0, 9999),
+      ),
+      combatStats: _parseCombatStats(map['combatStats']),
+      savingThrowProficiencies: _parseSavingThrows(map['savingThrows']),
+      skillProficiencies: _parseSkills(map['skills']),
+      spells: _parseSpells(map['spells']),
+      magicItems: _parseMagicItems(map['magicItems']),
+      inspiration: _asBool(map['inspiration']),
+      exhaustion: (_asInt(map['exhaustion']) ?? 0).clamp(0, 6),
+      hitDiceUsed: (_asInt(map['hitDiceUsed']) ?? 0).clamp(0, 20),
+      currency: _parseCurrency(map['currency']),
+      // Importar cria uma ficha nova: a data de criação é a de agora, mas a
+      // original fica preservada se estiver no arquivo.
+      createdAt: newId == null
+          ? (_parseDate(map['createdAt']) ?? now)
+          : now,
+      updatedAt: now,
+    );
+  }
+
+  static AbilityScores _parseAbilityScores(Object? raw) {
+    final map = _asMap(raw);
+
+    int score(Ability ability) {
+      final value = _asInt(map[ability.name]) ?? 10;
+      return value.clamp(1, 30);
+    }
+
+    return AbilityScores(
+      strength: score(Ability.strength),
+      dexterity: score(Ability.dexterity),
+      constitution: score(Ability.constitution),
+      intelligence: score(Ability.intelligence),
+      wisdom: score(Ability.wisdom),
+      charisma: score(Ability.charisma),
+    );
+  }
+
+  static List<ClassLevel> _parseClassLevels(Object? raw) {
+    final result = <ClassLevel>[];
+
+    for (final item in _asList(raw)) {
+      final map = _asMap(item);
+      final classId = _asString(map['classId']);
+      if (classId == null || classId.isEmpty) continue;
+
+      final level = (_asInt(map['level']) ?? 1).clamp(1, 20);
+
+      result.add(
+        ClassLevel(
+          classId: classId,
+          subclassId: _asString(map['subclassId']),
+          level: level,
+          spellcastingAbility: Ability.fromName(
+            _asString(map['spellcastingAbility']),
+          ),
+          spellcastingType: _spellcastingTypeFromName(
+            _asString(map['spellcastingType']),
+          ),
+        ),
+      );
+    }
+
+    return result;
+  }
+
+  static CombatStats _parseCombatStats(Object? raw) {
+    final map = _asMap(raw);
+
+    return CombatStats(
+      armorClass: (_asInt(map['armorClass']) ?? 10).clamp(0, 99),
+      initiativeBonus: _asInt(map['initiativeBonus']) ?? 0,
+      speedInSquares: (_asInt(map['speedInSquares']) ?? 9).clamp(0, 999),
+    );
+  }
+
+  static SavingThrowProficiencies _parseSavingThrows(Object? raw) {
+    final map = _asMap(raw);
+
+    return SavingThrowProficiencies(
+      strength: _asBool(map['strength']),
+      dexterity: _asBool(map['dexterity']),
+      constitution: _asBool(map['constitution']),
+      intelligence: _asBool(map['intelligence']),
+      wisdom: _asBool(map['wisdom']),
+      charisma: _asBool(map['charisma']),
+    );
+  }
+
+  static SkillProficiencies _parseSkills(Object? raw) {
+    final map = _asMap(raw);
+    final levels = <Skill, ProficiencyLevel>{};
+
+    for (final entry in map.entries) {
+      final skill = Skill.fromId(entry.key);
+      if (skill == null) continue;
+
+      final level = ProficiencyLevel.fromDb(_asInt(entry.value));
+      if (level != ProficiencyLevel.none) levels[skill] = level;
+    }
+
+    return SkillProficiencies(levels: levels);
+  }
+
+  static List<CharacterSpell> _parseSpells(Object? raw) {
+    final result = <CharacterSpell>[];
+
+    for (final item in _asList(raw)) {
+      final map = _asMap(item);
+      final spellId = _asInt(map['spellId']);
+      if (spellId == null) continue;
+
+      result.add(
+        CharacterSpell(
+          spellId: spellId,
+          sourceType: _asString(map['sourceType']) ?? 'custom',
+          sourceId: _asString(map['sourceId']) ?? '',
+          sourceName: _asString(map['sourceName']) ?? '',
+          isPrepared: _asBool(map['isPrepared']),
+          isKnown: _asBool(map['isKnown'], fallback: true),
+          isAlwaysAvailable: _asBool(map['isAlwaysAvailable']),
+          notes: _asString(map['notes']) ?? '',
+        ),
+      );
+    }
+
+    return result;
+  }
+
+  static List<CharacterMagicItem> _parseMagicItems(Object? raw) {
+    final result = <CharacterMagicItem>[];
+
+    for (final item in _asList(raw)) {
+      final map = _asMap(item);
+      final name = _asString(map['name'])?.trim();
+      if (name == null || name.isEmpty) continue;
+
+      final spells = <CharacterMagicItemSpell>[];
+      for (final spellRaw in _asList(map['spells'])) {
+        final spellMap = _asMap(spellRaw);
+        final spellId = _asInt(spellMap['spellId']);
+        if (spellId == null) continue;
+
+        spells.add(
+          CharacterMagicItemSpell(
+            spellId: spellId,
+            usesCharges: _asBool(spellMap['usesCharges']),
+            chargeCost: _asInt(spellMap['chargeCost']) ?? 1,
+            isAtWill: _asBool(spellMap['isAtWill']),
+            isAlwaysAvailable:
+                _asBool(spellMap['isAlwaysAvailable'], fallback: true),
+          ),
+        );
+      }
+
+      result.add(
+        CharacterMagicItem(
+          // O localId é do banco: quem grava é o repositório.
+          localId: 0,
+          name: name,
+          description: _asString(map['description']) ?? '',
+          charges: _asInt(map['charges']),
+          maxCharges: _asInt(map['maxCharges']),
+          rechargeRule: _asString(map['rechargeRule']),
+          castingAbility: _asString(map['castingAbility']),
+          saveDc: _asInt(map['saveDc']),
+          attackBonus: _asInt(map['attackBonus']),
+          spells: spells,
+        ),
+      );
+    }
+
+    return result;
+  }
+
+  static Currency _parseCurrency(Object? raw) {
+    final map = _asMap(raw);
+
+    int coin(String key) => (_asInt(map[key]) ?? 0).clamp(0, 999999999);
+
+    return Currency(
+      copper: coin('copper'),
+      silver: coin('silver'),
+      electrum: coin('electrum'),
+      gold: coin('gold'),
+      platinum: coin('platinum'),
+    );
+  }
+
+  static SpellcastingType? _spellcastingTypeFromName(String? value) {
+    if (value == null) return null;
+    for (final type in SpellcastingType.values) {
+      if (type.name == value) return type;
+    }
+    return null;
+  }
+
+  static DateTime? _parseDate(Object? raw) {
+    final value = _asString(raw);
+    if (value == null) return null;
+    return DateTime.tryParse(value);
+  }
+
+  static Map<String, dynamic> _asMap(Object? value) {
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) return Map<String, dynamic>.from(value);
+    return const {};
+  }
+
+  static List<dynamic> _asList(Object? value) {
+    if (value is List) return value;
+    return const [];
+  }
+
+  static List<String> _asStringList(Object? value) {
+    return _asList(value)
+        .map((item) => item.toString().trim())
+        .where((item) => item.isNotEmpty)
+        .toList(growable: false);
+  }
+
+  static String? _asString(Object? value) {
+    if (value == null) return null;
+    if (value is String) return value;
+    return value.toString();
+  }
+
+  static int? _asInt(Object? value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value);
+    return null;
+  }
+
+  static bool _asBool(Object? value, {bool fallback = false}) {
+    if (value == null) return fallback;
+    if (value is bool) return value;
+    if (value is num) return value != 0;
+    if (value is String) {
+      final normalized = value.trim().toLowerCase();
+      return normalized == 'true' || normalized == '1';
+    }
+    return fallback;
+  }
+}

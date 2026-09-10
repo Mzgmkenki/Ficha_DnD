@@ -1,6 +1,6 @@
 import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
-import 'package:dnd_ficha_app/core/routing/app_router.dart';
+import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
@@ -658,10 +658,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
       await repository.create(character);
 
       if (!mounted) return;
-      Navigator.of(context).pushReplacementNamed(
-        AppRoutes.characterSheet,
-        arguments: id,
-      );
+      await AppNavigator.replaceWithCharacterSheet(context, characterId: id);
     } catch (error, stackTrace) {
       debugPrint('ERRO AO CRIAR PERSONAGEM: $error');
       debugPrint('$stackTrace');

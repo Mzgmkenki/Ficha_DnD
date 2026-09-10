@@ -1,6 +1,6 @@
+import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/spell_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_entry.dart';
-import 'package:dnd_ficha_app/features/compendium/presentation/pages/spell_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -207,10 +207,9 @@ class _SpellCompendiumPageState extends ConsumerState<SpellCompendiumPage> {
                               ],
                             ),
                             onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => SpellDetailPage(spell: spell),
-                                ),
+                              AppNavigator.toSpellDetail(
+                                context,
+                                spell: spell,
                               );
                             },
                           );
