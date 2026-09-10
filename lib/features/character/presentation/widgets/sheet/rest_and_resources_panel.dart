@@ -1,5 +1,4 @@
-import 'dart:math';
-
+import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
@@ -121,7 +120,7 @@ class RestAndResourcesPanel extends ConsumerWidget {
     int dieSize,
     int totalHitDice,
   ) async {
-    final rolled = Random().nextInt(dieSize) + 1;
+    final rolled = ref.read(diceRollerProvider).rollDie(dieSize);
     final conModifier = character.abilityScores.constitution.abilityModifier;
 
     await ref.read(spendHitDieProvider)(

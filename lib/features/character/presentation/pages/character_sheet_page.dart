@@ -1,8 +1,11 @@
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/edit_ability_scores_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/edit_armor_class_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/edit_class_levels_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/edit_hit_points_page.dart';
+import 'package:dnd_ficha_app/features/character/presentation/pages/edit_identity_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/edit_proficiencies_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/manage_character_magic_items_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/manage_character_spells_page.dart';
@@ -72,8 +75,21 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                             Text(
                               'Nível ${character.totalLevel} • Proficiência +${character.proficiencyBonus}',
                             ),
+                            if (character.playerName != null &&
+                                character.playerName!.trim().isNotEmpty) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                'Jogador: ${character.playerName}',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
                           ],
                         ),
+                      ),
+                      IconButton(
+                        onPressed: () => _openIdentityEditor(character),
+                        icon: const Icon(Icons.edit_outlined),
+                        tooltip: 'Editar identidade',
                       ),
                     ],
                   ),
@@ -173,30 +189,11 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                     spacing: 12,
                     runSpacing: 12,
                     children: [
-                      AbilityScoreBlock(
-                        label: 'FOR',
-                        value: character.abilityScores.strength,
-                      ),
-                      AbilityScoreBlock(
-                        label: 'DES',
-                        value: character.abilityScores.dexterity,
-                      ),
-                      AbilityScoreBlock(
-                        label: 'CON',
-                        value: character.abilityScores.constitution,
-                      ),
-                      AbilityScoreBlock(
-                        label: 'INT',
-                        value: character.abilityScores.intelligence,
-                      ),
-                      AbilityScoreBlock(
-                        label: 'SAB',
-                        value: character.abilityScores.wisdom,
-                      ),
-                      AbilityScoreBlock(
-                        label: 'CAR',
-                        value: character.abilityScores.charisma,
-                      ),
+                      for (final ability in Ability.values)
+                        AbilityScoreBlock(
+                          ability: ability,
+                          value: character.abilityScores.valueFor(ability),
+                        ),
                     ],
                   ),
 
@@ -295,7 +292,12 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                   CurrencyPanel(character: character),
 
                   const SizedBox(height: 16),
-                  const _SectionHeader(title: 'Antecedente'),
+                  _SectionHeader(
+                    title: 'Antecedente',
+                    actionLabel: 'Editar',
+                    actionIcon: Icons.badge_outlined,
+                    onPressed: () => _openIdentityEditor(character),
+                  ),
                   const SizedBox(height: 8),
                   BackgroundPanel(
                     backgroundId: character.backgroundId,
@@ -313,7 +315,12 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                   ClassFeaturesPanel(classLevels: character.classLevels),
 
                   const SizedBox(height: 16),
-                  const _SectionHeader(title: 'Anotações'),
+                  _SectionHeader(
+                    title: 'Anotações',
+                    actionLabel: 'Editar',
+                    actionIcon: Icons.notes_outlined,
+                    onPressed: () => _openIdentityEditor(character),
+                  ),
                   const SizedBox(height: 8),
                   Card(
                     child: Padding(
@@ -336,6 +343,21 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
         },
         error: (error, stackTrace) => Center(child: Text('Erro: $error')),
         loading: () => const Center(child: CircularProgressIndicator()),
+      ),
+    );
+  }
+
+  Future<void> _openIdentityEditor(Character character) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => EditIdentityPage(
+          characterId: character.id,
+          initialName: character.name,
+          initialNotes: character.notes,
+          initialPlayerName: character.playerName,
+          initialBackgroundId: character.backgroundId,
+          initialCustomBackground: character.customBackground,
+        ),
       ),
     );
   }

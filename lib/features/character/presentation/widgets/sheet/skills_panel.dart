@@ -1,6 +1,7 @@
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/skill_calculator.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/dice_roll_sheet.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/derived_value_row.dart';
 import 'package:flutter/material.dart';
 
@@ -31,14 +32,34 @@ class SkillsPanel extends StatelessWidget {
             const SizedBox(height: 16),
             for (var i = 0; i < skills.length; i++) ...[
               if (i > 0) const SizedBox(height: 8),
-              DerivedValueRow(
-                label: '${skills[i].label} (${skills[i].abbreviation})',
-                value: SkillCalculator.skillBonus(character, skills[i]),
-                level: character.skillProficiencies.levelFor(skills[i]),
-              ),
+              _SkillRow(character: character, skill: skills[i]),
             ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _SkillRow extends StatelessWidget {
+  const _SkillRow({required this.character, required this.skill});
+
+  final Character character;
+  final Skill skill;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = '${skill.label} (${skill.abbreviation})';
+    final bonus = SkillCalculator.skillBonus(character, skill);
+
+    return DerivedValueRow(
+      label: label,
+      value: bonus,
+      level: character.skillProficiencies.levelFor(skill),
+      onRoll: () => showDiceRollSheet(
+        context,
+        label: label,
+        modifier: bonus,
       ),
     );
   }

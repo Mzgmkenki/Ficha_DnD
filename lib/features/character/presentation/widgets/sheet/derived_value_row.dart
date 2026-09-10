@@ -7,6 +7,7 @@ class DerivedValueRow extends StatelessWidget {
     required this.value,
     this.proficient = false,
     this.level,
+    this.onRoll,
     super.key,
   });
 
@@ -18,13 +19,16 @@ class DerivedValueRow extends StatelessWidget {
   /// (metade, proficiente ou especialista) em vez de apenas sim/não.
   final ProficiencyLevel? level;
 
+  /// Quando informado, a linha inteira vira um botão que rola o teste.
+  final VoidCallback? onRoll;
+
   @override
   Widget build(BuildContext context) {
     final display = value >= 0 ? '+$value' : '$value';
     final effective = level ??
         (proficient ? ProficiencyLevel.proficient : ProficiencyLevel.none);
 
-    return Row(
+    final row = Row(
       children: [
         Icon(_iconFor(effective), size: 18),
         const SizedBox(width: 8),
@@ -54,7 +58,30 @@ class DerivedValueRow extends StatelessWidget {
           display,
           style: Theme.of(context).textTheme.titleMedium,
         ),
+        if (onRoll != null) ...[
+          const SizedBox(width: 8),
+          Icon(
+            Icons.casino_outlined,
+            size: 18,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ],
       ],
+    );
+
+    if (onRoll == null) return row;
+
+    return Semantics(
+      button: true,
+      label: 'Rolar $label',
+      child: InkWell(
+        onTap: onRoll,
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: row,
+        ),
+      ),
     );
   }
 

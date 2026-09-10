@@ -13,6 +13,7 @@ import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.da
 import 'package:dnd_ficha_app/features/character/domain/value_objects/proficiency_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/spellcasting_type.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/custom_background_form.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart'
     as compendium_providers;
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_entry.dart';
@@ -266,7 +267,20 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                       if (selectedBackground != null &&
                           !selectedBackground.isCustom)
                         _BackgroundSummary(background: selectedBackground),
-                      if (_isCustomBackground) _buildCustomBackgroundCard(),
+                      if (_isCustomBackground)
+                        CustomBackgroundForm(
+                          nameController: _customBackgroundNameController,
+                          featuresController:
+                              _customBackgroundFeaturesController,
+                          skillOneId: _customBackgroundSkillOne,
+                          skillTwoId: _customBackgroundSkillTwo,
+                          onSkillsChanged: (one, two) {
+                            setState(() {
+                              _customBackgroundSkillOne = one;
+                              _customBackgroundSkillTwo = two;
+                            });
+                          },
+                        ),
                     ],
                     const SizedBox(height: 12),
                     _RaceSummaryCard(
@@ -468,111 +482,6 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
       if (item.id == _selectedBackgroundId) return item;
     }
     return null;
-  }
-
-  /// Formulário do "Antecedente Customizável": nome opcional, as duas perícias
-  /// concedidas e o texto de características.
-  Widget _buildCustomBackgroundCard() {
-    final skills = Skill.sortedByLabel;
-
-    List<DropdownMenuItem<String>> itemsExcept(String? excludedId) {
-      return skills
-          .where((skill) => skill.id != excludedId)
-          .map(
-            (skill) => DropdownMenuItem<String>(
-              value: skill.id,
-              child: Text('${skill.label} (${skill.abbreviation})'),
-            ),
-          )
-          .toList();
-    }
-
-    return Card(
-      margin: const EdgeInsets.only(top: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Monte o seu antecedente',
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Um antecedente concede proficiência em duas perícias.',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _customBackgroundNameController,
-              decoration: const InputDecoration(
-                labelText: 'Nome do antecedente (opcional)',
-                hintText: 'Ex.: Caçador de Recompensas',
-              ),
-              textCapitalization: TextCapitalization.sentences,
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              initialValue: _customBackgroundSkillOne,
-              decoration: const InputDecoration(
-                labelText: 'Primeira perícia',
-              ),
-              items: itemsExcept(null),
-              onChanged: (value) {
-                setState(() {
-                  final previous = _customBackgroundSkillOne;
-                  _customBackgroundSkillOne = value;
-                  // Evita as duas perícias iguais: troca com a anterior em vez
-                  // de limpar, para o segundo dropdown nunca ficar com um
-                  // valor que saiu da lista de opções.
-                  if (_customBackgroundSkillTwo == value) {
-                    _customBackgroundSkillTwo = previous;
-                  }
-                });
-              },
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Escolha a primeira perícia.';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              initialValue: _customBackgroundSkillTwo,
-              decoration: const InputDecoration(
-                labelText: 'Segunda perícia',
-              ),
-              items: itemsExcept(_customBackgroundSkillOne),
-              onChanged: (value) {
-                setState(() => _customBackgroundSkillTwo = value);
-              },
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Escolha a segunda perícia.';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _customBackgroundFeaturesController,
-              decoration: const InputDecoration(
-                labelText: 'Características do antecedente',
-                hintText: 'Descreva o que o antecedente concede, sua história, '
-                    'contatos, ferramentas...',
-                alignLabelWithHint: true,
-              ),
-              minLines: 4,
-              maxLines: 10,
-              keyboardType: TextInputType.multiline,
-              textCapitalization: TextCapitalization.sentences,
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   String _resolveSelectedClassId(List<ClassEntry> classes) {

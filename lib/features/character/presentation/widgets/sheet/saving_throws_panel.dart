@@ -1,5 +1,7 @@
 import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/dice_roll_sheet.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/derived_value_row.dart';
 import 'package:flutter/material.dart';
 
@@ -11,18 +13,22 @@ class SavingThrowsPanel extends StatelessWidget {
 
   final Character character;
 
+  bool _isProficient(Ability ability) {
+    final saves = character.savingThrowProficiencies;
+
+    return switch (ability) {
+      Ability.strength => saves.strength,
+      Ability.dexterity => saves.dexterity,
+      Ability.constitution => saves.constitution,
+      Ability.intelligence => saves.intelligence,
+      Ability.wisdom => saves.wisdom,
+      Ability.charisma => saves.charisma,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final proficiency = character.proficiencyBonus;
-
-    final strengthMod = character.abilityScores.strength.abilityModifier;
-    final dexterityMod = character.abilityScores.dexterity.abilityModifier;
-    final constitutionMod = character.abilityScores.constitution.abilityModifier;
-    final intelligenceMod = character.abilityScores.intelligence.abilityModifier;
-    final wisdomMod = character.abilityScores.wisdom.abilityModifier;
-    final charismaMod = character.abilityScores.charisma.abilityModifier;
-
-    final saves = character.savingThrowProficiencies;
 
     return Card(
       child: Padding(
@@ -37,43 +43,47 @@ class SavingThrowsPanel extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            DerivedValueRow(
-              label: 'Força',
-              value: strengthMod + (saves.strength ? proficiency : 0),
-              proficient: saves.strength,
-            ),
-            const SizedBox(height: 8),
-            DerivedValueRow(
-              label: 'Destreza',
-              value: dexterityMod + (saves.dexterity ? proficiency : 0),
-              proficient: saves.dexterity,
-            ),
-            const SizedBox(height: 8),
-            DerivedValueRow(
-              label: 'Constituição',
-              value: constitutionMod + (saves.constitution ? proficiency : 0),
-              proficient: saves.constitution,
-            ),
-            const SizedBox(height: 8),
-            DerivedValueRow(
-              label: 'Inteligência',
-              value: intelligenceMod + (saves.intelligence ? proficiency : 0),
-              proficient: saves.intelligence,
-            ),
-            const SizedBox(height: 8),
-            DerivedValueRow(
-              label: 'Sabedoria',
-              value: wisdomMod + (saves.wisdom ? proficiency : 0),
-              proficient: saves.wisdom,
-            ),
-            const SizedBox(height: 8),
-            DerivedValueRow(
-              label: 'Carisma',
-              value: charismaMod + (saves.charisma ? proficiency : 0),
-              proficient: saves.charisma,
-            ),
+            for (var i = 0; i < Ability.values.length; i++) ...[
+              if (i > 0) const SizedBox(height: 8),
+              _SavingThrowRow(
+                ability: Ability.values[i],
+                bonus: character.abilityScores
+                        .valueFor(Ability.values[i])
+                        .abilityModifier +
+                    (_isProficient(Ability.values[i]) ? proficiency : 0),
+                proficient: _isProficient(Ability.values[i]),
+              ),
+            ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _SavingThrowRow extends StatelessWidget {
+  const _SavingThrowRow({
+    required this.ability,
+    required this.bonus,
+    required this.proficient,
+  });
+
+  final Ability ability;
+  final int bonus;
+  final bool proficient;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = 'Salvaguarda de ${ability.label}';
+
+    return DerivedValueRow(
+      label: ability.label,
+      value: bonus,
+      proficient: proficient,
+      onRoll: () => showDiceRollSheet(
+        context,
+        label: label,
+        modifier: bonus,
       ),
     );
   }

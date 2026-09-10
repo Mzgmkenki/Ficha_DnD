@@ -2,6 +2,7 @@ import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/update_character_ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/update_character_class_levels.dart';
+import 'package:dnd_ficha_app/features/character/application/use_cases/character/update_character_identity.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/update_character_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/combat/update_character_hit_points.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
@@ -40,6 +41,12 @@ final updateCharacterProficienciesProvider =
     Provider<UpdateCharacterProficiencies>((ref) {
   final repository = ref.watch(characterRepositoryProvider);
   return UpdateCharacterProficiencies(repository);
+});
+
+final updateCharacterIdentityProvider =
+    Provider<UpdateCharacterIdentity>((ref) {
+  final repository = ref.watch(characterRepositoryProvider);
+  return UpdateCharacterIdentity(repository);
 });
 
 final deleteCharacterProvider = Provider<Future<void> Function(String)>((ref) {

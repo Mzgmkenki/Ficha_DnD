@@ -31,22 +31,7 @@ enum Skill {
   final String label;
   final Ability ability;
 
-  String get abbreviation {
-    switch (ability) {
-      case Ability.strength:
-        return 'FOR';
-      case Ability.dexterity:
-        return 'DES';
-      case Ability.constitution:
-        return 'CON';
-      case Ability.intelligence:
-        return 'INT';
-      case Ability.wisdom:
-        return 'SAB';
-      case Ability.charisma:
-        return 'CAR';
-    }
-  }
+  String get abbreviation => ability.abbreviation;
 
   static Skill? fromId(String? id) {
     if (id == null) return null;
