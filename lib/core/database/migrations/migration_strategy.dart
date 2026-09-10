@@ -114,6 +114,34 @@ MigrationStrategy buildMigrationStrategy(AppDatabase db) {
           );
         }
       }
+
+      if (from < 5) {
+        // Moedas.
+        await _tryAddColumn(m, db.characters, db.characters.copperPieces);
+        await _tryAddColumn(m, db.characters, db.characters.silverPieces);
+        await _tryAddColumn(m, db.characters, db.characters.electrumPieces);
+        await _tryAddColumn(m, db.characters, db.characters.goldPieces);
+        await _tryAddColumn(m, db.characters, db.characters.platinumPieces);
+      }
+
+      if (from < 6) {
+        // Antecedente customizável (background_id == 'custom').
+        await _tryAddColumn(
+          m,
+          db.characters,
+          db.characters.customBackgroundName,
+        );
+        await _tryAddColumn(
+          m,
+          db.characters,
+          db.characters.customBackgroundSkills,
+        );
+        await _tryAddColumn(
+          m,
+          db.characters,
+          db.characters.customBackgroundFeatures,
+        );
+      }
     },
     beforeOpen: (details) async {
       // Roda fora da transação de migração, então aqui é seguro usar `db`.

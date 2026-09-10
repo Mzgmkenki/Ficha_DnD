@@ -60,6 +60,41 @@ class $CharactersTable extends Characters
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _customBackgroundNameMeta =
+      const VerificationMeta('customBackgroundName');
+  @override
+  late final GeneratedColumn<String> customBackgroundName =
+      GeneratedColumn<String>(
+        'custom_background_name',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _customBackgroundSkillsMeta =
+      const VerificationMeta('customBackgroundSkills');
+  @override
+  late final GeneratedColumn<String> customBackgroundSkills =
+      GeneratedColumn<String>(
+        'custom_background_skills',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(''),
+      );
+  static const VerificationMeta _customBackgroundFeaturesMeta =
+      const VerificationMeta('customBackgroundFeatures');
+  @override
+  late final GeneratedColumn<String> customBackgroundFeatures =
+      GeneratedColumn<String>(
+        'custom_background_features',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(''),
+      );
   static const VerificationMeta _notesMeta = const VerificationMeta('notes');
   @override
   late final GeneratedColumn<String> notes = GeneratedColumn<String>(
@@ -821,6 +856,66 @@ class $CharactersTable extends Characters
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _copperPiecesMeta = const VerificationMeta(
+    'copperPieces',
+  );
+  @override
+  late final GeneratedColumn<int> copperPieces = GeneratedColumn<int>(
+    'copper_pieces',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _silverPiecesMeta = const VerificationMeta(
+    'silverPieces',
+  );
+  @override
+  late final GeneratedColumn<int> silverPieces = GeneratedColumn<int>(
+    'silver_pieces',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _electrumPiecesMeta = const VerificationMeta(
+    'electrumPieces',
+  );
+  @override
+  late final GeneratedColumn<int> electrumPieces = GeneratedColumn<int>(
+    'electrum_pieces',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _goldPiecesMeta = const VerificationMeta(
+    'goldPieces',
+  );
+  @override
+  late final GeneratedColumn<int> goldPieces = GeneratedColumn<int>(
+    'gold_pieces',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _platinumPiecesMeta = const VerificationMeta(
+    'platinumPieces',
+  );
+  @override
+  late final GeneratedColumn<int> platinumPieces = GeneratedColumn<int>(
+    'platinum_pieces',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -850,6 +945,9 @@ class $CharactersTable extends Characters
     playerName,
     speciesId,
     backgroundId,
+    customBackgroundName,
+    customBackgroundSkills,
+    customBackgroundFeatures,
     notes,
     strength,
     dexterity,
@@ -908,6 +1006,11 @@ class $CharactersTable extends Characters
     inspiration,
     exhaustion,
     hitDiceUsed,
+    copperPieces,
+    silverPieces,
+    electrumPieces,
+    goldPieces,
+    platinumPieces,
     createdAt,
     updatedAt,
   ];
@@ -954,6 +1057,33 @@ class $CharactersTable extends Characters
         backgroundId.isAcceptableOrUnknown(
           data['background_id']!,
           _backgroundIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('custom_background_name')) {
+      context.handle(
+        _customBackgroundNameMeta,
+        customBackgroundName.isAcceptableOrUnknown(
+          data['custom_background_name']!,
+          _customBackgroundNameMeta,
+        ),
+      );
+    }
+    if (data.containsKey('custom_background_skills')) {
+      context.handle(
+        _customBackgroundSkillsMeta,
+        customBackgroundSkills.isAcceptableOrUnknown(
+          data['custom_background_skills']!,
+          _customBackgroundSkillsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('custom_background_features')) {
+      context.handle(
+        _customBackgroundFeaturesMeta,
+        customBackgroundFeatures.isAcceptableOrUnknown(
+          data['custom_background_features']!,
+          _customBackgroundFeaturesMeta,
         ),
       );
     }
@@ -1437,6 +1567,48 @@ class $CharactersTable extends Characters
         ),
       );
     }
+    if (data.containsKey('copper_pieces')) {
+      context.handle(
+        _copperPiecesMeta,
+        copperPieces.isAcceptableOrUnknown(
+          data['copper_pieces']!,
+          _copperPiecesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('silver_pieces')) {
+      context.handle(
+        _silverPiecesMeta,
+        silverPieces.isAcceptableOrUnknown(
+          data['silver_pieces']!,
+          _silverPiecesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('electrum_pieces')) {
+      context.handle(
+        _electrumPiecesMeta,
+        electrumPieces.isAcceptableOrUnknown(
+          data['electrum_pieces']!,
+          _electrumPiecesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('gold_pieces')) {
+      context.handle(
+        _goldPiecesMeta,
+        goldPieces.isAcceptableOrUnknown(data['gold_pieces']!, _goldPiecesMeta),
+      );
+    }
+    if (data.containsKey('platinum_pieces')) {
+      context.handle(
+        _platinumPiecesMeta,
+        platinumPieces.isAcceptableOrUnknown(
+          data['platinum_pieces']!,
+          _platinumPiecesMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -1484,6 +1656,20 @@ class $CharactersTable extends Characters
         DriftSqlType.string,
         data['${effectivePrefix}background_id'],
       ),
+      customBackgroundName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}custom_background_name'],
+      ),
+      customBackgroundSkills:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}custom_background_skills'],
+          )!,
+      customBackgroundFeatures:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}custom_background_features'],
+          )!,
       notes:
           attachedDatabase.typeMapping.read(
             DriftSqlType.string,
@@ -1774,6 +1960,31 @@ class $CharactersTable extends Characters
             DriftSqlType.int,
             data['${effectivePrefix}hit_dice_used'],
           )!,
+      copperPieces:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}copper_pieces'],
+          )!,
+      silverPieces:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}silver_pieces'],
+          )!,
+      electrumPieces:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}electrum_pieces'],
+          )!,
+      goldPieces:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}gold_pieces'],
+          )!,
+      platinumPieces:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}platinum_pieces'],
+          )!,
       createdAt:
           attachedDatabase.typeMapping.read(
             DriftSqlType.dateTime,
@@ -1799,6 +2010,13 @@ class Character extends DataClass implements Insertable<Character> {
   final String? playerName;
   final String? speciesId;
   final String? backgroundId;
+  final String? customBackgroundName;
+
+  /// Ids das perícias do antecedente customizado, separados por vírgula.
+  final String customBackgroundSkills;
+
+  /// Texto livre com as características do antecedente customizado.
+  final String customBackgroundFeatures;
   final String notes;
   final int strength;
   final int dexterity;
@@ -1863,6 +2081,11 @@ class Character extends DataClass implements Insertable<Character> {
 
   /// Dados de vida já gastos desde o último descanso longo.
   final int hitDiceUsed;
+  final int copperPieces;
+  final int silverPieces;
+  final int electrumPieces;
+  final int goldPieces;
+  final int platinumPieces;
   final DateTime createdAt;
   final DateTime updatedAt;
   const Character({
@@ -1871,6 +2094,9 @@ class Character extends DataClass implements Insertable<Character> {
     this.playerName,
     this.speciesId,
     this.backgroundId,
+    this.customBackgroundName,
+    required this.customBackgroundSkills,
+    required this.customBackgroundFeatures,
     required this.notes,
     required this.strength,
     required this.dexterity,
@@ -1929,6 +2155,11 @@ class Character extends DataClass implements Insertable<Character> {
     required this.inspiration,
     required this.exhaustion,
     required this.hitDiceUsed,
+    required this.copperPieces,
+    required this.silverPieces,
+    required this.electrumPieces,
+    required this.goldPieces,
+    required this.platinumPieces,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -1946,6 +2177,13 @@ class Character extends DataClass implements Insertable<Character> {
     if (!nullToAbsent || backgroundId != null) {
       map['background_id'] = Variable<String>(backgroundId);
     }
+    if (!nullToAbsent || customBackgroundName != null) {
+      map['custom_background_name'] = Variable<String>(customBackgroundName);
+    }
+    map['custom_background_skills'] = Variable<String>(customBackgroundSkills);
+    map['custom_background_features'] = Variable<String>(
+      customBackgroundFeatures,
+    );
     map['notes'] = Variable<String>(notes);
     map['strength'] = Variable<int>(strength);
     map['dexterity'] = Variable<int>(dexterity);
@@ -2004,6 +2242,11 @@ class Character extends DataClass implements Insertable<Character> {
     map['inspiration'] = Variable<bool>(inspiration);
     map['exhaustion'] = Variable<int>(exhaustion);
     map['hit_dice_used'] = Variable<int>(hitDiceUsed);
+    map['copper_pieces'] = Variable<int>(copperPieces);
+    map['silver_pieces'] = Variable<int>(silverPieces);
+    map['electrum_pieces'] = Variable<int>(electrumPieces);
+    map['gold_pieces'] = Variable<int>(goldPieces);
+    map['platinum_pieces'] = Variable<int>(platinumPieces);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -2025,6 +2268,12 @@ class Character extends DataClass implements Insertable<Character> {
           backgroundId == null && nullToAbsent
               ? const Value.absent()
               : Value(backgroundId),
+      customBackgroundName:
+          customBackgroundName == null && nullToAbsent
+              ? const Value.absent()
+              : Value(customBackgroundName),
+      customBackgroundSkills: Value(customBackgroundSkills),
+      customBackgroundFeatures: Value(customBackgroundFeatures),
       notes: Value(notes),
       strength: Value(strength),
       dexterity: Value(dexterity),
@@ -2083,6 +2332,11 @@ class Character extends DataClass implements Insertable<Character> {
       inspiration: Value(inspiration),
       exhaustion: Value(exhaustion),
       hitDiceUsed: Value(hitDiceUsed),
+      copperPieces: Value(copperPieces),
+      silverPieces: Value(silverPieces),
+      electrumPieces: Value(electrumPieces),
+      goldPieces: Value(goldPieces),
+      platinumPieces: Value(platinumPieces),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -2099,6 +2353,15 @@ class Character extends DataClass implements Insertable<Character> {
       playerName: serializer.fromJson<String?>(json['playerName']),
       speciesId: serializer.fromJson<String?>(json['speciesId']),
       backgroundId: serializer.fromJson<String?>(json['backgroundId']),
+      customBackgroundName: serializer.fromJson<String?>(
+        json['customBackgroundName'],
+      ),
+      customBackgroundSkills: serializer.fromJson<String>(
+        json['customBackgroundSkills'],
+      ),
+      customBackgroundFeatures: serializer.fromJson<String>(
+        json['customBackgroundFeatures'],
+      ),
       notes: serializer.fromJson<String>(json['notes']),
       strength: serializer.fromJson<int>(json['strength']),
       dexterity: serializer.fromJson<int>(json['dexterity']),
@@ -2159,6 +2422,11 @@ class Character extends DataClass implements Insertable<Character> {
       inspiration: serializer.fromJson<bool>(json['inspiration']),
       exhaustion: serializer.fromJson<int>(json['exhaustion']),
       hitDiceUsed: serializer.fromJson<int>(json['hitDiceUsed']),
+      copperPieces: serializer.fromJson<int>(json['copperPieces']),
+      silverPieces: serializer.fromJson<int>(json['silverPieces']),
+      electrumPieces: serializer.fromJson<int>(json['electrumPieces']),
+      goldPieces: serializer.fromJson<int>(json['goldPieces']),
+      platinumPieces: serializer.fromJson<int>(json['platinumPieces']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -2172,6 +2440,13 @@ class Character extends DataClass implements Insertable<Character> {
       'playerName': serializer.toJson<String?>(playerName),
       'speciesId': serializer.toJson<String?>(speciesId),
       'backgroundId': serializer.toJson<String?>(backgroundId),
+      'customBackgroundName': serializer.toJson<String?>(customBackgroundName),
+      'customBackgroundSkills': serializer.toJson<String>(
+        customBackgroundSkills,
+      ),
+      'customBackgroundFeatures': serializer.toJson<String>(
+        customBackgroundFeatures,
+      ),
       'notes': serializer.toJson<String>(notes),
       'strength': serializer.toJson<int>(strength),
       'dexterity': serializer.toJson<int>(dexterity),
@@ -2230,6 +2505,11 @@ class Character extends DataClass implements Insertable<Character> {
       'inspiration': serializer.toJson<bool>(inspiration),
       'exhaustion': serializer.toJson<int>(exhaustion),
       'hitDiceUsed': serializer.toJson<int>(hitDiceUsed),
+      'copperPieces': serializer.toJson<int>(copperPieces),
+      'silverPieces': serializer.toJson<int>(silverPieces),
+      'electrumPieces': serializer.toJson<int>(electrumPieces),
+      'goldPieces': serializer.toJson<int>(goldPieces),
+      'platinumPieces': serializer.toJson<int>(platinumPieces),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -2241,6 +2521,9 @@ class Character extends DataClass implements Insertable<Character> {
     Value<String?> playerName = const Value.absent(),
     Value<String?> speciesId = const Value.absent(),
     Value<String?> backgroundId = const Value.absent(),
+    Value<String?> customBackgroundName = const Value.absent(),
+    String? customBackgroundSkills,
+    String? customBackgroundFeatures,
     String? notes,
     int? strength,
     int? dexterity,
@@ -2299,6 +2582,11 @@ class Character extends DataClass implements Insertable<Character> {
     bool? inspiration,
     int? exhaustion,
     int? hitDiceUsed,
+    int? copperPieces,
+    int? silverPieces,
+    int? electrumPieces,
+    int? goldPieces,
+    int? platinumPieces,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) => Character(
@@ -2307,6 +2595,14 @@ class Character extends DataClass implements Insertable<Character> {
     playerName: playerName.present ? playerName.value : this.playerName,
     speciesId: speciesId.present ? speciesId.value : this.speciesId,
     backgroundId: backgroundId.present ? backgroundId.value : this.backgroundId,
+    customBackgroundName:
+        customBackgroundName.present
+            ? customBackgroundName.value
+            : this.customBackgroundName,
+    customBackgroundSkills:
+        customBackgroundSkills ?? this.customBackgroundSkills,
+    customBackgroundFeatures:
+        customBackgroundFeatures ?? this.customBackgroundFeatures,
     notes: notes ?? this.notes,
     strength: strength ?? this.strength,
     dexterity: dexterity ?? this.dexterity,
@@ -2365,6 +2661,11 @@ class Character extends DataClass implements Insertable<Character> {
     inspiration: inspiration ?? this.inspiration,
     exhaustion: exhaustion ?? this.exhaustion,
     hitDiceUsed: hitDiceUsed ?? this.hitDiceUsed,
+    copperPieces: copperPieces ?? this.copperPieces,
+    silverPieces: silverPieces ?? this.silverPieces,
+    electrumPieces: electrumPieces ?? this.electrumPieces,
+    goldPieces: goldPieces ?? this.goldPieces,
+    platinumPieces: platinumPieces ?? this.platinumPieces,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -2379,6 +2680,18 @@ class Character extends DataClass implements Insertable<Character> {
           data.backgroundId.present
               ? data.backgroundId.value
               : this.backgroundId,
+      customBackgroundName:
+          data.customBackgroundName.present
+              ? data.customBackgroundName.value
+              : this.customBackgroundName,
+      customBackgroundSkills:
+          data.customBackgroundSkills.present
+              ? data.customBackgroundSkills.value
+              : this.customBackgroundSkills,
+      customBackgroundFeatures:
+          data.customBackgroundFeatures.present
+              ? data.customBackgroundFeatures.value
+              : this.customBackgroundFeatures,
       notes: data.notes.present ? data.notes.value : this.notes,
       strength: data.strength.present ? data.strength.value : this.strength,
       dexterity: data.dexterity.present ? data.dexterity.value : this.dexterity,
@@ -2561,6 +2874,24 @@ class Character extends DataClass implements Insertable<Character> {
           data.exhaustion.present ? data.exhaustion.value : this.exhaustion,
       hitDiceUsed:
           data.hitDiceUsed.present ? data.hitDiceUsed.value : this.hitDiceUsed,
+      copperPieces:
+          data.copperPieces.present
+              ? data.copperPieces.value
+              : this.copperPieces,
+      silverPieces:
+          data.silverPieces.present
+              ? data.silverPieces.value
+              : this.silverPieces,
+      electrumPieces:
+          data.electrumPieces.present
+              ? data.electrumPieces.value
+              : this.electrumPieces,
+      goldPieces:
+          data.goldPieces.present ? data.goldPieces.value : this.goldPieces,
+      platinumPieces:
+          data.platinumPieces.present
+              ? data.platinumPieces.value
+              : this.platinumPieces,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -2574,6 +2905,9 @@ class Character extends DataClass implements Insertable<Character> {
           ..write('playerName: $playerName, ')
           ..write('speciesId: $speciesId, ')
           ..write('backgroundId: $backgroundId, ')
+          ..write('customBackgroundName: $customBackgroundName, ')
+          ..write('customBackgroundSkills: $customBackgroundSkills, ')
+          ..write('customBackgroundFeatures: $customBackgroundFeatures, ')
           ..write('notes: $notes, ')
           ..write('strength: $strength, ')
           ..write('dexterity: $dexterity, ')
@@ -2632,6 +2966,11 @@ class Character extends DataClass implements Insertable<Character> {
           ..write('inspiration: $inspiration, ')
           ..write('exhaustion: $exhaustion, ')
           ..write('hitDiceUsed: $hitDiceUsed, ')
+          ..write('copperPieces: $copperPieces, ')
+          ..write('silverPieces: $silverPieces, ')
+          ..write('electrumPieces: $electrumPieces, ')
+          ..write('goldPieces: $goldPieces, ')
+          ..write('platinumPieces: $platinumPieces, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -2645,6 +2984,9 @@ class Character extends DataClass implements Insertable<Character> {
     playerName,
     speciesId,
     backgroundId,
+    customBackgroundName,
+    customBackgroundSkills,
+    customBackgroundFeatures,
     notes,
     strength,
     dexterity,
@@ -2703,6 +3045,11 @@ class Character extends DataClass implements Insertable<Character> {
     inspiration,
     exhaustion,
     hitDiceUsed,
+    copperPieces,
+    silverPieces,
+    electrumPieces,
+    goldPieces,
+    platinumPieces,
     createdAt,
     updatedAt,
   ]);
@@ -2715,6 +3062,9 @@ class Character extends DataClass implements Insertable<Character> {
           other.playerName == this.playerName &&
           other.speciesId == this.speciesId &&
           other.backgroundId == this.backgroundId &&
+          other.customBackgroundName == this.customBackgroundName &&
+          other.customBackgroundSkills == this.customBackgroundSkills &&
+          other.customBackgroundFeatures == this.customBackgroundFeatures &&
           other.notes == this.notes &&
           other.strength == this.strength &&
           other.dexterity == this.dexterity &&
@@ -2773,6 +3123,11 @@ class Character extends DataClass implements Insertable<Character> {
           other.inspiration == this.inspiration &&
           other.exhaustion == this.exhaustion &&
           other.hitDiceUsed == this.hitDiceUsed &&
+          other.copperPieces == this.copperPieces &&
+          other.silverPieces == this.silverPieces &&
+          other.electrumPieces == this.electrumPieces &&
+          other.goldPieces == this.goldPieces &&
+          other.platinumPieces == this.platinumPieces &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -2783,6 +3138,9 @@ class CharactersCompanion extends UpdateCompanion<Character> {
   final Value<String?> playerName;
   final Value<String?> speciesId;
   final Value<String?> backgroundId;
+  final Value<String?> customBackgroundName;
+  final Value<String> customBackgroundSkills;
+  final Value<String> customBackgroundFeatures;
   final Value<String> notes;
   final Value<int> strength;
   final Value<int> dexterity;
@@ -2841,6 +3199,11 @@ class CharactersCompanion extends UpdateCompanion<Character> {
   final Value<bool> inspiration;
   final Value<int> exhaustion;
   final Value<int> hitDiceUsed;
+  final Value<int> copperPieces;
+  final Value<int> silverPieces;
+  final Value<int> electrumPieces;
+  final Value<int> goldPieces;
+  final Value<int> platinumPieces;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
@@ -2850,6 +3213,9 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.playerName = const Value.absent(),
     this.speciesId = const Value.absent(),
     this.backgroundId = const Value.absent(),
+    this.customBackgroundName = const Value.absent(),
+    this.customBackgroundSkills = const Value.absent(),
+    this.customBackgroundFeatures = const Value.absent(),
     this.notes = const Value.absent(),
     this.strength = const Value.absent(),
     this.dexterity = const Value.absent(),
@@ -2908,6 +3274,11 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.inspiration = const Value.absent(),
     this.exhaustion = const Value.absent(),
     this.hitDiceUsed = const Value.absent(),
+    this.copperPieces = const Value.absent(),
+    this.silverPieces = const Value.absent(),
+    this.electrumPieces = const Value.absent(),
+    this.goldPieces = const Value.absent(),
+    this.platinumPieces = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -2918,6 +3289,9 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.playerName = const Value.absent(),
     this.speciesId = const Value.absent(),
     this.backgroundId = const Value.absent(),
+    this.customBackgroundName = const Value.absent(),
+    this.customBackgroundSkills = const Value.absent(),
+    this.customBackgroundFeatures = const Value.absent(),
     this.notes = const Value.absent(),
     this.strength = const Value.absent(),
     this.dexterity = const Value.absent(),
@@ -2976,6 +3350,11 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.inspiration = const Value.absent(),
     this.exhaustion = const Value.absent(),
     this.hitDiceUsed = const Value.absent(),
+    this.copperPieces = const Value.absent(),
+    this.silverPieces = const Value.absent(),
+    this.electrumPieces = const Value.absent(),
+    this.goldPieces = const Value.absent(),
+    this.platinumPieces = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
@@ -2989,6 +3368,9 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Expression<String>? playerName,
     Expression<String>? speciesId,
     Expression<String>? backgroundId,
+    Expression<String>? customBackgroundName,
+    Expression<String>? customBackgroundSkills,
+    Expression<String>? customBackgroundFeatures,
     Expression<String>? notes,
     Expression<int>? strength,
     Expression<int>? dexterity,
@@ -3047,6 +3429,11 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Expression<bool>? inspiration,
     Expression<int>? exhaustion,
     Expression<int>? hitDiceUsed,
+    Expression<int>? copperPieces,
+    Expression<int>? silverPieces,
+    Expression<int>? electrumPieces,
+    Expression<int>? goldPieces,
+    Expression<int>? platinumPieces,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -3057,6 +3444,12 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       if (playerName != null) 'player_name': playerName,
       if (speciesId != null) 'species_id': speciesId,
       if (backgroundId != null) 'background_id': backgroundId,
+      if (customBackgroundName != null)
+        'custom_background_name': customBackgroundName,
+      if (customBackgroundSkills != null)
+        'custom_background_skills': customBackgroundSkills,
+      if (customBackgroundFeatures != null)
+        'custom_background_features': customBackgroundFeatures,
       if (notes != null) 'notes': notes,
       if (strength != null) 'strength': strength,
       if (dexterity != null) 'dexterity': dexterity,
@@ -3118,6 +3511,11 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       if (inspiration != null) 'inspiration': inspiration,
       if (exhaustion != null) 'exhaustion': exhaustion,
       if (hitDiceUsed != null) 'hit_dice_used': hitDiceUsed,
+      if (copperPieces != null) 'copper_pieces': copperPieces,
+      if (silverPieces != null) 'silver_pieces': silverPieces,
+      if (electrumPieces != null) 'electrum_pieces': electrumPieces,
+      if (goldPieces != null) 'gold_pieces': goldPieces,
+      if (platinumPieces != null) 'platinum_pieces': platinumPieces,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -3130,6 +3528,9 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Value<String?>? playerName,
     Value<String?>? speciesId,
     Value<String?>? backgroundId,
+    Value<String?>? customBackgroundName,
+    Value<String>? customBackgroundSkills,
+    Value<String>? customBackgroundFeatures,
     Value<String>? notes,
     Value<int>? strength,
     Value<int>? dexterity,
@@ -3188,6 +3589,11 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Value<bool>? inspiration,
     Value<int>? exhaustion,
     Value<int>? hitDiceUsed,
+    Value<int>? copperPieces,
+    Value<int>? silverPieces,
+    Value<int>? electrumPieces,
+    Value<int>? goldPieces,
+    Value<int>? platinumPieces,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<int>? rowid,
@@ -3198,6 +3604,11 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       playerName: playerName ?? this.playerName,
       speciesId: speciesId ?? this.speciesId,
       backgroundId: backgroundId ?? this.backgroundId,
+      customBackgroundName: customBackgroundName ?? this.customBackgroundName,
+      customBackgroundSkills:
+          customBackgroundSkills ?? this.customBackgroundSkills,
+      customBackgroundFeatures:
+          customBackgroundFeatures ?? this.customBackgroundFeatures,
       notes: notes ?? this.notes,
       strength: strength ?? this.strength,
       dexterity: dexterity ?? this.dexterity,
@@ -3256,6 +3667,11 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       inspiration: inspiration ?? this.inspiration,
       exhaustion: exhaustion ?? this.exhaustion,
       hitDiceUsed: hitDiceUsed ?? this.hitDiceUsed,
+      copperPieces: copperPieces ?? this.copperPieces,
+      silverPieces: silverPieces ?? this.silverPieces,
+      electrumPieces: electrumPieces ?? this.electrumPieces,
+      goldPieces: goldPieces ?? this.goldPieces,
+      platinumPieces: platinumPieces ?? this.platinumPieces,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -3279,6 +3695,21 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     }
     if (backgroundId.present) {
       map['background_id'] = Variable<String>(backgroundId.value);
+    }
+    if (customBackgroundName.present) {
+      map['custom_background_name'] = Variable<String>(
+        customBackgroundName.value,
+      );
+    }
+    if (customBackgroundSkills.present) {
+      map['custom_background_skills'] = Variable<String>(
+        customBackgroundSkills.value,
+      );
+    }
+    if (customBackgroundFeatures.present) {
+      map['custom_background_features'] = Variable<String>(
+        customBackgroundFeatures.value,
+      );
     }
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
@@ -3454,6 +3885,21 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     if (hitDiceUsed.present) {
       map['hit_dice_used'] = Variable<int>(hitDiceUsed.value);
     }
+    if (copperPieces.present) {
+      map['copper_pieces'] = Variable<int>(copperPieces.value);
+    }
+    if (silverPieces.present) {
+      map['silver_pieces'] = Variable<int>(silverPieces.value);
+    }
+    if (electrumPieces.present) {
+      map['electrum_pieces'] = Variable<int>(electrumPieces.value);
+    }
+    if (goldPieces.present) {
+      map['gold_pieces'] = Variable<int>(goldPieces.value);
+    }
+    if (platinumPieces.present) {
+      map['platinum_pieces'] = Variable<int>(platinumPieces.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -3474,6 +3920,9 @@ class CharactersCompanion extends UpdateCompanion<Character> {
           ..write('playerName: $playerName, ')
           ..write('speciesId: $speciesId, ')
           ..write('backgroundId: $backgroundId, ')
+          ..write('customBackgroundName: $customBackgroundName, ')
+          ..write('customBackgroundSkills: $customBackgroundSkills, ')
+          ..write('customBackgroundFeatures: $customBackgroundFeatures, ')
           ..write('notes: $notes, ')
           ..write('strength: $strength, ')
           ..write('dexterity: $dexterity, ')
@@ -3532,6 +3981,11 @@ class CharactersCompanion extends UpdateCompanion<Character> {
           ..write('inspiration: $inspiration, ')
           ..write('exhaustion: $exhaustion, ')
           ..write('hitDiceUsed: $hitDiceUsed, ')
+          ..write('copperPieces: $copperPieces, ')
+          ..write('silverPieces: $silverPieces, ')
+          ..write('electrumPieces: $electrumPieces, ')
+          ..write('goldPieces: $goldPieces, ')
+          ..write('platinumPieces: $platinumPieces, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -6527,6 +6981,9 @@ typedef $$CharactersTableCreateCompanionBuilder =
       Value<String?> playerName,
       Value<String?> speciesId,
       Value<String?> backgroundId,
+      Value<String?> customBackgroundName,
+      Value<String> customBackgroundSkills,
+      Value<String> customBackgroundFeatures,
       Value<String> notes,
       Value<int> strength,
       Value<int> dexterity,
@@ -6585,6 +7042,11 @@ typedef $$CharactersTableCreateCompanionBuilder =
       Value<bool> inspiration,
       Value<int> exhaustion,
       Value<int> hitDiceUsed,
+      Value<int> copperPieces,
+      Value<int> silverPieces,
+      Value<int> electrumPieces,
+      Value<int> goldPieces,
+      Value<int> platinumPieces,
       required DateTime createdAt,
       required DateTime updatedAt,
       Value<int> rowid,
@@ -6596,6 +7058,9 @@ typedef $$CharactersTableUpdateCompanionBuilder =
       Value<String?> playerName,
       Value<String?> speciesId,
       Value<String?> backgroundId,
+      Value<String?> customBackgroundName,
+      Value<String> customBackgroundSkills,
+      Value<String> customBackgroundFeatures,
       Value<String> notes,
       Value<int> strength,
       Value<int> dexterity,
@@ -6654,6 +7119,11 @@ typedef $$CharactersTableUpdateCompanionBuilder =
       Value<bool> inspiration,
       Value<int> exhaustion,
       Value<int> hitDiceUsed,
+      Value<int> copperPieces,
+      Value<int> silverPieces,
+      Value<int> electrumPieces,
+      Value<int> goldPieces,
+      Value<int> platinumPieces,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<int> rowid,
@@ -6801,6 +7271,21 @@ class $$CharactersTableFilterComposer
 
   ColumnFilters<String> get backgroundId => $composableBuilder(
     column: $table.backgroundId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customBackgroundName => $composableBuilder(
+    column: $table.customBackgroundName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customBackgroundSkills => $composableBuilder(
+    column: $table.customBackgroundSkills,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customBackgroundFeatures => $composableBuilder(
+    column: $table.customBackgroundFeatures,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7094,6 +7579,31 @@ class $$CharactersTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<int> get copperPieces => $composableBuilder(
+    column: $table.copperPieces,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get silverPieces => $composableBuilder(
+    column: $table.silverPieces,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get electrumPieces => $composableBuilder(
+    column: $table.electrumPieces,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get goldPieces => $composableBuilder(
+    column: $table.goldPieces,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get platinumPieces => $composableBuilder(
+    column: $table.platinumPieces,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnFilters(column),
@@ -7238,6 +7748,21 @@ class $$CharactersTableOrderingComposer
 
   ColumnOrderings<String> get backgroundId => $composableBuilder(
     column: $table.backgroundId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customBackgroundName => $composableBuilder(
+    column: $table.customBackgroundName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customBackgroundSkills => $composableBuilder(
+    column: $table.customBackgroundSkills,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customBackgroundFeatures => $composableBuilder(
+    column: $table.customBackgroundFeatures,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -7531,6 +8056,31 @@ class $$CharactersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get copperPieces => $composableBuilder(
+    column: $table.copperPieces,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get silverPieces => $composableBuilder(
+    column: $table.silverPieces,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get electrumPieces => $composableBuilder(
+    column: $table.electrumPieces,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get goldPieces => $composableBuilder(
+    column: $table.goldPieces,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get platinumPieces => $composableBuilder(
+    column: $table.platinumPieces,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -7567,6 +8117,21 @@ class $$CharactersTableAnnotationComposer
 
   GeneratedColumn<String> get backgroundId => $composableBuilder(
     column: $table.backgroundId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get customBackgroundName => $composableBuilder(
+    column: $table.customBackgroundName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get customBackgroundSkills => $composableBuilder(
+    column: $table.customBackgroundSkills,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get customBackgroundFeatures => $composableBuilder(
+    column: $table.customBackgroundFeatures,
     builder: (column) => column,
   );
 
@@ -7844,6 +8409,31 @@ class $$CharactersTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<int> get copperPieces => $composableBuilder(
+    column: $table.copperPieces,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get silverPieces => $composableBuilder(
+    column: $table.silverPieces,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get electrumPieces => $composableBuilder(
+    column: $table.electrumPieces,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get goldPieces => $composableBuilder(
+    column: $table.goldPieces,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get platinumPieces => $composableBuilder(
+    column: $table.platinumPieces,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -7993,6 +8583,9 @@ class $$CharactersTableTableManager
                 Value<String?> playerName = const Value.absent(),
                 Value<String?> speciesId = const Value.absent(),
                 Value<String?> backgroundId = const Value.absent(),
+                Value<String?> customBackgroundName = const Value.absent(),
+                Value<String> customBackgroundSkills = const Value.absent(),
+                Value<String> customBackgroundFeatures = const Value.absent(),
                 Value<String> notes = const Value.absent(),
                 Value<int> strength = const Value.absent(),
                 Value<int> dexterity = const Value.absent(),
@@ -8051,6 +8644,11 @@ class $$CharactersTableTableManager
                 Value<bool> inspiration = const Value.absent(),
                 Value<int> exhaustion = const Value.absent(),
                 Value<int> hitDiceUsed = const Value.absent(),
+                Value<int> copperPieces = const Value.absent(),
+                Value<int> silverPieces = const Value.absent(),
+                Value<int> electrumPieces = const Value.absent(),
+                Value<int> goldPieces = const Value.absent(),
+                Value<int> platinumPieces = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -8060,6 +8658,9 @@ class $$CharactersTableTableManager
                 playerName: playerName,
                 speciesId: speciesId,
                 backgroundId: backgroundId,
+                customBackgroundName: customBackgroundName,
+                customBackgroundSkills: customBackgroundSkills,
+                customBackgroundFeatures: customBackgroundFeatures,
                 notes: notes,
                 strength: strength,
                 dexterity: dexterity,
@@ -8118,6 +8719,11 @@ class $$CharactersTableTableManager
                 inspiration: inspiration,
                 exhaustion: exhaustion,
                 hitDiceUsed: hitDiceUsed,
+                copperPieces: copperPieces,
+                silverPieces: silverPieces,
+                electrumPieces: electrumPieces,
+                goldPieces: goldPieces,
+                platinumPieces: platinumPieces,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,
@@ -8129,6 +8735,9 @@ class $$CharactersTableTableManager
                 Value<String?> playerName = const Value.absent(),
                 Value<String?> speciesId = const Value.absent(),
                 Value<String?> backgroundId = const Value.absent(),
+                Value<String?> customBackgroundName = const Value.absent(),
+                Value<String> customBackgroundSkills = const Value.absent(),
+                Value<String> customBackgroundFeatures = const Value.absent(),
                 Value<String> notes = const Value.absent(),
                 Value<int> strength = const Value.absent(),
                 Value<int> dexterity = const Value.absent(),
@@ -8187,6 +8796,11 @@ class $$CharactersTableTableManager
                 Value<bool> inspiration = const Value.absent(),
                 Value<int> exhaustion = const Value.absent(),
                 Value<int> hitDiceUsed = const Value.absent(),
+                Value<int> copperPieces = const Value.absent(),
+                Value<int> silverPieces = const Value.absent(),
+                Value<int> electrumPieces = const Value.absent(),
+                Value<int> goldPieces = const Value.absent(),
+                Value<int> platinumPieces = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
                 Value<int> rowid = const Value.absent(),
@@ -8196,6 +8810,9 @@ class $$CharactersTableTableManager
                 playerName: playerName,
                 speciesId: speciesId,
                 backgroundId: backgroundId,
+                customBackgroundName: customBackgroundName,
+                customBackgroundSkills: customBackgroundSkills,
+                customBackgroundFeatures: customBackgroundFeatures,
                 notes: notes,
                 strength: strength,
                 dexterity: dexterity,
@@ -8254,6 +8871,11 @@ class $$CharactersTableTableManager
                 inspiration: inspiration,
                 exhaustion: exhaustion,
                 hitDiceUsed: hitDiceUsed,
+                copperPieces: copperPieces,
+                silverPieces: silverPieces,
+                electrumPieces: electrumPieces,
+                goldPieces: goldPieces,
+                platinumPieces: platinumPieces,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,

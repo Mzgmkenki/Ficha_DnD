@@ -5,6 +5,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/combat_stats.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/custom_background.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
@@ -14,6 +15,7 @@ import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart
 import 'package:dnd_ficha_app/features/character/domain/value_objects/spellcasting_type.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart'
     as compendium_providers;
+import 'package:dnd_ficha_app/features/compendium/domain/entities/background_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
 import 'package:flutter/material.dart';
@@ -31,10 +33,17 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _playerController = TextEditingController();
+  final _customBackgroundNameController = TextEditingController();
+  final _customBackgroundFeaturesController = TextEditingController();
 
   String? _selectedClassId;
   String? _selectedRaceId;
   String? _selectedSubraceId;
+  String? _selectedBackgroundId;
+
+  /// Perícias do antecedente customizável (um antecedente concede duas).
+  String? _customBackgroundSkillOne;
+  String? _customBackgroundSkillTwo;
 
   final Set<String> _selectedSkills = {};
 
@@ -65,13 +74,27 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
   void dispose() {
     _nameController.dispose();
     _playerController.dispose();
+    _customBackgroundNameController.dispose();
+    _customBackgroundFeaturesController.dispose();
     super.dispose();
   }
+
+  bool get _isCustomBackground =>
+      _selectedBackgroundId == BackgroundEntry.customId;
 
   @override
   Widget build(BuildContext context) {
     final classesAsync = ref.watch(compendium_providers.classEntriesProvider);
     final racesAsync = ref.watch(compendium_providers.raceEntriesProvider);
+    // Não bloqueia o formulário: se ainda estiver carregando, o dropdown de
+    // antecedente simplesmente não aparece.
+    final backgrounds =
+        ref.watch(compendium_providers.backgroundEntriesProvider).value ??
+            const <BackgroundEntry>[];
+
+    // Busca tolerante: enquanto os antecedentes carregam (ou se o id salvo
+    // sumir da lista) o formulário continua funcionando.
+    final selectedBackground = _findBackground(backgrounds);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Criar Personagem')),
@@ -214,6 +237,36 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                           return null;
                         },
                       ),
+                    ],
+                    if (backgrounds.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<String>(
+                        initialValue: _selectedBackgroundId,
+                        decoration: const InputDecoration(
+                          labelText: 'Antecedente',
+                        ),
+                        items: backgrounds
+                            .map(
+                              (item) => DropdownMenuItem<String>(
+                                value: item.id,
+                                child: Text(item.name),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() => _selectedBackgroundId = value);
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Selecione um antecedente.';
+                          }
+                          return null;
+                        },
+                      ),
+                      if (selectedBackground != null &&
+                          !selectedBackground.isCustom)
+                        _BackgroundSummary(background: selectedBackground),
+                      if (_isCustomBackground) _buildCustomBackgroundCard(),
                     ],
                     const SizedBox(height: 12),
                     _RaceSummaryCard(
@@ -379,6 +432,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                                 classes,
                                 combinedRace,
                                 effectiveClassId,
+                                backgrounds,
                               ),
                       icon: _saving
                           ? const SizedBox(
@@ -405,6 +459,118 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
           return Center(child: Text('Erro ao carregar classes: $error'));
         },
         loading: () => const Center(child: CircularProgressIndicator()),
+      ),
+    );
+  }
+
+  BackgroundEntry? _findBackground(List<BackgroundEntry> backgrounds) {
+    for (final item in backgrounds) {
+      if (item.id == _selectedBackgroundId) return item;
+    }
+    return null;
+  }
+
+  /// Formulário do "Antecedente Customizável": nome opcional, as duas perícias
+  /// concedidas e o texto de características.
+  Widget _buildCustomBackgroundCard() {
+    final skills = Skill.sortedByLabel;
+
+    List<DropdownMenuItem<String>> itemsExcept(String? excludedId) {
+      return skills
+          .where((skill) => skill.id != excludedId)
+          .map(
+            (skill) => DropdownMenuItem<String>(
+              value: skill.id,
+              child: Text('${skill.label} (${skill.abbreviation})'),
+            ),
+          )
+          .toList();
+    }
+
+    return Card(
+      margin: const EdgeInsets.only(top: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Monte o seu antecedente',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Um antecedente concede proficiência em duas perícias.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _customBackgroundNameController,
+              decoration: const InputDecoration(
+                labelText: 'Nome do antecedente (opcional)',
+                hintText: 'Ex.: Caçador de Recompensas',
+              ),
+              textCapitalization: TextCapitalization.sentences,
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              initialValue: _customBackgroundSkillOne,
+              decoration: const InputDecoration(
+                labelText: 'Primeira perícia',
+              ),
+              items: itemsExcept(null),
+              onChanged: (value) {
+                setState(() {
+                  final previous = _customBackgroundSkillOne;
+                  _customBackgroundSkillOne = value;
+                  // Evita as duas perícias iguais: troca com a anterior em vez
+                  // de limpar, para o segundo dropdown nunca ficar com um
+                  // valor que saiu da lista de opções.
+                  if (_customBackgroundSkillTwo == value) {
+                    _customBackgroundSkillTwo = previous;
+                  }
+                });
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Escolha a primeira perícia.';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              initialValue: _customBackgroundSkillTwo,
+              decoration: const InputDecoration(
+                labelText: 'Segunda perícia',
+              ),
+              items: itemsExcept(_customBackgroundSkillOne),
+              onChanged: (value) {
+                setState(() => _customBackgroundSkillTwo = value);
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Escolha a segunda perícia.';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _customBackgroundFeaturesController,
+              decoration: const InputDecoration(
+                labelText: 'Características do antecedente',
+                hintText: 'Descreva o que o antecedente concede, sua história, '
+                    'contatos, ferramentas...',
+                alignLabelWithHint: true,
+              ),
+              minLines: 4,
+              maxLines: 10,
+              keyboardType: TextInputType.multiline,
+              textCapitalization: TextCapitalization.sentences,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -491,12 +657,43 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
     List<ClassEntry> classes,
     _CombinedRaceData selectedRace,
     String effectiveClassId,
+    List<BackgroundEntry> backgrounds,
   ) async {
     if (!_formKey.currentState!.validate()) return;
+
+    // O formulário é um ListView: os campos que saem da viewport são
+    // desmontados e se desregistram do Form, então `validate()` não enxerga
+    // mais os validators deles. As regras que não podem escapar são checadas
+    // aqui de novo, contra o estado, e não contra a árvore de widgets.
+    final missing = <String>[
+      if (_nameController.text.trim().isEmpty) 'o nome do personagem',
+      if (_isCustomBackground &&
+          (_customBackgroundSkillOne == null ||
+              _customBackgroundSkillTwo == null))
+        'as duas perícias do antecedente',
+    ];
+
+    if (missing.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Falta preencher ${missing.join(' e ')}.')),
+      );
+      return;
+    }
 
     final selectedClass = classes.firstWhere(
       (item) => item.id == effectiveClassId,
     );
+
+    final background = _findBackground(backgrounds);
+
+    // No antecedente customizável as perícias e as características vêm do
+    // formulário, não do compêndio.
+    final customBackground = _isCustomBackground
+        ? _buildCustomBackground()
+        : const CustomBackground();
+    final backgroundSkills = _isCustomBackground
+        ? customBackground.skills
+        : (background?.skills ?? const <Skill>[]);
 
     setState(() {
       _saving = true;
@@ -524,6 +721,8 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
             ? null
             : _playerController.text.trim(),
         speciesId: selectedRace.idToSave,
+        backgroundId: _selectedBackgroundId,
+        customBackground: customBackground,
         abilityScores: finalScores,
         classLevels: [
           ClassLevel(
@@ -541,7 +740,8 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
           speedInSquares: selectedRace.speed ?? 9,
         ),
         savingThrowProficiencies: _savingThrowsForClass(selectedClass),
-        skillProficiencies: _buildSkillProficienciesFromSelection(),
+        skillProficiencies:
+            _buildSkillProficienciesFromSelection(backgroundSkills),
         createdAt: now,
         updatedAt: now,
       );
@@ -626,13 +826,35 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
     );
   }
 
-  SkillProficiencies _buildSkillProficienciesFromSelection() {
+  /// Monta o antecedente criado pelo jogador a partir do formulário.
+  CustomBackground _buildCustomBackground() {
+    final name = _customBackgroundNameController.text.trim();
+
+    return CustomBackground(
+      name: name.isEmpty ? null : name,
+      skillIds: [
+        if (_customBackgroundSkillOne != null) _customBackgroundSkillOne!,
+        if (_customBackgroundSkillTwo != null) _customBackgroundSkillTwo!,
+      ],
+      features: _customBackgroundFeaturesController.text.trim(),
+    );
+  }
+
+  /// Combina as perícias escolhidas manualmente com as concedidas pelo
+  /// antecedente (o antecedente sempre dá proficiência).
+  SkillProficiencies _buildSkillProficienciesFromSelection(
+    List<Skill> backgroundSkills,
+  ) {
     final levels = <Skill, ProficiencyLevel>{};
 
     for (final skill in Skill.values) {
       if (_selectedSkills.contains(skill.id)) {
         levels[skill] = ProficiencyLevel.proficient;
       }
+    }
+
+    for (final skill in backgroundSkills) {
+      levels[skill] = ProficiencyLevel.proficient;
     }
 
     return SkillProficiencies(levels: levels);
@@ -699,6 +921,65 @@ class _CombinedRaceData {
   final Map<String, int> fixedAbilityBonuses;
   final List<String> traits;
   final List<String> languages;
+}
+
+/// Mostra o que o antecedente concede, para o jogador entender a escolha.
+class _BackgroundSummary extends StatelessWidget {
+  const _BackgroundSummary({required this.background});
+
+  final BackgroundEntry background;
+
+  @override
+  Widget build(BuildContext context) {
+    final skillLabels = background.skills.map((s) => s.label).join(', ');
+
+    return Card(
+      margin: const EdgeInsets.only(top: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (background.description != null)
+              Text(background.description!),
+            if (skillLabels.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(
+                'Perícias concedidas: $skillLabels',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+            if (background.tools.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(
+                'Ferramentas: ${background.tools.join(', ')}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+            if (background.languages > 0) ...[
+              const SizedBox(height: 4),
+              Text(
+                'Idiomas adicionais: ${background.languages}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+            if (background.featureName != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                background.featureName!,
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+              if (background.featureDescription != null)
+                Text(
+                  background.featureDescription!,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _RaceSummaryCard extends StatelessWidget {

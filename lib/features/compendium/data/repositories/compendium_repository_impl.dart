@@ -1,5 +1,6 @@
 import 'package:dnd_ficha_app/features/compendium/data/sources/srd_asset_source.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/ability_score_rule.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/background_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_choice_group.dart';
@@ -111,6 +112,40 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
         tags: rawTags.map((e) => e.toString()).toList(growable: false),
       );
     }).toList(growable: false);
+  }
+
+  @override
+  Future<List<BackgroundEntry>> loadBackgrounds() async {
+    final items =
+        await _source.loadJsonList('assets/data/srd/backgrounds.json');
+
+    final entries = items.map((item) {
+      return BackgroundEntry(
+        id: item['id'] as String,
+        name: item['name'] as String,
+        description: item['description'] as String?,
+        skillIds: _asList(item['skills'])
+            .map((e) => e.toString())
+            .toList(growable: false),
+        languages: _asInt(item['languages']) ?? 0,
+        tools: _asList(item['tools'])
+            .map((e) => e.toString())
+            .toList(growable: false),
+        featureName: item['feature_name'] as String?,
+        featureDescription: item['feature_description'] as String?,
+        startingGold: _asInt(item['starting_gold']) ?? 0,
+        source: item['source'] as String? ?? 'phb',
+      );
+    }).toList();
+
+    // "Antecedente Customizável" não vem do JSON: é uma opção sintética que
+    // libera o jogador para montar o próprio antecedente. Fica sempre no fim
+    // da lista, depois dos antecedentes oficiais.
+    if (!entries.any((entry) => entry.isCustom)) {
+      entries.add(BackgroundEntry.customOption);
+    }
+
+    return List<BackgroundEntry>.unmodifiable(entries);
   }
 
   @override

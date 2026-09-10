@@ -1,14 +1,17 @@
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/edit_ability_scores_page.dart';
+import 'package:dnd_ficha_app/features/character/presentation/pages/edit_armor_class_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/edit_class_levels_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/edit_hit_points_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/edit_proficiencies_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/manage_character_magic_items_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/manage_character_spells_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/ability_score_block.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/background_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/character_spells_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/class_features_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/combat_summary_card.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/currency_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/magic_items_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/racial_traits_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/rest_and_resources_panel.dart';
@@ -122,6 +125,21 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                         ),
                       );
                     },
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton.icon(
+                      onPressed: () async {
+                        await Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                EditArmorClassPage(character: character),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.shield_outlined),
+                      label: const Text('Calcular CA'),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   CombatSummaryCard(character: character),
@@ -272,6 +290,17 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                   ),
                   const SizedBox(height: 8),
                   MagicItemsPanel(character: character),
+
+                  const SizedBox(height: 16),
+                  CurrencyPanel(character: character),
+
+                  const SizedBox(height: 16),
+                  const _SectionHeader(title: 'Antecedente'),
+                  const SizedBox(height: 8),
+                  BackgroundPanel(
+                    backgroundId: character.backgroundId,
+                    customBackground: character.customBackground,
+                  ),
 
                   const SizedBox(height: 16),
                   const _SectionHeader(title: 'Características raciais'),

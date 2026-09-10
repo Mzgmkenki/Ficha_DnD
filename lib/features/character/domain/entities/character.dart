@@ -3,6 +3,8 @@ import 'package:dnd_ficha_app/features/character/domain/entities/character_magic
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/combat_stats.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/currency.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/custom_background.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
@@ -24,6 +26,7 @@ class Character {
     this.playerName,
     this.speciesId,
     this.backgroundId,
+    this.customBackground = const CustomBackground(),
     this.notes = '',
     this.savingThrowProficiencies = const SavingThrowProficiencies(),
     this.skillProficiencies = const SkillProficiencies(),
@@ -32,6 +35,7 @@ class Character {
     this.inspiration = false,
     this.exhaustion = 0,
     this.hitDiceUsed = 0,
+    this.currency = const Currency(),
   });
 
   final String id;
@@ -39,6 +43,12 @@ class Character {
   final String? playerName;
   final String? speciesId;
   final String? backgroundId;
+
+  /// Dados do antecedente criado pelo jogador. Só é usado quando
+  /// [backgroundId] é `'custom'` (`BackgroundEntry.customId`); nos demais
+  /// casos o antecedente vem do compêndio.
+  final CustomBackground customBackground;
+
   final AbilityScores abilityScores;
   final List<ClassLevel> classLevels;
   final HitPoints hitPoints;
@@ -58,6 +68,9 @@ class Character {
 
   /// Dados de vida gastos desde o último descanso longo.
   final int hitDiceUsed;
+
+  /// Moedas carregadas pelo personagem.
+  final Currency currency;
 
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -82,6 +95,7 @@ class Character {
     Object? playerName = _sentinel,
     Object? speciesId = _sentinel,
     Object? backgroundId = _sentinel,
+    CustomBackground? customBackground,
     AbilityScores? abilityScores,
     List<ClassLevel>? classLevels,
     HitPoints? hitPoints,
@@ -94,6 +108,7 @@ class Character {
     bool? inspiration,
     int? exhaustion,
     int? hitDiceUsed,
+    Currency? currency,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -109,6 +124,7 @@ class Character {
       backgroundId: backgroundId == _sentinel
           ? this.backgroundId
           : backgroundId as String?,
+      customBackground: customBackground ?? this.customBackground,
       abilityScores: abilityScores ?? this.abilityScores,
       classLevels: classLevels ?? this.classLevels,
       hitPoints: hitPoints ?? this.hitPoints,
@@ -122,6 +138,7 @@ class Character {
       inspiration: inspiration ?? this.inspiration,
       exhaustion: exhaustion ?? this.exhaustion,
       hitDiceUsed: hitDiceUsed ?? this.hitDiceUsed,
+      currency: currency ?? this.currency,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

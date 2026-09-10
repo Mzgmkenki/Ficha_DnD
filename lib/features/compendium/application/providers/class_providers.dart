@@ -1,4 +1,5 @@
 import 'package:dnd_ficha_app/core/di/providers.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/background_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
@@ -13,6 +14,21 @@ final classEntriesProvider = FutureProvider<List<ClassEntry>>((ref) async {
 final raceEntriesProvider = FutureProvider<List<RaceEntry>>((ref) async {
   final repository = ref.watch(compendiumRepositoryProvider);
   return repository.loadRaces();
+});
+
+final backgroundEntriesProvider =
+    FutureProvider<List<BackgroundEntry>>((ref) async {
+  final repository = ref.watch(compendiumRepositoryProvider);
+  return repository.loadBackgrounds();
+});
+
+final backgroundByIdProvider =
+    FutureProvider.family<BackgroundEntry?, String>((ref, id) async {
+  final backgrounds = await ref.watch(backgroundEntriesProvider.future);
+  for (final item in backgrounds) {
+    if (item.id == id) return item;
+  }
+  return null;
 });
 
 final raceByIdProvider =

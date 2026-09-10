@@ -33,6 +33,12 @@ class CharacterRepositoryImpl implements CharacterRepository {
               playerName: drift.Value(character.playerName),
               speciesId: drift.Value(character.speciesId),
               backgroundId: drift.Value(character.backgroundId),
+              customBackgroundName:
+                  drift.Value(character.customBackground.name),
+              customBackgroundSkills:
+                  drift.Value(character.customBackground.skillIdsAsCsv),
+              customBackgroundFeatures:
+                  drift.Value(character.customBackground.features),
               notes: drift.Value(character.notes),
               strength: drift.Value(character.abilityScores.strength),
               dexterity: drift.Value(character.abilityScores.dexterity),
@@ -113,6 +119,11 @@ class CharacterRepositoryImpl implements CharacterRepository {
               inspiration: drift.Value(character.inspiration),
               exhaustion: drift.Value(character.exhaustion),
               hitDiceUsed: drift.Value(character.hitDiceUsed),
+              copperPieces: drift.Value(character.currency.copper),
+              silverPieces: drift.Value(character.currency.silver),
+              electrumPieces: drift.Value(character.currency.electrum),
+              goldPieces: drift.Value(character.currency.gold),
+              platinumPieces: drift.Value(character.currency.platinum),
               createdAt: character.createdAt,
               updatedAt: character.updatedAt,
             ),
@@ -350,6 +361,11 @@ class CharacterRepositoryImpl implements CharacterRepository {
           playerName: drift.Value(character.playerName),
           speciesId: drift.Value(character.speciesId),
           backgroundId: drift.Value(character.backgroundId),
+          customBackgroundName: drift.Value(character.customBackground.name),
+          customBackgroundSkills:
+              drift.Value(character.customBackground.skillIdsAsCsv),
+          customBackgroundFeatures:
+              drift.Value(character.customBackground.features),
           notes: drift.Value(character.notes),
           strength: drift.Value(character.abilityScores.strength),
           dexterity: drift.Value(character.abilityScores.dexterity),
@@ -429,6 +445,11 @@ class CharacterRepositoryImpl implements CharacterRepository {
           inspiration: drift.Value(character.inspiration),
           exhaustion: drift.Value(character.exhaustion),
           hitDiceUsed: drift.Value(character.hitDiceUsed),
+          copperPieces: drift.Value(character.currency.copper),
+          silverPieces: drift.Value(character.currency.silver),
+          electrumPieces: drift.Value(character.currency.electrum),
+          goldPieces: drift.Value(character.currency.gold),
+          platinumPieces: drift.Value(character.currency.platinum),
           updatedAt: drift.Value(character.updatedAt),
         ),
       );

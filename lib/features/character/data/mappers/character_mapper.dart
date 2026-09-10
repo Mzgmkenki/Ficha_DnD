@@ -3,6 +3,8 @@ import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart' as domain;
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/combat_stats.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/currency.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/custom_background.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
@@ -22,6 +24,13 @@ class CharacterMapper {
       playerName: character.playerName,
       speciesId: character.speciesId,
       backgroundId: character.backgroundId,
+      customBackground: CustomBackground(
+        name: character.customBackgroundName,
+        skillIds: CustomBackground.parseSkillIdsCsv(
+          character.customBackgroundSkills,
+        ),
+        features: character.customBackgroundFeatures,
+      ),
       notes: character.notes,
 
       abilityScores: AbilityScores(
@@ -93,6 +102,14 @@ class CharacterMapper {
       inspiration: character.inspiration,
       exhaustion: character.exhaustion,
       hitDiceUsed: character.hitDiceUsed,
+
+      currency: Currency(
+        copper: character.copperPieces,
+        silver: character.silverPieces,
+        electrum: character.electrumPieces,
+        gold: character.goldPieces,
+        platinum: character.platinumPieces,
+      ),
 
       createdAt: character.createdAt,
       updatedAt: character.updatedAt,

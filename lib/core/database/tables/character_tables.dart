@@ -6,6 +6,20 @@ class Characters extends Table {
   TextColumn get playerName => text().nullable()();
   TextColumn get speciesId => text().nullable()();
   TextColumn get backgroundId => text().nullable()();
+
+  // Antecedente customizável: usado quando background_id == 'custom'. O
+  // compêndio é somente leitura, então o antecedente criado pelo jogador
+  // precisa morar no próprio personagem.
+  TextColumn get customBackgroundName => text().nullable()();
+
+  /// Ids das perícias do antecedente customizado, separados por vírgula.
+  TextColumn get customBackgroundSkills =>
+      text().withDefault(const Constant(''))();
+
+  /// Texto livre com as características do antecedente customizado.
+  TextColumn get customBackgroundFeatures =>
+      text().withDefault(const Constant(''))();
+
   TextColumn get notes => text().withDefault(const Constant(''))();
 
   IntColumn get strength => integer().withDefault(const Constant(10))();
@@ -95,6 +109,13 @@ class Characters extends Table {
 
   /// Dados de vida já gastos desde o último descanso longo.
   IntColumn get hitDiceUsed => integer().withDefault(const Constant(0))();
+
+  // Moedas (PC, PP, PE, PO, PL).
+  IntColumn get copperPieces => integer().withDefault(const Constant(0))();
+  IntColumn get silverPieces => integer().withDefault(const Constant(0))();
+  IntColumn get electrumPieces => integer().withDefault(const Constant(0))();
+  IntColumn get goldPieces => integer().withDefault(const Constant(0))();
+  IntColumn get platinumPieces => integer().withDefault(const Constant(0))();
 
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
