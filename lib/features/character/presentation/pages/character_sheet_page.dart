@@ -362,40 +362,17 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
     );
   }
 
-  bool _isCaster(dynamic character, List<ClassEntry> classes) {
+  /// Usa o compêndio como fonte da verdade.
+  ///
+  /// Antes havia também uma lista de ids fixa aqui, que ignorava
+  /// `ClassEntry.isSpellcaster`: classe nova ou homebrew marcada como
+  /// conjuradora no compêndio não aparecia como tal na ficha.
+  bool _isCaster(Character character, List<ClassEntry> classes) {
     for (final classLevel in character.classLevels) {
-      final entry = classes.where((c) => c.id == classLevel.classId).cast<ClassEntry?>().firstWhere(
-            (c) => c != null,
-            orElse: () => null,
-          );
-
-      final id = classLevel.classId.toString().trim().toLowerCase();
-      final type = entry?.spellcastingType?.trim().toLowerCase();
-
-      if (type == 'full' || type == 'half' || type == 'third' || type == 'pact') {
-        return true;
-      }
-
-      switch (id) {
-        case 'wizard':
-        case 'mago':
-        case 'cleric':
-        case 'clérigo':
-        case 'druid':
-        case 'druida':
-        case 'bard':
-        case 'bardo':
-        case 'sorcerer':
-        case 'feiticeiro':
-        case 'warlock':
-        case 'bruxo':
-        case 'paladin':
-        case 'paladino':
-        case 'ranger':
-        case 'patrulheiro':
-        case 'artificer':
-        case 'artífice':
+      for (final entry in classes) {
+        if (entry.id == classLevel.classId && entry.isSpellcaster) {
           return true;
+        }
       }
     }
 

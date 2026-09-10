@@ -327,16 +327,31 @@ class CharacterRepositoryImpl implements CharacterRepository {
         .go();
   }
 
-  /// Reemite a cada mudança em qualquer tabela do personagem. O `findById`
-  /// já monta o agregado completo (níveis, magias, itens e magias de item),
-  /// então basta reexecutá-lo quando algo muda.
+  /// Reemite a cada mudança nas tabelas que compõem o agregado. O `findById`
+  /// remonta o personagem inteiro (níveis, magias, itens e magias de item),
+  /// então basta reexecutá-lo quando uma delas muda.
+  ///
+  /// O filtro por tabela importa: sem ele, escrever em qualquer tabela do
+  /// banco — inclusive as de uso de espaços de magia, que mudam a cada
+  /// clique — disparava a remontagem completa do agregado.
   @override
   Stream<domain.Character?> watchById(String id) async* {
     yield await findById(id);
 
-    await for (final _ in _database.tableUpdates()) {
+    await for (final _ in _database.tableUpdates(_aggregateTables)) {
       yield await findById(id);
     }
+  }
+
+  /// Tabelas lidas por [findById].
+  drift.TableUpdateQuery get _aggregateTables {
+    return drift.TableUpdateQuery.onAllTables([
+      _database.characters,
+      _database.characterClassLevels,
+      _database.characterSpells,
+      _database.characterMagicItems,
+      _database.characterMagicItemSpells,
+    ]);
   }
 
   @override

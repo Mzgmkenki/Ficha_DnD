@@ -227,16 +227,16 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
       return;
     }
 
-    String selectedClassId = availableClasses.first.id;
+    // Guarda a própria entrada em vez do id: antes o diálogo reencontrava a
+    // classe com `firstWhere` sem `orElse`, inclusive depois do await, o que
+    // seria um StateError não tratado se a lista mudasse.
+    ClassEntry selectedClass = availableClasses.first;
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
         return StatefulBuilder(
           builder: (dialogContext, setDialogState) {
-            final selectedClass = availableClasses.firstWhere(
-              (item) => item.id == selectedClassId,
-            );
             final missingForNewClass =
                 _missingPrerequisitesForClass(selectedClass.id);
 
@@ -245,16 +245,16 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  DropdownButtonFormField<String>(
-                    initialValue: selectedClassId,
+                  DropdownButtonFormField<ClassEntry>(
+                    initialValue: selectedClass,
                     decoration: const InputDecoration(
                       labelText: 'Classe',
                       border: OutlineInputBorder(),
                     ),
                     items: availableClasses
                         .map(
-                          (item) => DropdownMenuItem<String>(
-                            value: item.id,
+                          (item) => DropdownMenuItem<ClassEntry>(
+                            value: item,
                             child: Text(item.name),
                           ),
                         )
@@ -262,7 +262,7 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
                     onChanged: (value) {
                       if (value == null) return;
                       setDialogState(() {
-                        selectedClassId = value;
+                        selectedClass = value;
                       });
                     },
                   ),
@@ -302,10 +302,6 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
     );
 
     if (confirmed != true) return;
-
-    final selectedClass = availableClasses.firstWhere(
-      (item) => item.id == selectedClassId,
-    );
 
     final missingForNewClass = _missingPrerequisitesForClass(selectedClass.id);
     if (missingForNewClass != null) {

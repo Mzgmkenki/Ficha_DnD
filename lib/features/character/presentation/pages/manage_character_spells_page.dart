@@ -1,6 +1,8 @@
+﻿import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/character_spells_panel.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/spell_providers.dart';
@@ -1156,17 +1158,11 @@ class _ManageCharacterSpellsPageState
       }).length;
     }
 
-    int abilityModifier(String abilityName) {
-      switch (abilityName) {
-        case 'wisdom':
-          return ((character.abilityScores.wisdom - 10) / 2).floor();
-        case 'charisma':
-          return ((character.abilityScores.charisma - 10) / 2).floor();
-        case 'intelligence':
-          return ((character.abilityScores.intelligence - 10) / 2).floor();
-        default:
-          return 0;
-      }
+    // Antes esta função reimplementava o modificador com um switch que só
+    // cobria SAB/CAR/INT e devolvia 0 no default: pedir Força devolveria
+    // zero em silêncio, sem erro nenhum.
+    int abilityModifier(Ability ability) {
+      return character.abilityScores.valueFor(ability).abilityModifier;
     }
 
     final key = classId.trim().toLowerCase();
@@ -1176,7 +1172,7 @@ class _ManageCharacterSpellsPageState
     switch (key) {
       case 'cleric':
       case 'clérigo':
-        final limit = (abilityModifier('wisdom') + level).clamp(1, 999);
+        final limit = (abilityModifier(Ability.wisdom) + level).clamp(1, 999);
         return _ClassLimitInfo(
           mode: _ClassLimitMode.prepared,
           title: className,
@@ -1194,7 +1190,7 @@ class _ManageCharacterSpellsPageState
 
       case 'druid':
       case 'druida':
-        final limit = (abilityModifier('wisdom') + level).clamp(1, 999);
+        final limit = (abilityModifier(Ability.wisdom) + level).clamp(1, 999);
         return _ClassLimitInfo(
           mode: _ClassLimitMode.prepared,
           title: className,
@@ -1228,7 +1224,7 @@ class _ManageCharacterSpellsPageState
           );
         }
         final limit =
-            (abilityModifier('charisma') + (level ~/ 2)).clamp(1, 999);
+            (abilityModifier(Ability.charisma) + (level ~/ 2)).clamp(1, 999);
         return _ClassLimitInfo(
           mode: _ClassLimitMode.prepared,
           title: className,
@@ -1247,7 +1243,7 @@ class _ManageCharacterSpellsPageState
       case 'wizard':
       case 'mago':
         final limit =
-            (abilityModifier('intelligence') + level).clamp(1, 999);
+            (abilityModifier(Ability.intelligence) + level).clamp(1, 999);
         return _ClassLimitInfo(
           mode: _ClassLimitMode.prepared,
           title: className,

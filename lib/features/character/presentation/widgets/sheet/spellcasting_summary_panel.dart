@@ -1,4 +1,5 @@
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/spellcasting_service.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:flutter/material.dart';
@@ -107,17 +108,21 @@ class SpellcastingSummaryPanel extends StatelessWidget {
 
       if (ability == null) continue;
 
-      final modifier = _abilityModifier(ability);
-      final saveDc = 8 + character.proficiencyBonus + modifier;
-      final attackBonus = character.proficiencyBonus + modifier;
-
       rows.add(
         _ClassSpellcastingRow(
           title:
               '${classEntry?.name ?? classLevel.classId} • Nv. ${classLevel.level}',
-          abilityLabel: _abilityLabel(ability),
-          saveDc: saveDc,
-          attackBonus: attackBonus,
+          abilityLabel: ability.label,
+          saveDc: SpellcastingService.spellSaveDc(
+            proficiencyBonus: character.proficiencyBonus,
+            castingAbility: ability,
+            scores: character.abilityScores,
+          ),
+          attackBonus: SpellcastingService.spellAttackBonus(
+            proficiencyBonus: character.proficiencyBonus,
+            castingAbility: ability,
+            scores: character.abilityScores,
+          ),
         ),
       );
     }
@@ -227,50 +232,7 @@ class SpellcastingSummaryPanel extends StatelessWidget {
     }
   }
 
-  int _abilityScore(Ability ability) {
-    switch (ability) {
-      case Ability.strength:
-        return character.abilityScores.strength;
-      case Ability.dexterity:
-        return character.abilityScores.dexterity;
-      case Ability.constitution:
-        return character.abilityScores.constitution;
-      case Ability.intelligence:
-        return character.abilityScores.intelligence;
-      case Ability.wisdom:
-        return character.abilityScores.wisdom;
-      case Ability.charisma:
-        return character.abilityScores.charisma;
-    }
-  }
-
-  int _abilityModifier(Ability ability) {
-    final score = _abilityScore(ability);
-    return ((score - 10) / 2).floor();
-  }
-
-  String _abilityLabel(Ability ability) {
-    switch (ability) {
-      case Ability.strength:
-        return 'Força';
-      case Ability.dexterity:
-        return 'Destreza';
-      case Ability.constitution:
-        return 'Constituição';
-      case Ability.intelligence:
-        return 'Inteligência';
-      case Ability.wisdom:
-        return 'Sabedoria';
-      case Ability.charisma:
-        return 'Carisma';
-    }
-  }
-
-  String? _castingAbilityLabel(String? raw) {
-    final ability = _parseAbility(raw);
-    if (ability == null) return null;
-    return _abilityLabel(ability);
-  }
+  String? _castingAbilityLabel(String? raw) => _parseAbility(raw)?.label;
 
   String _signed(int value) {
     return value >= 0 ? '+$value' : '$value';

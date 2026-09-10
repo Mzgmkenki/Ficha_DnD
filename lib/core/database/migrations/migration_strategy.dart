@@ -1,5 +1,6 @@
 import 'package:dnd_ficha_app/core/database/app_database.dart';
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 
 /// Estratégia de migração do banco local.
 ///
@@ -157,12 +158,26 @@ MigrationStrategy buildMigrationStrategy(AppDatabase db) {
           'CREATE UNIQUE INDEX IF NOT EXISTS idx_slot_usage_unique '
           'ON character_spell_slots_usage (character_id, slot_level)',
         );
-      } catch (_) {
+      } catch (error, stackTrace) {
         // Índice é uma otimização de segurança: se falhar, o app segue
-        // funcionando (o updateUsedSpellSlot já roda em transação).
+        // funcionando (o updateUsedSpellSlot já roda em transação). Aqui o
+        // catch é amplo de propósito, porque abrir o app é mais importante
+        // que o índice — mas o erro não é mais engolido em silêncio.
+        debugPrint('Falha ao criar idx_slot_usage_unique: $error');
+        debugPrintStack(stackTrace: stackTrace);
       }
     },
   );
+}
+
+/// Só engole o erro se a mensagem for a esperada.
+///
+/// Antes estes helpers usavam `catch (_)` puro, o que também engolia falhas
+/// reais (disco cheio, banco corrompido) e mesmo assim marcava a migração
+/// como concluída — perdendo dados sem aviso.
+bool _errorMatches(Object error, List<String> expectedFragments) {
+  final message = error.toString().toLowerCase();
+  return expectedFragments.any(message.contains);
 }
 
 /// Adiciona a coluna, ignorando o erro caso ela já exista.
@@ -173,8 +188,9 @@ Future<void> _tryAddColumn(
 ) async {
   try {
     await m.addColumn(table, column);
-  } catch (_) {
+  } catch (error) {
     // "duplicate column name" — a coluna já estava lá.
+    if (!_errorMatches(error, const ['duplicate column'])) rethrow;
   }
 }
 
@@ -185,15 +201,20 @@ Future<void> _tryCreateTable(
 ) async {
   try {
     await m.createTable(table);
-  } catch (_) {
-    // "table already exists".
+  } catch (error) {
+    // "table X already exists".
+    if (!_errorMatches(error, const ['already exists'])) rethrow;
   }
 }
 
+/// Backfill é best-effort: numa base que nunca teve a coluna legada, o
+/// UPDATE não tem o que copiar. Qualquer outro erro sobe.
 Future<void> _tryQuery(AppDatabase db, String sql) async {
   try {
     await db.customStatement(sql);
-  } catch (_) {
-    // Backfill é best-effort: se a coluna legada não existir, segue adiante.
+  } catch (error) {
+    if (!_errorMatches(error, const ['no such column', 'no such table'])) {
+      rethrow;
+    }
   }
 }
