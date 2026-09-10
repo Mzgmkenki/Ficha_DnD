@@ -29,6 +29,9 @@ class Character {
     this.skillProficiencies = const SkillProficiencies(),
     this.spells = const [],
     this.magicItems = const [],
+    this.inspiration = false,
+    this.exhaustion = 0,
+    this.hitDiceUsed = 0,
   });
 
   final String id;
@@ -45,6 +48,17 @@ class Character {
   final SkillProficiencies skillProficiencies;
   final List<CharacterSpell> spells;
   final List<CharacterMagicItem> magicItems;
+
+  /// Inspiração heroica concedida pelo mestre.
+  final bool inspiration;
+
+  /// Níveis de exaustão (0 a 6). A partir de 1 já impõe desvantagem em
+  /// testes de atributo, o que afeta os valores passivos.
+  final int exhaustion;
+
+  /// Dados de vida gastos desde o último descanso longo.
+  final int hitDiceUsed;
+
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -77,6 +91,9 @@ class Character {
     SkillProficiencies? skillProficiencies,
     List<CharacterSpell>? spells,
     List<CharacterMagicItem>? magicItems,
+    bool? inspiration,
+    int? exhaustion,
+    int? hitDiceUsed,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -102,6 +119,9 @@ class Character {
       skillProficiencies: skillProficiencies ?? this.skillProficiencies,
       spells: spells ?? this.spells,
       magicItems: magicItems ?? this.magicItems,
+      inspiration: inspiration ?? this.inspiration,
+      exhaustion: exhaustion ?? this.exhaustion,
+      hitDiceUsed: hitDiceUsed ?? this.hitDiceUsed,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

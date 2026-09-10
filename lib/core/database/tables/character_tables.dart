@@ -64,6 +64,38 @@ class Characters extends Table {
   BoolColumn get skillSurvival =>
       boolean().withDefault(const Constant(false))();
 
+  // Nível de proficiência por perícia: 0=nenhum, 1=metade, 2=proficiente,
+  // 3=especialista. Substitui os booleanos acima, que não conseguiam
+  // representar Especialista nem Meia Proficiência. As colunas booleanas
+  // ficam como legado para não perder dados de bases antigas.
+  IntColumn get lvlAcrobatics => integer().withDefault(const Constant(0))();
+  IntColumn get lvlAnimalHandling => integer().withDefault(const Constant(0))();
+  IntColumn get lvlArcana => integer().withDefault(const Constant(0))();
+  IntColumn get lvlAthletics => integer().withDefault(const Constant(0))();
+  IntColumn get lvlDeception => integer().withDefault(const Constant(0))();
+  IntColumn get lvlHistory => integer().withDefault(const Constant(0))();
+  IntColumn get lvlInsight => integer().withDefault(const Constant(0))();
+  IntColumn get lvlIntimidation => integer().withDefault(const Constant(0))();
+  IntColumn get lvlInvestigation => integer().withDefault(const Constant(0))();
+  IntColumn get lvlMedicine => integer().withDefault(const Constant(0))();
+  IntColumn get lvlNature => integer().withDefault(const Constant(0))();
+  IntColumn get lvlPerception => integer().withDefault(const Constant(0))();
+  IntColumn get lvlPerformance => integer().withDefault(const Constant(0))();
+  IntColumn get lvlPersuasion => integer().withDefault(const Constant(0))();
+  IntColumn get lvlReligion => integer().withDefault(const Constant(0))();
+  IntColumn get lvlSleightOfHand => integer().withDefault(const Constant(0))();
+  IntColumn get lvlStealth => integer().withDefault(const Constant(0))();
+  IntColumn get lvlSurvival => integer().withDefault(const Constant(0))();
+
+  /// Inspiração heroica: o personagem tem ou não.
+  BoolColumn get inspiration => boolean().withDefault(const Constant(false))();
+
+  /// Níveis de exaustão (0 a 6).
+  IntColumn get exhaustion => integer().withDefault(const Constant(0))();
+
+  /// Dados de vida já gastos desde o último descanso longo.
+  IntColumn get hitDiceUsed => integer().withDefault(const Constant(0))();
+
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 

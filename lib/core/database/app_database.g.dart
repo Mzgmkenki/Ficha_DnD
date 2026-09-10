@@ -566,6 +566,261 @@ class $CharactersTable extends Characters
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _lvlAcrobaticsMeta = const VerificationMeta(
+    'lvlAcrobatics',
+  );
+  @override
+  late final GeneratedColumn<int> lvlAcrobatics = GeneratedColumn<int>(
+    'lvl_acrobatics',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lvlAnimalHandlingMeta = const VerificationMeta(
+    'lvlAnimalHandling',
+  );
+  @override
+  late final GeneratedColumn<int> lvlAnimalHandling = GeneratedColumn<int>(
+    'lvl_animal_handling',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lvlArcanaMeta = const VerificationMeta(
+    'lvlArcana',
+  );
+  @override
+  late final GeneratedColumn<int> lvlArcana = GeneratedColumn<int>(
+    'lvl_arcana',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lvlAthleticsMeta = const VerificationMeta(
+    'lvlAthletics',
+  );
+  @override
+  late final GeneratedColumn<int> lvlAthletics = GeneratedColumn<int>(
+    'lvl_athletics',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lvlDeceptionMeta = const VerificationMeta(
+    'lvlDeception',
+  );
+  @override
+  late final GeneratedColumn<int> lvlDeception = GeneratedColumn<int>(
+    'lvl_deception',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lvlHistoryMeta = const VerificationMeta(
+    'lvlHistory',
+  );
+  @override
+  late final GeneratedColumn<int> lvlHistory = GeneratedColumn<int>(
+    'lvl_history',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lvlInsightMeta = const VerificationMeta(
+    'lvlInsight',
+  );
+  @override
+  late final GeneratedColumn<int> lvlInsight = GeneratedColumn<int>(
+    'lvl_insight',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lvlIntimidationMeta = const VerificationMeta(
+    'lvlIntimidation',
+  );
+  @override
+  late final GeneratedColumn<int> lvlIntimidation = GeneratedColumn<int>(
+    'lvl_intimidation',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lvlInvestigationMeta = const VerificationMeta(
+    'lvlInvestigation',
+  );
+  @override
+  late final GeneratedColumn<int> lvlInvestigation = GeneratedColumn<int>(
+    'lvl_investigation',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lvlMedicineMeta = const VerificationMeta(
+    'lvlMedicine',
+  );
+  @override
+  late final GeneratedColumn<int> lvlMedicine = GeneratedColumn<int>(
+    'lvl_medicine',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lvlNatureMeta = const VerificationMeta(
+    'lvlNature',
+  );
+  @override
+  late final GeneratedColumn<int> lvlNature = GeneratedColumn<int>(
+    'lvl_nature',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lvlPerceptionMeta = const VerificationMeta(
+    'lvlPerception',
+  );
+  @override
+  late final GeneratedColumn<int> lvlPerception = GeneratedColumn<int>(
+    'lvl_perception',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lvlPerformanceMeta = const VerificationMeta(
+    'lvlPerformance',
+  );
+  @override
+  late final GeneratedColumn<int> lvlPerformance = GeneratedColumn<int>(
+    'lvl_performance',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lvlPersuasionMeta = const VerificationMeta(
+    'lvlPersuasion',
+  );
+  @override
+  late final GeneratedColumn<int> lvlPersuasion = GeneratedColumn<int>(
+    'lvl_persuasion',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lvlReligionMeta = const VerificationMeta(
+    'lvlReligion',
+  );
+  @override
+  late final GeneratedColumn<int> lvlReligion = GeneratedColumn<int>(
+    'lvl_religion',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lvlSleightOfHandMeta = const VerificationMeta(
+    'lvlSleightOfHand',
+  );
+  @override
+  late final GeneratedColumn<int> lvlSleightOfHand = GeneratedColumn<int>(
+    'lvl_sleight_of_hand',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lvlStealthMeta = const VerificationMeta(
+    'lvlStealth',
+  );
+  @override
+  late final GeneratedColumn<int> lvlStealth = GeneratedColumn<int>(
+    'lvl_stealth',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lvlSurvivalMeta = const VerificationMeta(
+    'lvlSurvival',
+  );
+  @override
+  late final GeneratedColumn<int> lvlSurvival = GeneratedColumn<int>(
+    'lvl_survival',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _inspirationMeta = const VerificationMeta(
+    'inspiration',
+  );
+  @override
+  late final GeneratedColumn<bool> inspiration = GeneratedColumn<bool>(
+    'inspiration',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("inspiration" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _exhaustionMeta = const VerificationMeta(
+    'exhaustion',
+  );
+  @override
+  late final GeneratedColumn<int> exhaustion = GeneratedColumn<int>(
+    'exhaustion',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _hitDiceUsedMeta = const VerificationMeta(
+    'hitDiceUsed',
+  );
+  @override
+  late final GeneratedColumn<int> hitDiceUsed = GeneratedColumn<int>(
+    'hit_dice_used',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -632,6 +887,27 @@ class $CharactersTable extends Characters
     skillSleightOfHand,
     skillStealth,
     skillSurvival,
+    lvlAcrobatics,
+    lvlAnimalHandling,
+    lvlArcana,
+    lvlAthletics,
+    lvlDeception,
+    lvlHistory,
+    lvlInsight,
+    lvlIntimidation,
+    lvlInvestigation,
+    lvlMedicine,
+    lvlNature,
+    lvlPerception,
+    lvlPerformance,
+    lvlPersuasion,
+    lvlReligion,
+    lvlSleightOfHand,
+    lvlStealth,
+    lvlSurvival,
+    inspiration,
+    exhaustion,
+    hitDiceUsed,
     createdAt,
     updatedAt,
   ];
@@ -990,6 +1266,177 @@ class $CharactersTable extends Characters
         ),
       );
     }
+    if (data.containsKey('lvl_acrobatics')) {
+      context.handle(
+        _lvlAcrobaticsMeta,
+        lvlAcrobatics.isAcceptableOrUnknown(
+          data['lvl_acrobatics']!,
+          _lvlAcrobaticsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('lvl_animal_handling')) {
+      context.handle(
+        _lvlAnimalHandlingMeta,
+        lvlAnimalHandling.isAcceptableOrUnknown(
+          data['lvl_animal_handling']!,
+          _lvlAnimalHandlingMeta,
+        ),
+      );
+    }
+    if (data.containsKey('lvl_arcana')) {
+      context.handle(
+        _lvlArcanaMeta,
+        lvlArcana.isAcceptableOrUnknown(data['lvl_arcana']!, _lvlArcanaMeta),
+      );
+    }
+    if (data.containsKey('lvl_athletics')) {
+      context.handle(
+        _lvlAthleticsMeta,
+        lvlAthletics.isAcceptableOrUnknown(
+          data['lvl_athletics']!,
+          _lvlAthleticsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('lvl_deception')) {
+      context.handle(
+        _lvlDeceptionMeta,
+        lvlDeception.isAcceptableOrUnknown(
+          data['lvl_deception']!,
+          _lvlDeceptionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('lvl_history')) {
+      context.handle(
+        _lvlHistoryMeta,
+        lvlHistory.isAcceptableOrUnknown(data['lvl_history']!, _lvlHistoryMeta),
+      );
+    }
+    if (data.containsKey('lvl_insight')) {
+      context.handle(
+        _lvlInsightMeta,
+        lvlInsight.isAcceptableOrUnknown(data['lvl_insight']!, _lvlInsightMeta),
+      );
+    }
+    if (data.containsKey('lvl_intimidation')) {
+      context.handle(
+        _lvlIntimidationMeta,
+        lvlIntimidation.isAcceptableOrUnknown(
+          data['lvl_intimidation']!,
+          _lvlIntimidationMeta,
+        ),
+      );
+    }
+    if (data.containsKey('lvl_investigation')) {
+      context.handle(
+        _lvlInvestigationMeta,
+        lvlInvestigation.isAcceptableOrUnknown(
+          data['lvl_investigation']!,
+          _lvlInvestigationMeta,
+        ),
+      );
+    }
+    if (data.containsKey('lvl_medicine')) {
+      context.handle(
+        _lvlMedicineMeta,
+        lvlMedicine.isAcceptableOrUnknown(
+          data['lvl_medicine']!,
+          _lvlMedicineMeta,
+        ),
+      );
+    }
+    if (data.containsKey('lvl_nature')) {
+      context.handle(
+        _lvlNatureMeta,
+        lvlNature.isAcceptableOrUnknown(data['lvl_nature']!, _lvlNatureMeta),
+      );
+    }
+    if (data.containsKey('lvl_perception')) {
+      context.handle(
+        _lvlPerceptionMeta,
+        lvlPerception.isAcceptableOrUnknown(
+          data['lvl_perception']!,
+          _lvlPerceptionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('lvl_performance')) {
+      context.handle(
+        _lvlPerformanceMeta,
+        lvlPerformance.isAcceptableOrUnknown(
+          data['lvl_performance']!,
+          _lvlPerformanceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('lvl_persuasion')) {
+      context.handle(
+        _lvlPersuasionMeta,
+        lvlPersuasion.isAcceptableOrUnknown(
+          data['lvl_persuasion']!,
+          _lvlPersuasionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('lvl_religion')) {
+      context.handle(
+        _lvlReligionMeta,
+        lvlReligion.isAcceptableOrUnknown(
+          data['lvl_religion']!,
+          _lvlReligionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('lvl_sleight_of_hand')) {
+      context.handle(
+        _lvlSleightOfHandMeta,
+        lvlSleightOfHand.isAcceptableOrUnknown(
+          data['lvl_sleight_of_hand']!,
+          _lvlSleightOfHandMeta,
+        ),
+      );
+    }
+    if (data.containsKey('lvl_stealth')) {
+      context.handle(
+        _lvlStealthMeta,
+        lvlStealth.isAcceptableOrUnknown(data['lvl_stealth']!, _lvlStealthMeta),
+      );
+    }
+    if (data.containsKey('lvl_survival')) {
+      context.handle(
+        _lvlSurvivalMeta,
+        lvlSurvival.isAcceptableOrUnknown(
+          data['lvl_survival']!,
+          _lvlSurvivalMeta,
+        ),
+      );
+    }
+    if (data.containsKey('inspiration')) {
+      context.handle(
+        _inspirationMeta,
+        inspiration.isAcceptableOrUnknown(
+          data['inspiration']!,
+          _inspirationMeta,
+        ),
+      );
+    }
+    if (data.containsKey('exhaustion')) {
+      context.handle(
+        _exhaustionMeta,
+        exhaustion.isAcceptableOrUnknown(data['exhaustion']!, _exhaustionMeta),
+      );
+    }
+    if (data.containsKey('hit_dice_used')) {
+      context.handle(
+        _hitDiceUsedMeta,
+        hitDiceUsed.isAcceptableOrUnknown(
+          data['hit_dice_used']!,
+          _hitDiceUsedMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -1222,6 +1669,111 @@ class $CharactersTable extends Characters
             DriftSqlType.bool,
             data['${effectivePrefix}skill_survival'],
           )!,
+      lvlAcrobatics:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}lvl_acrobatics'],
+          )!,
+      lvlAnimalHandling:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}lvl_animal_handling'],
+          )!,
+      lvlArcana:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}lvl_arcana'],
+          )!,
+      lvlAthletics:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}lvl_athletics'],
+          )!,
+      lvlDeception:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}lvl_deception'],
+          )!,
+      lvlHistory:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}lvl_history'],
+          )!,
+      lvlInsight:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}lvl_insight'],
+          )!,
+      lvlIntimidation:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}lvl_intimidation'],
+          )!,
+      lvlInvestigation:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}lvl_investigation'],
+          )!,
+      lvlMedicine:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}lvl_medicine'],
+          )!,
+      lvlNature:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}lvl_nature'],
+          )!,
+      lvlPerception:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}lvl_perception'],
+          )!,
+      lvlPerformance:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}lvl_performance'],
+          )!,
+      lvlPersuasion:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}lvl_persuasion'],
+          )!,
+      lvlReligion:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}lvl_religion'],
+          )!,
+      lvlSleightOfHand:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}lvl_sleight_of_hand'],
+          )!,
+      lvlStealth:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}lvl_stealth'],
+          )!,
+      lvlSurvival:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}lvl_survival'],
+          )!,
+      inspiration:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.bool,
+            data['${effectivePrefix}inspiration'],
+          )!,
+      exhaustion:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}exhaustion'],
+          )!,
+      hitDiceUsed:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}hit_dice_used'],
+          )!,
       createdAt:
           attachedDatabase.typeMapping.read(
             DriftSqlType.dateTime,
@@ -1284,6 +1836,33 @@ class Character extends DataClass implements Insertable<Character> {
   final bool skillSleightOfHand;
   final bool skillStealth;
   final bool skillSurvival;
+  final int lvlAcrobatics;
+  final int lvlAnimalHandling;
+  final int lvlArcana;
+  final int lvlAthletics;
+  final int lvlDeception;
+  final int lvlHistory;
+  final int lvlInsight;
+  final int lvlIntimidation;
+  final int lvlInvestigation;
+  final int lvlMedicine;
+  final int lvlNature;
+  final int lvlPerception;
+  final int lvlPerformance;
+  final int lvlPersuasion;
+  final int lvlReligion;
+  final int lvlSleightOfHand;
+  final int lvlStealth;
+  final int lvlSurvival;
+
+  /// Inspiração heroica: o personagem tem ou não.
+  final bool inspiration;
+
+  /// Níveis de exaustão (0 a 6).
+  final int exhaustion;
+
+  /// Dados de vida já gastos desde o último descanso longo.
+  final int hitDiceUsed;
   final DateTime createdAt;
   final DateTime updatedAt;
   const Character({
@@ -1329,6 +1908,27 @@ class Character extends DataClass implements Insertable<Character> {
     required this.skillSleightOfHand,
     required this.skillStealth,
     required this.skillSurvival,
+    required this.lvlAcrobatics,
+    required this.lvlAnimalHandling,
+    required this.lvlArcana,
+    required this.lvlAthletics,
+    required this.lvlDeception,
+    required this.lvlHistory,
+    required this.lvlInsight,
+    required this.lvlIntimidation,
+    required this.lvlInvestigation,
+    required this.lvlMedicine,
+    required this.lvlNature,
+    required this.lvlPerception,
+    required this.lvlPerformance,
+    required this.lvlPersuasion,
+    required this.lvlReligion,
+    required this.lvlSleightOfHand,
+    required this.lvlStealth,
+    required this.lvlSurvival,
+    required this.inspiration,
+    required this.exhaustion,
+    required this.hitDiceUsed,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -1383,6 +1983,27 @@ class Character extends DataClass implements Insertable<Character> {
     map['skill_sleight_of_hand'] = Variable<bool>(skillSleightOfHand);
     map['skill_stealth'] = Variable<bool>(skillStealth);
     map['skill_survival'] = Variable<bool>(skillSurvival);
+    map['lvl_acrobatics'] = Variable<int>(lvlAcrobatics);
+    map['lvl_animal_handling'] = Variable<int>(lvlAnimalHandling);
+    map['lvl_arcana'] = Variable<int>(lvlArcana);
+    map['lvl_athletics'] = Variable<int>(lvlAthletics);
+    map['lvl_deception'] = Variable<int>(lvlDeception);
+    map['lvl_history'] = Variable<int>(lvlHistory);
+    map['lvl_insight'] = Variable<int>(lvlInsight);
+    map['lvl_intimidation'] = Variable<int>(lvlIntimidation);
+    map['lvl_investigation'] = Variable<int>(lvlInvestigation);
+    map['lvl_medicine'] = Variable<int>(lvlMedicine);
+    map['lvl_nature'] = Variable<int>(lvlNature);
+    map['lvl_perception'] = Variable<int>(lvlPerception);
+    map['lvl_performance'] = Variable<int>(lvlPerformance);
+    map['lvl_persuasion'] = Variable<int>(lvlPersuasion);
+    map['lvl_religion'] = Variable<int>(lvlReligion);
+    map['lvl_sleight_of_hand'] = Variable<int>(lvlSleightOfHand);
+    map['lvl_stealth'] = Variable<int>(lvlStealth);
+    map['lvl_survival'] = Variable<int>(lvlSurvival);
+    map['inspiration'] = Variable<bool>(inspiration);
+    map['exhaustion'] = Variable<int>(exhaustion);
+    map['hit_dice_used'] = Variable<int>(hitDiceUsed);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -1441,6 +2062,27 @@ class Character extends DataClass implements Insertable<Character> {
       skillSleightOfHand: Value(skillSleightOfHand),
       skillStealth: Value(skillStealth),
       skillSurvival: Value(skillSurvival),
+      lvlAcrobatics: Value(lvlAcrobatics),
+      lvlAnimalHandling: Value(lvlAnimalHandling),
+      lvlArcana: Value(lvlArcana),
+      lvlAthletics: Value(lvlAthletics),
+      lvlDeception: Value(lvlDeception),
+      lvlHistory: Value(lvlHistory),
+      lvlInsight: Value(lvlInsight),
+      lvlIntimidation: Value(lvlIntimidation),
+      lvlInvestigation: Value(lvlInvestigation),
+      lvlMedicine: Value(lvlMedicine),
+      lvlNature: Value(lvlNature),
+      lvlPerception: Value(lvlPerception),
+      lvlPerformance: Value(lvlPerformance),
+      lvlPersuasion: Value(lvlPersuasion),
+      lvlReligion: Value(lvlReligion),
+      lvlSleightOfHand: Value(lvlSleightOfHand),
+      lvlStealth: Value(lvlStealth),
+      lvlSurvival: Value(lvlSurvival),
+      inspiration: Value(inspiration),
+      exhaustion: Value(exhaustion),
+      hitDiceUsed: Value(hitDiceUsed),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -1496,6 +2138,27 @@ class Character extends DataClass implements Insertable<Character> {
       skillSleightOfHand: serializer.fromJson<bool>(json['skillSleightOfHand']),
       skillStealth: serializer.fromJson<bool>(json['skillStealth']),
       skillSurvival: serializer.fromJson<bool>(json['skillSurvival']),
+      lvlAcrobatics: serializer.fromJson<int>(json['lvlAcrobatics']),
+      lvlAnimalHandling: serializer.fromJson<int>(json['lvlAnimalHandling']),
+      lvlArcana: serializer.fromJson<int>(json['lvlArcana']),
+      lvlAthletics: serializer.fromJson<int>(json['lvlAthletics']),
+      lvlDeception: serializer.fromJson<int>(json['lvlDeception']),
+      lvlHistory: serializer.fromJson<int>(json['lvlHistory']),
+      lvlInsight: serializer.fromJson<int>(json['lvlInsight']),
+      lvlIntimidation: serializer.fromJson<int>(json['lvlIntimidation']),
+      lvlInvestigation: serializer.fromJson<int>(json['lvlInvestigation']),
+      lvlMedicine: serializer.fromJson<int>(json['lvlMedicine']),
+      lvlNature: serializer.fromJson<int>(json['lvlNature']),
+      lvlPerception: serializer.fromJson<int>(json['lvlPerception']),
+      lvlPerformance: serializer.fromJson<int>(json['lvlPerformance']),
+      lvlPersuasion: serializer.fromJson<int>(json['lvlPersuasion']),
+      lvlReligion: serializer.fromJson<int>(json['lvlReligion']),
+      lvlSleightOfHand: serializer.fromJson<int>(json['lvlSleightOfHand']),
+      lvlStealth: serializer.fromJson<int>(json['lvlStealth']),
+      lvlSurvival: serializer.fromJson<int>(json['lvlSurvival']),
+      inspiration: serializer.fromJson<bool>(json['inspiration']),
+      exhaustion: serializer.fromJson<int>(json['exhaustion']),
+      hitDiceUsed: serializer.fromJson<int>(json['hitDiceUsed']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -1546,6 +2209,27 @@ class Character extends DataClass implements Insertable<Character> {
       'skillSleightOfHand': serializer.toJson<bool>(skillSleightOfHand),
       'skillStealth': serializer.toJson<bool>(skillStealth),
       'skillSurvival': serializer.toJson<bool>(skillSurvival),
+      'lvlAcrobatics': serializer.toJson<int>(lvlAcrobatics),
+      'lvlAnimalHandling': serializer.toJson<int>(lvlAnimalHandling),
+      'lvlArcana': serializer.toJson<int>(lvlArcana),
+      'lvlAthletics': serializer.toJson<int>(lvlAthletics),
+      'lvlDeception': serializer.toJson<int>(lvlDeception),
+      'lvlHistory': serializer.toJson<int>(lvlHistory),
+      'lvlInsight': serializer.toJson<int>(lvlInsight),
+      'lvlIntimidation': serializer.toJson<int>(lvlIntimidation),
+      'lvlInvestigation': serializer.toJson<int>(lvlInvestigation),
+      'lvlMedicine': serializer.toJson<int>(lvlMedicine),
+      'lvlNature': serializer.toJson<int>(lvlNature),
+      'lvlPerception': serializer.toJson<int>(lvlPerception),
+      'lvlPerformance': serializer.toJson<int>(lvlPerformance),
+      'lvlPersuasion': serializer.toJson<int>(lvlPersuasion),
+      'lvlReligion': serializer.toJson<int>(lvlReligion),
+      'lvlSleightOfHand': serializer.toJson<int>(lvlSleightOfHand),
+      'lvlStealth': serializer.toJson<int>(lvlStealth),
+      'lvlSurvival': serializer.toJson<int>(lvlSurvival),
+      'inspiration': serializer.toJson<bool>(inspiration),
+      'exhaustion': serializer.toJson<int>(exhaustion),
+      'hitDiceUsed': serializer.toJson<int>(hitDiceUsed),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -1594,6 +2278,27 @@ class Character extends DataClass implements Insertable<Character> {
     bool? skillSleightOfHand,
     bool? skillStealth,
     bool? skillSurvival,
+    int? lvlAcrobatics,
+    int? lvlAnimalHandling,
+    int? lvlArcana,
+    int? lvlAthletics,
+    int? lvlDeception,
+    int? lvlHistory,
+    int? lvlInsight,
+    int? lvlIntimidation,
+    int? lvlInvestigation,
+    int? lvlMedicine,
+    int? lvlNature,
+    int? lvlPerception,
+    int? lvlPerformance,
+    int? lvlPersuasion,
+    int? lvlReligion,
+    int? lvlSleightOfHand,
+    int? lvlStealth,
+    int? lvlSurvival,
+    bool? inspiration,
+    int? exhaustion,
+    int? hitDiceUsed,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) => Character(
@@ -1639,6 +2344,27 @@ class Character extends DataClass implements Insertable<Character> {
     skillSleightOfHand: skillSleightOfHand ?? this.skillSleightOfHand,
     skillStealth: skillStealth ?? this.skillStealth,
     skillSurvival: skillSurvival ?? this.skillSurvival,
+    lvlAcrobatics: lvlAcrobatics ?? this.lvlAcrobatics,
+    lvlAnimalHandling: lvlAnimalHandling ?? this.lvlAnimalHandling,
+    lvlArcana: lvlArcana ?? this.lvlArcana,
+    lvlAthletics: lvlAthletics ?? this.lvlAthletics,
+    lvlDeception: lvlDeception ?? this.lvlDeception,
+    lvlHistory: lvlHistory ?? this.lvlHistory,
+    lvlInsight: lvlInsight ?? this.lvlInsight,
+    lvlIntimidation: lvlIntimidation ?? this.lvlIntimidation,
+    lvlInvestigation: lvlInvestigation ?? this.lvlInvestigation,
+    lvlMedicine: lvlMedicine ?? this.lvlMedicine,
+    lvlNature: lvlNature ?? this.lvlNature,
+    lvlPerception: lvlPerception ?? this.lvlPerception,
+    lvlPerformance: lvlPerformance ?? this.lvlPerformance,
+    lvlPersuasion: lvlPersuasion ?? this.lvlPersuasion,
+    lvlReligion: lvlReligion ?? this.lvlReligion,
+    lvlSleightOfHand: lvlSleightOfHand ?? this.lvlSleightOfHand,
+    lvlStealth: lvlStealth ?? this.lvlStealth,
+    lvlSurvival: lvlSurvival ?? this.lvlSurvival,
+    inspiration: inspiration ?? this.inspiration,
+    exhaustion: exhaustion ?? this.exhaustion,
+    hitDiceUsed: hitDiceUsed ?? this.hitDiceUsed,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -1775,6 +2501,66 @@ class Character extends DataClass implements Insertable<Character> {
           data.skillSurvival.present
               ? data.skillSurvival.value
               : this.skillSurvival,
+      lvlAcrobatics:
+          data.lvlAcrobatics.present
+              ? data.lvlAcrobatics.value
+              : this.lvlAcrobatics,
+      lvlAnimalHandling:
+          data.lvlAnimalHandling.present
+              ? data.lvlAnimalHandling.value
+              : this.lvlAnimalHandling,
+      lvlArcana: data.lvlArcana.present ? data.lvlArcana.value : this.lvlArcana,
+      lvlAthletics:
+          data.lvlAthletics.present
+              ? data.lvlAthletics.value
+              : this.lvlAthletics,
+      lvlDeception:
+          data.lvlDeception.present
+              ? data.lvlDeception.value
+              : this.lvlDeception,
+      lvlHistory:
+          data.lvlHistory.present ? data.lvlHistory.value : this.lvlHistory,
+      lvlInsight:
+          data.lvlInsight.present ? data.lvlInsight.value : this.lvlInsight,
+      lvlIntimidation:
+          data.lvlIntimidation.present
+              ? data.lvlIntimidation.value
+              : this.lvlIntimidation,
+      lvlInvestigation:
+          data.lvlInvestigation.present
+              ? data.lvlInvestigation.value
+              : this.lvlInvestigation,
+      lvlMedicine:
+          data.lvlMedicine.present ? data.lvlMedicine.value : this.lvlMedicine,
+      lvlNature: data.lvlNature.present ? data.lvlNature.value : this.lvlNature,
+      lvlPerception:
+          data.lvlPerception.present
+              ? data.lvlPerception.value
+              : this.lvlPerception,
+      lvlPerformance:
+          data.lvlPerformance.present
+              ? data.lvlPerformance.value
+              : this.lvlPerformance,
+      lvlPersuasion:
+          data.lvlPersuasion.present
+              ? data.lvlPersuasion.value
+              : this.lvlPersuasion,
+      lvlReligion:
+          data.lvlReligion.present ? data.lvlReligion.value : this.lvlReligion,
+      lvlSleightOfHand:
+          data.lvlSleightOfHand.present
+              ? data.lvlSleightOfHand.value
+              : this.lvlSleightOfHand,
+      lvlStealth:
+          data.lvlStealth.present ? data.lvlStealth.value : this.lvlStealth,
+      lvlSurvival:
+          data.lvlSurvival.present ? data.lvlSurvival.value : this.lvlSurvival,
+      inspiration:
+          data.inspiration.present ? data.inspiration.value : this.inspiration,
+      exhaustion:
+          data.exhaustion.present ? data.exhaustion.value : this.exhaustion,
+      hitDiceUsed:
+          data.hitDiceUsed.present ? data.hitDiceUsed.value : this.hitDiceUsed,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -1825,6 +2611,27 @@ class Character extends DataClass implements Insertable<Character> {
           ..write('skillSleightOfHand: $skillSleightOfHand, ')
           ..write('skillStealth: $skillStealth, ')
           ..write('skillSurvival: $skillSurvival, ')
+          ..write('lvlAcrobatics: $lvlAcrobatics, ')
+          ..write('lvlAnimalHandling: $lvlAnimalHandling, ')
+          ..write('lvlArcana: $lvlArcana, ')
+          ..write('lvlAthletics: $lvlAthletics, ')
+          ..write('lvlDeception: $lvlDeception, ')
+          ..write('lvlHistory: $lvlHistory, ')
+          ..write('lvlInsight: $lvlInsight, ')
+          ..write('lvlIntimidation: $lvlIntimidation, ')
+          ..write('lvlInvestigation: $lvlInvestigation, ')
+          ..write('lvlMedicine: $lvlMedicine, ')
+          ..write('lvlNature: $lvlNature, ')
+          ..write('lvlPerception: $lvlPerception, ')
+          ..write('lvlPerformance: $lvlPerformance, ')
+          ..write('lvlPersuasion: $lvlPersuasion, ')
+          ..write('lvlReligion: $lvlReligion, ')
+          ..write('lvlSleightOfHand: $lvlSleightOfHand, ')
+          ..write('lvlStealth: $lvlStealth, ')
+          ..write('lvlSurvival: $lvlSurvival, ')
+          ..write('inspiration: $inspiration, ')
+          ..write('exhaustion: $exhaustion, ')
+          ..write('hitDiceUsed: $hitDiceUsed, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -1875,6 +2682,27 @@ class Character extends DataClass implements Insertable<Character> {
     skillSleightOfHand,
     skillStealth,
     skillSurvival,
+    lvlAcrobatics,
+    lvlAnimalHandling,
+    lvlArcana,
+    lvlAthletics,
+    lvlDeception,
+    lvlHistory,
+    lvlInsight,
+    lvlIntimidation,
+    lvlInvestigation,
+    lvlMedicine,
+    lvlNature,
+    lvlPerception,
+    lvlPerformance,
+    lvlPersuasion,
+    lvlReligion,
+    lvlSleightOfHand,
+    lvlStealth,
+    lvlSurvival,
+    inspiration,
+    exhaustion,
+    hitDiceUsed,
     createdAt,
     updatedAt,
   ]);
@@ -1924,6 +2752,27 @@ class Character extends DataClass implements Insertable<Character> {
           other.skillSleightOfHand == this.skillSleightOfHand &&
           other.skillStealth == this.skillStealth &&
           other.skillSurvival == this.skillSurvival &&
+          other.lvlAcrobatics == this.lvlAcrobatics &&
+          other.lvlAnimalHandling == this.lvlAnimalHandling &&
+          other.lvlArcana == this.lvlArcana &&
+          other.lvlAthletics == this.lvlAthletics &&
+          other.lvlDeception == this.lvlDeception &&
+          other.lvlHistory == this.lvlHistory &&
+          other.lvlInsight == this.lvlInsight &&
+          other.lvlIntimidation == this.lvlIntimidation &&
+          other.lvlInvestigation == this.lvlInvestigation &&
+          other.lvlMedicine == this.lvlMedicine &&
+          other.lvlNature == this.lvlNature &&
+          other.lvlPerception == this.lvlPerception &&
+          other.lvlPerformance == this.lvlPerformance &&
+          other.lvlPersuasion == this.lvlPersuasion &&
+          other.lvlReligion == this.lvlReligion &&
+          other.lvlSleightOfHand == this.lvlSleightOfHand &&
+          other.lvlStealth == this.lvlStealth &&
+          other.lvlSurvival == this.lvlSurvival &&
+          other.inspiration == this.inspiration &&
+          other.exhaustion == this.exhaustion &&
+          other.hitDiceUsed == this.hitDiceUsed &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -1971,6 +2820,27 @@ class CharactersCompanion extends UpdateCompanion<Character> {
   final Value<bool> skillSleightOfHand;
   final Value<bool> skillStealth;
   final Value<bool> skillSurvival;
+  final Value<int> lvlAcrobatics;
+  final Value<int> lvlAnimalHandling;
+  final Value<int> lvlArcana;
+  final Value<int> lvlAthletics;
+  final Value<int> lvlDeception;
+  final Value<int> lvlHistory;
+  final Value<int> lvlInsight;
+  final Value<int> lvlIntimidation;
+  final Value<int> lvlInvestigation;
+  final Value<int> lvlMedicine;
+  final Value<int> lvlNature;
+  final Value<int> lvlPerception;
+  final Value<int> lvlPerformance;
+  final Value<int> lvlPersuasion;
+  final Value<int> lvlReligion;
+  final Value<int> lvlSleightOfHand;
+  final Value<int> lvlStealth;
+  final Value<int> lvlSurvival;
+  final Value<bool> inspiration;
+  final Value<int> exhaustion;
+  final Value<int> hitDiceUsed;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
@@ -2017,6 +2887,27 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.skillSleightOfHand = const Value.absent(),
     this.skillStealth = const Value.absent(),
     this.skillSurvival = const Value.absent(),
+    this.lvlAcrobatics = const Value.absent(),
+    this.lvlAnimalHandling = const Value.absent(),
+    this.lvlArcana = const Value.absent(),
+    this.lvlAthletics = const Value.absent(),
+    this.lvlDeception = const Value.absent(),
+    this.lvlHistory = const Value.absent(),
+    this.lvlInsight = const Value.absent(),
+    this.lvlIntimidation = const Value.absent(),
+    this.lvlInvestigation = const Value.absent(),
+    this.lvlMedicine = const Value.absent(),
+    this.lvlNature = const Value.absent(),
+    this.lvlPerception = const Value.absent(),
+    this.lvlPerformance = const Value.absent(),
+    this.lvlPersuasion = const Value.absent(),
+    this.lvlReligion = const Value.absent(),
+    this.lvlSleightOfHand = const Value.absent(),
+    this.lvlStealth = const Value.absent(),
+    this.lvlSurvival = const Value.absent(),
+    this.inspiration = const Value.absent(),
+    this.exhaustion = const Value.absent(),
+    this.hitDiceUsed = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -2064,6 +2955,27 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.skillSleightOfHand = const Value.absent(),
     this.skillStealth = const Value.absent(),
     this.skillSurvival = const Value.absent(),
+    this.lvlAcrobatics = const Value.absent(),
+    this.lvlAnimalHandling = const Value.absent(),
+    this.lvlArcana = const Value.absent(),
+    this.lvlAthletics = const Value.absent(),
+    this.lvlDeception = const Value.absent(),
+    this.lvlHistory = const Value.absent(),
+    this.lvlInsight = const Value.absent(),
+    this.lvlIntimidation = const Value.absent(),
+    this.lvlInvestigation = const Value.absent(),
+    this.lvlMedicine = const Value.absent(),
+    this.lvlNature = const Value.absent(),
+    this.lvlPerception = const Value.absent(),
+    this.lvlPerformance = const Value.absent(),
+    this.lvlPersuasion = const Value.absent(),
+    this.lvlReligion = const Value.absent(),
+    this.lvlSleightOfHand = const Value.absent(),
+    this.lvlStealth = const Value.absent(),
+    this.lvlSurvival = const Value.absent(),
+    this.inspiration = const Value.absent(),
+    this.exhaustion = const Value.absent(),
+    this.hitDiceUsed = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
@@ -2114,6 +3026,27 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Expression<bool>? skillSleightOfHand,
     Expression<bool>? skillStealth,
     Expression<bool>? skillSurvival,
+    Expression<int>? lvlAcrobatics,
+    Expression<int>? lvlAnimalHandling,
+    Expression<int>? lvlArcana,
+    Expression<int>? lvlAthletics,
+    Expression<int>? lvlDeception,
+    Expression<int>? lvlHistory,
+    Expression<int>? lvlInsight,
+    Expression<int>? lvlIntimidation,
+    Expression<int>? lvlInvestigation,
+    Expression<int>? lvlMedicine,
+    Expression<int>? lvlNature,
+    Expression<int>? lvlPerception,
+    Expression<int>? lvlPerformance,
+    Expression<int>? lvlPersuasion,
+    Expression<int>? lvlReligion,
+    Expression<int>? lvlSleightOfHand,
+    Expression<int>? lvlStealth,
+    Expression<int>? lvlSurvival,
+    Expression<bool>? inspiration,
+    Expression<int>? exhaustion,
+    Expression<int>? hitDiceUsed,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -2164,6 +3097,27 @@ class CharactersCompanion extends UpdateCompanion<Character> {
         'skill_sleight_of_hand': skillSleightOfHand,
       if (skillStealth != null) 'skill_stealth': skillStealth,
       if (skillSurvival != null) 'skill_survival': skillSurvival,
+      if (lvlAcrobatics != null) 'lvl_acrobatics': lvlAcrobatics,
+      if (lvlAnimalHandling != null) 'lvl_animal_handling': lvlAnimalHandling,
+      if (lvlArcana != null) 'lvl_arcana': lvlArcana,
+      if (lvlAthletics != null) 'lvl_athletics': lvlAthletics,
+      if (lvlDeception != null) 'lvl_deception': lvlDeception,
+      if (lvlHistory != null) 'lvl_history': lvlHistory,
+      if (lvlInsight != null) 'lvl_insight': lvlInsight,
+      if (lvlIntimidation != null) 'lvl_intimidation': lvlIntimidation,
+      if (lvlInvestigation != null) 'lvl_investigation': lvlInvestigation,
+      if (lvlMedicine != null) 'lvl_medicine': lvlMedicine,
+      if (lvlNature != null) 'lvl_nature': lvlNature,
+      if (lvlPerception != null) 'lvl_perception': lvlPerception,
+      if (lvlPerformance != null) 'lvl_performance': lvlPerformance,
+      if (lvlPersuasion != null) 'lvl_persuasion': lvlPersuasion,
+      if (lvlReligion != null) 'lvl_religion': lvlReligion,
+      if (lvlSleightOfHand != null) 'lvl_sleight_of_hand': lvlSleightOfHand,
+      if (lvlStealth != null) 'lvl_stealth': lvlStealth,
+      if (lvlSurvival != null) 'lvl_survival': lvlSurvival,
+      if (inspiration != null) 'inspiration': inspiration,
+      if (exhaustion != null) 'exhaustion': exhaustion,
+      if (hitDiceUsed != null) 'hit_dice_used': hitDiceUsed,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -2213,6 +3167,27 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Value<bool>? skillSleightOfHand,
     Value<bool>? skillStealth,
     Value<bool>? skillSurvival,
+    Value<int>? lvlAcrobatics,
+    Value<int>? lvlAnimalHandling,
+    Value<int>? lvlArcana,
+    Value<int>? lvlAthletics,
+    Value<int>? lvlDeception,
+    Value<int>? lvlHistory,
+    Value<int>? lvlInsight,
+    Value<int>? lvlIntimidation,
+    Value<int>? lvlInvestigation,
+    Value<int>? lvlMedicine,
+    Value<int>? lvlNature,
+    Value<int>? lvlPerception,
+    Value<int>? lvlPerformance,
+    Value<int>? lvlPersuasion,
+    Value<int>? lvlReligion,
+    Value<int>? lvlSleightOfHand,
+    Value<int>? lvlStealth,
+    Value<int>? lvlSurvival,
+    Value<bool>? inspiration,
+    Value<int>? exhaustion,
+    Value<int>? hitDiceUsed,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<int>? rowid,
@@ -2260,6 +3235,27 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       skillSleightOfHand: skillSleightOfHand ?? this.skillSleightOfHand,
       skillStealth: skillStealth ?? this.skillStealth,
       skillSurvival: skillSurvival ?? this.skillSurvival,
+      lvlAcrobatics: lvlAcrobatics ?? this.lvlAcrobatics,
+      lvlAnimalHandling: lvlAnimalHandling ?? this.lvlAnimalHandling,
+      lvlArcana: lvlArcana ?? this.lvlArcana,
+      lvlAthletics: lvlAthletics ?? this.lvlAthletics,
+      lvlDeception: lvlDeception ?? this.lvlDeception,
+      lvlHistory: lvlHistory ?? this.lvlHistory,
+      lvlInsight: lvlInsight ?? this.lvlInsight,
+      lvlIntimidation: lvlIntimidation ?? this.lvlIntimidation,
+      lvlInvestigation: lvlInvestigation ?? this.lvlInvestigation,
+      lvlMedicine: lvlMedicine ?? this.lvlMedicine,
+      lvlNature: lvlNature ?? this.lvlNature,
+      lvlPerception: lvlPerception ?? this.lvlPerception,
+      lvlPerformance: lvlPerformance ?? this.lvlPerformance,
+      lvlPersuasion: lvlPersuasion ?? this.lvlPersuasion,
+      lvlReligion: lvlReligion ?? this.lvlReligion,
+      lvlSleightOfHand: lvlSleightOfHand ?? this.lvlSleightOfHand,
+      lvlStealth: lvlStealth ?? this.lvlStealth,
+      lvlSurvival: lvlSurvival ?? this.lvlSurvival,
+      inspiration: inspiration ?? this.inspiration,
+      exhaustion: exhaustion ?? this.exhaustion,
+      hitDiceUsed: hitDiceUsed ?? this.hitDiceUsed,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -2395,6 +3391,69 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     if (skillSurvival.present) {
       map['skill_survival'] = Variable<bool>(skillSurvival.value);
     }
+    if (lvlAcrobatics.present) {
+      map['lvl_acrobatics'] = Variable<int>(lvlAcrobatics.value);
+    }
+    if (lvlAnimalHandling.present) {
+      map['lvl_animal_handling'] = Variable<int>(lvlAnimalHandling.value);
+    }
+    if (lvlArcana.present) {
+      map['lvl_arcana'] = Variable<int>(lvlArcana.value);
+    }
+    if (lvlAthletics.present) {
+      map['lvl_athletics'] = Variable<int>(lvlAthletics.value);
+    }
+    if (lvlDeception.present) {
+      map['lvl_deception'] = Variable<int>(lvlDeception.value);
+    }
+    if (lvlHistory.present) {
+      map['lvl_history'] = Variable<int>(lvlHistory.value);
+    }
+    if (lvlInsight.present) {
+      map['lvl_insight'] = Variable<int>(lvlInsight.value);
+    }
+    if (lvlIntimidation.present) {
+      map['lvl_intimidation'] = Variable<int>(lvlIntimidation.value);
+    }
+    if (lvlInvestigation.present) {
+      map['lvl_investigation'] = Variable<int>(lvlInvestigation.value);
+    }
+    if (lvlMedicine.present) {
+      map['lvl_medicine'] = Variable<int>(lvlMedicine.value);
+    }
+    if (lvlNature.present) {
+      map['lvl_nature'] = Variable<int>(lvlNature.value);
+    }
+    if (lvlPerception.present) {
+      map['lvl_perception'] = Variable<int>(lvlPerception.value);
+    }
+    if (lvlPerformance.present) {
+      map['lvl_performance'] = Variable<int>(lvlPerformance.value);
+    }
+    if (lvlPersuasion.present) {
+      map['lvl_persuasion'] = Variable<int>(lvlPersuasion.value);
+    }
+    if (lvlReligion.present) {
+      map['lvl_religion'] = Variable<int>(lvlReligion.value);
+    }
+    if (lvlSleightOfHand.present) {
+      map['lvl_sleight_of_hand'] = Variable<int>(lvlSleightOfHand.value);
+    }
+    if (lvlStealth.present) {
+      map['lvl_stealth'] = Variable<int>(lvlStealth.value);
+    }
+    if (lvlSurvival.present) {
+      map['lvl_survival'] = Variable<int>(lvlSurvival.value);
+    }
+    if (inspiration.present) {
+      map['inspiration'] = Variable<bool>(inspiration.value);
+    }
+    if (exhaustion.present) {
+      map['exhaustion'] = Variable<int>(exhaustion.value);
+    }
+    if (hitDiceUsed.present) {
+      map['hit_dice_used'] = Variable<int>(hitDiceUsed.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -2452,6 +3511,27 @@ class CharactersCompanion extends UpdateCompanion<Character> {
           ..write('skillSleightOfHand: $skillSleightOfHand, ')
           ..write('skillStealth: $skillStealth, ')
           ..write('skillSurvival: $skillSurvival, ')
+          ..write('lvlAcrobatics: $lvlAcrobatics, ')
+          ..write('lvlAnimalHandling: $lvlAnimalHandling, ')
+          ..write('lvlArcana: $lvlArcana, ')
+          ..write('lvlAthletics: $lvlAthletics, ')
+          ..write('lvlDeception: $lvlDeception, ')
+          ..write('lvlHistory: $lvlHistory, ')
+          ..write('lvlInsight: $lvlInsight, ')
+          ..write('lvlIntimidation: $lvlIntimidation, ')
+          ..write('lvlInvestigation: $lvlInvestigation, ')
+          ..write('lvlMedicine: $lvlMedicine, ')
+          ..write('lvlNature: $lvlNature, ')
+          ..write('lvlPerception: $lvlPerception, ')
+          ..write('lvlPerformance: $lvlPerformance, ')
+          ..write('lvlPersuasion: $lvlPersuasion, ')
+          ..write('lvlReligion: $lvlReligion, ')
+          ..write('lvlSleightOfHand: $lvlSleightOfHand, ')
+          ..write('lvlStealth: $lvlStealth, ')
+          ..write('lvlSurvival: $lvlSurvival, ')
+          ..write('inspiration: $inspiration, ')
+          ..write('exhaustion: $exhaustion, ')
+          ..write('hitDiceUsed: $hitDiceUsed, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -5484,6 +6564,27 @@ typedef $$CharactersTableCreateCompanionBuilder =
       Value<bool> skillSleightOfHand,
       Value<bool> skillStealth,
       Value<bool> skillSurvival,
+      Value<int> lvlAcrobatics,
+      Value<int> lvlAnimalHandling,
+      Value<int> lvlArcana,
+      Value<int> lvlAthletics,
+      Value<int> lvlDeception,
+      Value<int> lvlHistory,
+      Value<int> lvlInsight,
+      Value<int> lvlIntimidation,
+      Value<int> lvlInvestigation,
+      Value<int> lvlMedicine,
+      Value<int> lvlNature,
+      Value<int> lvlPerception,
+      Value<int> lvlPerformance,
+      Value<int> lvlPersuasion,
+      Value<int> lvlReligion,
+      Value<int> lvlSleightOfHand,
+      Value<int> lvlStealth,
+      Value<int> lvlSurvival,
+      Value<bool> inspiration,
+      Value<int> exhaustion,
+      Value<int> hitDiceUsed,
       required DateTime createdAt,
       required DateTime updatedAt,
       Value<int> rowid,
@@ -5532,6 +6633,27 @@ typedef $$CharactersTableUpdateCompanionBuilder =
       Value<bool> skillSleightOfHand,
       Value<bool> skillStealth,
       Value<bool> skillSurvival,
+      Value<int> lvlAcrobatics,
+      Value<int> lvlAnimalHandling,
+      Value<int> lvlArcana,
+      Value<int> lvlAthletics,
+      Value<int> lvlDeception,
+      Value<int> lvlHistory,
+      Value<int> lvlInsight,
+      Value<int> lvlIntimidation,
+      Value<int> lvlInvestigation,
+      Value<int> lvlMedicine,
+      Value<int> lvlNature,
+      Value<int> lvlPerception,
+      Value<int> lvlPerformance,
+      Value<int> lvlPersuasion,
+      Value<int> lvlReligion,
+      Value<int> lvlSleightOfHand,
+      Value<int> lvlStealth,
+      Value<int> lvlSurvival,
+      Value<bool> inspiration,
+      Value<int> exhaustion,
+      Value<int> hitDiceUsed,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<int> rowid,
@@ -5867,6 +6989,111 @@ class $$CharactersTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<int> get lvlAcrobatics => $composableBuilder(
+    column: $table.lvlAcrobatics,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lvlAnimalHandling => $composableBuilder(
+    column: $table.lvlAnimalHandling,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lvlArcana => $composableBuilder(
+    column: $table.lvlArcana,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lvlAthletics => $composableBuilder(
+    column: $table.lvlAthletics,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lvlDeception => $composableBuilder(
+    column: $table.lvlDeception,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lvlHistory => $composableBuilder(
+    column: $table.lvlHistory,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lvlInsight => $composableBuilder(
+    column: $table.lvlInsight,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lvlIntimidation => $composableBuilder(
+    column: $table.lvlIntimidation,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lvlInvestigation => $composableBuilder(
+    column: $table.lvlInvestigation,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lvlMedicine => $composableBuilder(
+    column: $table.lvlMedicine,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lvlNature => $composableBuilder(
+    column: $table.lvlNature,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lvlPerception => $composableBuilder(
+    column: $table.lvlPerception,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lvlPerformance => $composableBuilder(
+    column: $table.lvlPerformance,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lvlPersuasion => $composableBuilder(
+    column: $table.lvlPersuasion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lvlReligion => $composableBuilder(
+    column: $table.lvlReligion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lvlSleightOfHand => $composableBuilder(
+    column: $table.lvlSleightOfHand,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lvlStealth => $composableBuilder(
+    column: $table.lvlStealth,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lvlSurvival => $composableBuilder(
+    column: $table.lvlSurvival,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get inspiration => $composableBuilder(
+    column: $table.inspiration,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get exhaustion => $composableBuilder(
+    column: $table.exhaustion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get hitDiceUsed => $composableBuilder(
+    column: $table.hitDiceUsed,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnFilters(column),
@@ -6199,6 +7426,111 @@ class $$CharactersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get lvlAcrobatics => $composableBuilder(
+    column: $table.lvlAcrobatics,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lvlAnimalHandling => $composableBuilder(
+    column: $table.lvlAnimalHandling,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lvlArcana => $composableBuilder(
+    column: $table.lvlArcana,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lvlAthletics => $composableBuilder(
+    column: $table.lvlAthletics,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lvlDeception => $composableBuilder(
+    column: $table.lvlDeception,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lvlHistory => $composableBuilder(
+    column: $table.lvlHistory,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lvlInsight => $composableBuilder(
+    column: $table.lvlInsight,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lvlIntimidation => $composableBuilder(
+    column: $table.lvlIntimidation,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lvlInvestigation => $composableBuilder(
+    column: $table.lvlInvestigation,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lvlMedicine => $composableBuilder(
+    column: $table.lvlMedicine,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lvlNature => $composableBuilder(
+    column: $table.lvlNature,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lvlPerception => $composableBuilder(
+    column: $table.lvlPerception,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lvlPerformance => $composableBuilder(
+    column: $table.lvlPerformance,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lvlPersuasion => $composableBuilder(
+    column: $table.lvlPersuasion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lvlReligion => $composableBuilder(
+    column: $table.lvlReligion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lvlSleightOfHand => $composableBuilder(
+    column: $table.lvlSleightOfHand,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lvlStealth => $composableBuilder(
+    column: $table.lvlStealth,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lvlSurvival => $composableBuilder(
+    column: $table.lvlSurvival,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get inspiration => $composableBuilder(
+    column: $table.inspiration,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get exhaustion => $composableBuilder(
+    column: $table.exhaustion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get hitDiceUsed => $composableBuilder(
+    column: $table.hitDiceUsed,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -6411,6 +7743,107 @@ class $$CharactersTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<int> get lvlAcrobatics => $composableBuilder(
+    column: $table.lvlAcrobatics,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get lvlAnimalHandling => $composableBuilder(
+    column: $table.lvlAnimalHandling,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get lvlArcana =>
+      $composableBuilder(column: $table.lvlArcana, builder: (column) => column);
+
+  GeneratedColumn<int> get lvlAthletics => $composableBuilder(
+    column: $table.lvlAthletics,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get lvlDeception => $composableBuilder(
+    column: $table.lvlDeception,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get lvlHistory => $composableBuilder(
+    column: $table.lvlHistory,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get lvlInsight => $composableBuilder(
+    column: $table.lvlInsight,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get lvlIntimidation => $composableBuilder(
+    column: $table.lvlIntimidation,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get lvlInvestigation => $composableBuilder(
+    column: $table.lvlInvestigation,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get lvlMedicine => $composableBuilder(
+    column: $table.lvlMedicine,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get lvlNature =>
+      $composableBuilder(column: $table.lvlNature, builder: (column) => column);
+
+  GeneratedColumn<int> get lvlPerception => $composableBuilder(
+    column: $table.lvlPerception,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get lvlPerformance => $composableBuilder(
+    column: $table.lvlPerformance,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get lvlPersuasion => $composableBuilder(
+    column: $table.lvlPersuasion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get lvlReligion => $composableBuilder(
+    column: $table.lvlReligion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get lvlSleightOfHand => $composableBuilder(
+    column: $table.lvlSleightOfHand,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get lvlStealth => $composableBuilder(
+    column: $table.lvlStealth,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get lvlSurvival => $composableBuilder(
+    column: $table.lvlSurvival,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get inspiration => $composableBuilder(
+    column: $table.inspiration,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get exhaustion => $composableBuilder(
+    column: $table.exhaustion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get hitDiceUsed => $composableBuilder(
+    column: $table.hitDiceUsed,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -6597,6 +8030,27 @@ class $$CharactersTableTableManager
                 Value<bool> skillSleightOfHand = const Value.absent(),
                 Value<bool> skillStealth = const Value.absent(),
                 Value<bool> skillSurvival = const Value.absent(),
+                Value<int> lvlAcrobatics = const Value.absent(),
+                Value<int> lvlAnimalHandling = const Value.absent(),
+                Value<int> lvlArcana = const Value.absent(),
+                Value<int> lvlAthletics = const Value.absent(),
+                Value<int> lvlDeception = const Value.absent(),
+                Value<int> lvlHistory = const Value.absent(),
+                Value<int> lvlInsight = const Value.absent(),
+                Value<int> lvlIntimidation = const Value.absent(),
+                Value<int> lvlInvestigation = const Value.absent(),
+                Value<int> lvlMedicine = const Value.absent(),
+                Value<int> lvlNature = const Value.absent(),
+                Value<int> lvlPerception = const Value.absent(),
+                Value<int> lvlPerformance = const Value.absent(),
+                Value<int> lvlPersuasion = const Value.absent(),
+                Value<int> lvlReligion = const Value.absent(),
+                Value<int> lvlSleightOfHand = const Value.absent(),
+                Value<int> lvlStealth = const Value.absent(),
+                Value<int> lvlSurvival = const Value.absent(),
+                Value<bool> inspiration = const Value.absent(),
+                Value<int> exhaustion = const Value.absent(),
+                Value<int> hitDiceUsed = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -6643,6 +8097,27 @@ class $$CharactersTableTableManager
                 skillSleightOfHand: skillSleightOfHand,
                 skillStealth: skillStealth,
                 skillSurvival: skillSurvival,
+                lvlAcrobatics: lvlAcrobatics,
+                lvlAnimalHandling: lvlAnimalHandling,
+                lvlArcana: lvlArcana,
+                lvlAthletics: lvlAthletics,
+                lvlDeception: lvlDeception,
+                lvlHistory: lvlHistory,
+                lvlInsight: lvlInsight,
+                lvlIntimidation: lvlIntimidation,
+                lvlInvestigation: lvlInvestigation,
+                lvlMedicine: lvlMedicine,
+                lvlNature: lvlNature,
+                lvlPerception: lvlPerception,
+                lvlPerformance: lvlPerformance,
+                lvlPersuasion: lvlPersuasion,
+                lvlReligion: lvlReligion,
+                lvlSleightOfHand: lvlSleightOfHand,
+                lvlStealth: lvlStealth,
+                lvlSurvival: lvlSurvival,
+                inspiration: inspiration,
+                exhaustion: exhaustion,
+                hitDiceUsed: hitDiceUsed,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,
@@ -6691,6 +8166,27 @@ class $$CharactersTableTableManager
                 Value<bool> skillSleightOfHand = const Value.absent(),
                 Value<bool> skillStealth = const Value.absent(),
                 Value<bool> skillSurvival = const Value.absent(),
+                Value<int> lvlAcrobatics = const Value.absent(),
+                Value<int> lvlAnimalHandling = const Value.absent(),
+                Value<int> lvlArcana = const Value.absent(),
+                Value<int> lvlAthletics = const Value.absent(),
+                Value<int> lvlDeception = const Value.absent(),
+                Value<int> lvlHistory = const Value.absent(),
+                Value<int> lvlInsight = const Value.absent(),
+                Value<int> lvlIntimidation = const Value.absent(),
+                Value<int> lvlInvestigation = const Value.absent(),
+                Value<int> lvlMedicine = const Value.absent(),
+                Value<int> lvlNature = const Value.absent(),
+                Value<int> lvlPerception = const Value.absent(),
+                Value<int> lvlPerformance = const Value.absent(),
+                Value<int> lvlPersuasion = const Value.absent(),
+                Value<int> lvlReligion = const Value.absent(),
+                Value<int> lvlSleightOfHand = const Value.absent(),
+                Value<int> lvlStealth = const Value.absent(),
+                Value<int> lvlSurvival = const Value.absent(),
+                Value<bool> inspiration = const Value.absent(),
+                Value<int> exhaustion = const Value.absent(),
+                Value<int> hitDiceUsed = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
                 Value<int> rowid = const Value.absent(),
@@ -6737,6 +8233,27 @@ class $$CharactersTableTableManager
                 skillSleightOfHand: skillSleightOfHand,
                 skillStealth: skillStealth,
                 skillSurvival: skillSurvival,
+                lvlAcrobatics: lvlAcrobatics,
+                lvlAnimalHandling: lvlAnimalHandling,
+                lvlArcana: lvlArcana,
+                lvlAthletics: lvlAthletics,
+                lvlDeception: lvlDeception,
+                lvlHistory: lvlHistory,
+                lvlInsight: lvlInsight,
+                lvlIntimidation: lvlIntimidation,
+                lvlInvestigation: lvlInvestigation,
+                lvlMedicine: lvlMedicine,
+                lvlNature: lvlNature,
+                lvlPerception: lvlPerception,
+                lvlPerformance: lvlPerformance,
+                lvlPersuasion: lvlPersuasion,
+                lvlReligion: lvlReligion,
+                lvlSleightOfHand: lvlSleightOfHand,
+                lvlStealth: lvlStealth,
+                lvlSurvival: lvlSurvival,
+                inspiration: inspiration,
+                exhaustion: exhaustion,
+                hitDiceUsed: hitDiceUsed,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,

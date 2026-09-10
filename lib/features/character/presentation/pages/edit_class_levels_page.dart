@@ -1,6 +1,7 @@
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/hit_points_calculator.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/spellcasting_type.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
@@ -196,7 +197,7 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.save),
-                label: Text(_saving ? 'Salvando...' : 'Salvar multiclasse'),
+                label: Text(_saving ? 'Salvando...' : 'Salvar'),
               ),
             ],
           );
@@ -323,7 +324,11 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
         ClassLevel(
           classId: selectedClass.id,
           level: 1,
-          spellcastingAbility: _abilityFromString(selectedClass.primaryAbility),
+          // Usa o atributo de conjuração declarado, não o primário
+          // (Patrulheiro conjura com Sabedoria, mas tem Destreza primária).
+          spellcastingAbility: _abilityFromString(
+            selectedClass.spellcastingAbility ?? selectedClass.primaryAbility,
+          ),
           spellcastingType:
               _spellcastingTypeForClass(selectedClass.spellcastingType),
         ),
@@ -370,10 +375,19 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
 
     try {
       final useCase = ref.read(updateCharacterClassLevelsProvider);
+      final classes = await ref.read(classEntriesProvider.future);
 
       await useCase(
         characterId: widget.characterId,
         classLevels: _classLevels,
+        dieSizeForClass: (classId) {
+          for (final entry in classes) {
+            if (entry.id == classId) {
+              return HitPointsCalculator.parseDieSize(entry.hitDie);
+            }
+          }
+          return 8;
+        },
       );
 
       if (!mounted) return;

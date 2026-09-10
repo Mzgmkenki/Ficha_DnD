@@ -11,6 +11,7 @@ import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/clas
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/combat_summary_card.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/magic_items_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/racial_traits_panel.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/rest_and_resources_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/saving_throws_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/skills_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/spell_slots_panel.dart';
@@ -124,6 +125,14 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                   ),
                   const SizedBox(height: 8),
                   CombatSummaryCard(character: character),
+
+                  const SizedBox(height: 16),
+                  const _SectionHeader(title: 'Recursos e descanso'),
+                  const SizedBox(height: 8),
+                  RestAndResourcesPanel(
+                    character: character,
+                    classes: classes,
+                  ),
 
                   const SizedBox(height: 16),
                   _SectionHeader(

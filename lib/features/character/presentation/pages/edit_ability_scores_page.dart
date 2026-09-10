@@ -1,6 +1,8 @@
 import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/hit_points_calculator.dart';
+import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -177,10 +179,20 @@ class _EditAbilityScoresPageState extends ConsumerState<EditAbilityScoresPage> {
 
     try {
       final useCase = ref.read(updateCharacterAbilityScoresProvider);
+      final classes = await ref.read(classEntriesProvider.future);
 
       await useCase(
         characterId: widget.characterId,
         abilityScores: newScores,
+        // Permite recalcular o PV máximo quando a Constituição muda.
+        dieSizeForClass: (classId) {
+          for (final entry in classes) {
+            if (entry.id == classId) {
+              return HitPointsCalculator.parseDieSize(entry.hitDie);
+            }
+          }
+          return 8;
+        },
       );
 
       if (!mounted) return;

@@ -9,7 +9,14 @@ import 'package:dnd_ficha_app/features/character/domain/entities/character_magic
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart'
     as domain_spells;
 import 'package:dnd_ficha_app/features/character/domain/repositories/character_repository.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart'
+    as domain_skill;
 import 'package:drift/drift.dart' as drift;
+
+/// Converte o nível de proficiência de uma perícia no inteiro persistido.
+int _lvl(domain.Character character, domain_skill.Skill skill) {
+  return character.skillProficiencies.levelFor(skill).dbValue;
+}
 
 class CharacterRepositoryImpl implements CharacterRepository {
   CharacterRepositoryImpl(this._database);
@@ -80,6 +87,32 @@ class CharacterRepositoryImpl implements CharacterRepository {
                   drift.Value(character.skillProficiencies.sleightOfHand),
               skillStealth: drift.Value(character.skillProficiencies.stealth),
               skillSurvival: drift.Value(character.skillProficiencies.survival),
+              lvlAcrobatics: drift.Value(_lvl(character, domain_skill.Skill.acrobatics)),
+              lvlAnimalHandling:
+                  drift.Value(_lvl(character, domain_skill.Skill.animalHandling)),
+              lvlArcana: drift.Value(_lvl(character, domain_skill.Skill.arcana)),
+              lvlAthletics: drift.Value(_lvl(character, domain_skill.Skill.athletics)),
+              lvlDeception: drift.Value(_lvl(character, domain_skill.Skill.deception)),
+              lvlHistory: drift.Value(_lvl(character, domain_skill.Skill.history)),
+              lvlInsight: drift.Value(_lvl(character, domain_skill.Skill.insight)),
+              lvlIntimidation:
+                  drift.Value(_lvl(character, domain_skill.Skill.intimidation)),
+              lvlInvestigation:
+                  drift.Value(_lvl(character, domain_skill.Skill.investigation)),
+              lvlMedicine: drift.Value(_lvl(character, domain_skill.Skill.medicine)),
+              lvlNature: drift.Value(_lvl(character, domain_skill.Skill.nature)),
+              lvlPerception: drift.Value(_lvl(character, domain_skill.Skill.perception)),
+              lvlPerformance:
+                  drift.Value(_lvl(character, domain_skill.Skill.performance)),
+              lvlPersuasion: drift.Value(_lvl(character, domain_skill.Skill.persuasion)),
+              lvlReligion: drift.Value(_lvl(character, domain_skill.Skill.religion)),
+              lvlSleightOfHand:
+                  drift.Value(_lvl(character, domain_skill.Skill.sleightOfHand)),
+              lvlStealth: drift.Value(_lvl(character, domain_skill.Skill.stealth)),
+              lvlSurvival: drift.Value(_lvl(character, domain_skill.Skill.survival)),
+              inspiration: drift.Value(character.inspiration),
+              exhaustion: drift.Value(character.exhaustion),
+              hitDiceUsed: drift.Value(character.hitDiceUsed),
               createdAt: character.createdAt,
               updatedAt: character.updatedAt,
             ),
@@ -265,6 +298,24 @@ class CharacterRepositoryImpl implements CharacterRepository {
     );
   }
 
+  @override
+  Future<void> resetUsedSpellSlots({
+    required String characterId,
+    List<int>? slotLevels,
+  }) async {
+    if (slotLevels != null && slotLevels.isEmpty) return;
+
+    // Condição montada de uma só vez: chamar `where` duas vezes poderia
+    // sobrescrever o filtro anterior em vez de combiná-lo.
+    await (_database.delete(_database.characterSpellSlotsUsage)
+          ..where((tbl) {
+            final sameCharacter = tbl.characterId.equals(characterId);
+            if (slotLevels == null) return sameCharacter;
+            return sameCharacter & tbl.slotLevel.isIn(slotLevels);
+          }))
+        .go();
+  }
+
   /// Reemite a cada mudança em qualquer tabela do personagem. O `findById`
   /// já monta o agregado completo (níveis, magias, itens e magias de item),
   /// então basta reexecutá-lo quando algo muda.
@@ -353,6 +404,31 @@ class CharacterRepositoryImpl implements CharacterRepository {
               drift.Value(character.skillProficiencies.sleightOfHand),
           skillStealth: drift.Value(character.skillProficiencies.stealth),
           skillSurvival: drift.Value(character.skillProficiencies.survival),
+          lvlAcrobatics: drift.Value(_lvl(character, domain_skill.Skill.acrobatics)),
+          lvlAnimalHandling:
+              drift.Value(_lvl(character, domain_skill.Skill.animalHandling)),
+          lvlArcana: drift.Value(_lvl(character, domain_skill.Skill.arcana)),
+          lvlAthletics: drift.Value(_lvl(character, domain_skill.Skill.athletics)),
+          lvlDeception: drift.Value(_lvl(character, domain_skill.Skill.deception)),
+          lvlHistory: drift.Value(_lvl(character, domain_skill.Skill.history)),
+          lvlInsight: drift.Value(_lvl(character, domain_skill.Skill.insight)),
+          lvlIntimidation:
+              drift.Value(_lvl(character, domain_skill.Skill.intimidation)),
+          lvlInvestigation:
+              drift.Value(_lvl(character, domain_skill.Skill.investigation)),
+          lvlMedicine: drift.Value(_lvl(character, domain_skill.Skill.medicine)),
+          lvlNature: drift.Value(_lvl(character, domain_skill.Skill.nature)),
+          lvlPerception: drift.Value(_lvl(character, domain_skill.Skill.perception)),
+          lvlPerformance: drift.Value(_lvl(character, domain_skill.Skill.performance)),
+          lvlPersuasion: drift.Value(_lvl(character, domain_skill.Skill.persuasion)),
+          lvlReligion: drift.Value(_lvl(character, domain_skill.Skill.religion)),
+          lvlSleightOfHand:
+              drift.Value(_lvl(character, domain_skill.Skill.sleightOfHand)),
+          lvlStealth: drift.Value(_lvl(character, domain_skill.Skill.stealth)),
+          lvlSurvival: drift.Value(_lvl(character, domain_skill.Skill.survival)),
+          inspiration: drift.Value(character.inspiration),
+          exhaustion: drift.Value(character.exhaustion),
+          hitDiceUsed: drift.Value(character.hitDiceUsed),
           updatedAt: drift.Value(character.updatedAt),
         ),
       );

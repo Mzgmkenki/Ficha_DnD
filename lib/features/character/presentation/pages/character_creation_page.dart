@@ -9,6 +9,8 @@ import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart
 import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/proficiency_level.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/spellcasting_type.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart'
     as compendium_providers;
@@ -58,99 +60,6 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
     'wisdom': 'Sabedoria',
     'charisma': 'Carisma',
   };
-
-  static const List<_SkillOptionData> _allSkills = [
-    _SkillOptionData(
-      id: 'acrobatics',
-      label: 'Acrobacia',
-      abilityAbbreviation: 'DES',
-    ),
-    _SkillOptionData(
-      id: 'animalHandling',
-      label: 'Adestrar Animais',
-      abilityAbbreviation: 'SAB',
-    ),
-    _SkillOptionData(
-      id: 'arcana',
-      label: 'Arcanismo',
-      abilityAbbreviation: 'INT',
-    ),
-    _SkillOptionData(
-      id: 'athletics',
-      label: 'Atletismo',
-      abilityAbbreviation: 'FOR',
-    ),
-    _SkillOptionData(
-      id: 'deception',
-      label: 'Enganação',
-      abilityAbbreviation: 'CAR',
-    ),
-    _SkillOptionData(
-      id: 'history',
-      label: 'História',
-      abilityAbbreviation: 'INT',
-    ),
-    _SkillOptionData(
-      id: 'insight',
-      label: 'Intuição',
-      abilityAbbreviation: 'SAB',
-    ),
-    _SkillOptionData(
-      id: 'intimidation',
-      label: 'Intimidação',
-      abilityAbbreviation: 'CAR',
-    ),
-    _SkillOptionData(
-      id: 'investigation',
-      label: 'Investigação',
-      abilityAbbreviation: 'INT',
-    ),
-    _SkillOptionData(
-      id: 'medicine',
-      label: 'Medicina',
-      abilityAbbreviation: 'SAB',
-    ),
-    _SkillOptionData(
-      id: 'nature',
-      label: 'Natureza',
-      abilityAbbreviation: 'INT',
-    ),
-    _SkillOptionData(
-      id: 'perception',
-      label: 'Percepção',
-      abilityAbbreviation: 'SAB',
-    ),
-    _SkillOptionData(
-      id: 'performance',
-      label: 'Atuação',
-      abilityAbbreviation: 'CAR',
-    ),
-    _SkillOptionData(
-      id: 'persuasion',
-      label: 'Persuasão',
-      abilityAbbreviation: 'CAR',
-    ),
-    _SkillOptionData(
-      id: 'religion',
-      label: 'Religião',
-      abilityAbbreviation: 'INT',
-    ),
-    _SkillOptionData(
-      id: 'sleightOfHand',
-      label: 'Prestidigitação',
-      abilityAbbreviation: 'DES',
-    ),
-    _SkillOptionData(
-      id: 'stealth',
-      label: 'Furtividade',
-      abilityAbbreviation: 'DES',
-    ),
-    _SkillOptionData(
-      id: 'survival',
-      label: 'Sobrevivência',
-      abilityAbbreviation: 'SAB',
-    ),
-  ];
 
   @override
   void dispose() {
@@ -430,7 +339,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 12),
-                    ..._allSkills.map((skill) {
+                    ...Skill.sortedByLabel.map((skill) {
                       final isClassSkill =
                           selectedClass.skillOptions.contains(skill.id);
 
@@ -453,7 +362,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                             });
                           },
                           title: Text(
-                            '${skill.label} (${skill.abilityAbbreviation})',
+                            '${skill.label} (${skill.abbreviation})',
                           ),
                           subtitle: isClassSkill
                               ? const Text('Perícia oferecida pela classe')
@@ -718,26 +627,15 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
   }
 
   SkillProficiencies _buildSkillProficienciesFromSelection() {
-    return SkillProficiencies(
-      acrobatics: _selectedSkills.contains('acrobatics'),
-      animalHandling: _selectedSkills.contains('animalHandling'),
-      arcana: _selectedSkills.contains('arcana'),
-      athletics: _selectedSkills.contains('athletics'),
-      deception: _selectedSkills.contains('deception'),
-      history: _selectedSkills.contains('history'),
-      insight: _selectedSkills.contains('insight'),
-      intimidation: _selectedSkills.contains('intimidation'),
-      investigation: _selectedSkills.contains('investigation'),
-      medicine: _selectedSkills.contains('medicine'),
-      nature: _selectedSkills.contains('nature'),
-      perception: _selectedSkills.contains('perception'),
-      performance: _selectedSkills.contains('performance'),
-      persuasion: _selectedSkills.contains('persuasion'),
-      religion: _selectedSkills.contains('religion'),
-      sleightOfHand: _selectedSkills.contains('sleightOfHand'),
-      stealth: _selectedSkills.contains('stealth'),
-      survival: _selectedSkills.contains('survival'),
-    );
+    final levels = <Skill, ProficiencyLevel>{};
+
+    for (final skill in Skill.values) {
+      if (_selectedSkills.contains(skill.id)) {
+        levels[skill] = ProficiencyLevel.proficient;
+      }
+    }
+
+    return SkillProficiencies(levels: levels);
   }
 
   Ability? _abilityFromString(String? value) {
@@ -946,14 +844,3 @@ class _RaceSummaryCard extends StatelessWidget {
   }
 }
 
-class _SkillOptionData {
-  const _SkillOptionData({
-    required this.id,
-    required this.label,
-    required this.abilityAbbreviation,
-  });
-
-  final String id;
-  final String label;
-  final String abilityAbbreviation;
-}

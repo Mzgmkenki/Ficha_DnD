@@ -1,83 +1,114 @@
+import 'package:dnd_ficha_app/features/character/domain/value_objects/proficiency_level.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
+
+/// Proficiências de perícia do personagem.
+///
+/// Antes cada perícia era um `bool`, o que impedia representar Especialista
+/// (bônus dobrado) e Meia Proficiência. Agora guardamos um
+/// [ProficiencyLevel] por perícia.
 class SkillProficiencies {
-  const SkillProficiencies({
-    this.acrobatics = false,
-    this.animalHandling = false,
-    this.arcana = false,
-    this.athletics = false,
-    this.deception = false,
-    this.history = false,
-    this.insight = false,
-    this.intimidation = false,
-    this.investigation = false,
-    this.medicine = false,
-    this.nature = false,
-    this.perception = false,
-    this.performance = false,
-    this.persuasion = false,
-    this.religion = false,
-    this.sleightOfHand = false,
-    this.stealth = false,
-    this.survival = false,
-  });
+  const SkillProficiencies({Map<Skill, ProficiencyLevel>? levels})
+      : _levels = levels ?? const {};
 
-  final bool acrobatics;
-  final bool animalHandling;
-  final bool arcana;
-  final bool athletics;
-  final bool deception;
-  final bool history;
-  final bool insight;
-  final bool intimidation;
-  final bool investigation;
-  final bool medicine;
-  final bool nature;
-  final bool perception;
-  final bool performance;
-  final bool persuasion;
-  final bool religion;
-  final bool sleightOfHand;
-  final bool stealth;
-  final bool survival;
-
-  SkillProficiencies copyWith({
-    bool? acrobatics,
-    bool? animalHandling,
-    bool? arcana,
-    bool? athletics,
-    bool? deception,
-    bool? history,
-    bool? insight,
-    bool? intimidation,
-    bool? investigation,
-    bool? medicine,
-    bool? nature,
-    bool? perception,
-    bool? performance,
-    bool? persuasion,
-    bool? religion,
-    bool? sleightOfHand,
-    bool? stealth,
-    bool? survival,
+  /// Construtor de compatibilidade: recebe os antigos booleanos e converte
+  /// `true` em [ProficiencyLevel.proficient].
+  factory SkillProficiencies.fromBooleans({
+    bool acrobatics = false,
+    bool animalHandling = false,
+    bool arcana = false,
+    bool athletics = false,
+    bool deception = false,
+    bool history = false,
+    bool insight = false,
+    bool intimidation = false,
+    bool investigation = false,
+    bool medicine = false,
+    bool nature = false,
+    bool perception = false,
+    bool performance = false,
+    bool persuasion = false,
+    bool religion = false,
+    bool sleightOfHand = false,
+    bool stealth = false,
+    bool survival = false,
   }) {
-    return SkillProficiencies(
-      acrobatics: acrobatics ?? this.acrobatics,
-      animalHandling: animalHandling ?? this.animalHandling,
-      arcana: arcana ?? this.arcana,
-      athletics: athletics ?? this.athletics,
-      deception: deception ?? this.deception,
-      history: history ?? this.history,
-      insight: insight ?? this.insight,
-      intimidation: intimidation ?? this.intimidation,
-      investigation: investigation ?? this.investigation,
-      medicine: medicine ?? this.medicine,
-      nature: nature ?? this.nature,
-      perception: perception ?? this.perception,
-      performance: performance ?? this.performance,
-      persuasion: persuasion ?? this.persuasion,
-      religion: religion ?? this.religion,
-      sleightOfHand: sleightOfHand ?? this.sleightOfHand,
-      stealth: stealth ?? this.stealth,
-      survival: survival ?? this.survival,
-    );
+    final map = <Skill, ProficiencyLevel>{};
+
+    void put(Skill skill, bool value) {
+      if (value) map[skill] = ProficiencyLevel.proficient;
+    }
+
+    put(Skill.acrobatics, acrobatics);
+    put(Skill.animalHandling, animalHandling);
+    put(Skill.arcana, arcana);
+    put(Skill.athletics, athletics);
+    put(Skill.deception, deception);
+    put(Skill.history, history);
+    put(Skill.insight, insight);
+    put(Skill.intimidation, intimidation);
+    put(Skill.investigation, investigation);
+    put(Skill.medicine, medicine);
+    put(Skill.nature, nature);
+    put(Skill.perception, perception);
+    put(Skill.performance, performance);
+    put(Skill.persuasion, persuasion);
+    put(Skill.religion, religion);
+    put(Skill.sleightOfHand, sleightOfHand);
+    put(Skill.stealth, stealth);
+    put(Skill.survival, survival);
+
+    return SkillProficiencies(levels: map);
   }
+
+  final Map<Skill, ProficiencyLevel> _levels;
+
+  ProficiencyLevel levelFor(Skill skill) =>
+      _levels[skill] ?? ProficiencyLevel.none;
+
+  bool isProficient(Skill skill) => levelFor(skill).isProficientOrBetter;
+
+  /// Todas as perícias com algum nível diferente de [ProficiencyLevel.none].
+  Map<Skill, ProficiencyLevel> get activeLevels {
+    final result = <Skill, ProficiencyLevel>{};
+    for (final entry in _levels.entries) {
+      if (entry.value != ProficiencyLevel.none) {
+        result[entry.key] = entry.value;
+      }
+    }
+    return result;
+  }
+
+  SkillProficiencies withLevel(Skill skill, ProficiencyLevel level) {
+    final next = Map<Skill, ProficiencyLevel>.from(_levels);
+    if (level == ProficiencyLevel.none) {
+      next.remove(skill);
+    } else {
+      next[skill] = level;
+    }
+    return SkillProficiencies(levels: next);
+  }
+
+  SkillProficiencies copyWith({Map<Skill, ProficiencyLevel>? levels}) {
+    return SkillProficiencies(levels: levels ?? _levels);
+  }
+
+  // Getters de conveniência mantidos para não quebrar chamadas existentes.
+  bool get acrobatics => isProficient(Skill.acrobatics);
+  bool get animalHandling => isProficient(Skill.animalHandling);
+  bool get arcana => isProficient(Skill.arcana);
+  bool get athletics => isProficient(Skill.athletics);
+  bool get deception => isProficient(Skill.deception);
+  bool get history => isProficient(Skill.history);
+  bool get insight => isProficient(Skill.insight);
+  bool get intimidation => isProficient(Skill.intimidation);
+  bool get investigation => isProficient(Skill.investigation);
+  bool get medicine => isProficient(Skill.medicine);
+  bool get nature => isProficient(Skill.nature);
+  bool get perception => isProficient(Skill.perception);
+  bool get performance => isProficient(Skill.performance);
+  bool get persuasion => isProficient(Skill.persuasion);
+  bool get religion => isProficient(Skill.religion);
+  bool get sleightOfHand => isProficient(Skill.sleightOfHand);
+  bool get stealth => isProficient(Skill.stealth);
+  bool get survival => isProficient(Skill.survival);
 }

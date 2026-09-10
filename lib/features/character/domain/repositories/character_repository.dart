@@ -60,4 +60,12 @@ abstract class CharacterRepository {
     required int slotLevel,
     required int used,
   });
+
+  /// Zera o uso de espaços de magia. Se [slotLevels] for nulo, zera todos
+  /// (descanso longo); se for uma lista, zera apenas aqueles níveis
+  /// (descanso curto do Bruxo).
+  Future<void> resetUsedSpellSlots({
+    required String characterId,
+    List<int>? slotLevels,
+  });
 }

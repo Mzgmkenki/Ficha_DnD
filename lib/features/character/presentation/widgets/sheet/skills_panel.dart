@@ -1,5 +1,6 @@
-import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/skill_calculator.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/derived_value_row.dart';
 import 'package:flutter/material.dart';
 
@@ -13,138 +14,110 @@ class SkillsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final proficiency = character.proficiencyBonus;
-    final skills = character.skillProficiencies;
-
-    final strengthMod = character.abilityScores.strength.abilityModifier;
-    final dexterityMod = character.abilityScores.dexterity.abilityModifier;
-    final intelligenceMod = character.abilityScores.intelligence.abilityModifier;
-    final wisdomMod = character.abilityScores.wisdom.abilityModifier;
-    final charismaMod = character.abilityScores.charisma.abilityModifier;
+    final skills = Skill.sortedByLabel;
 
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Perícias',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
+            Text(
+              'Perícias',
+              style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 12),
-            DerivedValueRow(
-              label: 'Acrobacia (DES)',
-              value: dexterityMod + (skills.acrobatics ? proficiency : 0),
-              proficient: skills.acrobatics,
-            ),
-            const SizedBox(height: 8),
-            DerivedValueRow(
-              label: 'Adestrar Animais (SAB)',
-              value: wisdomMod + (skills.animalHandling ? proficiency : 0),
-              proficient: skills.animalHandling,
-            ),
-            const SizedBox(height: 8),
-            DerivedValueRow(
-              label: 'Arcanismo (INT)',
-              value: intelligenceMod + (skills.arcana ? proficiency : 0),
-              proficient: skills.arcana,
-            ),
-            const SizedBox(height: 8),
-            DerivedValueRow(
-              label: 'Atletismo (FOR)',
-              value: strengthMod + (skills.athletics ? proficiency : 0),
-              proficient: skills.athletics,
-            ),
-            const SizedBox(height: 8),
-            DerivedValueRow(
-              label: 'Atuação (CAR)',
-              value: charismaMod + (skills.performance ? proficiency : 0),
-              proficient: skills.performance,
-            ),
-            const SizedBox(height: 8),
-            DerivedValueRow(
-              label: 'Enganação (CAR)',
-              value: charismaMod + (skills.deception ? proficiency : 0),
-              proficient: skills.deception,
-            ),
-            const SizedBox(height: 8),
-            DerivedValueRow(
-              label: 'Furtividade (DES)',
-              value: dexterityMod + (skills.stealth ? proficiency : 0),
-              proficient: skills.stealth,
-            ),
-            const SizedBox(height: 8),
-            DerivedValueRow(
-              label: 'História (INT)',
-              value: intelligenceMod + (skills.history ? proficiency : 0),
-              proficient: skills.history,
-            ),
-            const SizedBox(height: 8),
-            DerivedValueRow(
-              label: 'Intimidação (CAR)',
-              value: charismaMod + (skills.intimidation ? proficiency : 0),
-              proficient: skills.intimidation,
-            ),
-            const SizedBox(height: 8),
-            DerivedValueRow(
-              label: 'Intuição (SAB)',
-              value: wisdomMod + (skills.insight ? proficiency : 0),
-              proficient: skills.insight,
-            ),
-            const SizedBox(height: 8),
-            DerivedValueRow(
-              label: 'Investigação (INT)',
-              value: intelligenceMod + (skills.investigation ? proficiency : 0),
-              proficient: skills.investigation,
-            ),
-            const SizedBox(height: 8),
-            DerivedValueRow(
-              label: 'Medicina (SAB)',
-              value: wisdomMod + (skills.medicine ? proficiency : 0),
-              proficient: skills.medicine,
-            ),
-            const SizedBox(height: 8),
-            DerivedValueRow(
-              label: 'Natureza (INT)',
-              value: intelligenceMod + (skills.nature ? proficiency : 0),
-              proficient: skills.nature,
-            ),
-            const SizedBox(height: 8),
-            DerivedValueRow(
-              label: 'Percepção (SAB)',
-              value: wisdomMod + (skills.perception ? proficiency : 0),
-              proficient: skills.perception,
-            ),
-            const SizedBox(height: 8),
-            DerivedValueRow(
-              label: 'Persuasão (CAR)',
-              value: charismaMod + (skills.persuasion ? proficiency : 0),
-              proficient: skills.persuasion,
-            ),
-            const SizedBox(height: 8),
-            DerivedValueRow(
-              label: 'Prestidigitação (DES)',
-              value: dexterityMod + (skills.sleightOfHand ? proficiency : 0),
-              proficient: skills.sleightOfHand,
-            ),
-            const SizedBox(height: 8),
-            DerivedValueRow(
-              label: 'Religião (INT)',
-              value: intelligenceMod + (skills.religion ? proficiency : 0),
-              proficient: skills.religion,
-            ),
-            const SizedBox(height: 8),
-            DerivedValueRow(
-              label: 'Sobrevivência (SAB)',
-              value: wisdomMod + (skills.survival ? proficiency : 0),
-              proficient: skills.survival,
-            ),
+            _PassiveScores(character: character),
+            const SizedBox(height: 16),
+            for (var i = 0; i < skills.length; i++) ...[
+              if (i > 0) const SizedBox(height: 8),
+              DerivedValueRow(
+                label: '${skills[i].label} (${skills[i].abbreviation})',
+                value: SkillCalculator.skillBonus(character, skills[i]),
+                level: character.skillProficiencies.levelFor(skills[i]),
+              ),
+            ],
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Valores passivos, obrigatórios numa ficha 5e e antes ausentes.
+class _PassiveScores extends StatelessWidget {
+  const _PassiveScores({required this.character});
+
+  final Character character;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasExhaustion = character.exhaustion >= 1;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Theme.of(context)
+            .colorScheme
+            .surfaceContainerHighest
+            .withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Valores passivos',
+            style: Theme.of(context).textTheme.labelLarge,
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 16,
+            runSpacing: 8,
+            children: [
+              _PassiveChip(
+                label: 'Percepção',
+                value: SkillCalculator.passivePerception(character),
+              ),
+              _PassiveChip(
+                label: 'Investigação',
+                value: SkillCalculator.passiveInvestigation(character),
+              ),
+              _PassiveChip(
+                label: 'Intuição',
+                value: SkillCalculator.passiveInsight(character),
+              ),
+            ],
+          ),
+          if (hasExhaustion) ...[
+            const SizedBox(height: 8),
+            Text(
+              'Exaustão ${character.exhaustion}: desvantagem em testes '
+              'reduz os valores passivos em 5.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _PassiveChip extends StatelessWidget {
+  const _PassiveChip({required this.label, required this.value});
+
+  final String label;
+  final int value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: Theme.of(context).textTheme.bodySmall),
+        Text('$value', style: Theme.of(context).textTheme.titleMedium),
+      ],
     );
   }
 }

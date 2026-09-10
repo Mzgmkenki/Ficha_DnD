@@ -21,7 +21,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   /// Sem este override o drift usa a estratégia padrão, cujo `onUpgrade`
   /// lança exceção — qualquer base criada numa versão anterior deixaria o

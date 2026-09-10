@@ -1,4 +1,5 @@
 import 'package:dnd_ficha_app/core/di/providers.dart';
+import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/update_character_ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/update_character_class_levels.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/update_character_proficiencies.dart';
@@ -7,6 +8,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/character.dart'
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item_spell.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/rest_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final charactersProvider = StreamProvider<List<Character>>((ref) {
@@ -184,4 +186,115 @@ final characterUsedSpellSlotsProvider =
     StreamProvider.autoDispose.family<Map<int, int>, String>((ref, characterId) {
   final repository = ref.watch(characterRepositoryProvider);
   return repository.watchUsedSpellSlots(characterId);
+});
+
+/// Aplica um descanso longo: PV cheios, espaços de magia renovados,
+/// metade dos dados de vida recuperados e 1 nível de exaustão removido.
+final longRestProvider = Provider<
+    Future<String> Function({
+      required Character character,
+      required int totalHitDice,
+    })>((ref) {
+  final repository = ref.watch(characterRepositoryProvider);
+
+  return ({required Character character, required int totalHitDice}) async {
+    final outcome = RestService.longRest(
+      character: character,
+      totalHitDice: totalHitDice,
+    );
+
+    await repository.update(outcome.character);
+    await repository.resetUsedSpellSlots(
+      characterId: character.id,
+      slotLevels: outcome.clearedSpellSlotLevels,
+    );
+
+    return outcome.summary;
+  };
+});
+
+/// Aplica um descanso curto: apenas os espaços de Magia de Pacto voltam.
+final shortRestProvider = Provider<
+    Future<String> Function({
+      required Character character,
+      required List<int> pactSlotUsageKeys,
+    })>((ref) {
+  final repository = ref.watch(characterRepositoryProvider);
+
+  return ({
+    required Character character,
+    required List<int> pactSlotUsageKeys,
+  }) async {
+    final outcome = RestService.shortRest(
+      character: character,
+      pactSlotUsageKeys: pactSlotUsageKeys,
+    );
+
+    await repository.update(outcome.character);
+
+    if (pactSlotUsageKeys.isNotEmpty) {
+      await repository.resetUsedSpellSlots(
+        characterId: character.id,
+        slotLevels: pactSlotUsageKeys,
+      );
+    }
+
+    return outcome.summary;
+  };
+});
+
+/// Gasta um dado de vida e cura o valor rolado + modificador de Constituição.
+final spendHitDieProvider = Provider<
+    Future<void> Function({
+      required Character character,
+      required int rolled,
+      required int totalHitDice,
+    })>((ref) {
+  final repository = ref.watch(characterRepositoryProvider);
+
+  return ({
+    required Character character,
+    required int rolled,
+    required int totalHitDice,
+  }) async {
+    final updated = RestService.spendHitDie(
+      character: character,
+      rolled: rolled,
+      constitutionModifier:
+          character.abilityScores.constitution.abilityModifier,
+      totalHitDice: totalHitDice,
+    );
+
+    await repository.update(updated);
+  };
+});
+
+/// Alterna a inspiração heroica.
+final toggleInspirationProvider =
+    Provider<Future<void> Function(Character)>((ref) {
+  final repository = ref.watch(characterRepositoryProvider);
+
+  return (Character character) {
+    return repository.update(
+      character.copyWith(
+        inspiration: !character.inspiration,
+        updatedAt: DateTime.now(),
+      ),
+    );
+  };
+});
+
+/// Define o nível de exaustão (0 a 6).
+final setExhaustionProvider =
+    Provider<Future<void> Function(Character, int)>((ref) {
+  final repository = ref.watch(characterRepositoryProvider);
+
+  return (Character character, int level) {
+    return repository.update(
+      character.copyWith(
+        exhaustion: level.clamp(0, 6),
+        updatedAt: DateTime.now(),
+      ),
+    );
+  };
 });

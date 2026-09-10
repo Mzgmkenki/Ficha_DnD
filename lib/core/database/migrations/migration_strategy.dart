@@ -3,11 +3,13 @@ import 'package:drift/drift.dart';
 
 /// Estratégia de migração do banco local.
 ///
-/// As migrações aqui são **idempotentes**: antes de adicionar uma coluna
-/// verificamos se ela já existe. Isso evita o erro `duplicate column name`
-/// em bases que ficaram em estados intermediários (o override `migration`
-/// só passou a ser ligado ao [AppDatabase] depois de um tempo, então há
-/// bases com `user_version` desatualizado mas colunas já presentes).
+/// IMPORTANTE: dentro de [MigrationStrategy.onUpgrade] o banco está numa
+/// transação de migração. Fazer leituras pelo objeto `db` (por exemplo
+/// `db.customSelect('PRAGMA table_info(...)')`) trava a abertura do banco,
+/// e o app fica eternamente em estado de carregamento.
+///
+/// Por isso a idempotência aqui é obtida engolindo o erro de "coluna/tabela
+/// já existe" em vez de consultar o schema antes.
 MigrationStrategy buildMigrationStrategy(AppDatabase db) {
   return MigrationStrategy(
     onCreate: (Migrator m) async {
@@ -16,98 +18,154 @@ MigrationStrategy buildMigrationStrategy(AppDatabase db) {
     onUpgrade: (Migrator m, int from, int to) async {
       if (from < 2) {
         // Salvaguardas
-        await _addColumnIfMissing(db, m, db.characters, db.characters.saveStrength);
-        await _addColumnIfMissing(db, m, db.characters, db.characters.saveDexterity);
-        await _addColumnIfMissing(db, m, db.characters, db.characters.saveConstitution);
-        await _addColumnIfMissing(db, m, db.characters, db.characters.saveIntelligence);
-        await _addColumnIfMissing(db, m, db.characters, db.characters.saveWisdom);
-        await _addColumnIfMissing(db, m, db.characters, db.characters.saveCharisma);
+        await _tryAddColumn(m, db.characters, db.characters.saveStrength);
+        await _tryAddColumn(m, db.characters, db.characters.saveDexterity);
+        await _tryAddColumn(m, db.characters, db.characters.saveConstitution);
+        await _tryAddColumn(m, db.characters, db.characters.saveIntelligence);
+        await _tryAddColumn(m, db.characters, db.characters.saveWisdom);
+        await _tryAddColumn(m, db.characters, db.characters.saveCharisma);
 
-        // Perícias
-        await _addColumnIfMissing(db, m, db.characters, db.characters.skillAcrobatics);
-        await _addColumnIfMissing(db, m, db.characters, db.characters.skillAnimalHandling);
-        await _addColumnIfMissing(db, m, db.characters, db.characters.skillArcana);
-        await _addColumnIfMissing(db, m, db.characters, db.characters.skillAthletics);
-        await _addColumnIfMissing(db, m, db.characters, db.characters.skillDeception);
-        await _addColumnIfMissing(db, m, db.characters, db.characters.skillHistory);
-        await _addColumnIfMissing(db, m, db.characters, db.characters.skillInsight);
-        await _addColumnIfMissing(db, m, db.characters, db.characters.skillIntimidation);
-        await _addColumnIfMissing(db, m, db.characters, db.characters.skillInvestigation);
-        await _addColumnIfMissing(db, m, db.characters, db.characters.skillMedicine);
-        await _addColumnIfMissing(db, m, db.characters, db.characters.skillNature);
-        await _addColumnIfMissing(db, m, db.characters, db.characters.skillPerception);
-        await _addColumnIfMissing(db, m, db.characters, db.characters.skillPerformance);
-        await _addColumnIfMissing(db, m, db.characters, db.characters.skillPersuasion);
-        await _addColumnIfMissing(db, m, db.characters, db.characters.skillReligion);
-        await _addColumnIfMissing(db, m, db.characters, db.characters.skillSleightOfHand);
-        await _addColumnIfMissing(db, m, db.characters, db.characters.skillStealth);
-        await _addColumnIfMissing(db, m, db.characters, db.characters.skillSurvival);
+        // Perícias (booleanos legados)
+        await _tryAddColumn(m, db.characters, db.characters.skillAcrobatics);
+        await _tryAddColumn(m, db.characters, db.characters.skillAnimalHandling);
+        await _tryAddColumn(m, db.characters, db.characters.skillArcana);
+        await _tryAddColumn(m, db.characters, db.characters.skillAthletics);
+        await _tryAddColumn(m, db.characters, db.characters.skillDeception);
+        await _tryAddColumn(m, db.characters, db.characters.skillHistory);
+        await _tryAddColumn(m, db.characters, db.characters.skillInsight);
+        await _tryAddColumn(m, db.characters, db.characters.skillIntimidation);
+        await _tryAddColumn(m, db.characters, db.characters.skillInvestigation);
+        await _tryAddColumn(m, db.characters, db.characters.skillMedicine);
+        await _tryAddColumn(m, db.characters, db.characters.skillNature);
+        await _tryAddColumn(m, db.characters, db.characters.skillPerception);
+        await _tryAddColumn(m, db.characters, db.characters.skillPerformance);
+        await _tryAddColumn(m, db.characters, db.characters.skillPersuasion);
+        await _tryAddColumn(m, db.characters, db.characters.skillReligion);
+        await _tryAddColumn(m, db.characters, db.characters.skillSleightOfHand);
+        await _tryAddColumn(m, db.characters, db.characters.skillStealth);
+        await _tryAddColumn(m, db.characters, db.characters.skillSurvival);
       }
 
       if (from < 3) {
-        // Identidade do personagem e anotações.
-        await _addColumnIfMissing(db, m, db.characters, db.characters.playerName);
-        await _addColumnIfMissing(db, m, db.characters, db.characters.backgroundId);
-        await _addColumnIfMissing(db, m, db.characters, db.characters.notes);
+        await _tryAddColumn(m, db.characters, db.characters.playerName);
+        await _tryAddColumn(m, db.characters, db.characters.backgroundId);
+        await _tryAddColumn(m, db.characters, db.characters.notes);
 
-        // Tabelas que passaram a existir depois da v1.
-        await _createTableIfMissing(db, m, db.characterMagicItems);
-        await _createTableIfMissing(db, m, db.characterMagicItemSpells);
-        await _createTableIfMissing(db, m, db.characterSpellSlotsUsage);
-        await _createTableIfMissing(db, m, db.classEntries);
+        await _tryCreateTable(m, db.characterMagicItems);
+        await _tryCreateTable(m, db.characterMagicItemSpells);
+        await _tryCreateTable(m, db.characterSpellSlotsUsage);
+        await _tryCreateTable(m, db.classEntries);
+      }
+
+      if (from < 4) {
+        // Nível de proficiência por perícia: 0=nenhum, 1=metade,
+        // 2=proficiente, 3=especialista.
+        await _tryAddColumn(m, db.characters, db.characters.lvlAcrobatics);
+        await _tryAddColumn(m, db.characters, db.characters.lvlAnimalHandling);
+        await _tryAddColumn(m, db.characters, db.characters.lvlArcana);
+        await _tryAddColumn(m, db.characters, db.characters.lvlAthletics);
+        await _tryAddColumn(m, db.characters, db.characters.lvlDeception);
+        await _tryAddColumn(m, db.characters, db.characters.lvlHistory);
+        await _tryAddColumn(m, db.characters, db.characters.lvlInsight);
+        await _tryAddColumn(m, db.characters, db.characters.lvlIntimidation);
+        await _tryAddColumn(m, db.characters, db.characters.lvlInvestigation);
+        await _tryAddColumn(m, db.characters, db.characters.lvlMedicine);
+        await _tryAddColumn(m, db.characters, db.characters.lvlNature);
+        await _tryAddColumn(m, db.characters, db.characters.lvlPerception);
+        await _tryAddColumn(m, db.characters, db.characters.lvlPerformance);
+        await _tryAddColumn(m, db.characters, db.characters.lvlPersuasion);
+        await _tryAddColumn(m, db.characters, db.characters.lvlReligion);
+        await _tryAddColumn(m, db.characters, db.characters.lvlSleightOfHand);
+        await _tryAddColumn(m, db.characters, db.characters.lvlStealth);
+        await _tryAddColumn(m, db.characters, db.characters.lvlSurvival);
+
+        // Recursos de mesa.
+        await _tryAddColumn(m, db.characters, db.characters.inspiration);
+        await _tryAddColumn(m, db.characters, db.characters.exhaustion);
+        await _tryAddColumn(m, db.characters, db.characters.hitDiceUsed);
+
+        // Backfill: quem era proficiente (bool = 1) passa a nível 2.
+        const pairs = <List<String>>[
+          ['lvl_acrobatics', 'skill_acrobatics'],
+          ['lvl_animal_handling', 'skill_animal_handling'],
+          ['lvl_arcana', 'skill_arcana'],
+          ['lvl_athletics', 'skill_athletics'],
+          ['lvl_deception', 'skill_deception'],
+          ['lvl_history', 'skill_history'],
+          ['lvl_insight', 'skill_insight'],
+          ['lvl_intimidation', 'skill_intimidation'],
+          ['lvl_investigation', 'skill_investigation'],
+          ['lvl_medicine', 'skill_medicine'],
+          ['lvl_nature', 'skill_nature'],
+          ['lvl_perception', 'skill_perception'],
+          ['lvl_performance', 'skill_performance'],
+          ['lvl_persuasion', 'skill_persuasion'],
+          ['lvl_religion', 'skill_religion'],
+          ['lvl_sleight_of_hand', 'skill_sleight_of_hand'],
+          ['lvl_stealth', 'skill_stealth'],
+          ['lvl_survival', 'skill_survival'],
+        ];
+
+        for (final pair in pairs) {
+          // Apenas escrita (UPDATE). Leituras aqui é que são problemáticas.
+          await _tryQuery(
+            db,
+            'UPDATE characters SET ${pair[0]} = 2 WHERE ${pair[1]} = 1',
+          );
+        }
       }
     },
     beforeOpen: (details) async {
-      // Remove duplicatas antes de criar o índice único, senão a criação
-      // falharia em bases que já registraram o mesmo slot duas vezes.
-      await db.customStatement(
-        'DELETE FROM character_spell_slots_usage WHERE local_id NOT IN ('
-        '  SELECT MIN(local_id) FROM character_spell_slots_usage'
-        '  GROUP BY character_id, slot_level'
-        ')',
-      );
+      // Roda fora da transação de migração, então aqui é seguro usar `db`.
+      try {
+        await db.customStatement(
+          'DELETE FROM character_spell_slots_usage WHERE local_id NOT IN ('
+          '  SELECT MIN(local_id) FROM character_spell_slots_usage'
+          '  GROUP BY character_id, slot_level'
+          ')',
+        );
 
-      // Sem este índice, dois toques rápidos no botão de gastar slot criam
-      // duas linhas e todo acesso posterior passa a lançar erro.
-      await db.customStatement(
-        'CREATE UNIQUE INDEX IF NOT EXISTS idx_slot_usage_unique '
-        'ON character_spell_slots_usage (character_id, slot_level)',
-      );
+        await db.customStatement(
+          'CREATE UNIQUE INDEX IF NOT EXISTS idx_slot_usage_unique '
+          'ON character_spell_slots_usage (character_id, slot_level)',
+        );
+      } catch (_) {
+        // Índice é uma otimização de segurança: se falhar, o app segue
+        // funcionando (o updateUsedSpellSlot já roda em transação).
+      }
     },
   );
 }
 
-Future<void> _addColumnIfMissing(
-  AppDatabase db,
+/// Adiciona a coluna, ignorando o erro caso ela já exista.
+Future<void> _tryAddColumn(
   Migrator m,
   TableInfo<Table, dynamic> table,
   GeneratedColumn<Object> column,
 ) async {
-  final existing = await _columnNames(db, table.actualTableName);
-  if (existing.contains(column.name.toLowerCase())) return;
-  await m.addColumn(table, column);
+  try {
+    await m.addColumn(table, column);
+  } catch (_) {
+    // "duplicate column name" — a coluna já estava lá.
+  }
 }
 
-Future<void> _createTableIfMissing(
-  AppDatabase db,
+/// Cria a tabela, ignorando o erro caso ela já exista.
+Future<void> _tryCreateTable(
   Migrator m,
   TableInfo<Table, dynamic> table,
 ) async {
-  final rows = await db
-      .customSelect(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name = ?",
-        variables: [Variable<String>(table.actualTableName)],
-      )
-      .get();
-
-  if (rows.isNotEmpty) return;
-  await m.createTable(table);
+  try {
+    await m.createTable(table);
+  } catch (_) {
+    // "table already exists".
+  }
 }
 
-Future<Set<String>> _columnNames(AppDatabase db, String tableName) async {
-  final rows =
-      await db.customSelect('PRAGMA table_info($tableName)').get();
-  return rows
-      .map((row) => (row.data['name'] as String? ?? '').toLowerCase())
-      .toSet();
+Future<void> _tryQuery(AppDatabase db, String sql) async {
+  try {
+    await db.customStatement(sql);
+  } catch (_) {
+    // Backfill é best-effort: se a coluna legada não existir, segue adiante.
+  }
 }

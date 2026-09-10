@@ -7,6 +7,8 @@ import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart
 import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/proficiency_level.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/spellcasting_type.dart';
 
 class CharacterMapper {
@@ -62,25 +64,35 @@ class CharacterMapper {
       ),
 
       skillProficiencies: SkillProficiencies(
-        acrobatics: character.skillAcrobatics,
-        animalHandling: character.skillAnimalHandling,
-        arcana: character.skillArcana,
-        athletics: character.skillAthletics,
-        deception: character.skillDeception,
-        history: character.skillHistory,
-        insight: character.skillInsight,
-        intimidation: character.skillIntimidation,
-        investigation: character.skillInvestigation,
-        medicine: character.skillMedicine,
-        nature: character.skillNature,
-        perception: character.skillPerception,
-        performance: character.skillPerformance,
-        persuasion: character.skillPersuasion,
-        religion: character.skillReligion,
-        sleightOfHand: character.skillSleightOfHand,
-        stealth: character.skillStealth,
-        survival: character.skillSurvival,
+        levels: {
+          Skill.acrobatics: ProficiencyLevel.fromDb(character.lvlAcrobatics),
+          Skill.animalHandling:
+              ProficiencyLevel.fromDb(character.lvlAnimalHandling),
+          Skill.arcana: ProficiencyLevel.fromDb(character.lvlArcana),
+          Skill.athletics: ProficiencyLevel.fromDb(character.lvlAthletics),
+          Skill.deception: ProficiencyLevel.fromDb(character.lvlDeception),
+          Skill.history: ProficiencyLevel.fromDb(character.lvlHistory),
+          Skill.insight: ProficiencyLevel.fromDb(character.lvlInsight),
+          Skill.intimidation:
+              ProficiencyLevel.fromDb(character.lvlIntimidation),
+          Skill.investigation:
+              ProficiencyLevel.fromDb(character.lvlInvestigation),
+          Skill.medicine: ProficiencyLevel.fromDb(character.lvlMedicine),
+          Skill.nature: ProficiencyLevel.fromDb(character.lvlNature),
+          Skill.perception: ProficiencyLevel.fromDb(character.lvlPerception),
+          Skill.performance: ProficiencyLevel.fromDb(character.lvlPerformance),
+          Skill.persuasion: ProficiencyLevel.fromDb(character.lvlPersuasion),
+          Skill.religion: ProficiencyLevel.fromDb(character.lvlReligion),
+          Skill.sleightOfHand:
+              ProficiencyLevel.fromDb(character.lvlSleightOfHand),
+          Skill.stealth: ProficiencyLevel.fromDb(character.lvlStealth),
+          Skill.survival: ProficiencyLevel.fromDb(character.lvlSurvival),
+        },
       ),
+
+      inspiration: character.inspiration,
+      exhaustion: character.exhaustion,
+      hitDiceUsed: character.hitDiceUsed,
 
       createdAt: character.createdAt,
       updatedAt: character.updatedAt,
