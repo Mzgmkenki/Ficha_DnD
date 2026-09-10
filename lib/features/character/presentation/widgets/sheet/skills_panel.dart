@@ -23,11 +23,7 @@ class SkillsPanel extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Perícias',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 12),
+            // Título fica no cabeçalho da seção, na ficha.
             _PassiveScores(character: character),
             const SizedBox(height: 16),
             for (var i = 0; i < skills.length; i++) ...[

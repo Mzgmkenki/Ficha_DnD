@@ -1,4 +1,4 @@
-import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
+﻿import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -51,12 +51,7 @@ class RacialTraitsPanel extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Características Raciais',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-
+                // Título fica no cabeçalho da seção, na ficha.
                 Text(
                   combinedRace.name,
                   style: Theme.of(context).textTheme.titleSmall,

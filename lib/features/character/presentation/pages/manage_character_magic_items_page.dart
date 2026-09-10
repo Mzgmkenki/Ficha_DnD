@@ -1,4 +1,4 @@
-import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
+﻿import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item_spell.dart';
@@ -88,7 +88,7 @@ class _ManageCharacterMagicItemsPageState
             children: [
               Text(
                 'Adicionar item mágico',
-                style: Theme.of(context).textTheme.titleMedium,
+                style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -308,7 +308,7 @@ class _CurrentItemsCard extends ConsumerWidget {
                     children: [
                       Text(
                         'Itens atuais',
-                        style: Theme.of(context).textTheme.titleMedium,
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 12),
                       const Text('Nenhum item mágico cadastrado ainda.'),
@@ -319,7 +319,7 @@ class _CurrentItemsCard extends ConsumerWidget {
                     children: [
                       Text(
                         'Itens atuais',
-                        style: Theme.of(context).textTheme.titleMedium,
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 12),
                       ...character.magicItems.map(

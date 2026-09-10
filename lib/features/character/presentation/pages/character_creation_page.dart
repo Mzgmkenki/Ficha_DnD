@@ -1,4 +1,4 @@
-import 'package:dnd_ficha_app/core/di/providers.dart';
+﻿import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
@@ -397,7 +397,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                     const SizedBox(height: 20),
                     Text(
                       'Perícias',
-                      style: Theme.of(context).textTheme.titleMedium,
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 8),
                     Text(

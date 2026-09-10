@@ -1,4 +1,4 @@
-import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
+﻿import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item_spell.dart';
@@ -28,11 +28,7 @@ class MagicItemsPanel extends ConsumerWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Itens Mágicos',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 12),
+                // Título fica no cabeçalho da seção, na ficha.
                 if (character.magicItems.isEmpty)
                   const Text('Nenhum item mágico cadastrado.')
                 else

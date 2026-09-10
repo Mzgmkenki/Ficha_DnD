@@ -1,4 +1,4 @@
-import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
+﻿import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/custom_background.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/custom_background_form.dart';
@@ -121,7 +121,7 @@ class _EditIdentityPageState extends ConsumerState<EditIdentityPage> {
               const SizedBox(height: 20),
               Text(
                 'Antecedente',
-                style: Theme.of(context).textTheme.titleMedium,
+                style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
@@ -172,7 +172,7 @@ class _EditIdentityPageState extends ConsumerState<EditIdentityPage> {
             const SizedBox(height: 20),
             Text(
               'Anotações',
-              style: Theme.of(context).textTheme.titleMedium,
+              style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 8),
             TextFormField(

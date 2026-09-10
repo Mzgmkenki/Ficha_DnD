@@ -1,4 +1,4 @@
-import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
+﻿import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,11 +19,7 @@ class ClassFeaturesPanel extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Características de Classe',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 12),
+            // Título fica no cabeçalho da seção, na ficha.
             if (classLevels.isEmpty)
               const Text('Nenhuma classe cadastrada para este personagem.')
             else

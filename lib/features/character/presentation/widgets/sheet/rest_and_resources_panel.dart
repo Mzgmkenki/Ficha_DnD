@@ -37,11 +37,8 @@ class RestAndResourcesPanel extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Recursos e descanso',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 12),
+            // O título vem do cabeçalho da seção na ficha; repetir aqui
+            // duplicava a palavra na tela.
 
             SwitchListTile(
               value: character.inspiration,

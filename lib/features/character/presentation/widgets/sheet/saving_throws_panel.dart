@@ -1,4 +1,4 @@
-import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
+﻿import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/dice_roll_sheet.dart';
@@ -39,7 +39,7 @@ class SavingThrowsPanel extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 'Salvaguardas',
-                style: Theme.of(context).textTheme.titleMedium,
+                style: Theme.of(context).textTheme.titleLarge,
               ),
             ),
             const SizedBox(height: 12),

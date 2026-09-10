@@ -154,7 +154,7 @@ class _ManageCharacterSpellsPageState
           children: [
             Text(
               'Magias atuais',
-              style: Theme.of(context).textTheme.titleMedium,
+              style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 12),
             if (character.spells.isEmpty)
@@ -303,7 +303,7 @@ class _ManageCharacterSpellsPageState
           children: [
             Text(
               'Adicionar magia',
-              style: Theme.of(context).textTheme.titleMedium,
+              style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 12),
             TextField(

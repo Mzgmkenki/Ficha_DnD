@@ -1,4 +1,4 @@
-import 'package:dnd_ficha_app/core/di/providers.dart';
+﻿import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
@@ -40,11 +40,7 @@ class SpellSlotsPanel extends ConsumerWidget {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Slots de Magia',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 12),
+                        // Título fica no cabeçalho da seção, na ficha.
                         if (!result.hasAnyCasting)
                           const Text(
                             'Este personagem não possui progressão de magia cadastrada.',

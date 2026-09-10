@@ -1,4 +1,4 @@
-import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
+﻿import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/data/mappers/character_json_codec.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
@@ -45,7 +45,7 @@ class _CharacterTransferPageState
         children: [
           Text(
             'Exportar',
-            style: Theme.of(context).textTheme.titleMedium,
+            style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 4),
           Text(
@@ -102,7 +102,7 @@ class _CharacterTransferPageState
           const Divider(height: 40),
           Text(
             'Importar',
-            style: Theme.of(context).textTheme.titleMedium,
+            style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 4),
           Text(

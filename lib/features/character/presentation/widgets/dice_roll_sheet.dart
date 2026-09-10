@@ -1,4 +1,5 @@
 import 'package:dnd_ficha_app/core/di/providers.dart';
+import 'package:dnd_ficha_app/core/theme/app_typography.dart';
 import 'package:dnd_ficha_app/core/utils/dice_roller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -148,8 +149,10 @@ class _ResultCard extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 
+    // O 20 natural vai em ouro, e não no vermelho da marca: com a paleta
+    // preta e vermelha, destaque e erro ficariam quase da mesma cor.
     final highlight = result.isNaturalTwenty
-        ? scheme.primary
+        ? scheme.tertiary
         : result.isNaturalOne
             ? scheme.error
             : null;
@@ -167,7 +170,7 @@ class _ResultCard extends StatelessWidget {
         children: [
           Text(
             '${result.total}',
-            style: theme.textTheme.displaySmall?.copyWith(color: highlight),
+            style: AppTypography.numeric(fontSize: 44, color: highlight),
           ),
           const SizedBox(height: 8),
           Text(result.formula, style: theme.textTheme.bodySmall),

@@ -25,3 +25,15 @@ flutter:
   assets:
     - assets/data/srd/
     - assets/data/spells/
+
+  # Cinzel Decorative (Google Fonts, SIL Open Font License 1.1 - ver
+  # assets/fonts/OFL-CinzelDecorative.txt). Só os dois pesos usados nos
+  # títulos, para não engordar o bundle: o corpo do texto segue na fonte
+  # do sistema, que não custa nada.
+  fonts:
+    - family: CinzelDecorative
+      fonts:
+        - asset: assets/fonts/CinzelDecorative-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/CinzelDecorative-Black.ttf
+          weight: 900

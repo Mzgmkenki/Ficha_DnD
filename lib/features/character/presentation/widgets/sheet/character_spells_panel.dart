@@ -1,4 +1,4 @@
-import 'package:dnd_ficha_app/core/di/providers.dart';
+﻿import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
@@ -55,11 +55,7 @@ class _CharacterSpellsPanelState extends ConsumerState<CharacterSpellsPanel> {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                'Magias do Personagem',
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                              const SizedBox(height: 12),
+                              // Título fica no cabeçalho da seção, na ficha.
                               const Text('Nenhuma magia vinculada ainda.'),
                             ],
                           );
@@ -108,11 +104,7 @@ class _CharacterSpellsPanelState extends ConsumerState<CharacterSpellsPanel> {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Magias do Personagem',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            const SizedBox(height: 12),
+                            // Título fica no cabeçalho da seção, na ficha.
                             if (classSpells.isNotEmpty)
                               _OriginSection(
                                 title: 'Magias de Classe',
@@ -978,7 +970,7 @@ void showSpellDetailsBottomSheet(BuildContext context, SpellEntry spell) {
                   const SizedBox(height: 16),
                   Text(
                     'Descrição',
-                    style: Theme.of(context).textTheme.titleMedium,
+                    style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 8),
                   Text(spell.description),
@@ -986,7 +978,7 @@ void showSpellDetailsBottomSheet(BuildContext context, SpellEntry spell) {
                     const SizedBox(height: 16),
                     Text(
                       'Conjuração em nível superior',
-                      style: Theme.of(context).textTheme.titleMedium,
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 8),
                     Text(spell.upcast!),

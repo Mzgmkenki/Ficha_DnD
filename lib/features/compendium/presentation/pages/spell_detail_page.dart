@@ -1,4 +1,4 @@
-import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_entry.dart';
+﻿import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_entry.dart';
 import 'package:flutter/material.dart';
 
 class SpellDetailPage extends StatelessWidget {
@@ -134,7 +134,7 @@ class _InfoCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: Theme.of(context).textTheme.titleMedium),
+            Text(title, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
             ...children,
           ],

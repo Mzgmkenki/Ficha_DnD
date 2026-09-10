@@ -25,7 +25,7 @@ class CurrencyPanel extends ConsumerWidget {
                 Expanded(
                   child: Text(
                     'Moedas',
-                    style: Theme.of(context).textTheme.titleMedium,
+                    style: Theme.of(context).textTheme.titleLarge,
                   ),
                 ),
                 Text(

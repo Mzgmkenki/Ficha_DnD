@@ -1,4 +1,5 @@
 import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
+import 'package:dnd_ficha_app/core/theme/app_typography.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/dice_roll_sheet.dart';
 import 'package:flutter/material.dart';
@@ -40,10 +41,7 @@ class AbilityScoreBlock extends StatelessWidget {
                     style: Theme.of(context).textTheme.labelLarge,
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    '$value',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
+                  Text('$value', style: AppTypography.numeric(fontSize: 24)),
                   const SizedBox(height: 4),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,

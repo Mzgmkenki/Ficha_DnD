@@ -1,4 +1,4 @@
-import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
+﻿import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/spellcasting_service.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
@@ -25,11 +25,7 @@ class SpellcastingSummaryPanel extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Resumo de Conjuração',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 12),
+            // Título fica no cabeçalho da seção, na ficha.
             if (classRows.isEmpty && itemRows.isEmpty)
               const Text(
                 'Nenhuma fonte de conjuração identificada ainda.',

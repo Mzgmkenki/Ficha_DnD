@@ -279,7 +279,9 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
                       alignment: Alignment.centerLeft,
                       child: Text(
                         'Falta para a nova classe: $missingForNewClass',
-                        style: const TextStyle(color: Colors.red),
+                        style: TextStyle(
+                          color: Theme.of(dialogContext).colorScheme.error,
+                        ),
                       ),
                     ),
                   ],

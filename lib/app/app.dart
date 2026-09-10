@@ -14,7 +14,12 @@ class DndFichaApp extends ConsumerWidget {
     return MaterialApp(
       title: 'Ficha D&D 5e',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
+      // Um tema só: a ficha é feita para mesa à noite, e o preto e vermelho é
+      // a identidade do app. `darkTheme` também é definido para o sistema não
+      // tentar clarear nada.
+      theme: AppTheme.dark,
+      darkTheme: AppTheme.dark,
+      themeMode: ThemeMode.dark,
       initialRoute: AppRoutes.characterList,
       onGenerateRoute: router.onGenerateRoute,
     );

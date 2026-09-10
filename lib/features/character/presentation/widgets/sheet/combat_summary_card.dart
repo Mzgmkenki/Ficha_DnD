@@ -1,4 +1,5 @@
 import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
+import 'package:dnd_ficha_app/core/theme/app_typography.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:flutter/material.dart';
 
@@ -61,7 +62,7 @@ class _CombatValue extends StatelessWidget {
       children: [
         Text(label, style: Theme.of(context).textTheme.labelMedium),
         const SizedBox(height: 8),
-        Text(value, style: Theme.of(context).textTheme.headlineSmall),
+        Text(value, style: AppTypography.numeric(fontSize: 21)),
       ],
     );
   }
