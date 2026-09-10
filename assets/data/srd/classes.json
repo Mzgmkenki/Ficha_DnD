@@ -22,6 +22,7 @@
     "hit_die": "d8",
     "primary_ability": "charisma",
     "spellcasting_type": "full",
+    "spellcasting_ability": "charisma",
     "saving_throws": ["dexterity", "charisma"],
     "skill_options": [
       "acrobatics",
@@ -51,6 +52,7 @@
     "hit_die": "d8",
     "primary_ability": "wisdom",
     "spellcasting_type": "full",
+    "spellcasting_ability": "wisdom",
     "saving_throws": ["wisdom", "charisma"],
     "skill_options": [
       "history",
@@ -67,6 +69,7 @@
     "hit_die": "d8",
     "primary_ability": "wisdom",
     "spellcasting_type": "full",
+    "spellcasting_ability": "wisdom",
     "saving_throws": ["intelligence", "wisdom"],
     "skill_options": [
       "arcana",
@@ -122,6 +125,7 @@
     "hit_die": "d10",
     "primary_ability": "charisma",
     "spellcasting_type": "half",
+    "spellcasting_ability": "charisma",
     "saving_throws": ["wisdom", "charisma"],
     "skill_options": [
       "athletics",
@@ -139,6 +143,7 @@
     "hit_die": "d10",
     "primary_ability": "dexterity",
     "spellcasting_type": "half",
+    "spellcasting_ability": "wisdom",
     "saving_throws": ["strength", "dexterity"],
     "skill_options": [
       "animalHandling",
@@ -180,6 +185,7 @@
     "hit_die": "d6",
     "primary_ability": "charisma",
     "spellcasting_type": "full",
+    "spellcasting_ability": "charisma",
     "saving_throws": ["constitution", "charisma"],
     "skill_options": [
       "arcana",
@@ -197,6 +203,7 @@
     "hit_die": "d8",
     "primary_ability": "charisma",
     "spellcasting_type": "pact",
+    "spellcasting_ability": "charisma",
     "saving_throws": ["wisdom", "charisma"],
     "skill_options": [
       "arcana",
@@ -215,6 +222,7 @@
     "hit_die": "d6",
     "primary_ability": "intelligence",
     "spellcasting_type": "full",
+    "spellcasting_ability": "intelligence",
     "saving_throws": ["intelligence", "wisdom"],
     "skill_options": [
       "arcana",

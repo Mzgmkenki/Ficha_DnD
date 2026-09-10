@@ -195,7 +195,7 @@ class _ManageCharacterSpellsPageState
                               border: Border.all(
                                 color: Theme.of(context)
                                     .dividerColor
-                                    .withOpacity(0.4),
+                                    .withValues(alpha: 0.4),
                               ),
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -236,10 +236,6 @@ class _ManageCharacterSpellsPageState
                                       spellId: characterSpell.spellId,
                                       sourceType: characterSpell.sourceType,
                                       sourceId: characterSpell.sourceId,
-                                    );
-
-                                    ref.invalidate(
-                                      characterByIdProvider(character.id),
                                     );
 
                                     if (!mounted) return;
@@ -662,7 +658,7 @@ class _ManageCharacterSpellsPageState
                                     border: Border.all(
                                       color: Theme.of(context)
                                           .dividerColor
-                                          .withOpacity(0.5),
+                                          .withValues(alpha: 0.5),
                                     ),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -777,12 +773,6 @@ class _ManageCharacterSpellsPageState
                                                       : _isKnown),
                                               isAlwaysAvailable:
                                                   _isAlwaysAvailable,
-                                            ),
-                                          );
-
-                                          ref.invalidate(
-                                            characterByIdProvider(
-                                              character.id,
                                             ),
                                           );
 

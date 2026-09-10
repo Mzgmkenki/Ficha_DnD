@@ -6,6 +6,13 @@ import 'package:dnd_ficha_app/features/character/domain/entities/character_spell
 abstract class CharacterRepository {
   Stream<List<Character>> watchAll();
   Future<Character?> findById(String id);
+
+  /// Emite o personagem completo (com magias e itens) a cada alteração no
+  /// banco. Substitui o padrão de `findById` + invalidação manual do cache.
+  Stream<Character?> watchById(String id);
+
+  /// Emite os slots de magia gastos a cada alteração.
+  Stream<Map<int, int>> watchUsedSpellSlots(String characterId);
   Future<void> create(Character character);
   Future<void> update(Character character);
   Future<void> delete(String id);

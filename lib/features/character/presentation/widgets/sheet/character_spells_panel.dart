@@ -266,6 +266,8 @@ class _CharacterSpellsPanelState extends ConsumerState<CharacterSpellsPanel> {
     int fullCasterLevels = 0;
     int halfCasterLevels = 0;
     int thirdCasterLevels = 0;
+    int halfContribution = 0;
+    int thirdContribution = 0;
     int pactLevels = 0;
 
     for (final classLevel in classLevels) {
@@ -278,9 +280,12 @@ class _CharacterSpellsPanelState extends ConsumerState<CharacterSpellsPanel> {
           break;
         case 'half':
           halfCasterLevels += classLevel.level;
+          // Arredondamento por classe (regra oficial de multiclasse).
+          halfContribution += classLevel.level ~/ 2;
           break;
         case 'third':
           thirdCasterLevels += classLevel.level;
+          thirdContribution += classLevel.level ~/ 3;
           break;
         case 'pact':
           pactLevels += classLevel.level;
@@ -306,9 +311,7 @@ class _CharacterSpellsPanelState extends ConsumerState<CharacterSpellsPanel> {
     } else {
       if (nonPactCastingPresent) {
         final effectiveCasterLevel =
-            fullCasterLevels +
-            (halfCasterLevels ~/ 2) +
-            (thirdCasterLevels ~/ 3);
+            fullCasterLevels + halfContribution + thirdContribution;
 
         if (effectiveCasterLevel > 0) {
           standardSlots = findRow(
@@ -469,7 +472,7 @@ class _OriginSection extends StatelessWidget {
                                   border: Border.all(
                                     color: Theme.of(context)
                                         .dividerColor
-                                        .withOpacity(0.5),
+                                        .withValues(alpha: 0.5),
                                   ),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -654,8 +657,6 @@ class _CastSpellButton extends ConsumerWidget {
           used: used + 1,
         );
 
-    ref.invalidate(characterUsedSpellSlotsProvider(character.id));
-
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -761,8 +762,6 @@ class _CastSpellButton extends ConsumerWidget {
           magicItemId: item.localId,
           charges: currentCharges - cost,
         );
-
-    ref.invalidate(characterByIdProvider(character.id));
 
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(

@@ -1,3 +1,4 @@
+import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:flutter/material.dart';
@@ -136,9 +137,11 @@ class _EditAbilityScoresPageState extends ConsumerState<EditAbilityScoresPage> {
       charisma: int.parse(_charismaController.text),
     );
 
-    final character = await ref.read(
-      characterByIdProvider(widget.characterId).future,
-    );
+    // Lê direto do repositório: depender do provider `autoDispose` aqui é
+    // arriscado, pois ele pode ser descartado antes do future resolver.
+    final character = await ref
+        .read(characterRepositoryProvider)
+        .findById(widget.characterId);
 
     if (character == null) {
       if (!mounted) return;

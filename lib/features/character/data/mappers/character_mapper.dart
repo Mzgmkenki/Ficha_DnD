@@ -87,13 +87,21 @@ class CharacterMapper {
     );
   }
 
+  /// Valores desconhecidos retornam `null` em vez de lançar `StateError`.
+  /// Antes, um dado legado tornava o personagem inacessível para sempre.
   static Ability? _abilityFromDb(String? value) {
     if (value == null || value.isEmpty) return null;
-    return Ability.values.firstWhere((item) => item.name == value);
+    for (final item in Ability.values) {
+      if (item.name == value) return item;
+    }
+    return null;
   }
 
   static SpellcastingType? _spellcastingTypeFromDb(String? value) {
     if (value == null || value.isEmpty) return null;
-    return SpellcastingType.values.firstWhere((item) => item.name == value);
+    for (final item in SpellcastingType.values) {
+      if (item.name == value) return item;
+    }
+    return null;
   }
 }

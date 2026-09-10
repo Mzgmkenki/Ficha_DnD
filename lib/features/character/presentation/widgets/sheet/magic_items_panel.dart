@@ -43,7 +43,7 @@ class MagicItemsPanel extends ConsumerWidget {
                         decoration: BoxDecoration(
                           border: Border.all(
                             color:
-                                Theme.of(context).dividerColor.withOpacity(0.5),
+                                Theme.of(context).dividerColor.withValues(alpha: 0.5),
                           ),
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -82,12 +82,6 @@ class MagicItemsPanel extends ConsumerWidget {
                                                 charges:
                                                     (item.charges ?? 0) - 1,
                                               );
-
-                                              ref.invalidate(
-                                                characterByIdProvider(
-                                                  character.id,
-                                                ),
-                                              );
                                             }
                                           : null,
                                       icon: const Icon(
@@ -108,12 +102,6 @@ class MagicItemsPanel extends ConsumerWidget {
                                                 magicItemId: item.localId,
                                                 charges:
                                                     (item.charges ?? 0) + 1,
-                                              );
-
-                                              ref.invalidate(
-                                                characterByIdProvider(
-                                                  character.id,
-                                                ),
                                               );
                                             }
                                           : null,
@@ -145,10 +133,6 @@ class MagicItemsPanel extends ConsumerWidget {
                                             magicItemId: item.localId,
                                           );
                                         }
-
-                                        ref.invalidate(
-                                          characterByIdProvider(character.id),
-                                        );
                                       },
                                       itemBuilder: (context) => const [
                                         PopupMenuItem(
@@ -261,7 +245,7 @@ class _ItemSpellCastTile extends ConsumerWidget {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
-          color: Theme.of(context).dividerColor.withOpacity(0.4),
+          color: Theme.of(context).dividerColor.withValues(alpha: 0.4),
         ),
         borderRadius: BorderRadius.circular(10),
       ),
@@ -414,8 +398,6 @@ class _ItemSpellCastTile extends ConsumerWidget {
       magicItemId: item.localId,
       charges: currentCharges - cost,
     );
-
-    ref.invalidate(characterByIdProvider(character.id));
 
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(

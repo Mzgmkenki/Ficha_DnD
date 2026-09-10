@@ -130,6 +130,8 @@ class SpellSlotsPanel extends ConsumerWidget {
     int fullCasterLevels = 0;
     int halfCasterLevels = 0;
     int thirdCasterLevels = 0;
+    int halfContribution = 0;
+    int thirdContribution = 0;
     int pactLevels = 0;
     int spellcastingClassCount = 0;
 
@@ -144,10 +146,13 @@ class SpellSlotsPanel extends ConsumerWidget {
           break;
         case 'half':
           halfCasterLevels += classLevel.level;
+          // Arredondamento por classe, conforme a regra oficial.
+          halfContribution += classLevel.level ~/ 2;
           spellcastingClassCount++;
           break;
         case 'third':
           thirdCasterLevels += classLevel.level;
+          thirdContribution += classLevel.level ~/ 3;
           spellcastingClassCount++;
           break;
         case 'pact':
@@ -193,10 +198,11 @@ class SpellSlotsPanel extends ConsumerWidget {
       }
     } else {
       if (nonPactCastingPresent) {
+        // Regra oficial (PHB, Multiclass Spellcaster): o arredondamento é
+        // feito POR CLASSE, não sobre a soma. Paladino 3 + Patrulheiro 3 dá
+        // 1 + 1 = 2, e não 6 ~/ 2 = 3.
         final effectiveCasterLevel =
-            fullCasterLevels +
-            (halfCasterLevels ~/ 2) +
-            (thirdCasterLevels ~/ 3);
+            fullCasterLevels + halfContribution + thirdContribution;
 
         if (effectiveCasterLevel > 0) {
           standardSlots = findRow(
@@ -206,7 +212,15 @@ class SpellSlotsPanel extends ConsumerWidget {
           modeLabel = 'Progressão multiclasses de conjuração';
           explanation =
               'Nível efetivo de conjuração: $effectiveCasterLevel '
-              '(inteiros = $fullCasterLevels, meio = ${halfCasterLevels ~/ 2}, um-terço = ${thirdCasterLevels ~/ 3}).';
+              '(inteiros = $fullCasterLevels, meio = $halfContribution, um-terço = $thirdContribution).';
+        } else {
+          // Ex.: Paladino 1 / Guerreiro 1. Meio-conjurador só conjura a
+          // partir do nível 2, então não há slots — mas o usuário precisa
+          // ver o motivo em vez de um painel vazio.
+          modeLabel = 'Ainda sem slots de magia';
+          explanation =
+              'Meio-conjuradores começam a conjurar no nível 2 e '
+              'um-terço-conjuradores no nível 3.';
         }
       }
 
@@ -293,7 +307,9 @@ class _SlotsManager extends ConsumerWidget {
         ...visibleEntries.map((entry) {
           final level = entry.key;
           final max = entry.value;
-          final used = usedSlots[level] ?? 0;
+          // Clamp: slots gastos podem exceder o máximo depois de perder
+          // níveis/classes, e o painel mostrava valores negativos.
+          final used = (usedSlots[level] ?? 0).clamp(0, max);
           final remaining = max - used;
 
           return Padding(
@@ -314,9 +330,6 @@ class _SlotsManager extends ConsumerWidget {
                                 slotLevel: level,
                                 used: used + 1,
                               );
-                          ref.invalidate(
-                            characterUsedSpellSlotsProvider(characterId),
-                          );
                         }
                       : null,
                   icon: const Icon(Icons.remove_circle_outline),
@@ -332,9 +345,6 @@ class _SlotsManager extends ConsumerWidget {
                                 slotLevel: level,
                                 used: used - 1,
                               );
-                          ref.invalidate(
-                            characterUsedSpellSlotsProvider(characterId),
-                          );
                         }
                       : null,
                   icon: const Icon(Icons.add_circle_outline),
@@ -358,8 +368,6 @@ class _SlotsManager extends ConsumerWidget {
                             used: max,
                           );
                     }
-
-                    ref.invalidate(characterUsedSpellSlotsProvider(characterId));
                   },
                   itemBuilder: (context) => const [
                     PopupMenuItem(
@@ -408,7 +416,7 @@ class _PactSlotsManager extends ConsumerWidget {
                     : row.fifth;
 
     final usageKey = pactUsageKey(slotLevel);
-    final used = usedSlots[usageKey] ?? 0;
+    final used = (usedSlots[usageKey] ?? 0).clamp(0, pactSlots);
     final remaining = pactSlots - used;
 
     return Column(
@@ -437,9 +445,6 @@ class _PactSlotsManager extends ConsumerWidget {
                             slotLevel: usageKey,
                             used: used + 1,
                           );
-                      ref.invalidate(
-                        characterUsedSpellSlotsProvider(characterId),
-                      );
                     }
                   : null,
               icon: const Icon(Icons.remove_circle_outline),
@@ -455,9 +460,6 @@ class _PactSlotsManager extends ConsumerWidget {
                             slotLevel: usageKey,
                             used: used - 1,
                           );
-                      ref.invalidate(
-                        characterUsedSpellSlotsProvider(characterId),
-                      );
                     }
                   : null,
               icon: const Icon(Icons.add_circle_outline),

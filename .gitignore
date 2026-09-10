@@ -43,3 +43,11 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Artefatos de build do Gradle
+/android/build/
+/android/.gradle/
+
+# Flutter SDK local (mantido dentro do projeto por causa da politica AppLocker
+# desta maquina, que bloqueia scripts .bat fora de C:\app\Ficha_DnD).
+/.flutter-sdk/

@@ -30,6 +30,7 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
         hitDie: item['hit_die'] as String,
         primaryAbility: item['primary_ability'] as String?,
         spellcastingType: item['spellcasting_type'] as String?,
+        spellcastingAbility: item['spellcasting_ability'] as String?,
         source: item['source'] as String? ?? 'srd',
         skillOptions: skillOptionsRaw
             .map((e) => e.toString())

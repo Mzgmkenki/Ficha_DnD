@@ -89,6 +89,17 @@ class SpellcastingSummaryPanel extends StatelessWidget {
 
     for (final classLevel in character.classLevels) {
       final classEntry = _findClassEntry(classLevel.classId);
+
+      // Só conjuradores entram no painel. Antes, um Bárbaro puro aparecia
+      // com "CD de magia" porque a checagem era apenas pelo atributo.
+      if (classEntry != null && !classEntry.isSpellcaster) continue;
+
+      // Meio-conjurador só conjura no nível 2, um-terço no 3.
+      if (classEntry != null &&
+          classLevel.level < classEntry.spellcastingStartLevel) {
+        continue;
+      }
+
       final ability = _resolveSpellcastingAbility(
         classId: classLevel.classId,
         classEntry: classEntry,
@@ -152,8 +163,10 @@ class SpellcastingSummaryPanel extends StatelessWidget {
     required String classId,
     required ClassEntry? classEntry,
   }) {
-    final byPrimary = _parseAbility(classEntry?.primaryAbility);
-    if (byPrimary != null) return byPrimary;
+    // O campo dedicado tem prioridade. Usar `primaryAbility` aqui fazia o
+    // Patrulheiro conjurar com Destreza em vez de Sabedoria.
+    final declared = _parseAbility(classEntry?.spellcastingAbility);
+    if (declared != null) return declared;
 
     switch (classId.trim().toLowerCase()) {
       case 'wizard':
@@ -279,7 +292,7 @@ class _SummaryTile extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         border: Border.all(
-          color: Theme.of(context).dividerColor.withOpacity(0.45),
+          color: Theme.of(context).dividerColor.withValues(alpha: 0.45),
         ),
         borderRadius: BorderRadius.circular(12),
       ),

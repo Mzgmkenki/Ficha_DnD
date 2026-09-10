@@ -115,14 +115,76 @@ class CharacterRepositoryImpl implements CharacterRepository {
               ),
             );
       }
+
+      // Antes os itens mágicos eram descartados silenciosamente aqui.
+      for (final item in character.magicItems) {
+        final insertedId =
+            await _database.into(_database.characterMagicItems).insert(
+                  db.CharacterMagicItemsCompanion.insert(
+                    characterId: character.id,
+                    name: item.name,
+                    description: drift.Value(item.description),
+                    charges: drift.Value(item.charges),
+                    maxCharges: drift.Value(item.maxCharges),
+                    rechargeRule: drift.Value(item.rechargeRule),
+                    castingAbility: drift.Value(item.castingAbility),
+                    saveDc: drift.Value(item.saveDc),
+                    attackBonus: drift.Value(item.attackBonus),
+                  ),
+                );
+
+        for (final itemSpell in item.spells) {
+          await _database.into(_database.characterMagicItemSpells).insert(
+                db.CharacterMagicItemSpellsCompanion.insert(
+                  magicItemId: insertedId,
+                  spellId: itemSpell.spellId,
+                  usesCharges: drift.Value(itemSpell.usesCharges),
+                  chargeCost: drift.Value(itemSpell.chargeCost),
+                  isAtWill: drift.Value(itemSpell.isAtWill),
+                  isAlwaysAvailable: drift.Value(itemSpell.isAlwaysAvailable),
+                ),
+              );
+        }
+      }
     });
   }
 
   @override
   Future<void> delete(String id) async {
-    await (_database.delete(_database.characters)
-          ..where((tbl) => tbl.id.equals(id)))
-        .go();
+    // Sem esta limpeza explícita as tabelas filhas ficam com registros órfãos
+    // (não há ON DELETE CASCADE nem enforcement de foreign keys ativo).
+    await _database.transaction(() async {
+      final itemIds = await (_database.select(_database.characterMagicItems)
+            ..where((tbl) => tbl.characterId.equals(id)))
+          .map((row) => row.localId)
+          .get();
+
+      if (itemIds.isNotEmpty) {
+        await (_database.delete(_database.characterMagicItemSpells)
+              ..where((tbl) => tbl.magicItemId.isIn(itemIds)))
+            .go();
+      }
+
+      await (_database.delete(_database.characterMagicItems)
+            ..where((tbl) => tbl.characterId.equals(id)))
+          .go();
+
+      await (_database.delete(_database.characterSpells)
+            ..where((tbl) => tbl.characterId.equals(id)))
+          .go();
+
+      await (_database.delete(_database.characterSpellSlotsUsage)
+            ..where((tbl) => tbl.characterId.equals(id)))
+          .go();
+
+      await (_database.delete(_database.characterClassLevels)
+            ..where((tbl) => tbl.characterId.equals(id)))
+          .go();
+
+      await (_database.delete(_database.characters)
+            ..where((tbl) => tbl.id.equals(id)))
+          .go();
+    });
   }
 
   @override
@@ -201,6 +263,29 @@ class CharacterRepositoryImpl implements CharacterRepository {
           .toList(growable: false),
       magicItems: magicItems,
     );
+  }
+
+  /// Reemite a cada mudança em qualquer tabela do personagem. O `findById`
+  /// já monta o agregado completo (níveis, magias, itens e magias de item),
+  /// então basta reexecutá-lo quando algo muda.
+  @override
+  Stream<domain.Character?> watchById(String id) async* {
+    yield await findById(id);
+
+    await for (final _ in _database.tableUpdates()) {
+      yield await findById(id);
+    }
+  }
+
+  @override
+  Stream<Map<int, int>> watchUsedSpellSlots(String characterId) async* {
+    yield await getUsedSpellSlots(characterId);
+
+    await for (final _ in _database.tableUpdates(
+      drift.TableUpdateQuery.onTable(_database.characterSpellSlotsUsage),
+    )) {
+      yield await getUsedSpellSlots(characterId);
+    }
   }
 
   @override
@@ -293,6 +378,29 @@ class CharacterRepositoryImpl implements CharacterRepository {
                     drift.Value(classLevel.spellcastingType?.name),
               ),
             );
+      }
+
+      // Se o usuário removeu uma classe, as magias concedidas por ela ficariam
+      // listadas na ficha para sempre. Remove magias cuja origem é uma classe
+      // que o personagem não possui mais.
+      final currentClassIds =
+          character.classLevels.map((item) => item.classId).toSet();
+
+      final classSpellRows = await (_database.select(_database.characterSpells)
+            ..where((tbl) =>
+                tbl.characterId.equals(character.id) &
+                tbl.sourceType.equals('class')))
+          .get();
+
+      final staleSpellIds = classSpellRows
+          .where((row) => !currentClassIds.contains(row.sourceId))
+          .map((row) => row.localId)
+          .toList();
+
+      if (staleSpellIds.isNotEmpty) {
+        await (_database.delete(_database.characterSpells)
+              ..where((tbl) => tbl.localId.isIn(staleSpellIds)))
+            .go();
       }
     });
   }
@@ -446,29 +554,39 @@ class CharacterRepositoryImpl implements CharacterRepository {
     required int slotLevel,
     required int used,
   }) async {
-    final existing = await (_database.select(_database.characterSpellSlotsUsage)
-          ..where((tbl) =>
-              tbl.characterId.equals(characterId) &
-              tbl.slotLevel.equals(slotLevel)))
-        .getSingleOrNull();
+    // Nunca deixa o contador negativo e serializa o read-then-write numa
+    // transação: dois toques rápidos no botão criavam linhas duplicadas e
+    // travavam todo acesso posterior a este personagem.
+    final safeUsed = used < 0 ? 0 : used;
 
-    if (existing == null) {
-      await _database.into(_database.characterSpellSlotsUsage).insert(
-            db.CharacterSpellSlotsUsageCompanion.insert(
-              characterId: characterId,
-              slotLevel: slotLevel,
-              used: drift.Value(used),
-            ),
-          );
-    } else {
-      await (_database.update(_database.characterSpellSlotsUsage)
-            ..where((tbl) => tbl.localId.equals(existing.localId)))
-          .write(
-        db.CharacterSpellSlotsUsageCompanion(
-          used: drift.Value(used),
-        ),
-      );
-    }
+    await _database.transaction(() async {
+      final existing =
+          await (_database.select(_database.characterSpellSlotsUsage)
+                ..where((tbl) =>
+                    tbl.characterId.equals(characterId) &
+                    tbl.slotLevel.equals(slotLevel))
+                ..limit(1))
+              .getSingleOrNull();
+
+      if (existing == null) {
+        await _database.into(_database.characterSpellSlotsUsage).insert(
+              db.CharacterSpellSlotsUsageCompanion.insert(
+                characterId: characterId,
+                slotLevel: slotLevel,
+                used: drift.Value(safeUsed),
+              ),
+              mode: drift.InsertMode.insertOrReplace,
+            );
+      } else {
+        await (_database.update(_database.characterSpellSlotsUsage)
+              ..where((tbl) => tbl.localId.equals(existing.localId)))
+            .write(
+          db.CharacterSpellSlotsUsageCompanion(
+            used: drift.Value(safeUsed),
+          ),
+        );
+      }
+    });
   }
 
   @override

@@ -1,3 +1,4 @@
+import 'package:dnd_ficha_app/core/database/migrations/migration_strategy.dart';
 import 'package:dnd_ficha_app/core/database/tables/character_tables.dart';
 import 'package:dnd_ficha_app/core/database/tables/compendium_tables.dart';
 import 'package:drift/drift.dart';
@@ -21,6 +22,12 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   int get schemaVersion => 3;
+
+  /// Sem este override o drift usa a estratégia padrão, cujo `onUpgrade`
+  /// lança exceção — qualquer base criada numa versão anterior deixaria o
+  /// app inutilizável ao abrir.
+  @override
+  MigrationStrategy get migration => buildMigrationStrategy(this);
 }
 
 QueryExecutor _openConnection() {

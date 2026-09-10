@@ -14,10 +14,12 @@ final charactersProvider = StreamProvider<List<Character>>((ref) {
   return repository.watchAll();
 });
 
+/// Stream reativo: qualquer escrita no banco reflete na ficha sozinha.
+/// `autoDispose` evita manter em cache todo personagem já visitado.
 final characterByIdProvider =
-    FutureProvider.family<Character?, String>((ref, id) {
+    StreamProvider.autoDispose.family<Character?, String>((ref, id) {
   final repository = ref.watch(characterRepositoryProvider);
-  return repository.findById(id);
+  return repository.watchById(id);
 });
 
 final updateCharacterAbilityScoresProvider =
@@ -179,7 +181,7 @@ final removeMagicItemSpellProvider = Provider<
 });
 
 final characterUsedSpellSlotsProvider =
-    FutureProvider.family<Map<int, int>, String>((ref, characterId) {
+    StreamProvider.autoDispose.family<Map<int, int>, String>((ref, characterId) {
   final repository = ref.watch(characterRepositoryProvider);
-  return repository.getUsedSpellSlots(characterId);
+  return repository.watchUsedSpellSlots(characterId);
 });

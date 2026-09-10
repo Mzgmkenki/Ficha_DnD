@@ -1,3 +1,4 @@
+import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/derived_value_row.dart';
 import 'package:flutter/material.dart';
@@ -15,11 +16,11 @@ class SkillsPanel extends StatelessWidget {
     final proficiency = character.proficiencyBonus;
     final skills = character.skillProficiencies;
 
-    final strengthMod = ((character.abilityScores.strength - 10) ~/ 2);
-    final dexterityMod = ((character.abilityScores.dexterity - 10) ~/ 2);
-    final intelligenceMod = ((character.abilityScores.intelligence - 10) ~/ 2);
-    final wisdomMod = ((character.abilityScores.wisdom - 10) ~/ 2);
-    final charismaMod = ((character.abilityScores.charisma - 10) ~/ 2);
+    final strengthMod = character.abilityScores.strength.abilityModifier;
+    final dexterityMod = character.abilityScores.dexterity.abilityModifier;
+    final intelligenceMod = character.abilityScores.intelligence.abilityModifier;
+    final wisdomMod = character.abilityScores.wisdom.abilityModifier;
+    final charismaMod = character.abilityScores.charisma.abilityModifier;
 
     return Card(
       child: Padding(

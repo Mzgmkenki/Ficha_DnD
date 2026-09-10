@@ -252,8 +252,6 @@ class _ManageCharacterMagicItemsPageState
       _maxChargesController.clear();
       _rechargeRuleController.clear();
 
-      ref.invalidate(characterByIdProvider(character.id));
-
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -332,7 +330,7 @@ class _CurrentItemsCard extends ConsumerWidget {
                               border: Border.all(
                                 color: Theme.of(context)
                                     .dividerColor
-                                    .withOpacity(0.5),
+                                    .withValues(alpha: 0.5),
                               ),
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -372,12 +370,6 @@ class _CurrentItemsCard extends ConsumerWidget {
                                                     charges:
                                                         (item.charges ?? 0) - 1,
                                                   );
-
-                                                  ref.invalidate(
-                                                    characterByIdProvider(
-                                                      character.id,
-                                                    ),
-                                                  );
                                                 }
                                               : null,
                                           icon: const Icon(Icons.remove),
@@ -403,12 +395,6 @@ class _CurrentItemsCard extends ConsumerWidget {
                                                                     0) +
                                                                 1,
                                                       );
-
-                                                      ref.invalidate(
-                                                        characterByIdProvider(
-                                                          character.id,
-                                                        ),
-                                                      );
                                                     }
                                                   : null,
                                           icon: const Icon(Icons.add),
@@ -424,12 +410,6 @@ class _CurrentItemsCard extends ConsumerWidget {
                                               magicItemId: item.localId,
                                               charges: 0,
                                             );
-
-                                            ref.invalidate(
-                                              characterByIdProvider(
-                                                character.id,
-                                              ),
-                                            );
                                           },
                                           child: const Text('Zerar'),
                                         ),
@@ -442,12 +422,6 @@ class _CurrentItemsCard extends ConsumerWidget {
                                             await updateCharges(
                                               magicItemId: item.localId,
                                               charges: item.maxCharges,
-                                            );
-
-                                            ref.invalidate(
-                                              characterByIdProvider(
-                                                character.id,
-                                              ),
                                             );
                                           },
                                           child: const Text('Restaurar tudo'),
@@ -477,10 +451,6 @@ class _CurrentItemsCard extends ConsumerWidget {
 
                                       await deleteItem(
                                         magicItemId: item.localId,
-                                      );
-
-                                      ref.invalidate(
-                                        characterByIdProvider(character.id),
                                       );
                                     },
                                     icon: const Icon(Icons.delete_outline),
@@ -591,7 +561,7 @@ class _ItemSpellsSectionState extends ConsumerState<_ItemSpellsSection> {
               child: Container(
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: Theme.of(context).dividerColor.withOpacity(0.4),
+                    color: Theme.of(context).dividerColor.withValues(alpha: 0.4),
                   ),
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -623,9 +593,6 @@ class _ItemSpellsSectionState extends ConsumerState<_ItemSpellsSection> {
                       await remove(
                         magicItemId: widget.item.localId,
                         spellId: itemSpell.spellId,
-                      );
-                      ref.invalidate(
-                        characterByIdProvider(widget.characterId),
                       );
                     },
                     icon: const Icon(Icons.delete_outline),
@@ -749,9 +716,6 @@ class _ItemSpellsSectionState extends ConsumerState<_ItemSpellsSection> {
                           );
 
                           if (!mounted) return;
-                          ref.invalidate(
-                            characterByIdProvider(widget.characterId),
-                          );
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content:

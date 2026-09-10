@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 class SrdAssetSource {
@@ -16,9 +17,9 @@ class SrdAssetSource {
           .map((e) => Map<String, dynamic>.from(e as Map))
           .toList();
     } catch (e, stackTrace) {
-      print('Erro ao carregar asset JSON: $path');
-      print(e);
-      print(stackTrace);
+      debugPrint('Erro ao carregar asset JSON: $path');
+      debugPrint('$e');
+      debugPrintStack(stackTrace: stackTrace);
       rethrow;
     }
   }
@@ -34,9 +35,9 @@ class SrdAssetSource {
 
       return Map<String, dynamic>.from(decoded);
     } catch (e, stackTrace) {
-      print('Erro ao carregar asset JSON bruto: $path');
-      print(e);
-      print(stackTrace);
+      debugPrint('Erro ao carregar asset JSON bruto: $path');
+      debugPrint('$e');
+      debugPrintStack(stackTrace: stackTrace);
       rethrow;
     }
   }

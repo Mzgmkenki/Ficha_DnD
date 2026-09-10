@@ -1,4 +1,5 @@
 import 'package:dnd_ficha_app/core/di/providers.dart';
+import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/core/routing/app_router.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
@@ -438,7 +439,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                             ? Theme.of(context)
                                 .colorScheme
                                 .primaryContainer
-                                .withOpacity(0.35)
+                                .withValues(alpha: 0.35)
                             : null,
                         child: CheckboxListTile(
                           value: _selectedSkills.contains(skill.id),
@@ -597,12 +598,15 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
       final now = DateTime.now();
       final id = now.microsecondsSinceEpoch.toString();
 
-      final primaryAbility = _abilityFromString(selectedClass.primaryAbility);
+      // Usa o atributo de conjuração declarado da classe (não o primário).
+      final castingAbility = _abilityFromString(
+        selectedClass.spellcastingAbility ?? selectedClass.primaryAbility,
+      );
       final spellcastingType = _spellcastingTypeForClass(
         selectedClass.spellcastingType,
       );
-      final maxHp = _startingHitPointsForClass(selectedClass);
       final finalScores = _buildFinalAbilityScores(selectedRace);
+      final maxHp = _startingHitPointsForClass(selectedClass, finalScores);
 
       final character = Character(
         id: id,
@@ -617,7 +621,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
             classId: selectedClass.id,
             level: 1,
             spellcastingAbility:
-                spellcastingType == null ? null : primaryAbility,
+                spellcastingType == null ? null : castingAbility,
             spellcastingType: spellcastingType,
           ),
         ],
@@ -687,10 +691,19 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
     return 'dexterity';
   }
 
-  int _startingHitPointsForClass(ClassEntry classEntry) {
+  /// PV no nível 1 = valor máximo do dado de vida + modificador de Constituição
+  /// (regra 5e). O modificador de CON estava sendo ignorado.
+  int _startingHitPointsForClass(
+    ClassEntry classEntry,
+    AbilityScores finalScores,
+  ) {
     final normalized = classEntry.hitDie.toLowerCase().replaceAll('d', '');
     final hitDie = int.tryParse(normalized) ?? 8;
-    return hitDie;
+    final conModifier = finalScores.constitution.abilityModifier;
+
+    final total = hitDie + conModifier;
+    // Nunca abaixo de 1 PV, mesmo com Constituição muito baixa.
+    return total < 1 ? 1 : total;
   }
 
   SavingThrowProficiencies _savingThrowsForClass(ClassEntry classEntry) {

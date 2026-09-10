@@ -89,7 +89,6 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                           ),
                         ),
                       );
-                      ref.invalidate(characterByIdProvider(widget.characterId));
                     },
                   ),
                   const SizedBox(height: 8),
@@ -121,7 +120,6 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                           ),
                         ),
                       );
-                      ref.invalidate(characterByIdProvider(widget.characterId));
                     },
                   ),
                   const SizedBox(height: 8),
@@ -141,7 +139,6 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                           ),
                         ),
                       );
-                      ref.invalidate(characterByIdProvider(widget.characterId));
                     },
                   ),
                   const SizedBox(height: 8),
@@ -192,7 +189,6 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                           ),
                         ),
                       );
-                      ref.invalidate(characterByIdProvider(widget.characterId));
                     },
                   ),
                   const SizedBox(height: 8),
@@ -245,7 +241,6 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                           ),
                         ),
                       );
-                      ref.invalidate(characterByIdProvider(widget.characterId));
                     },
                   ),
                   const SizedBox(height: 8),
@@ -264,7 +259,6 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                           ),
                         ),
                       );
-                      ref.invalidate(characterByIdProvider(widget.characterId));
                     },
                   ),
                   const SizedBox(height: 8),

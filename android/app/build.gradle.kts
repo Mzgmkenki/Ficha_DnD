@@ -8,7 +8,9 @@ plugins {
 android {
     namespace = "com.example.dnd_ficha_app"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    // O plugin nativo `jni` exige o NDK 28.2.13676358. Fixamos essa versao
+    // (a mais alta, retrocompativel) conforme orientado pelo proprio build.
+    ndkVersion = "28.2.13676358"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

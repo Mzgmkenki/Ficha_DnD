@@ -7,6 +7,10 @@ import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart
 import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
 
+/// Marcador usado no [Character.copyWith] para distinguir "não informado"
+/// de "informado como null".
+const Object _sentinel = Object();
+
 class Character {
   const Character({
     required this.id,
@@ -61,9 +65,9 @@ class Character {
   Character copyWith({
     String? id,
     String? name,
-    String? playerName,
-    String? speciesId,
-    String? backgroundId,
+    Object? playerName = _sentinel,
+    Object? speciesId = _sentinel,
+    Object? backgroundId = _sentinel,
     AbilityScores? abilityScores,
     List<ClassLevel>? classLevels,
     HitPoints? hitPoints,
@@ -79,9 +83,15 @@ class Character {
     return Character(
       id: id ?? this.id,
       name: name ?? this.name,
-      playerName: playerName ?? this.playerName,
-      speciesId: speciesId ?? this.speciesId,
-      backgroundId: backgroundId ?? this.backgroundId,
+      // Sentinela permite explicitamente setar estes campos para null
+      // (com `x ?? this.x` era impossível limpá-los).
+      playerName:
+          playerName == _sentinel ? this.playerName : playerName as String?,
+      speciesId:
+          speciesId == _sentinel ? this.speciesId : speciesId as String?,
+      backgroundId: backgroundId == _sentinel
+          ? this.backgroundId
+          : backgroundId as String?,
       abilityScores: abilityScores ?? this.abilityScores,
       classLevels: classLevels ?? this.classLevels,
       hitPoints: hitPoints ?? this.hitPoints,

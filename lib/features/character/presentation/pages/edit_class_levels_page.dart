@@ -379,8 +379,8 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
       if (!mounted) return;
       Navigator.of(context).pop(true);
     } catch (error, stackTrace) {
-      print('ERRO AO SALVAR MULTICLASSE: $error');
-      print(stackTrace);
+      debugPrint('ERRO AO SALVAR MULTICLASSE: $error');
+      debugPrintStack(stackTrace: stackTrace);
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

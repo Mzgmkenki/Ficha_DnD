@@ -1,3 +1,4 @@
+import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:flutter/material.dart';
 
@@ -11,7 +12,7 @@ class CombatSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dexModifier = ((character.abilityScores.dexterity - 10) ~/ 2);
+    final dexModifier = character.abilityScores.dexterity.abilityModifier;
     final initiative = dexModifier + character.combatStats.initiativeBonus;
 
     return Card(
