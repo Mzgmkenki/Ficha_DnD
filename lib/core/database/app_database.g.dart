@@ -38,6 +38,17 @@ class $CharactersTable extends Characters
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _portraitPathMeta = const VerificationMeta(
+    'portraitPath',
+  );
+  @override
+  late final GeneratedColumn<String> portraitPath = GeneratedColumn<String>(
+    'portrait_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _speciesIdMeta = const VerificationMeta(
     'speciesId',
   );
@@ -943,6 +954,7 @@ class $CharactersTable extends Characters
     id,
     name,
     playerName,
+    portraitPath,
     speciesId,
     backgroundId,
     customBackgroundName,
@@ -1043,6 +1055,15 @@ class $CharactersTable extends Characters
       context.handle(
         _playerNameMeta,
         playerName.isAcceptableOrUnknown(data['player_name']!, _playerNameMeta),
+      );
+    }
+    if (data.containsKey('portrait_path')) {
+      context.handle(
+        _portraitPathMeta,
+        portraitPath.isAcceptableOrUnknown(
+          data['portrait_path']!,
+          _portraitPathMeta,
+        ),
       );
     }
     if (data.containsKey('species_id')) {
@@ -1648,6 +1669,10 @@ class $CharactersTable extends Characters
         DriftSqlType.string,
         data['${effectivePrefix}player_name'],
       ),
+      portraitPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}portrait_path'],
+      ),
       speciesId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}species_id'],
@@ -2008,6 +2033,9 @@ class Character extends DataClass implements Insertable<Character> {
   final String id;
   final String name;
   final String? playerName;
+
+  /// Caminho da imagem de aparência, dentro do diretório do app.
+  final String? portraitPath;
   final String? speciesId;
   final String? backgroundId;
   final String? customBackgroundName;
@@ -2092,6 +2120,7 @@ class Character extends DataClass implements Insertable<Character> {
     required this.id,
     required this.name,
     this.playerName,
+    this.portraitPath,
     this.speciesId,
     this.backgroundId,
     this.customBackgroundName,
@@ -2170,6 +2199,9 @@ class Character extends DataClass implements Insertable<Character> {
     map['name'] = Variable<String>(name);
     if (!nullToAbsent || playerName != null) {
       map['player_name'] = Variable<String>(playerName);
+    }
+    if (!nullToAbsent || portraitPath != null) {
+      map['portrait_path'] = Variable<String>(portraitPath);
     }
     if (!nullToAbsent || speciesId != null) {
       map['species_id'] = Variable<String>(speciesId);
@@ -2260,6 +2292,10 @@ class Character extends DataClass implements Insertable<Character> {
           playerName == null && nullToAbsent
               ? const Value.absent()
               : Value(playerName),
+      portraitPath:
+          portraitPath == null && nullToAbsent
+              ? const Value.absent()
+              : Value(portraitPath),
       speciesId:
           speciesId == null && nullToAbsent
               ? const Value.absent()
@@ -2351,6 +2387,7 @@ class Character extends DataClass implements Insertable<Character> {
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       playerName: serializer.fromJson<String?>(json['playerName']),
+      portraitPath: serializer.fromJson<String?>(json['portraitPath']),
       speciesId: serializer.fromJson<String?>(json['speciesId']),
       backgroundId: serializer.fromJson<String?>(json['backgroundId']),
       customBackgroundName: serializer.fromJson<String?>(
@@ -2438,6 +2475,7 @@ class Character extends DataClass implements Insertable<Character> {
       'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
       'playerName': serializer.toJson<String?>(playerName),
+      'portraitPath': serializer.toJson<String?>(portraitPath),
       'speciesId': serializer.toJson<String?>(speciesId),
       'backgroundId': serializer.toJson<String?>(backgroundId),
       'customBackgroundName': serializer.toJson<String?>(customBackgroundName),
@@ -2519,6 +2557,7 @@ class Character extends DataClass implements Insertable<Character> {
     String? id,
     String? name,
     Value<String?> playerName = const Value.absent(),
+    Value<String?> portraitPath = const Value.absent(),
     Value<String?> speciesId = const Value.absent(),
     Value<String?> backgroundId = const Value.absent(),
     Value<String?> customBackgroundName = const Value.absent(),
@@ -2593,6 +2632,7 @@ class Character extends DataClass implements Insertable<Character> {
     id: id ?? this.id,
     name: name ?? this.name,
     playerName: playerName.present ? playerName.value : this.playerName,
+    portraitPath: portraitPath.present ? portraitPath.value : this.portraitPath,
     speciesId: speciesId.present ? speciesId.value : this.speciesId,
     backgroundId: backgroundId.present ? backgroundId.value : this.backgroundId,
     customBackgroundName:
@@ -2675,6 +2715,10 @@ class Character extends DataClass implements Insertable<Character> {
       name: data.name.present ? data.name.value : this.name,
       playerName:
           data.playerName.present ? data.playerName.value : this.playerName,
+      portraitPath:
+          data.portraitPath.present
+              ? data.portraitPath.value
+              : this.portraitPath,
       speciesId: data.speciesId.present ? data.speciesId.value : this.speciesId,
       backgroundId:
           data.backgroundId.present
@@ -2903,6 +2947,7 @@ class Character extends DataClass implements Insertable<Character> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('playerName: $playerName, ')
+          ..write('portraitPath: $portraitPath, ')
           ..write('speciesId: $speciesId, ')
           ..write('backgroundId: $backgroundId, ')
           ..write('customBackgroundName: $customBackgroundName, ')
@@ -2982,6 +3027,7 @@ class Character extends DataClass implements Insertable<Character> {
     id,
     name,
     playerName,
+    portraitPath,
     speciesId,
     backgroundId,
     customBackgroundName,
@@ -3060,6 +3106,7 @@ class Character extends DataClass implements Insertable<Character> {
           other.id == this.id &&
           other.name == this.name &&
           other.playerName == this.playerName &&
+          other.portraitPath == this.portraitPath &&
           other.speciesId == this.speciesId &&
           other.backgroundId == this.backgroundId &&
           other.customBackgroundName == this.customBackgroundName &&
@@ -3136,6 +3183,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
   final Value<String> id;
   final Value<String> name;
   final Value<String?> playerName;
+  final Value<String?> portraitPath;
   final Value<String?> speciesId;
   final Value<String?> backgroundId;
   final Value<String?> customBackgroundName;
@@ -3211,6 +3259,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.playerName = const Value.absent(),
+    this.portraitPath = const Value.absent(),
     this.speciesId = const Value.absent(),
     this.backgroundId = const Value.absent(),
     this.customBackgroundName = const Value.absent(),
@@ -3287,6 +3336,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     required String id,
     required String name,
     this.playerName = const Value.absent(),
+    this.portraitPath = const Value.absent(),
     this.speciesId = const Value.absent(),
     this.backgroundId = const Value.absent(),
     this.customBackgroundName = const Value.absent(),
@@ -3366,6 +3416,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Expression<String>? id,
     Expression<String>? name,
     Expression<String>? playerName,
+    Expression<String>? portraitPath,
     Expression<String>? speciesId,
     Expression<String>? backgroundId,
     Expression<String>? customBackgroundName,
@@ -3442,6 +3493,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (playerName != null) 'player_name': playerName,
+      if (portraitPath != null) 'portrait_path': portraitPath,
       if (speciesId != null) 'species_id': speciesId,
       if (backgroundId != null) 'background_id': backgroundId,
       if (customBackgroundName != null)
@@ -3526,6 +3578,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Value<String>? id,
     Value<String>? name,
     Value<String?>? playerName,
+    Value<String?>? portraitPath,
     Value<String?>? speciesId,
     Value<String?>? backgroundId,
     Value<String?>? customBackgroundName,
@@ -3602,6 +3655,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       id: id ?? this.id,
       name: name ?? this.name,
       playerName: playerName ?? this.playerName,
+      portraitPath: portraitPath ?? this.portraitPath,
       speciesId: speciesId ?? this.speciesId,
       backgroundId: backgroundId ?? this.backgroundId,
       customBackgroundName: customBackgroundName ?? this.customBackgroundName,
@@ -3689,6 +3743,9 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     }
     if (playerName.present) {
       map['player_name'] = Variable<String>(playerName.value);
+    }
+    if (portraitPath.present) {
+      map['portrait_path'] = Variable<String>(portraitPath.value);
     }
     if (speciesId.present) {
       map['species_id'] = Variable<String>(speciesId.value);
@@ -3918,6 +3975,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('playerName: $playerName, ')
+          ..write('portraitPath: $portraitPath, ')
           ..write('speciesId: $speciesId, ')
           ..write('backgroundId: $backgroundId, ')
           ..write('customBackgroundName: $customBackgroundName, ')
@@ -6979,6 +7037,7 @@ typedef $$CharactersTableCreateCompanionBuilder =
       required String id,
       required String name,
       Value<String?> playerName,
+      Value<String?> portraitPath,
       Value<String?> speciesId,
       Value<String?> backgroundId,
       Value<String?> customBackgroundName,
@@ -7056,6 +7115,7 @@ typedef $$CharactersTableUpdateCompanionBuilder =
       Value<String> id,
       Value<String> name,
       Value<String?> playerName,
+      Value<String?> portraitPath,
       Value<String?> speciesId,
       Value<String?> backgroundId,
       Value<String?> customBackgroundName,
@@ -7261,6 +7321,11 @@ class $$CharactersTableFilterComposer
 
   ColumnFilters<String> get playerName => $composableBuilder(
     column: $table.playerName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get portraitPath => $composableBuilder(
+    column: $table.portraitPath,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7741,6 +7806,11 @@ class $$CharactersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get portraitPath => $composableBuilder(
+    column: $table.portraitPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get speciesId => $composableBuilder(
     column: $table.speciesId,
     builder: (column) => ColumnOrderings(column),
@@ -8109,6 +8179,11 @@ class $$CharactersTableAnnotationComposer
 
   GeneratedColumn<String> get playerName => $composableBuilder(
     column: $table.playerName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get portraitPath => $composableBuilder(
+    column: $table.portraitPath,
     builder: (column) => column,
   );
 
@@ -8581,6 +8656,7 @@ class $$CharactersTableTableManager
                 Value<String> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<String?> playerName = const Value.absent(),
+                Value<String?> portraitPath = const Value.absent(),
                 Value<String?> speciesId = const Value.absent(),
                 Value<String?> backgroundId = const Value.absent(),
                 Value<String?> customBackgroundName = const Value.absent(),
@@ -8656,6 +8732,7 @@ class $$CharactersTableTableManager
                 id: id,
                 name: name,
                 playerName: playerName,
+                portraitPath: portraitPath,
                 speciesId: speciesId,
                 backgroundId: backgroundId,
                 customBackgroundName: customBackgroundName,
@@ -8733,6 +8810,7 @@ class $$CharactersTableTableManager
                 required String id,
                 required String name,
                 Value<String?> playerName = const Value.absent(),
+                Value<String?> portraitPath = const Value.absent(),
                 Value<String?> speciesId = const Value.absent(),
                 Value<String?> backgroundId = const Value.absent(),
                 Value<String?> customBackgroundName = const Value.absent(),
@@ -8808,6 +8886,7 @@ class $$CharactersTableTableManager
                 id: id,
                 name: name,
                 playerName: playerName,
+                portraitPath: portraitPath,
                 speciesId: speciesId,
                 backgroundId: backgroundId,
                 customBackgroundName: customBackgroundName,

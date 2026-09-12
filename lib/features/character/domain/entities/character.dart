@@ -24,6 +24,7 @@ class Character {
     required this.createdAt,
     required this.updatedAt,
     this.playerName,
+    this.portraitPath,
     this.speciesId,
     this.backgroundId,
     this.customBackground = const CustomBackground(),
@@ -41,6 +42,14 @@ class Character {
   final String id;
   final String name;
   final String? playerName;
+
+  /// Caminho absoluto da imagem de aparência, dentro do diretório do app.
+  ///
+  /// Guarda uma cópia feita pelo app, não o arquivo original escolhido pelo
+  /// jogador: o caminho que o gerenciador de arquivos devolve aponta para o
+  /// cache e pode ser apagado pelo sistema a qualquer momento.
+  final String? portraitPath;
+
   final String? speciesId;
   final String? backgroundId;
 
@@ -93,6 +102,7 @@ class Character {
     String? id,
     String? name,
     Object? playerName = _sentinel,
+    Object? portraitPath = _sentinel,
     Object? speciesId = _sentinel,
     Object? backgroundId = _sentinel,
     CustomBackground? customBackground,
@@ -119,6 +129,11 @@ class Character {
       // (com `x ?? this.x` era impossível limpá-los).
       playerName:
           playerName == _sentinel ? this.playerName : playerName as String?,
+      // Sentinela é obrigatória aqui: remover o retrato é setar null, e com
+      // `?? this.portraitPath` isso seria impossível.
+      portraitPath: portraitPath == _sentinel
+          ? this.portraitPath
+          : portraitPath as String?,
       speciesId:
           speciesId == _sentinel ? this.speciesId : speciesId as String?,
       backgroundId: backgroundId == _sentinel

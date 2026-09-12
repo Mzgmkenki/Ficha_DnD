@@ -163,8 +163,9 @@ class RestAndResourcesPanel extends ConsumerWidget {
       builder: (dialogContext) => AlertDialog(
         title: const Text('Descanso longo'),
         content: const Text(
-          'Restaura todos os PV, renova os espaços de magia, recupera metade '
-          'dos dados de vida e reduz a exaustão em 1 nível. Confirmar?',
+          'Restaura todos os PV, renova os espaços de magia, recarrega as '
+          'cargas dos itens mágicos, recupera metade dos dados de vida e '
+          'reduz a exaustão em 1 nível. Confirmar?',
         ),
         actions: [
           TextButton(

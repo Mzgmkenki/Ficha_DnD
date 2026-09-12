@@ -13,6 +13,16 @@ dependencies:
   drift: ^2.32.1
   drift_flutter: ^0.3.0
 
+  # Retrato do personagem: file_picker abre o gerenciador de arquivos do
+  # sistema (SAF no Android), então não precisa de permissão de leitura em
+  # runtime. path_provider dá o diretório do app, para onde a imagem é
+  # copiada — o caminho devolvido pelo picker fica no cache e pode sumir.
+  # Presas na faixa 11.x/2.1.x porque as versões 12/2.1.6 exigem Dart 3.10
+  # e o piso declarado aqui é 3.7.0.
+  file_picker: ^11.0.3
+  path_provider: ^2.1.5
+  path: ^1.9.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

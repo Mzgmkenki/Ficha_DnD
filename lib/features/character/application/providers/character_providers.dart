@@ -5,6 +5,7 @@ import 'package:dnd_ficha_app/features/character/application/use_cases/character
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/update_character_ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/update_character_class_levels.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/update_character_identity.dart';
+import 'package:dnd_ficha_app/features/character/application/use_cases/character/update_character_portrait.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/update_character_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/combat/update_character_hit_points.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
@@ -49,6 +50,13 @@ final updateCharacterIdentityProvider =
     Provider<UpdateCharacterIdentity>((ref) {
   final repository = ref.watch(characterRepositoryProvider);
   return UpdateCharacterIdentity(repository);
+});
+
+final updateCharacterPortraitProvider =
+    Provider<UpdateCharacterPortrait>((ref) {
+  final repository = ref.watch(characterRepositoryProvider);
+  final storage = ref.watch(portraitStorageProvider);
+  return UpdateCharacterPortrait(repository, storage);
 });
 
 final exportCharacterProvider = Provider<ExportCharacter>((ref) {
@@ -207,8 +215,9 @@ final characterUsedSpellSlotsProvider =
   return repository.watchUsedSpellSlots(characterId);
 });
 
-/// Aplica um descanso longo: PV cheios, espaços de magia renovados,
-/// metade dos dados de vida recuperados e 1 nível de exaustão removido.
+/// Aplica um descanso longo: PV cheios, espaços de magia renovados, cargas
+/// dos itens mágicos recarregadas, metade dos dados de vida recuperados e 1
+/// nível de exaustão removido.
 final longRestProvider = Provider<
     Future<String> Function({
       required Character character,
@@ -227,6 +236,14 @@ final longRestProvider = Provider<
       characterId: character.id,
       slotLevels: outcome.clearedSpellSlotLevels,
     );
+
+    // Itens mágicos moram em tabela própria: o `update` acima não os alcança.
+    for (final recharge in outcome.magicItemRecharges) {
+      await repository.updateMagicItemCharges(
+        magicItemId: recharge.magicItemId,
+        charges: recharge.charges,
+      );
+    }
 
     return outcome.summary;
   };

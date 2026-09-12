@@ -4,6 +4,10 @@ class Characters extends Table {
   TextColumn get id => text()();
   TextColumn get name => text()();
   TextColumn get playerName => text().nullable()();
+
+  /// Caminho da imagem de aparência, dentro do diretório do app.
+  TextColumn get portraitPath => text().nullable()();
+
   TextColumn get speciesId => text().nullable()();
   TextColumn get backgroundId => text().nullable()();
 

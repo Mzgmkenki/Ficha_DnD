@@ -31,6 +31,7 @@ class CharacterRepositoryImpl implements CharacterRepository {
               id: character.id,
               name: character.name,
               playerName: drift.Value(character.playerName),
+              portraitPath: drift.Value(character.portraitPath),
               speciesId: drift.Value(character.speciesId),
               backgroundId: drift.Value(character.backgroundId),
               customBackgroundName:
@@ -374,6 +375,7 @@ class CharacterRepositoryImpl implements CharacterRepository {
         db.CharactersCompanion(
           name: drift.Value(character.name),
           playerName: drift.Value(character.playerName),
+          portraitPath: drift.Value(character.portraitPath),
           speciesId: drift.Value(character.speciesId),
           backgroundId: drift.Value(character.backgroundId),
           customBackgroundName: drift.Value(character.customBackground.name),

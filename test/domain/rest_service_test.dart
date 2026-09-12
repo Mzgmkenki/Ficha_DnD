@@ -1,8 +1,26 @@
+import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/rest_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../helpers/character_fixture.dart';
+
+CharacterMagicItem _item({
+  required int localId,
+  int? charges,
+  int? maxCharges,
+  String? rechargeRule,
+}) {
+  return CharacterMagicItem(
+    localId: localId,
+    name: 'Item $localId',
+    description: '',
+    spells: const [],
+    charges: charges,
+    maxCharges: maxCharges,
+    rechargeRule: rechargeRule,
+  );
+}
 
 void main() {
   group('descanso longo', () {
@@ -71,6 +89,122 @@ void main() {
 
       // null significa "todos os níveis".
       expect(outcome.clearedSpellSlotLevels, isNull);
+    });
+  });
+
+  group('descanso longo e cargas de item mágico', () {
+    test('enche o item gasto até o máximo', () {
+      final character = characterFixture().copyWith(
+        magicItems: [_item(localId: 7, charges: 1, maxCharges: 5)],
+      );
+
+      final outcome = RestService.longRest(
+        character: character,
+        totalHitDice: 4,
+      );
+
+      expect(outcome.magicItemRecharges, hasLength(1));
+      expect(outcome.magicItemRecharges.single.magicItemId, 7);
+      expect(outcome.magicItemRecharges.single.charges, 5);
+      expect(outcome.summary, contains('1 item(ns) mágico(s)'));
+    });
+
+    test('ignora item que já está cheio, para não escrever à toa', () {
+      final character = characterFixture().copyWith(
+        magicItems: [_item(localId: 1, charges: 3, maxCharges: 3)],
+      );
+
+      final outcome = RestService.longRest(
+        character: character,
+        totalHitDice: 4,
+      );
+
+      expect(outcome.magicItemRecharges, isEmpty);
+      expect(outcome.summary, isNot(contains('item(ns)')));
+    });
+
+    test('ignora item que não usa cargas', () {
+      final character = characterFixture().copyWith(
+        magicItems: [_item(localId: 2)],
+      );
+
+      final outcome = RestService.longRest(
+        character: character,
+        totalHitDice: 4,
+      );
+
+      expect(outcome.magicItemRecharges, isEmpty);
+    });
+
+    test('respeita a regra que não recarrega', () {
+      final character = characterFixture().copyWith(
+        magicItems: [
+          _item(
+            localId: 3,
+            charges: 0,
+            maxCharges: 2,
+            rechargeRule: 'Não recarrega.',
+          ),
+        ],
+      );
+
+      final outcome = RestService.longRest(
+        character: character,
+        totalHitDice: 4,
+      );
+
+      expect(outcome.magicItemRecharges, isEmpty);
+    });
+
+    test('deixa de fora regra com gatilho próprio', () {
+      final character = characterFixture().copyWith(
+        magicItems: [
+          _item(
+            localId: 4,
+            charges: 0,
+            maxCharges: 3,
+            rechargeRule: 'Recupera 1 carga ao matar uma criatura.',
+          ),
+        ],
+      );
+
+      final outcome = RestService.longRest(
+        character: character,
+        totalHitDice: 4,
+      );
+
+      expect(outcome.magicItemRecharges, isEmpty);
+    });
+  });
+
+  group('rechargesOnLongRest', () {
+    test('em branco recarrega, que é o padrão do PHB', () {
+      expect(RestService.rechargesOnLongRest(null), isTrue);
+      expect(RestService.rechargesOnLongRest('   '), isTrue);
+    });
+
+    test('reconhece amanhecer e descanso, em maiúscula ou minúscula', () {
+      expect(RestService.rechargesOnLongRest('Todas ao amanhecer'), isTrue);
+      expect(RestService.rechargesOnLongRest('1d6+4 AO AMANHECER'), isTrue);
+      expect(RestService.rechargesOnLongRest('Descanso longo'), isTrue);
+      expect(RestService.rechargesOnLongRest('daily at dawn'), isTrue);
+    });
+
+    test('quem recupera no descanso curto também está cheio no longo', () {
+      expect(RestService.rechargesOnLongRest('Descanso curto'), isTrue);
+      expect(RestService.rechargesOnLongRest('short rest'), isTrue);
+    });
+
+    test('nega quando a regra diz que não recarrega', () {
+      expect(RestService.rechargesOnLongRest('Não recarrega'), isFalse);
+      expect(RestService.rechargesOnLongRest('never recharges'), isFalse);
+    });
+
+    test('nega gatilho que não é tempo de descanso', () {
+      expect(
+        RestService.rechargesOnLongRest('Ao acertar um ataque com vantagem'),
+        isFalse,
+      );
     });
   });
 

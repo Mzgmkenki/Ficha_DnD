@@ -143,6 +143,11 @@ MigrationStrategy buildMigrationStrategy(AppDatabase db) {
           db.characters.customBackgroundFeatures,
         );
       }
+
+      if (from < 7) {
+        // Retrato do personagem (imagem de aparência).
+        await _tryAddColumn(m, db.characters, db.characters.portraitPath);
+      }
     },
     beforeOpen: (details) async {
       // Roda fora da transação de migração, então aqui é seguro usar `db`.

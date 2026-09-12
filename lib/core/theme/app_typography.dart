@@ -31,6 +31,21 @@ class AppTypography {
     );
   }
 
+  /// Rótulo dos botões de ação que acompanham um cabeçalho de seção
+  /// ("Editar nível", "Calcular CA").
+  ///
+  /// Usa a fonte dos títulos em branco para o botão ler como parte do
+  /// cabeçalho, e não como um aviso. O vermelho fica só no ícone, que é o
+  /// que precisa chamar o olho.
+  static const TextStyle actionLabel = TextStyle(
+    fontFamily: display,
+    fontSize: 13,
+    fontWeight: FontWeight.w700,
+    letterSpacing: 0.8,
+    height: 1.1,
+    color: AppColors.onDark,
+  );
+
   static TextTheme textTheme() {
     const heading = TextStyle(
       fontFamily: display,

@@ -22,6 +22,7 @@ class CharacterMapper {
       id: character.id,
       name: character.name,
       playerName: character.playerName,
+      portraitPath: character.portraitPath,
       speciesId: character.speciesId,
       backgroundId: character.backgroundId,
       customBackground: CustomBackground(

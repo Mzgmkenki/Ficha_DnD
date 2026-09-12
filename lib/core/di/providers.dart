@@ -1,5 +1,6 @@
 import 'package:dnd_ficha_app/core/database/app_database.dart';
 import 'package:dnd_ficha_app/core/routing/app_router.dart';
+import 'package:dnd_ficha_app/core/storage/portrait_storage.dart';
 import 'package:dnd_ficha_app/core/utils/dice_roller.dart';
 import 'package:dnd_ficha_app/features/character/data/repositories/character_repository_impl.dart';
 import 'package:dnd_ficha_app/features/character/domain/repositories/character_repository.dart';
@@ -23,6 +24,12 @@ final appDatabaseProvider = Provider<AppDatabase>((ref) {
 final characterRepositoryProvider = Provider<CharacterRepository>((ref) {
   final database = ref.watch(appDatabaseProvider);
   return CharacterRepositoryImpl(database);
+});
+
+/// Guarda o retrato do personagem. Fica num provider para os testes poderem
+/// trocar por uma implementação que não toca no sistema de arquivos.
+final portraitStorageProvider = Provider<PortraitStorage>((ref) {
+  return const PortraitStorage();
 });
 
 final srdAssetSourceProvider = Provider<SrdAssetSource>((ref) {

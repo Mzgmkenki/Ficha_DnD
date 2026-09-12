@@ -4,6 +4,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/character.dart'
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/ability_score_block.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/background_panel.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/character_portrait.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/character_spells_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/class_features_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/combat_summary_card.dart';
@@ -12,6 +13,7 @@ import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/magi
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/racial_traits_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/rest_and_resources_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/saving_throws_panel.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/sheet_header_action.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/skills_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/spell_slots_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/spellcasting_summary_panel.dart';
@@ -56,6 +58,11 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      CharacterPortrait(
+                        characterId: character.id,
+                        portraitPath: character.portraitPath,
+                      ),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -91,7 +98,7 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                   _SectionHeader(
                     title: 'Classes',
                     actionLabel: 'Editar nível',
-                    actionIcon: Icons.trending_up,
+                    actionIcon: Icons.upgrade,
                     onPressed: () =>
                         AppNavigator.toEditClassLevels(context, character: character),
                   ),
@@ -114,19 +121,19 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                   _SectionHeader(
                     title: 'Combate',
                     actionLabel: 'Editar HP',
-                    actionIcon: Icons.favorite,
+                    actionIcon: Icons.favorite_border,
                     onPressed: () =>
                         AppNavigator.toEditHitPoints(context, character: character),
                   ),
                   Align(
                     alignment: Alignment.centerRight,
-                    child: TextButton.icon(
+                    child: SheetHeaderAction(
+                      label: 'Calcular CA',
+                      icon: Icons.shield_outlined,
                       onPressed: () => AppNavigator.toEditArmorClass(
                         context,
                         character: character,
                       ),
-                      icon: const Icon(Icons.shield_outlined),
-                      label: const Text('Calcular CA'),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -143,7 +150,7 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                   const SizedBox(height: 16),
                   _SectionHeader(
                     title: 'Atributos',
-                    actionLabel: 'Editar atributos',
+                    actionLabel: 'Editar',
                     actionIcon: Icons.tune,
                     onPressed: () => AppNavigator.toEditAbilityScores(
                       context,
@@ -166,8 +173,8 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                   const SizedBox(height: 16),
                   _SectionHeader(
                     title: 'Proficiências',
-                    actionLabel: 'Editar proficiências',
-                    actionIcon: Icons.tune,
+                    actionLabel: 'Editar',
+                    actionIcon: Icons.verified_outlined,
                     onPressed: () => AppNavigator.toEditProficiencies(
                       context,
                       character: character,
@@ -213,8 +220,8 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                   const SizedBox(height: 16),
                   _SectionHeader(
                     title: 'Magias do personagem',
-                    actionLabel: 'Gerenciar magias',
-                    actionIcon: Icons.menu_book,
+                    actionLabel: 'Gerenciar',
+                    actionIcon: Icons.auto_fix_high,
                     onPressed: () => AppNavigator.toManageSpells(
                       context,
                       characterId: character.id,
@@ -226,8 +233,8 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                   const SizedBox(height: 16),
                   _SectionHeader(
                     title: 'Itens mágicos',
-                    actionLabel: 'Gerenciar itens',
-                    actionIcon: Icons.inventory_2_outlined,
+                    actionLabel: 'Gerenciar',
+                    actionIcon: Icons.backpack_outlined,
                     onPressed: () => AppNavigator.toManageMagicItems(
                       context,
                       characterId: character.id,
@@ -243,7 +250,7 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                   _SectionHeader(
                     title: 'Antecedente',
                     actionLabel: 'Editar',
-                    actionIcon: Icons.badge_outlined,
+                    actionIcon: Icons.history_edu,
                     onPressed: () => _openIdentityEditor(character),
                   ),
                   const SizedBox(height: 8),
@@ -266,7 +273,7 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                   _SectionHeader(
                     title: 'Anotações',
                     actionLabel: 'Editar',
-                    actionIcon: Icons.notes_outlined,
+                    actionIcon: Icons.edit_note,
                     onPressed: () => _openIdentityEditor(character),
                   ),
                   const SizedBox(height: 8),
@@ -352,12 +359,16 @@ class _SectionHeader extends StatelessWidget {
             style: Theme.of(context).textTheme.titleLarge,
           ),
         ),
-        if (hasAction)
-          TextButton.icon(
-            onPressed: onPressed,
-            icon: Icon(actionIcon),
-            label: Text(actionLabel!),
+        if (hasAction) ...[
+          // A fonte decorativa é larga: sem esta folga o rótulo encosta no
+          // título quando o nome da seção é comprido.
+          const SizedBox(width: 8),
+          SheetHeaderAction(
+            label: actionLabel!,
+            icon: actionIcon!,
+            onPressed: onPressed!,
           ),
+        ],
       ],
     );
   }
