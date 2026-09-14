@@ -2,6 +2,8 @@
   {
     "id": "barbarian",
     "name": "Bárbaro",
+    "subclass_level": 3,
+    "subclass_label": "Caminho Primal",
     "hit_die": "d12",
     "primary_ability": "strength",
     "spellcasting_type": null,
@@ -19,6 +21,8 @@
   {
     "id": "bard",
     "name": "Bardo",
+    "subclass_level": 3,
+    "subclass_label": "Colégio de Bardo",
     "hit_die": "d8",
     "primary_ability": "charisma",
     "spellcasting_type": "full",
@@ -49,6 +53,8 @@
   {
     "id": "cleric",
     "name": "Clérigo",
+    "subclass_level": 1,
+    "subclass_label": "Domínio Divino",
     "hit_die": "d8",
     "primary_ability": "wisdom",
     "spellcasting_type": "full",
@@ -66,6 +72,8 @@
   {
     "id": "druid",
     "name": "Druida",
+    "subclass_level": 2,
+    "subclass_label": "Círculo Druídico",
     "hit_die": "d8",
     "primary_ability": "wisdom",
     "spellcasting_type": "full",
@@ -86,6 +94,8 @@
   {
     "id": "fighter",
     "name": "Guerreiro",
+    "subclass_level": 3,
+    "subclass_label": "Arquétipo Marcial",
     "hit_die": "d10",
     "primary_ability": "strength",
     "spellcasting_type": null,
@@ -105,6 +115,8 @@
   {
     "id": "monk",
     "name": "Monge",
+    "subclass_level": 3,
+    "subclass_label": "Tradição Monástica",
     "hit_die": "d8",
     "primary_ability": "dexterity",
     "spellcasting_type": null,
@@ -122,6 +134,8 @@
   {
     "id": "paladin",
     "name": "Paladino",
+    "subclass_level": 3,
+    "subclass_label": "Juramento Sagrado",
     "hit_die": "d10",
     "primary_ability": "charisma",
     "spellcasting_type": "half",
@@ -140,6 +154,8 @@
   {
     "id": "ranger",
     "name": "Patrulheiro",
+    "subclass_level": 3,
+    "subclass_label": "Arquétipo de Patrulheiro",
     "hit_die": "d10",
     "primary_ability": "dexterity",
     "spellcasting_type": "half",
@@ -160,6 +176,8 @@
   {
     "id": "rogue",
     "name": "Ladino",
+    "subclass_level": 3,
+    "subclass_label": "Arquétipo de Ladino",
     "hit_die": "d8",
     "primary_ability": "dexterity",
     "spellcasting_type": null,
@@ -182,6 +200,8 @@
   {
     "id": "sorcerer",
     "name": "Feiticeiro",
+    "subclass_level": 1,
+    "subclass_label": "Origem de Feitiçaria",
     "hit_die": "d6",
     "primary_ability": "charisma",
     "spellcasting_type": "full",
@@ -200,6 +220,8 @@
   {
     "id": "warlock",
     "name": "Bruxo",
+    "subclass_level": 1,
+    "subclass_label": "Patrono Sobrenatural",
     "hit_die": "d8",
     "primary_ability": "charisma",
     "spellcasting_type": "pact",
@@ -219,6 +241,8 @@
   {
     "id": "wizard",
     "name": "Mago",
+    "subclass_level": 2,
+    "subclass_label": "Tradição Arcana",
     "hit_die": "d6",
     "primary_ability": "intelligence",
     "spellcasting_type": "full",
@@ -233,5 +257,26 @@
       "religion"
     ],
     "source": "srd"
+  },
+  {
+    "id": "artificer",
+    "name": "Artífice",
+    "subclass_level": 3,
+    "subclass_label": "Especialista em Artífice",
+    "hit_die": "d8",
+    "primary_ability": "intelligence",
+    "spellcasting_type": "artificer",
+    "spellcasting_ability": "intelligence",
+    "saving_throws": ["constitution", "intelligence"],
+    "skill_options": [
+      "arcana",
+      "history",
+      "investigation",
+      "medicine",
+      "nature",
+      "perception",
+      "sleightOfHand"
+    ],
+    "source": "tcoe"
   }
 ]

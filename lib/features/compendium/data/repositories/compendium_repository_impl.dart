@@ -8,6 +8,7 @@ import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dar
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_skill_choice.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_slot_progression_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/subclass_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/repositories/compendium_repository.dart';
 
 class CompendiumRepositoryImpl implements CompendiumRepository {
@@ -32,6 +33,8 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
         primaryAbility: item['primary_ability'] as String?,
         spellcastingType: item['spellcasting_type'] as String?,
         spellcastingAbility: item['spellcasting_ability'] as String?,
+        subclassLevel: _asInt(item['subclass_level']),
+        subclassLabel: item['subclass_label'] as String?,
         source: item['source'] as String? ?? 'srd',
         skillOptions: skillOptionsRaw
             .map((e) => e.toString())
@@ -169,6 +172,29 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
   }
 
   @override
+  Future<List<SubclassEntry>> loadSubclasses() async {
+    final items = await _source.loadJsonList('assets/data/srd/subclasses.json');
+
+    return items.map((item) {
+      final rawFeatures = _asList(item['features']);
+      final rawTags = _asList(item['tags']);
+
+      return SubclassEntry(
+        id: item['id'] as String,
+        classId: item['class_id'] as String,
+        name: item['name'] as String,
+        source: item['source'] as String? ?? 'srd',
+        description: item['description'] as String?,
+        features: rawFeatures
+            .whereType<Map>()
+            .map((e) => _parseSubclassFeature(Map<String, dynamic>.from(e)))
+            .toList(growable: false),
+        tags: rawTags.map((e) => e.toString()).toList(growable: false),
+      );
+    }).toList(growable: false);
+  }
+
+  @override
   Future<List<SpellSlotProgressionEntry>> loadSpellSlotProgressions() async {
     final items = await _source.loadJsonList('assets/data/srd/spell_slots.json');
 
@@ -234,6 +260,14 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
     }
 
     return allSpells;
+  }
+
+  SubclassFeature _parseSubclassFeature(Map<String, dynamic> item) {
+    return SubclassFeature(
+      level: _asInt(item['level']) ?? 1,
+      name: item['name'] as String? ?? '',
+      description: item['description'] as String? ?? '',
+    );
   }
 
   RaceSkillChoice _parseRaceSkillChoice(Map<String, dynamic> item) {

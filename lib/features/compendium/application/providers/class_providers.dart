@@ -4,6 +4,7 @@ import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.da
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_slot_progression_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/subclass_entry.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final classEntriesProvider = FutureProvider<List<ClassEntry>>((ref) async {
@@ -72,6 +73,31 @@ final classFeaturesByClassAndLevelProvider = FutureProvider.family
         .toList(growable: false);
   },
 );
+
+final subclassEntriesProvider =
+    FutureProvider<List<SubclassEntry>>((ref) async {
+  final repository = ref.watch(compendiumRepositoryProvider);
+  return repository.loadSubclasses();
+});
+
+/// Subclasses de uma classe, na ordem do compêndio.
+final subclassesByClassProvider =
+    FutureProvider.family<List<SubclassEntry>, String>((ref, classId) async {
+  final all = await ref.watch(subclassEntriesProvider.future);
+
+  return all
+      .where((item) => item.classId == classId)
+      .toList(growable: false);
+});
+
+final subclassByIdProvider =
+    FutureProvider.family<SubclassEntry?, String>((ref, id) async {
+  final all = await ref.watch(subclassEntriesProvider.future);
+  for (final item in all) {
+    if (item.id == id) return item;
+  }
+  return null;
+});
 
 final spellSlotProgressionsProvider =
     FutureProvider<List<SpellSlotProgressionEntry>>((ref) async {

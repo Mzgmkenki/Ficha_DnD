@@ -18,6 +18,7 @@ import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart
 import 'package:dnd_ficha_app/features/character/domain/value_objects/spellcasting_type.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/custom_background_form.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/portrait_avatar.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/subclass_summary.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart'
     as compendium_providers;
 import 'package:dnd_ficha_app/features/compendium/domain/entities/ability_bonus_mode.dart';
@@ -25,6 +26,7 @@ import 'package:dnd_ficha_app/features/compendium/domain/entities/background_ent
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_skill_choice.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/subclass_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -46,6 +48,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
   String? _selectedClassId;
   String? _selectedRaceId;
   String? _selectedSubraceId;
+  String? _selectedSubclassId;
   String? _selectedBackgroundId;
 
   /// Perícias do antecedente customizável (um antecedente concede duas).
@@ -168,6 +171,12 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
         ref.watch(compendium_providers.backgroundEntriesProvider).value ??
             const <BackgroundEntry>[];
 
+    // Mesma tolerância: enquanto as subclasses carregam, o seletor não aparece
+    // e o resto do formulário segue utilizável.
+    final subclasses =
+        ref.watch(compendium_providers.subclassEntriesProvider).value ??
+            const <SubclassEntry>[];
+
     // Busca tolerante: enquanto os antecedentes carregam (ou se o id salvo
     // sumir da lista) o formulário continua funcionando.
     final selectedBackground = _findBackground(backgrounds);
@@ -224,6 +233,17 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                 selectedRace,
                 selectedSubrace,
               );
+
+              final classSubclasses = subclasses
+                  .where((item) => item.classId == selectedClass.id)
+                  .toList(growable: false);
+
+              // O dropdown auto-seleciona a primeira opção, então o id que vai
+              // para o personagem tem que ser o resolvido, não o que está no
+              // estado (que fica nulo até o jogador tocar no campo).
+              final effectiveSubclassId = selectedClass.subclassUnlockedAt(1)
+                  ? _resolveSelectedSubclassId(classSubclasses)
+                  : null;
 
               if (!combinedRace.allowsCustomOrigin && _useCustomOrigin) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -392,6 +412,8 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                       onChanged: (value) {
                         setState(() {
                           _selectedClassId = value;
+                          // A subclasse pertence à classe anterior.
+                          _selectedSubclassId = null;
                         });
                       },
                       validator: (value) {
@@ -401,6 +423,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                         return null;
                       },
                     ),
+                    ..._buildSubclassSection(selectedClass, classSubclasses),
                     const SizedBox(height: 20),
                     Text(
                       'Perícias',
@@ -454,6 +477,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                                 combinedRace,
                                 effectiveClassId,
                                 backgrounds,
+                                effectiveSubclassId,
                               ),
                       icon: _saving
                           ? const SizedBox(
@@ -595,6 +619,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
     _CombinedRaceData selectedRace,
     String effectiveClassId,
     List<BackgroundEntry> backgrounds,
+    String? subclassId,
   ) async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -676,6 +701,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
         classLevels: [
           ClassLevel(
             classId: selectedClass.id,
+            subclassId: subclassId,
             level: 1,
             spellcastingAbility:
                 spellcastingType == null ? null : castingAbility,
@@ -716,6 +742,87 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
         });
       }
     }
+  }
+
+  String? _resolveSelectedSubclassId(List<SubclassEntry> options) {
+    if (options.isEmpty) return null;
+
+    final current = _selectedSubclassId;
+    if (current != null && options.any((item) => item.id == current)) {
+      return current;
+    }
+
+    return options.first.id;
+  }
+
+  /// Seletor de subclasse.
+  ///
+  /// O personagem novo começa no 1º nível, então o seletor só aparece para
+  /// quem escolhe já no 1º (Clérigo, Feiticeiro, Bruxo). Nas outras classes
+  /// fica o aviso do nível em que a escolha vai acontecer, para o jogador não
+  /// procurar por uma opção que ainda não existe.
+  List<Widget> _buildSubclassSection(
+    ClassEntry classEntry,
+    List<SubclassEntry> options,
+  ) {
+    final label = classEntry.subclassLabelOrDefault;
+
+    if (!classEntry.subclassUnlockedAt(1)) {
+      final level = classEntry.subclassLevel;
+
+      return [
+        const SizedBox(height: 8),
+        Text(
+          level == null
+              ? '$label: esta classe não define nível de escolha.'
+              : '$label: você escolhe no $levelº nível.',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      ];
+    }
+
+    if (options.isEmpty) {
+      return [
+        const SizedBox(height: 8),
+        Text(
+          '$label: nenhuma opção cadastrada no compêndio ainda.',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: AppColors.onDarkVariant,
+          ),
+        ),
+      ];
+    }
+
+    final effectiveId = _resolveSelectedSubclassId(options);
+    final selected = options.firstWhere((item) => item.id == effectiveId);
+
+    return [
+      const SizedBox(height: 12),
+      DropdownButtonFormField<String>(
+        initialValue: effectiveId,
+        decoration: InputDecoration(labelText: label),
+        items: options
+            .map(
+              (item) => DropdownMenuItem<String>(
+                value: item.id,
+                child: Text(item.name),
+              ),
+            )
+            .toList(),
+        onChanged: (value) {
+          setState(() {
+            _selectedSubclassId = value;
+          });
+        },
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Selecione ${label.toLowerCase()}.';
+          }
+          return null;
+        },
+      ),
+      SubclassSummary(subclass: selected, level: 1),
+    ];
   }
 
   /// Controles dos bônus de atributo que dependem de escolha.
@@ -1067,6 +1174,8 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
         return SpellcastingType.third;
       case 'pact':
         return SpellcastingType.pact;
+      case 'artificer':
+        return SpellcastingType.artificer;
       default:
         return null;
     }

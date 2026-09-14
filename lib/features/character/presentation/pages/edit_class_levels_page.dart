@@ -1,11 +1,14 @@
+import 'package:dnd_ficha_app/core/theme/app_colors.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/hit_points_calculator.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/spellcasting_type.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/subclass_summary.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/subclass_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -55,6 +58,10 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
   @override
   Widget build(BuildContext context) {
     final classesAsync = ref.watch(classEntriesProvider);
+
+    // Tolerante ao carregamento: sem as subclasses o resto da tela funciona.
+    final subclasses =
+        ref.watch(subclassEntriesProvider).value ?? const <SubclassEntry>[];
 
     return Scaffold(
       appBar: AppBar(title: const Text('Editar multiclasse')),
@@ -129,19 +136,11 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
                           children: [
                             IconButton(
                               onPressed: classLevel.level > 1
-                                  ? () {
-                                      setState(() {
-                                        _classLevels[index] = ClassLevel(
-                                          classId: classLevel.classId,
-                                          subclassId: classLevel.subclassId,
-                                          level: classLevel.level - 1,
-                                          spellcastingAbility:
-                                              classLevel.spellcastingAbility,
-                                          spellcastingType:
-                                              classLevel.spellcastingType,
-                                        );
-                                      });
-                                    }
+                                  ? () => _changeLevel(
+                                        index,
+                                        classLevel.level - 1,
+                                        classes,
+                                      )
                                   : null,
                               icon: const Icon(Icons.remove),
                             ),
@@ -156,23 +155,28 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
                             IconButton(
                               onPressed:
                                   (_totalLevel < 20 && classLevel.level < 20)
-                                      ? () {
-                                          setState(() {
-                                            _classLevels[index] = ClassLevel(
-                                              classId: classLevel.classId,
-                                              subclassId: classLevel.subclassId,
-                                              level: classLevel.level + 1,
-                                              spellcastingAbility:
-                                                  classLevel.spellcastingAbility,
-                                              spellcastingType:
-                                                  classLevel.spellcastingType,
-                                            );
-                                          });
-                                        }
+                                      ? () => _changeLevel(
+                                            index,
+                                            classLevel.level + 1,
+                                            classes,
+                                          )
                                       : null,
                               icon: const Icon(Icons.add),
                             ),
                           ],
+                        ),
+                        ..._buildSubclassPicker(
+                          index: index,
+                          classLevel: classLevel,
+                          classEntry: _classEntryForId(
+                            classes,
+                            classLevel.classId,
+                          ),
+                          options: subclasses
+                              .where(
+                                (item) => item.classId == classLevel.classId,
+                              )
+                              .toList(growable: false),
                         ),
                       ],
                     ),
@@ -534,6 +538,123 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
     }
   }
 
+  ClassEntry? _classEntryForId(List<ClassEntry> classes, String classId) {
+    for (final item in classes) {
+      if (item.id == classId) return item;
+    }
+    return null;
+  }
+
+  /// Muda o nível de uma das classes.
+  ///
+  /// Descer abaixo do nível em que a subclasse é escolhida limpa a subclasse:
+  /// manter deixaria a ficha exibindo um arquétipo que o personagem não tem
+  /// mais.
+  void _changeLevel(int index, int newLevel, List<ClassEntry> classes) {
+    final current = _classLevels[index];
+    final classEntry = _classEntryForId(classes, current.classId);
+    final keepSubclass =
+        classEntry == null || classEntry.subclassUnlockedAt(newLevel);
+
+    setState(() {
+      _classLevels[index] = ClassLevel(
+        classId: current.classId,
+        subclassId: keepSubclass ? current.subclassId : null,
+        level: newLevel,
+        spellcastingAbility: current.spellcastingAbility,
+        spellcastingType: current.spellcastingType,
+      );
+    });
+  }
+
+  /// Seletor de subclasse de uma classe da lista.
+  ///
+  /// Aparece só quando o nível dela alcança o nível de escolha da classe. Antes
+  /// disso mostra em que nível a escolha vai abrir, que é a dúvida de quem
+  /// procura o arquétipo do Guerreiro no 1º nível.
+  List<Widget> _buildSubclassPicker({
+    required int index,
+    required ClassLevel classLevel,
+    required ClassEntry? classEntry,
+    required List<SubclassEntry> options,
+  }) {
+    if (classEntry == null) return const [];
+
+    final required = classEntry.subclassLevel;
+    if (required == null) return const [];
+
+    final label = classEntry.subclassLabelOrDefault;
+    final text = Theme.of(context).textTheme;
+
+    if (classLevel.level < required) {
+      return [
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            '$label: abre no $requiredº nível desta classe.',
+            style: text.bodySmall?.copyWith(color: AppColors.onDarkVariant),
+          ),
+        ),
+      ];
+    }
+
+    if (options.isEmpty) {
+      return [
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            '$label: nenhuma opção cadastrada no compêndio ainda.',
+            style: text.bodySmall?.copyWith(color: AppColors.onDarkVariant),
+          ),
+        ),
+      ];
+    }
+
+    final currentId = options.any((item) => item.id == classLevel.subclassId)
+        ? classLevel.subclassId
+        : null;
+    final selected = currentId == null
+        ? null
+        : options.firstWhere((item) => item.id == currentId);
+
+    return [
+      const SizedBox(height: 12),
+      DropdownButtonFormField<String>(
+        initialValue: currentId,
+        decoration: InputDecoration(
+          labelText: label,
+          // Sem auto-seleção aqui: subir de nível não deve escolher o
+          // arquétipo no lugar do jogador.
+          helperText: currentId == null ? 'Escolha para liberar as características' : null,
+        ),
+        items: options
+            .map(
+              (item) => DropdownMenuItem<String>(
+                value: item.id,
+                child: Text(item.name),
+              ),
+            )
+            .toList(),
+        onChanged: (value) {
+          setState(() {
+            final current = _classLevels[index];
+            _classLevels[index] = ClassLevel(
+              classId: current.classId,
+              subclassId: value,
+              level: current.level,
+              spellcastingAbility: current.spellcastingAbility,
+              spellcastingType: current.spellcastingType,
+            );
+          });
+        },
+      ),
+      if (selected != null)
+        SubclassSummary(subclass: selected, level: classLevel.level),
+    ];
+  }
+
   String _classNameForId(List<ClassEntry> classes, String classId) {
     for (final item in classes) {
       if (item.id == classId) return item.name;
@@ -570,6 +691,8 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
         return SpellcastingType.third;
       case 'pact':
         return SpellcastingType.pact;
+      case 'artificer':
+        return SpellcastingType.artificer;
       default:
         return null;
     }

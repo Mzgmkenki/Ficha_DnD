@@ -146,6 +146,12 @@ class SpellSlotsPanel extends ConsumerWidget {
           halfContribution += classLevel.level ~/ 2;
           spellcastingClassCount++;
           break;
+        case 'artificer':
+          halfCasterLevels += classLevel.level;
+          // O artífice é o único meio-conjurador que arredonda para cima.
+          halfContribution += (classLevel.level + 1) ~/ 2;
+          spellcastingClassCount++;
+          break;
         case 'third':
           thirdCasterLevels += classLevel.level;
           thirdContribution += classLevel.level ~/ 3;
@@ -181,7 +187,10 @@ class SpellSlotsPanel extends ConsumerWidget {
       final classEntry = classForId(classLevels.first.classId);
       final type = classEntry?.spellcastingType;
 
-      if (type == 'full' || type == 'half' || type == 'third') {
+      if (type == 'full' ||
+          type == 'half' ||
+          type == 'third' ||
+          type == 'artificer') {
         standardSlots = findRow(type!, classLevels.first.level);
         modeLabel =
             'Progressão de ${classEntry?.name ?? classLevels.first.classId}';
@@ -248,6 +257,8 @@ class SpellSlotsPanel extends ConsumerWidget {
         return 'conjurador completo';
       case 'half':
         return 'meio conjurador';
+      case 'artificer':
+        return 'meio conjurador (artífice)';
       case 'third':
         return 'um-terço conjurador';
       case 'pact':

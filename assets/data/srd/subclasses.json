@@ -1,0 +1,77 @@
+[
+  {
+    "id": "fighter_champion",
+    "class_id": "fighter",
+    "name": "Campeão",
+    "source": "phb",
+    "description": "Guerreiro que busca a perfeição física e transforma treino bruto em golpes devastadores.",
+    "features": [
+      {
+        "level": 3,
+        "name": "Crítico Aprimorado",
+        "description": "Seus ataques com arma causam acerto crítico com resultado 19 ou 20 no dado."
+      },
+      {
+        "level": 7,
+        "name": "Atleta Notável",
+        "description": "Adicione metade do bônus de proficiência, arredondado para cima, a qualquer teste de Força, Destreza ou Constituição que não use o bônus de proficiência. Além disso, ao fazer salto em distância com corrida, a distância aumenta em número de metros igual a 30 cm por ponto do modificador de Força."
+      },
+      {
+        "level": 10,
+        "name": "Estilo de Luta Adicional",
+        "description": "Escolha um segundo Estilo de Luta."
+      },
+      {
+        "level": 15,
+        "name": "Crítico Superior",
+        "description": "Seus ataques com arma causam acerto crítico com resultado 18, 19 ou 20 no dado."
+      },
+      {
+        "level": 18,
+        "name": "Sobrevivente",
+        "description": "No início de cada um dos seus turnos, recupere pontos de vida iguais a 5 + seu modificador de Constituição se estiver com metade ou menos dos pontos de vida e acima de 0."
+      }
+    ],
+    "tags": ["phb", "marcial"]
+  },
+  {
+    "id": "cleric_life_domain",
+    "class_id": "cleric",
+    "name": "Domínio da Vida",
+    "source": "phb",
+    "description": "Clérigo dedicado à vitalidade e à cura, canalizando energia positiva para restaurar os aliados.",
+    "features": [
+      {
+        "level": 1,
+        "name": "Proficiência Adicional",
+        "description": "Você recebe proficiência com armaduras pesadas."
+      },
+      {
+        "level": 1,
+        "name": "Discípulo da Vida",
+        "description": "Sempre que conjurar uma magia de 1º círculo ou superior que restaure pontos de vida, a criatura recupera 2 pontos de vida adicionais mais o círculo da magia."
+      },
+      {
+        "level": 2,
+        "name": "Canalizar Divindade: Preservar a Vida",
+        "description": "Use uma ação para apresentar seu símbolo sagrado e recuperar um total de pontos de vida igual a cinco vezes seu nível de clérigo, distribuído entre criaturas a até 9 m. Nenhuma criatura pode passar da metade do próprio máximo de pontos de vida por esse efeito, e não funciona em constructos e mortos-vivos."
+      },
+      {
+        "level": 6,
+        "name": "Cura Abençoada",
+        "description": "Quando conjurar uma magia que restaure pontos de vida em outra criatura, você também recupera pontos de vida iguais a 2 mais o círculo da magia."
+      },
+      {
+        "level": 8,
+        "name": "Golpe Divino",
+        "description": "Uma vez em cada um dos seus turnos, ao acertar um ataque com arma, cause 1d8 de dano radiante adicional. No 14º nível o dano aumenta para 2d8."
+      },
+      {
+        "level": 17,
+        "name": "Cura Suprema",
+        "description": "Ao conjurar uma magia de cura que use dados, considere cada dado como tendo rolado o valor máximo."
+      }
+    ],
+    "tags": ["phb", "divino"]
+  }
+]

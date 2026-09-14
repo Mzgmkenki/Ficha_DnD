@@ -999,5 +999,114 @@
     "level": 20,
     "features": ["Magias Assinatura"],
     "source": "phb"
+  },
+
+  {
+    "class_id": "artificer",
+    "level": 1,
+    "features": ["Bugiganga Mágica", "Conjuração"],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "artificer",
+    "level": 2,
+    "features": ["Infundir Item"],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "artificer",
+    "level": 3,
+    "features": ["Especialista em Artífice", "A Ferramenta Certa para o Trabalho"],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "artificer",
+    "level": 4,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "artificer",
+    "level": 5,
+    "features": ["Característica de Especialista em Artífice"],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "artificer",
+    "level": 6,
+    "features": ["Perícia com Ferramentas"],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "artificer",
+    "level": 7,
+    "features": ["Vislumbre de Genialidade"],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "artificer",
+    "level": 8,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "artificer",
+    "level": 9,
+    "features": ["Característica de Especialista em Artífice"],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "artificer",
+    "level": 10,
+    "features": ["Adepto de Itens Mágicos"],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "artificer",
+    "level": 11,
+    "features": ["Item Armazenador de Magia"],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "artificer",
+    "level": 12,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "artificer",
+    "level": 14,
+    "features": ["Sábio de Itens Mágicos"],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "artificer",
+    "level": 15,
+    "features": ["Característica de Especialista em Artífice"],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "artificer",
+    "level": 16,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "artificer",
+    "level": 18,
+    "features": ["Mestre de Itens Mágicos"],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "artificer",
+    "level": 19,
+    "features": ["Aumento no Valor de Habilidade"],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "artificer",
+    "level": 20,
+    "features": ["Alma do Artifício"],
+    "source": "tcoe"
   }
 ]

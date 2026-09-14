@@ -275,6 +275,11 @@ class _CharacterSpellsPanelState extends ConsumerState<CharacterSpellsPanel> {
           // Arredondamento por classe (regra oficial de multiclasse).
           halfContribution += classLevel.level ~/ 2;
           break;
+        case 'artificer':
+          halfCasterLevels += classLevel.level;
+          // O artífice é o único meio-conjurador que arredonda para cima.
+          halfContribution += (classLevel.level + 1) ~/ 2;
+          break;
         case 'third':
           thirdCasterLevels += classLevel.level;
           thirdContribution += classLevel.level ~/ 3;
@@ -295,7 +300,10 @@ class _CharacterSpellsPanelState extends ConsumerState<CharacterSpellsPanel> {
       final classEntry = classForId(classLevels.first.classId);
       final type = classEntry?.spellcastingType;
 
-      if (type == 'full' || type == 'half' || type == 'third') {
+      if (type == 'full' ||
+          type == 'half' ||
+          type == 'third' ||
+          type == 'artificer') {
         standardSlots = findRow(type!, classLevels.first.level);
       } else if (type == 'pact') {
         pactSlots = findRow('pact', classLevels.first.level);
