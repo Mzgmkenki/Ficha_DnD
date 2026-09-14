@@ -1,4 +1,5 @@
 import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
+import 'package:dnd_ficha_app/core/theme/app_colors.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/portrait_avatar.dart';
@@ -42,96 +43,21 @@ class CharacterListPage extends ConsumerWidget {
               }
 
               return ListView.separated(
+                // O espaço embaixo é para o FAB não cobrir o último cartão.
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 96),
                 itemCount: characters.length,
-                separatorBuilder: (_, __) => const Divider(height: 1),
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   final character = characters[index];
 
-                  return ListTile(
-                    leading: PortraitAvatar(
-                      path: character.portraitPath,
-                      size: 56,
-                      // Sem legenda e sem borda vermelha: em miniatura o
-                      // texto fica ilegível e várias bordas destacadas
-                      // brigariam entre si na lista.
-                      highlightWhenFilled: false,
-                    ),
-                    title: Text(
-                      character.name,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(height: 4),
-                        Text(_buildClassSummary(character, classes)),
-                        const SizedBox(height: 2),
-                        Text('Nível total ${character.totalLevel}'),
-                      ],
-                    ),
-                    isThreeLine: true,
-                    onTap: () => AppNavigator.toCharacterSheet(
+                  return _CharacterCard(
+                    character: character,
+                    classSummary: _buildClassSummary(character, classes),
+                    onOpen: () => AppNavigator.toCharacterSheet(
                       context,
                       characterId: character.id,
                     ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete_outline),
-                      tooltip: 'Apagar personagem',
-                      onPressed: () async {
-                        final confirmed = await showDialog<bool>(
-                          context: context,
-                          builder: (dialogContext) {
-                            return AlertDialog(
-                              title: const Text('Apagar personagem'),
-                              content: Text(
-                                'Deseja apagar "${character.name}"? Essa ação não pode ser desfeita.',
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(dialogContext).pop(false);
-                                  },
-                                  child: const Text('Cancelar'),
-                                ),
-                                FilledButton(
-                                  onPressed: () {
-                                    Navigator.of(dialogContext).pop(true);
-                                  },
-                                  child: const Text('Apagar'),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-
-                        if (confirmed != true) return;
-
-                        try {
-                          final deleteCharacter =
-                              ref.read(deleteCharacterProvider);
-                          await deleteCharacter(character.id);
-
-                          if (!context.mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'Personagem "${character.name}" apagado.',
-                              ),
-                            ),
-                          );
-                        } catch (error) {
-                          if (!context.mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'Erro ao apagar personagem: $error',
-                              ),
-                            ),
-                          );
-                        }
-                      },
-                    ),
+                    onDelete: () => _confirmAndDelete(context, ref, character),
                   );
                 },
               );
@@ -165,6 +91,59 @@ class CharacterListPage extends ConsumerWidget {
     );
   }
 
+  Future<void> _confirmAndDelete(
+    BuildContext context,
+    WidgetRef ref,
+    Character character,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Apagar personagem'),
+          content: Text(
+            'Deseja apagar "${character.name}"? Essa ação não pode ser desfeita.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false);
+              },
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true);
+              },
+              child: const Text('Apagar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      final deleteCharacter = ref.read(deleteCharacterProvider);
+      await deleteCharacter(character.id);
+
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Personagem "${character.name}" apagado.'),
+        ),
+      );
+    } catch (error) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao apagar personagem: $error'),
+        ),
+      );
+    }
+  }
+
   String _buildClassSummary(Character character, List<ClassEntry> classes) {
     if (character.classLevels.isEmpty) {
       return 'Sem classe';
@@ -183,5 +162,83 @@ class CharacterListPage extends ConsumerWidget {
       }
     }
     return classId;
+  }
+}
+
+/// Cartão do personagem: retrato largo em cima, identificação embaixo.
+///
+/// O retrato ocupa a largura inteira do cartão de propósito — é o que o
+/// jogador reconhece de relance, e no quadradinho antigo não dava para ver
+/// nada da imagem.
+class _CharacterCard extends StatelessWidget {
+  const _CharacterCard({
+    required this.character,
+    required this.classSummary,
+    required this.onOpen,
+    required this.onDelete,
+  });
+
+  final Character character;
+  final String classSummary;
+  final VoidCallback onOpen;
+  final VoidCallback onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onOpen,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            PortraitBanner(
+              path: character.portraitPath,
+              // Quem tem foto ganha o retrato grande; quem não tem fica com
+              // uma faixa curta, senão a lista viraria uma sequência de
+              // retângulos vazios.
+              emptyHeight: 96,
+              emptyLabel: 'sem imagem',
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 12, 4, 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(character.name, style: text.titleMedium),
+                        const SizedBox(height: 4),
+                        Text(
+                          classSummary,
+                          style: text.bodyMedium?.copyWith(
+                            color: AppColors.onDarkVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Nível total ${character.totalLevel}',
+                          style: text.bodySmall?.copyWith(
+                            color: AppColors.onDarkVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline),
+                    tooltip: 'Apagar personagem',
+                    onPressed: onDelete,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

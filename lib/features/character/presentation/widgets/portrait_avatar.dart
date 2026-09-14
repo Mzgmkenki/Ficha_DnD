@@ -1,13 +1,14 @@
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:dnd_ficha_app/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
-/// Mostra a imagem de aparência do personagem, sem interação.
+/// Retrato quadrado do personagem, sem interação.
 ///
-/// Fica num widget só porque o retrato aparece em três lugares (lista,
-/// criação e cabeçalho da ficha) e a parte chata — limitar a decodificação e
-/// não estourar quando o arquivo não abre — não deve ser copiada em cada um.
+/// Usado onde o retrato acompanha um formulário (criação) ou o cabeçalho da
+/// ficha. Na lista, onde a imagem é o próprio cartão do personagem, use
+/// [PortraitBanner].
 class PortraitAvatar extends StatelessWidget {
   const PortraitAvatar({
     required this.path,
@@ -24,44 +25,148 @@ class PortraitAvatar extends StatelessWidget {
   /// porque não sobra espaço para texto legível.
   final String? emptyLabel;
 
-  /// Borda vermelha quando há imagem. A lista usa `false` para as miniaturas
-  /// não competirem entre si.
+  /// Borda vermelha quando há imagem.
   final bool highlightWhenFilled;
-
-  bool get hasPortrait => path != null && path!.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(size >= 64 ? 12 : 8);
-    final filled = hasPortrait && highlightWhenFilled;
+    final filled = _hasPortrait(path) && highlightWhenFilled;
 
-    return Container(
+    return _PortraitFrame(
+      path: path,
       width: size,
       height: size,
+      emptyLabel: emptyLabel,
+      radius: BorderRadius.circular(size >= 64 ? 12 : 8),
+      borderColor: filled ? AppColors.red : AppColors.outline,
+      borderWidth: filled ? 1.4 : 1,
+    );
+  }
+}
+
+/// Retrato largo: ocupa toda a largura que o pai oferecer e tira a altura de
+/// [aspectRatio].
+///
+/// É o formato da lista de personagens — a imagem grande é o que identifica o
+/// personagem de relance, melhor que um quadradinho ao lado do nome.
+class PortraitBanner extends StatelessWidget {
+  const PortraitBanner({
+    required this.path,
+    this.aspectRatio = 4 / 3,
+    this.emptyHeight,
+    this.emptyLabel,
+    super.key,
+  });
+
+  final String? path;
+
+  /// Largura dividida pela altura. O padrão 4:3 é retangular sem cortar
+  /// demais as fotos verticais, que é o normal em retrato de personagem.
+  final double aspectRatio;
+
+  /// Altura usada quando não há imagem.
+  ///
+  /// Sem foto não há o que ver, e manter a proporção cheia deixaria a lista
+  /// com um vazio enorme por personagem. Nulo mantém a proporção.
+  final double? emptyHeight;
+
+  final String? emptyLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Largura infinita acontece em Row/ListView horizontal sem limite;
+        // aí não há o que preencher e um valor fixo evita crash de layout.
+        final width = constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : 240.0;
+
+        final empty = emptyHeight;
+        final height = !_hasPortrait(path) && empty != null
+            ? empty
+            : width / aspectRatio;
+
+        return _PortraitFrame(
+          path: path,
+          width: width,
+          height: height,
+          emptyLabel: emptyLabel,
+          // Sem borda e sem canto próprio: quem recorta é o card em volta, e
+          // duas bordas concêntricas ficam sujas.
+          radius: BorderRadius.zero,
+          borderColor: null,
+        );
+      },
+    );
+  }
+}
+
+bool _hasPortrait(String? path) => path != null && path.isNotEmpty;
+
+/// Caixa que desenha a imagem ou o placeholder.
+///
+/// Existe para os dois formatos não duplicarem a parte chata: limitar a
+/// decodificação e não estourar quando o arquivo não abre.
+class _PortraitFrame extends StatelessWidget {
+  const _PortraitFrame({
+    required this.path,
+    required this.width,
+    required this.height,
+    required this.radius,
+    required this.borderColor,
+    this.borderWidth = 1,
+    this.emptyLabel,
+  });
+
+  final String? path;
+  final double width;
+  final double height;
+  final BorderRadius radius;
+  final Color? borderColor;
+  final double borderWidth;
+  final String? emptyLabel;
+
+  /// Ícone e legenda acompanham o tamanho da caixa, senão o ícone se perde
+  /// numa imagem grande ou estoura numa pequena.
+  double get _shortestSide => math.min(width, height);
+
+  @override
+  Widget build(BuildContext context) {
+    final border = borderColor;
+
+    return Container(
+      width: width,
+      height: height,
       decoration: BoxDecoration(
         color: AppColors.surfaceContainerHigh,
         borderRadius: radius,
-        border: Border.all(
-          color: filled ? AppColors.red : AppColors.outline,
-          width: filled ? 1.4 : 1,
-        ),
+        border: border == null
+            ? null
+            : Border.all(color: border, width: borderWidth),
       ),
-      clipBehavior: Clip.antiAlias,
-      child: hasPortrait ? _image(context) : _placeholder(context, false),
+      clipBehavior: radius == BorderRadius.zero ? Clip.none : Clip.antiAlias,
+      child: _hasPortrait(path)
+          ? _image(context)
+          : _placeholder(context, false),
     );
   }
 
   Widget _image(BuildContext context) {
     // `cacheWidth` limita a decodificação ao tamanho que aparece na tela: sem
     // isso, a foto de 12 MP do celular seria decodificada inteira na memória
-    // só para desenhar uma miniatura — e numa lista isso multiplica.
-    final pixels = (size * MediaQuery.devicePixelRatioOf(context)).round();
+    // só para desenhar o retrato — e numa lista isso multiplica.
+    final pixels = (width * MediaQuery.devicePixelRatioOf(context)).round();
 
     return Image.file(
       File(path!),
       fit: BoxFit.cover,
-      width: size,
-      height: size,
+      // Retrato de personagem é quase sempre uma imagem vertical, e `cover`
+      // centralizado cortava justamente a cabeça, deixando o meio do corpo.
+      // Ancorar no topo preserva o rosto, que é o que identifica.
+      alignment: Alignment.topCenter,
+      width: width,
+      height: height,
       cacheWidth: pixels,
       filterQuality: FilterQuality.medium,
       // O arquivo mora no diretório do app, mas o jogador pode ter limpado os
@@ -72,10 +177,15 @@ class PortraitAvatar extends StatelessWidget {
   }
 
   Widget _placeholder(BuildContext context, bool broken) {
+    final shortest = _shortestSide;
     final icon = Icon(
       broken ? Icons.broken_image_outlined : Icons.person_outline,
       color: AppColors.onDarkVariant,
-      size: size >= 64 ? 26 : 22,
+      size: shortest >= 140
+          ? 44
+          : shortest >= 64
+              ? 26
+              : 22,
     );
 
     final label = emptyLabel;

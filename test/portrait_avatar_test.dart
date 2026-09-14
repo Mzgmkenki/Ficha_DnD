@@ -22,7 +22,7 @@ void main() {
   });
 
   testWidgets('em miniatura fica só o ícone, sem texto', (tester) async {
-    // É o caso da lista de personagens: 56 px não caberia texto legível.
+    // Sem legenda: em 56 px o texto não sairia legível.
     await _pump(tester, const PortraitAvatar(path: null, size: 56));
 
     expect(find.byIcon(Icons.person_outline), findsOneWidget);
@@ -69,7 +69,90 @@ void main() {
     );
 
     // Antes de falhar existe um Image na árvore: é o caminho normal, com
-    // arquivo presente, que a lista usa.
+    // arquivo presente.
     expect(find.byType(Image), findsOneWidget);
+  });
+
+  group('PortraitBanner', () {
+    testWidgets('preenche a largura do pai na proporção pedida', (tester) async {
+      await _pump(
+        tester,
+        const SizedBox(width: 300, child: PortraitBanner(path: null)),
+      );
+
+      final size = tester.getSize(find.byType(PortraitBanner));
+      expect(size.width, 300);
+      // 4:3 é o padrão, então a altura sai de 300 / (4/3).
+      expect(size.height, closeTo(225, 0.5));
+    });
+
+    testWidgets('aceita outra proporção', (tester) async {
+      await _pump(
+        tester,
+        const SizedBox(
+          width: 320,
+          child: PortraitBanner(path: null, aspectRatio: 16 / 9),
+        ),
+      );
+
+      expect(tester.getSize(find.byType(PortraitBanner)).height, closeTo(180, 0.5));
+    });
+
+    testWidgets('sem imagem mostra ícone e legenda', (tester) async {
+      await _pump(
+        tester,
+        const SizedBox(
+          width: 300,
+          child: PortraitBanner(path: null, emptyLabel: 'sem imagem'),
+        ),
+      );
+
+      expect(find.byIcon(Icons.person_outline), findsOneWidget);
+      expect(find.text('sem imagem'), findsOneWidget);
+    });
+
+    testWidgets('sem imagem encurta para emptyHeight', (tester) async {
+      // Na lista, manter a proporção cheia deixaria um retângulo vazio de
+      // 200+ px por personagem sem foto.
+      await _pump(
+        tester,
+        const SizedBox(
+          width: 300,
+          child: PortraitBanner(path: null, emptyHeight: 96),
+        ),
+      );
+
+      expect(tester.getSize(find.byType(PortraitBanner)).height, 96);
+    });
+
+    testWidgets('com imagem o emptyHeight não vale', (tester) async {
+      await _pump(
+        tester,
+        const SizedBox(
+          width: 300,
+          child: PortraitBanner(path: '/x/y.png', emptyHeight: 96),
+        ),
+      );
+
+      expect(
+        tester.getSize(find.byType(PortraitBanner)).height,
+        closeTo(225, 0.5),
+      );
+    });
+
+    testWidgets('largura infinita não derruba o layout', (tester) async {
+      // Acontece se alguém puser o banner numa Row sem Expanded.
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.dark,
+          home: const Scaffold(
+            body: Row(children: [PortraitBanner(path: null)]),
+          ),
+        ),
+      );
+
+      expect(tester.takeException(), isNull);
+      expect(tester.getSize(find.byType(PortraitBanner)).width, 240);
+    });
   });
 }
