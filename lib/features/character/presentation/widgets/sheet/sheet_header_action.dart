@@ -21,7 +21,10 @@ class SheetHeaderAction extends StatelessWidget {
 
   final String label;
   final IconData icon;
-  final VoidCallback onPressed;
+
+  /// Nulo desabilita o botão, para a ação continuar visível quando não há o que
+  /// fazer (subir de nível no 20, por exemplo) em vez de desaparecer da ficha.
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {

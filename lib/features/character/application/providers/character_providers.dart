@@ -2,6 +2,7 @@ import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/export_character.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/import_character.dart';
+import 'package:dnd_ficha_app/features/character/application/use_cases/character/level_up_character_class.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/sync_subclass_spells.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/update_character_ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/update_character_class_levels.dart';
@@ -86,6 +87,18 @@ final updateCharacterClassLevelsProvider =
 final syncSubclassSpellsProvider = Provider<SyncSubclassSpells>((ref) {
   final repository = ref.watch(characterRepositoryProvider);
   return SyncSubclassSpells(repository);
+});
+
+/// Atalho de subir de nível da ficha.
+///
+/// Reaproveita os dois casos de uso que já existem em vez de repetir o cálculo
+/// de PV e a reconciliação de magias.
+final levelUpCharacterClassProvider = Provider<LevelUpCharacterClass>((ref) {
+  return LevelUpCharacterClass(
+    ref.watch(characterRepositoryProvider),
+    ref.watch(updateCharacterClassLevelsProvider),
+    ref.watch(syncSubclassSpellsProvider),
+  );
 });
 
 /// Índice de nomes de magia do compêndio, para resolver as listas das

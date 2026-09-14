@@ -1,7 +1,9 @@
 ﻿import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
+import 'package:dnd_ficha_app/features/character/application/use_cases/character/level_up_character_class.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/level_up_class_dialog.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/ability_score_block.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/background_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/character_portrait.dart';
@@ -33,6 +35,10 @@ class CharacterSheetPage extends ConsumerStatefulWidget {
 
 class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
   bool? _showSpellcasting;
+
+  /// Trava o atalho enquanto a subida grava, para dois toques rápidos não
+  /// virarem dois níveis.
+  bool _levelingUp = false;
 
   @override
   Widget build(BuildContext context) {
@@ -101,6 +107,19 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                     actionIcon: Icons.upgrade,
                     onPressed: () =>
                         AppNavigator.toEditClassLevels(context, character: character),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: SheetHeaderAction(
+                      label: _levelingUp ? 'Subindo...' : 'Subir de nível',
+                      icon: Icons.arrow_circle_up_outlined,
+                      // No teto o botão fica visível mas apagado: some da tela
+                      // seria pior, o jogador ia procurar por ele.
+                      onPressed: (_levelingUp ||
+                              character.totalLevel >= maxCharacterLevel)
+                          ? null
+                          : () => _levelUp(character, classes),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
@@ -304,6 +323,93 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
 
   Future<void> _openIdentityEditor(Character character) {
     return AppNavigator.toEditIdentity(context, character: character);
+  }
+
+  /// Atalho de subida de nível.
+  ///
+  /// Com uma classe só sobe direto. No multiclasse pergunta qual classe recebe
+  /// o nível, porque adivinhar erraria justamente no caso em que a escolha
+  /// importa.
+  Future<void> _levelUp(Character character, List<ClassEntry> classes) async {
+    final String? classId;
+
+    if (character.classLevels.length == 1) {
+      classId = character.classLevels.single.classId;
+    } else {
+      classId = await showLevelUpClassDialog(
+        context: context,
+        totalLevel: character.totalLevel,
+        options: character.classLevels
+            .map(
+              (item) => LevelUpClassOption(
+                classId: item.classId,
+                className: _classNameForId(classes, item.classId),
+                level: item.level,
+              ),
+            )
+            .toList(growable: false),
+      );
+    }
+
+    if (classId == null) return;
+    if (!mounted) return;
+
+    setState(() {
+      _levelingUp = true;
+    });
+
+    try {
+      final subclasses = await ref.read(subclassEntriesProvider.future);
+      final spellIndex = await ref.read(spellNameIndexProvider.future);
+
+      final outcome = await ref.read(levelUpCharacterClassProvider)(
+        characterId: widget.characterId,
+        classId: classId,
+        classes: classes,
+        subclasses: subclasses,
+        spellIndex: spellIndex,
+      );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_levelUpMessage(outcome))),
+      );
+    } catch (error, stackTrace) {
+      debugPrint('Falha ao subir de nível: $error');
+      debugPrintStack(stackTrace: stackTrace);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao subir de nível: $error')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _levelingUp = false;
+        });
+      }
+    }
+  }
+
+  String _levelUpMessage(LevelUpOutcome outcome) {
+    final parts = <String>[
+      '${outcome.className} agora está no nível ${outcome.newLevel} '
+          '(total ${outcome.totalLevel}).',
+    ];
+
+    if (outcome.pendingSubclassLabel != null) {
+      parts.add(
+        'Escolha ${outcome.pendingSubclassLabel} em Editar nível.',
+      );
+    }
+
+    if (outcome.spellSyncError != null) {
+      parts.add(
+        'As magias da subclasse não entraram; use o gerenciador de magias.',
+      );
+    }
+
+    return parts.join(' ');
   }
 
   /// Usa o compêndio como fonte da verdade.
