@@ -35,7 +35,14 @@ class Characters extends Table {
 
   IntColumn get armorClass => integer().withDefault(const Constant(10))();
   IntColumn get initiativeBonus => integer().withDefault(const Constant(0))();
+
+  /// Deslocamento em metros, arredondado. Legado: a coluna é inteira e não
+  /// cabia o 7,5 m do anão. A leitura usa [speedMeters]; esta continua sendo
+  /// gravada para bases antigas não ficarem incoerentes.
   IntColumn get speed => integer().withDefault(const Constant(9))();
+
+  /// Deslocamento em metros, com fração. Nulo em base que ainda não migrou.
+  RealColumn get speedMeters => real().nullable()();
 
   IntColumn get maxHitPoints => integer().withDefault(const Constant(1))();
   IntColumn get currentHitPoints => integer().withDefault(const Constant(1))();

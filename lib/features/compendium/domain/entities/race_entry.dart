@@ -1,7 +1,6 @@
-import 'package:dnd_ficha_app/features/compendium/domain/entities/ability_score_rule.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/ability_bonus_mode.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_choice_group.dart';
-import 'package:dnd_ficha_app/features/compendium/domain/entities/race_spell_feature.dart';
-import 'package:dnd_ficha_app/features/compendium/domain/entities/race_trait.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/race_skill_choice.dart';
 
 class RaceEntry {
   const RaceEntry({
@@ -11,7 +10,11 @@ class RaceEntry {
     this.size,
     this.speed,
     this.allowsCustomOrigin = true,
+    this.abilityBonusMode = AbilityBonusMode.fixed,
     this.fixedAbilityBonuses = const {},
+    this.abilityBonusChoices = const [],
+    this.grantedSkills = const [],
+    this.skillChoice,
     this.traits = const [],
     this.parentRaceId,
     this.isSubrace = false,
@@ -20,9 +23,6 @@ class RaceEntry {
     this.creatureType,
     this.darkvision,
     this.languages = const [],
-    this.skillOptions = const [],
-    this.abilityScoreRules = const [],
-    this.spellcasting = const [],
     this.choiceGroups = const [],
     this.tags = const [],
   });
@@ -32,9 +32,32 @@ class RaceEntry {
   final String source;
 
   final String? size;
-  final int? speed;
+
+  /// Deslocamento em metros.
+  ///
+  /// Decimal porque anão, halfling e gnomo andam 7,5 m e elfo da floresta,
+  /// sátiro e genasi do ar andam 10,5 m. Com inteiro esses valores viravam
+  /// 7 e 10.
+  final double? speed;
+
+  /// Permite trocar os bônus da raça pelos da origem personalizada (Tasha).
+  /// Não se aplica a quem já usa o padrão flexível.
   final bool allowsCustomOrigin;
+
+  final AbilityBonusMode abilityBonusMode;
+
+  /// Bônus que a raça define, por nome de atributo.
   final Map<String, int> fixedAbilityBonuses;
+
+  /// Valores que o jogador distribui quando o modo é [AbilityBonusMode.choice].
+  /// Ex.: `[1, 1]` no Meio-Elfo, `[2]` na Linhagem Personalizada.
+  final List<int> abilityBonusChoices;
+
+  /// Perícias concedidas direto pela raça, por id de `Skill`.
+  final List<String> grantedSkills;
+
+  final RaceSkillChoice? skillChoice;
+
   final List<String> traits;
 
   final String? parentRaceId;
@@ -43,11 +66,11 @@ class RaceEntry {
   final String? description;
   final List<String> sizeOptions;
   final String? creatureType;
+
+  /// Alcance da visão no escuro, em metros.
   final int? darkvision;
+
   final List<String> languages;
-  final List<String> skillOptions;
-  final List<AbilityScoreRule> abilityScoreRules;
-  final List<RaceSpellFeature> spellcasting;
   final List<RaceChoiceGroup> choiceGroups;
   final List<String> tags;
 
@@ -59,34 +82,18 @@ class RaceEntry {
     return isSubrace || hasParentRace;
   }
 
-  List<String> get effectiveSizeOptions {
-    if (sizeOptions.isNotEmpty) return sizeOptions;
-    if (size != null && size!.trim().isNotEmpty) return [size!];
-    return const [];
-  }
-
-  List<RaceTrait> get structuredTraits {
-    return traits
-        .asMap()
-        .entries
-        .map(
-          (entry) => RaceTrait(
-            id: '${id}_trait_${entry.key}',
-            name: 'Traço ${entry.key + 1}',
-            description: entry.value,
-          ),
-        )
-        .toList(growable: false);
-  }
-
   RaceEntry copyWith({
     String? id,
     String? name,
     String? source,
     String? size,
-    int? speed,
+    double? speed,
     bool? allowsCustomOrigin,
+    AbilityBonusMode? abilityBonusMode,
     Map<String, int>? fixedAbilityBonuses,
+    List<int>? abilityBonusChoices,
+    List<String>? grantedSkills,
+    RaceSkillChoice? skillChoice,
     List<String>? traits,
     String? parentRaceId,
     bool? isSubrace,
@@ -95,9 +102,6 @@ class RaceEntry {
     String? creatureType,
     int? darkvision,
     List<String>? languages,
-    List<String>? skillOptions,
-    List<AbilityScoreRule>? abilityScoreRules,
-    List<RaceSpellFeature>? spellcasting,
     List<RaceChoiceGroup>? choiceGroups,
     List<String>? tags,
   }) {
@@ -108,7 +112,11 @@ class RaceEntry {
       size: size ?? this.size,
       speed: speed ?? this.speed,
       allowsCustomOrigin: allowsCustomOrigin ?? this.allowsCustomOrigin,
+      abilityBonusMode: abilityBonusMode ?? this.abilityBonusMode,
       fixedAbilityBonuses: fixedAbilityBonuses ?? this.fixedAbilityBonuses,
+      abilityBonusChoices: abilityBonusChoices ?? this.abilityBonusChoices,
+      grantedSkills: grantedSkills ?? this.grantedSkills,
+      skillChoice: skillChoice ?? this.skillChoice,
       traits: traits ?? this.traits,
       parentRaceId: parentRaceId ?? this.parentRaceId,
       isSubrace: isSubrace ?? this.isSubrace,
@@ -117,9 +125,6 @@ class RaceEntry {
       creatureType: creatureType ?? this.creatureType,
       darkvision: darkvision ?? this.darkvision,
       languages: languages ?? this.languages,
-      skillOptions: skillOptions ?? this.skillOptions,
-      abilityScoreRules: abilityScoreRules ?? this.abilityScoreRules,
-      spellcasting: spellcasting ?? this.spellcasting,
       choiceGroups: choiceGroups ?? this.choiceGroups,
       tags: tags ?? this.tags,
     );

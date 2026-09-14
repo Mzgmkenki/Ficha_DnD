@@ -64,7 +64,7 @@ Character _fullCharacter() {
     combatStats: const CombatStats(
       armorClass: 17,
       initiativeBonus: 2,
-      speedInSquares: 10,
+      speedInMeters: 10.5,
     ),
     savingThrowProficiencies: const SavingThrowProficiencies(
       dexterity: true,
@@ -153,7 +153,7 @@ void main() {
 
       expect(restored.combatStats.armorClass, 17);
       expect(restored.combatStats.initiativeBonus, 2);
-      expect(restored.combatStats.speedInSquares, 10);
+      expect(restored.combatStats.speedInMeters, 10.5);
       expect(restored.hitPoints.current, 30);
       expect(restored.hitPoints.maximum, 48);
       expect(restored.hitPoints.temporary, 5);
@@ -410,7 +410,7 @@ void main() {
       expect(restored.playerName, isNull);
       expect(restored.hitPoints.maximum, 1);
       expect(restored.combatStats.armorClass, 10);
-      expect(restored.combatStats.speedInSquares, 9);
+      expect(restored.combatStats.speedInMeters, 9);
       expect(restored.currency.isEmpty, isTrue);
       expect(restored.spells, isEmpty);
       expect(restored.magicItems, isEmpty);

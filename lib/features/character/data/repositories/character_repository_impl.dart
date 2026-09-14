@@ -50,7 +50,8 @@ class CharacterRepositoryImpl implements CharacterRepository {
               armorClass: drift.Value(character.combatStats.armorClass),
               initiativeBonus:
                   drift.Value(character.combatStats.initiativeBonus),
-              speed: drift.Value(character.combatStats.speedInSquares),
+              speed: drift.Value(character.combatStats.speedInMeters.round()),
+              speedMeters: drift.Value(character.combatStats.speedInMeters),
               maxHitPoints: drift.Value(character.hitPoints.maximum),
               currentHitPoints: drift.Value(character.hitPoints.current),
               temporaryHitPoints: drift.Value(character.hitPoints.temporary),
@@ -393,7 +394,8 @@ class CharacterRepositoryImpl implements CharacterRepository {
           armorClass: drift.Value(character.combatStats.armorClass),
           initiativeBonus:
               drift.Value(character.combatStats.initiativeBonus),
-          speed: drift.Value(character.combatStats.speedInSquares),
+          speed: drift.Value(character.combatStats.speedInMeters.round()),
+          speedMeters: drift.Value(character.combatStats.speedInMeters),
           maxHitPoints: drift.Value(character.hitPoints.maximum),
           currentHitPoints: drift.Value(character.hitPoints.current),
           temporaryHitPoints: drift.Value(character.hitPoints.temporary),

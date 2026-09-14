@@ -1,4 +1,5 @@
-﻿import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
+﻿import 'package:dnd_ficha_app/core/utils/distance_format.dart';
+import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -79,12 +80,12 @@ class RacialTraitsPanel extends ConsumerWidget {
                     ),
                     _InfoChip(
                       label: 'Deslocamento',
-                      value: '${combinedRace.speed ?? 9}m',
+                      value: formatMeters(combinedRace.speed ?? 9),
                     ),
                     if (combinedRace.darkvision != null)
                       _InfoChip(
                         label: 'Visão no Escuro',
-                        value: '${combinedRace.darkvision}m',
+                        value: formatMeters(combinedRace.darkvision),
                       ),
                   ],
                 ),
@@ -314,7 +315,9 @@ class _CombinedRaceData {
   final String name;
   final String? description;
   final String? size;
-  final int? speed;
+
+  /// Deslocamento em metros.
+  final double? speed;
   final String? creatureType;
   final int? darkvision;
   final Map<String, int> fixedAbilityBonuses;

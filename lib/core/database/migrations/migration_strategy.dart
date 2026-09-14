@@ -162,6 +162,20 @@ MigrationStrategy buildMigrationStrategy(AppDatabase db) {
         // "coluna já existe", então em banco saudável isso é no-op.
         await _tryAddColumn(m, db.characters, db.characters.portraitPath);
       }
+
+      if (from < 9) {
+        // Deslocamento com fração: a coluna `speed` é inteira e transformava
+        // os 7,5 m do anão em 7. A antiga fica como legado, do mesmo jeito que
+        // as colunas booleanas de perícia.
+        await _tryAddColumn(m, db.characters, db.characters.speedMeters);
+
+        // Backfill: quem já existia mantém o deslocamento que tinha.
+        await _tryQuery(
+          db,
+          'UPDATE characters SET speed_meters = speed '
+          'WHERE speed_meters IS NULL',
+        );
+      }
     },
     beforeOpen: (details) async {
       // Roda fora da transação de migração, então aqui é seguro usar `db`.

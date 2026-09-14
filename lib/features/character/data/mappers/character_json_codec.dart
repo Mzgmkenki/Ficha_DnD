@@ -139,7 +139,7 @@ class CharacterJsonCodec {
       'combatStats': <String, dynamic>{
         'armorClass': character.combatStats.armorClass,
         'initiativeBonus': character.combatStats.initiativeBonus,
-        'speedInSquares': character.combatStats.speedInSquares,
+        'speedInMeters': character.combatStats.speedInMeters,
       },
       'savingThrows': <String, dynamic>{
         'strength': character.savingThrowProficiencies.strength,
@@ -317,10 +317,17 @@ class CharacterJsonCodec {
   static CombatStats _parseCombatStats(Object? raw) {
     final map = _asMap(raw);
 
+    // `speedInSquares` é a chave antiga, de quando o deslocamento era inteiro.
+    // Continua sendo lida para não invalidar arquivos já exportados.
+    final speed =
+        _asDouble(map['speedInMeters']) ??
+        _asDouble(map['speedInSquares']) ??
+        9.0;
+
     return CombatStats(
       armorClass: (_asInt(map['armorClass']) ?? 10).clamp(0, 99),
       initiativeBonus: _asInt(map['initiativeBonus']) ?? 0,
-      speedInSquares: (_asInt(map['speedInSquares']) ?? 9).clamp(0, 999),
+      speedInMeters: speed.clamp(0, 999).toDouble(),
     );
   }
 
@@ -480,6 +487,13 @@ class CharacterJsonCodec {
     if (value is int) return value;
     if (value is num) return value.toInt();
     if (value is String) return int.tryParse(value);
+    return null;
+  }
+
+  static double? _asDouble(Object? value) {
+    if (value == null) return null;
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value.replaceAll(',', '.'));
     return null;
   }
 

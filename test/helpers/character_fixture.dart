@@ -63,7 +63,7 @@ Character characterFixture({
     combatStats: const CombatStats(
       armorClass: 10,
       initiativeBonus: 0,
-      speedInSquares: 9,
+      speedInMeters: 9,
     ),
     skillProficiencies: skillProficiencies,
     exhaustion: exhaustion,

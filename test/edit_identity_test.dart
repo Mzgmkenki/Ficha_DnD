@@ -79,7 +79,7 @@ Character _character({
     combatStats: const CombatStats(
       armorClass: 10,
       initiativeBonus: 0,
-      speedInSquares: 9,
+      speedInMeters: 9,
     ),
     createdAt: now,
     updatedAt: now,

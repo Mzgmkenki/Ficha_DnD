@@ -2,6 +2,8 @@
 import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
 import 'package:dnd_ficha_app/core/storage/portrait_storage.dart';
+import 'package:dnd_ficha_app/core/theme/app_colors.dart';
+import 'package:dnd_ficha_app/core/utils/distance_format.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
@@ -18,9 +20,11 @@ import 'package:dnd_ficha_app/features/character/presentation/widgets/custom_bac
 import 'package:dnd_ficha_app/features/character/presentation/widgets/portrait_avatar.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart'
     as compendium_providers;
+import 'package:dnd_ficha_app/features/compendium/domain/entities/ability_bonus_mode.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/race_skill_choice.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -57,10 +61,21 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
 
   final Set<String> _selectedSkills = {};
 
+  /// Perícias escolhidas dentro das opções que a raça oferece.
+  final Set<String> _raceSkillPicks = {};
+
+  /// Atributo escolhido para cada bônus que o jogador distribui, por posição.
+  ///
+  /// Guardar por índice em vez de uma lista fixa evita ter que sincronizar
+  /// estado quando a raça muda e o número de bônus muda com ela: posição sem
+  /// escolha cai num atributo livre, resolvido no [_resolveBonusAbilities].
+  final Map<int, String> _bonusPicks = {};
+
+  /// No padrão flexível, alterna entre +2/+1 e +1/+1/+1.
+  bool _flexibleTriple = false;
+
   bool _useCustomOrigin = false;
   bool _saving = false;
-  String _customPlusTwo = 'strength';
-  String _customPlusOne = 'dexterity';
 
   static const List<String> _abilityKeys = [
     'strength',
@@ -267,6 +282,10 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                         setState(() {
                           _selectedRaceId = value;
                           _selectedSubraceId = null;
+                          // Bônus e perícias são da raça anterior: manter faria
+                          // o Anão herdar a escolha feita para o Elfo.
+                          _bonusPicks.clear();
+                          _raceSkillPicks.clear();
                         });
                       },
                       validator: (value) {
@@ -294,6 +313,8 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                         onChanged: (value) {
                           setState(() {
                             _selectedSubraceId = value;
+                            _bonusPicks.clear();
+                            _raceSkillPicks.clear();
                           });
                         },
                         validator: (value) {
@@ -351,91 +372,11 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                     const SizedBox(height: 12),
                     _RaceSummaryCard(
                       race: combinedRace,
-                      useCustomOrigin: _useCustomOrigin,
-                      customPlusTwo: _customPlusTwo,
-                      customPlusOne: _customPlusOne,
+                      bonuses: _allBonusesOf(combinedRace),
                     ),
                     const SizedBox(height: 12),
-                    if (combinedRace.allowsCustomOrigin) ...[
-                      SwitchListTile(
-                        value: _useCustomOrigin,
-                        onChanged: (value) {
-                          setState(() {
-                            _useCustomOrigin = value;
-                            if (_customPlusTwo == _customPlusOne) {
-                              _customPlusOne =
-                                  _firstDifferentAbility(_customPlusTwo);
-                            }
-                          });
-                        },
-                        title: const Text('Usar origem customizada'),
-                        subtitle: const Text(
-                          'Ative para escolher manualmente um atributo com +2 '
-                          'e outro atributo com +1.',
-                        ),
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                      if (_useCustomOrigin) ...[
-                        const SizedBox(height: 8),
-                        DropdownButtonFormField<String>(
-                          initialValue: _customPlusTwo,
-                          decoration: const InputDecoration(
-                            labelText: 'Atributo que recebe +2',
-                          ),
-                          items: _abilityKeys
-                              .map(
-                                (ability) => DropdownMenuItem<String>(
-                                  value: ability,
-                                  child: Text(_abilityLabels[ability]!),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: (value) {
-                            if (value == null) return;
-                            setState(() {
-                              _customPlusTwo = value;
-                              if (_customPlusOne == _customPlusTwo) {
-                                _customPlusOne =
-                                    _firstDifferentAbility(_customPlusTwo);
-                              }
-                            });
-                          },
-                        ),
-                        const SizedBox(height: 12),
-                        DropdownButtonFormField<String>(
-                          initialValue: _customPlusOne,
-                          decoration: const InputDecoration(
-                            labelText: 'Atributo que recebe +1',
-                          ),
-                          items: _abilityKeys
-                              .where((ability) => ability != _customPlusTwo)
-                              .map(
-                                (ability) => DropdownMenuItem<String>(
-                                  value: ability,
-                                  child: Text(_abilityLabels[ability]!),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: (value) {
-                            if (value == null) return;
-                            setState(() {
-                              _customPlusOne = value;
-                            });
-                          },
-                        ),
-                        const SizedBox(height: 12),
-                        Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Text(
-                              'Origem customizada ativa: '
-                              '${_abilityLabels[_customPlusTwo]} +2 • '
-                              '${_abilityLabels[_customPlusOne]} +1',
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
+                    ..._buildAbilityBonusSection(combinedRace),
+                    ..._buildRaceSkillSection(combinedRace),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<String>(
                       initialValue: effectiveClassId,
@@ -612,12 +553,33 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
         ? '${baseRace.description ?? ''}\n\n${subrace!.description}'
         : baseRace.description;
 
+    // O modo mais aberto ganha: o Shifter usa padrão flexível na raça base e
+    // as naturezas bestiais não mexem em atributo, então a combinação tem que
+    // continuar flexível.
+    final mode = baseRace.abilityBonusMode == AbilityBonusMode.flexible ||
+            subrace?.abilityBonusMode == AbilityBonusMode.flexible
+        ? AbilityBonusMode.flexible
+        : baseRace.abilityBonusMode == AbilityBonusMode.choice ||
+              subrace?.abilityBonusMode == AbilityBonusMode.choice
+        ? AbilityBonusMode.choice
+        : AbilityBonusMode.fixed;
+
     return _CombinedRaceData(
       idToSave: subrace?.id ?? baseRace.id,
       name: name,
       description: description,
       size: subrace?.size ?? baseRace.size,
       speed: subrace?.speed ?? baseRace.speed,
+      abilityBonusMode: mode,
+      abilityBonusChoices: [
+        ...baseRace.abilityBonusChoices,
+        if (subrace != null) ...subrace.abilityBonusChoices,
+      ],
+      grantedSkills: <String>{
+        ...baseRace.grantedSkills,
+        if (subrace != null) ...subrace.grantedSkills,
+      }.toList(growable: false),
+      skillChoice: baseRace.skillChoice ?? subrace?.skillChoice,
       creatureType: subrace?.creatureType ?? baseRace.creatureType,
       darkvision: subrace?.darkvision ?? baseRace.darkvision,
       allowsCustomOrigin:
@@ -640,12 +602,21 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
     // desmontados e se desregistram do Form, então `validate()` não enxerga
     // mais os validators deles. As regras que não podem escapar são checadas
     // aqui de novo, contra o estado, e não contra a árvore de widgets.
+    final raceChoice = selectedRace.skillChoice;
+    final raceSkillsPicked = raceChoice == null
+        ? 0
+        : _raceSkillPicks.where(raceChoice.options.contains).length;
+
     final missing = <String>[
       if (_nameController.text.trim().isEmpty) 'o nome do personagem',
       if (_isCustomBackground &&
           (_customBackgroundSkillOne == null ||
               _customBackgroundSkillTwo == null))
         'as duas perícias do antecedente',
+      if (raceChoice != null && raceSkillsPicked < raceChoice.choose)
+        raceChoice.choose == 1
+            ? 'a perícia da raça'
+            : 'as ${raceChoice.choose} perícias da raça',
     ];
 
     if (missing.isNotEmpty) {
@@ -715,11 +686,13 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
         combatStats: CombatStats(
           armorClass: 10,
           initiativeBonus: 0,
-          speedInSquares: selectedRace.speed ?? 9,
+          speedInMeters: selectedRace.speed ?? 9,
         ),
         savingThrowProficiencies: _savingThrowsForClass(selectedClass),
-        skillProficiencies:
-            _buildSkillProficienciesFromSelection(backgroundSkills),
+        skillProficiencies: _buildSkillProficienciesFromSelection(
+          backgroundSkills,
+          selectedRace,
+        ),
         createdAt: now,
         updatedAt: now,
       );
@@ -745,9 +718,239 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
     }
   }
 
+  /// Controles dos bônus de atributo que dependem de escolha.
+  ///
+  /// Três situações caem aqui: o padrão flexível de Mordenkainen (+2/+1 ou
+  /// +1/+1/+1), as raças com parte à escolha (Meio-Elfo, Híbrido Simic) e a
+  /// origem personalizada, que é opcional e substitui os bônus da raça.
+  List<Widget> _buildAbilityBonusSection(_CombinedRaceData race) {
+    final slots = _bonusSlots(race);
+    final abilities = _resolveBonusAbilities(race);
+    final fixed = _fixedBonusesOf(race);
+
+    return [
+      if (race.abilityBonusMode == AbilityBonusMode.flexible) ...[
+        Text(
+          'Bônus de atributo',
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Esta raça usa o padrão flexível: escolha como distribuir.',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        const SizedBox(height: 8),
+        SegmentedButton<bool>(
+          segments: const [
+            ButtonSegment<bool>(value: false, label: Text('+2 e +1')),
+            ButtonSegment<bool>(value: true, label: Text('+1, +1 e +1')),
+          ],
+          selected: {_flexibleTriple},
+          onSelectionChanged: (selection) {
+            setState(() {
+              _flexibleTriple = selection.first;
+              // As posições mudam de significado ao trocar a variante.
+              _bonusPicks.clear();
+            });
+          },
+        ),
+        const SizedBox(height: 12),
+      ],
+      if (race.abilityBonusMode == AbilityBonusMode.fixed &&
+          race.allowsCustomOrigin) ...[
+        SwitchListTile(
+          value: _useCustomOrigin,
+          onChanged: (value) {
+            setState(() {
+              _useCustomOrigin = value;
+              _bonusPicks.clear();
+            });
+          },
+          title: const Text('Usar origem customizada'),
+          subtitle: const Text(
+            'Regra opcional: troca os bônus da raça por +2 em um atributo e '
+            '+1 em outro.',
+          ),
+          contentPadding: EdgeInsets.zero,
+        ),
+      ],
+      for (var index = 0; index < slots.length; index++) ...[
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          initialValue: abilities[index],
+          decoration: InputDecoration(
+            labelText: 'Atributo que recebe +${slots[index]}',
+          ),
+          items: _abilityKeys
+              // Não deixa repetir atributo nem cair em cima de um bônus que a
+              // raça já concede: a regra não permite somar dois no mesmo.
+              .where(
+                (ability) =>
+                    ability == abilities[index] ||
+                    (!fixed.containsKey(ability) &&
+                        !abilities.contains(ability)),
+              )
+              .map(
+                (ability) => DropdownMenuItem<String>(
+                  value: ability,
+                  child: Text(_abilityLabels[ability]!),
+                ),
+              )
+              .toList(),
+          onChanged: (value) {
+            if (value == null) return;
+            setState(() {
+              _bonusPicks[index] = value;
+            });
+          },
+        ),
+      ],
+      if (slots.isNotEmpty) const SizedBox(height: 4),
+    ];
+  }
+
+  /// Perícias que vêm da raça: as concedidas direto e as que o jogador escolhe.
+  List<Widget> _buildRaceSkillSection(_CombinedRaceData race) {
+    final choice = race.skillChoice;
+    if (race.grantedSkills.isEmpty && choice == null) return const [];
+
+    final granted = race.grantedSkills
+        .map(Skill.fromId)
+        .whereType<Skill>()
+        .toList(growable: false);
+
+    final picks = _raceSkillPicks.where(
+      (id) => choice?.options.contains(id) ?? false,
+    );
+
+    return [
+      const SizedBox(height: 12),
+      Text(
+        'Perícias da raça',
+        style: Theme.of(context).textTheme.titleSmall,
+      ),
+      if (granted.isNotEmpty) ...[
+        const SizedBox(height: 4),
+        Text(
+          'Já concedidas: ${granted.map((skill) => skill.label).join(', ')}.',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      ],
+      if (choice != null) ...[
+        const SizedBox(height: 4),
+        Text(
+          'Escolha ${choice.choose} '
+          '(${picks.length} de ${choice.choose} marcadas).',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: picks.length == choice.choose
+                ? AppColors.onDarkVariant
+                : AppColors.error,
+          ),
+        ),
+        const SizedBox(height: 4),
+        ...choice.options.map(Skill.fromId).whereType<Skill>().map((skill) {
+          final selected = _raceSkillPicks.contains(skill.id);
+
+          return CheckboxListTile(
+            // A lista geral de perícias tem itens com o mesmo rótulo; a key
+            // separa os dois grupos.
+            key: ValueKey('race-skill-${skill.id}'),
+            value: selected,
+            // Impede marcar além do limite, em vez de avisar depois.
+            onChanged: (value) {
+              setState(() {
+                if (value == true) {
+                  if (picks.length >= choice.choose) return;
+                  _raceSkillPicks.add(skill.id);
+                } else {
+                  _raceSkillPicks.remove(skill.id);
+                }
+              });
+            },
+            title: Text('${skill.label} (${skill.abbreviation})'),
+            dense: true,
+            controlAffinity: ListTileControlAffinity.leading,
+            contentPadding: EdgeInsets.zero,
+          );
+        }),
+      ],
+    ];
+  }
+
+  /// Valores que o jogador distribui, conforme o modo da raça.
+  ///
+  /// Vazio quando a raça define tudo e o jogador não pediu origem
+  /// personalizada.
+  List<int> _bonusSlots(_CombinedRaceData race) {
+    switch (race.abilityBonusMode) {
+      case AbilityBonusMode.flexible:
+        return _flexibleTriple ? const [1, 1, 1] : const [2, 1];
+      case AbilityBonusMode.choice:
+        return race.abilityBonusChoices;
+      case AbilityBonusMode.fixed:
+        return _useCustomOrigin && race.allowsCustomOrigin
+            ? const [2, 1]
+            : const [];
+    }
+  }
+
+  /// Bônus que a raça define sozinha.
+  ///
+  /// A origem personalizada substitui os bônus da raça, e o padrão flexível
+  /// não tem parte fixa.
+  Map<String, int> _fixedBonusesOf(_CombinedRaceData race) {
+    if (race.abilityBonusMode == AbilityBonusMode.flexible) return const {};
+    if (_useCustomOrigin && race.allowsCustomOrigin) return const {};
+    return race.fixedAbilityBonuses;
+  }
+
+  /// Resolve em qual atributo cai cada bônus distribuído.
+  ///
+  /// Posição sem escolha do jogador, ou com escolha que colidiria com outro
+  /// bônus, cai no primeiro atributo livre. Assim a ficha nunca soma dois
+  /// bônus no mesmo atributo, que a regra não permite.
+  List<String> _resolveBonusAbilities(_CombinedRaceData race) {
+    final slots = _bonusSlots(race);
+    if (slots.isEmpty) return const [];
+
+    final taken = <String>{..._fixedBonusesOf(race).keys};
+    final resolved = <String>[];
+
+    for (var index = 0; index < slots.length; index++) {
+      final picked = _bonusPicks[index];
+
+      if (picked != null && !taken.contains(picked)) {
+        taken.add(picked);
+        resolved.add(picked);
+        continue;
+      }
+
+      final fallback = _abilityKeys.firstWhere(
+        (ability) => !taken.contains(ability),
+        orElse: () => _abilityKeys.first,
+      );
+      taken.add(fallback);
+      resolved.add(fallback);
+    }
+
+    return resolved;
+  }
+
+  Map<String, int> _allBonusesOf(_CombinedRaceData race) {
+    final bonuses = <String, int>{..._fixedBonusesOf(race)};
+    final slots = _bonusSlots(race);
+    final abilities = _resolveBonusAbilities(race);
+
+    for (var index = 0; index < abilities.length; index++) {
+      final ability = abilities[index];
+      bonuses[ability] = (bonuses[ability] ?? 0) + slots[index];
+    }
+
+    return bonuses;
+  }
+
   AbilityScores _buildFinalAbilityScores(_CombinedRaceData race) {
-    final bonuses =
-        _useCustomOrigin ? _customOriginBonuses() : race.fixedAbilityBonuses;
+    final bonuses = _allBonusesOf(race);
 
     int bonusFor(String key) => bonuses[key] ?? 0;
 
@@ -759,20 +962,6 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
       wisdom: 10 + bonusFor('wisdom'),
       charisma: 10 + bonusFor('charisma'),
     );
-  }
-
-  Map<String, int> _customOriginBonuses() {
-    return {
-      _customPlusTwo: 2,
-      _customPlusOne: 1,
-    };
-  }
-
-  String _firstDifferentAbility(String current) {
-    for (final ability in _abilityKeys) {
-      if (ability != current) return ability;
-    }
-    return 'dexterity';
   }
 
   /// PV no nível 1 = valor máximo do dado de vida + modificador de Constituição
@@ -815,10 +1004,12 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
     );
   }
 
-  /// Combina as perícias escolhidas manualmente com as concedidas pelo
-  /// antecedente (o antecedente sempre dá proficiência).
+  /// Junta tudo que dá proficiência em perícia no nível 1: o que o jogador
+  /// marcou, o que o antecedente concede e o que vem da raça — concedido ou
+  /// escolhido dentro das opções dela.
   SkillProficiencies _buildSkillProficienciesFromSelection(
     List<Skill> backgroundSkills,
+    _CombinedRaceData race,
   ) {
     final levels = <Skill, ProficiencyLevel>{};
 
@@ -830,6 +1021,18 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
 
     for (final skill in backgroundSkills) {
       levels[skill] = ProficiencyLevel.proficient;
+    }
+
+    for (final id in race.grantedSkills) {
+      final skill = Skill.fromId(id);
+      if (skill != null) levels[skill] = ProficiencyLevel.proficient;
+    }
+
+    final options = race.skillChoice?.options ?? const <String>[];
+    for (final id in _raceSkillPicks) {
+      if (!options.contains(id)) continue;
+      final skill = Skill.fromId(id);
+      if (skill != null) levels[skill] = ProficiencyLevel.proficient;
     }
 
     return SkillProficiencies(levels: levels);
@@ -875,9 +1078,13 @@ class _CombinedRaceData {
     required this.idToSave,
     required this.name,
     required this.allowsCustomOrigin,
+    required this.abilityBonusMode,
     required this.fixedAbilityBonuses,
+    required this.abilityBonusChoices,
+    required this.grantedSkills,
     required this.traits,
     required this.languages,
+    this.skillChoice,
     this.description,
     this.size,
     this.speed,
@@ -889,11 +1096,17 @@ class _CombinedRaceData {
   final String name;
   final String? description;
   final String? size;
-  final int? speed;
+
+  /// Deslocamento em metros.
+  final double? speed;
   final String? creatureType;
   final int? darkvision;
   final bool allowsCustomOrigin;
+  final AbilityBonusMode abilityBonusMode;
   final Map<String, int> fixedAbilityBonuses;
+  final List<int> abilityBonusChoices;
+  final List<String> grantedSkills;
+  final RaceSkillChoice? skillChoice;
   final List<String> traits;
   final List<String> languages;
 }
@@ -958,23 +1171,15 @@ class _BackgroundSummary extends StatelessWidget {
 }
 
 class _RaceSummaryCard extends StatelessWidget {
-  const _RaceSummaryCard({
-    required this.race,
-    required this.useCustomOrigin,
-    required this.customPlusTwo,
-    required this.customPlusOne,
-  });
+  const _RaceSummaryCard({required this.race, required this.bonuses});
 
   final _CombinedRaceData race;
-  final bool useCustomOrigin;
-  final String customPlusTwo;
-  final String customPlusOne;
+
+  /// Bônus já resolvidos: parte fixa da raça mais o que o jogador distribuiu.
+  final Map<String, int> bonuses;
 
   @override
   Widget build(BuildContext context) {
-    final bonuses = useCustomOrigin && race.allowsCustomOrigin
-        ? {customPlusTwo: 2, customPlusOne: 1}
-        : race.fixedAbilityBonuses;
 
     return Card(
       child: Padding(
@@ -992,13 +1197,13 @@ class _RaceSummaryCard extends StatelessWidget {
             Text(
               'Tipo: ${_translateCreatureType(race.creatureType)} • '
               'Tamanho: ${_translateSize(race.size)} • '
-              'Deslocamento: ${race.speed ?? 9}m',
+              'Deslocamento: ${formatMeters(race.speed ?? 9)}',
               style: Theme.of(context).textTheme.bodySmall,
             ),
             if (race.darkvision != null) ...[
               const SizedBox(height: 4),
               Text(
-                'Visão no Escuro: ${race.darkvision}m',
+                'Visão no Escuro: ${formatMeters(race.darkvision)}',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ],

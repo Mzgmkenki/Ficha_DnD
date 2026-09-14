@@ -220,6 +220,17 @@ class $CharactersTable extends Characters
     requiredDuringInsert: false,
     defaultValue: const Constant(9),
   );
+  static const VerificationMeta _speedMetersMeta = const VerificationMeta(
+    'speedMeters',
+  );
+  @override
+  late final GeneratedColumn<double> speedMeters = GeneratedColumn<double>(
+    'speed_meters',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _maxHitPointsMeta = const VerificationMeta(
     'maxHitPoints',
   );
@@ -970,6 +981,7 @@ class $CharactersTable extends Characters
     armorClass,
     initiativeBonus,
     speed,
+    speedMeters,
     maxHitPoints,
     currentHitPoints,
     temporaryHitPoints,
@@ -1175,6 +1187,15 @@ class $CharactersTable extends Characters
       context.handle(
         _speedMeta,
         speed.isAcceptableOrUnknown(data['speed']!, _speedMeta),
+      );
+    }
+    if (data.containsKey('speed_meters')) {
+      context.handle(
+        _speedMetersMeta,
+        speedMeters.isAcceptableOrUnknown(
+          data['speed_meters']!,
+          _speedMetersMeta,
+        ),
       );
     }
     if (data.containsKey('max_hit_points')) {
@@ -1745,6 +1766,10 @@ class $CharactersTable extends Characters
             DriftSqlType.int,
             data['${effectivePrefix}speed'],
           )!,
+      speedMeters: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}speed_meters'],
+      ),
       maxHitPoints:
           attachedDatabase.typeMapping.read(
             DriftSqlType.int,
@@ -2054,7 +2079,14 @@ class Character extends DataClass implements Insertable<Character> {
   final int charisma;
   final int armorClass;
   final int initiativeBonus;
+
+  /// Deslocamento em metros, arredondado. Legado: a coluna é inteira e não
+  /// cabia o 7,5 m do anão. A leitura usa [speedMeters]; esta continua sendo
+  /// gravada para bases antigas não ficarem incoerentes.
   final int speed;
+
+  /// Deslocamento em metros, com fração. Nulo em base que ainda não migrou.
+  final double? speedMeters;
   final int maxHitPoints;
   final int currentHitPoints;
   final int temporaryHitPoints;
@@ -2136,6 +2168,7 @@ class Character extends DataClass implements Insertable<Character> {
     required this.armorClass,
     required this.initiativeBonus,
     required this.speed,
+    this.speedMeters,
     required this.maxHitPoints,
     required this.currentHitPoints,
     required this.temporaryHitPoints,
@@ -2226,6 +2259,9 @@ class Character extends DataClass implements Insertable<Character> {
     map['armor_class'] = Variable<int>(armorClass);
     map['initiative_bonus'] = Variable<int>(initiativeBonus);
     map['speed'] = Variable<int>(speed);
+    if (!nullToAbsent || speedMeters != null) {
+      map['speed_meters'] = Variable<double>(speedMeters);
+    }
     map['max_hit_points'] = Variable<int>(maxHitPoints);
     map['current_hit_points'] = Variable<int>(currentHitPoints);
     map['temporary_hit_points'] = Variable<int>(temporaryHitPoints);
@@ -2320,6 +2356,10 @@ class Character extends DataClass implements Insertable<Character> {
       armorClass: Value(armorClass),
       initiativeBonus: Value(initiativeBonus),
       speed: Value(speed),
+      speedMeters:
+          speedMeters == null && nullToAbsent
+              ? const Value.absent()
+              : Value(speedMeters),
       maxHitPoints: Value(maxHitPoints),
       currentHitPoints: Value(currentHitPoints),
       temporaryHitPoints: Value(temporaryHitPoints),
@@ -2409,6 +2449,7 @@ class Character extends DataClass implements Insertable<Character> {
       armorClass: serializer.fromJson<int>(json['armorClass']),
       initiativeBonus: serializer.fromJson<int>(json['initiativeBonus']),
       speed: serializer.fromJson<int>(json['speed']),
+      speedMeters: serializer.fromJson<double?>(json['speedMeters']),
       maxHitPoints: serializer.fromJson<int>(json['maxHitPoints']),
       currentHitPoints: serializer.fromJson<int>(json['currentHitPoints']),
       temporaryHitPoints: serializer.fromJson<int>(json['temporaryHitPoints']),
@@ -2495,6 +2536,7 @@ class Character extends DataClass implements Insertable<Character> {
       'armorClass': serializer.toJson<int>(armorClass),
       'initiativeBonus': serializer.toJson<int>(initiativeBonus),
       'speed': serializer.toJson<int>(speed),
+      'speedMeters': serializer.toJson<double?>(speedMeters),
       'maxHitPoints': serializer.toJson<int>(maxHitPoints),
       'currentHitPoints': serializer.toJson<int>(currentHitPoints),
       'temporaryHitPoints': serializer.toJson<int>(temporaryHitPoints),
@@ -2573,6 +2615,7 @@ class Character extends DataClass implements Insertable<Character> {
     int? armorClass,
     int? initiativeBonus,
     int? speed,
+    Value<double?> speedMeters = const Value.absent(),
     int? maxHitPoints,
     int? currentHitPoints,
     int? temporaryHitPoints,
@@ -2653,6 +2696,7 @@ class Character extends DataClass implements Insertable<Character> {
     armorClass: armorClass ?? this.armorClass,
     initiativeBonus: initiativeBonus ?? this.initiativeBonus,
     speed: speed ?? this.speed,
+    speedMeters: speedMeters.present ? speedMeters.value : this.speedMeters,
     maxHitPoints: maxHitPoints ?? this.maxHitPoints,
     currentHitPoints: currentHitPoints ?? this.currentHitPoints,
     temporaryHitPoints: temporaryHitPoints ?? this.temporaryHitPoints,
@@ -2756,6 +2800,8 @@ class Character extends DataClass implements Insertable<Character> {
               ? data.initiativeBonus.value
               : this.initiativeBonus,
       speed: data.speed.present ? data.speed.value : this.speed,
+      speedMeters:
+          data.speedMeters.present ? data.speedMeters.value : this.speedMeters,
       maxHitPoints:
           data.maxHitPoints.present
               ? data.maxHitPoints.value
@@ -2963,6 +3009,7 @@ class Character extends DataClass implements Insertable<Character> {
           ..write('armorClass: $armorClass, ')
           ..write('initiativeBonus: $initiativeBonus, ')
           ..write('speed: $speed, ')
+          ..write('speedMeters: $speedMeters, ')
           ..write('maxHitPoints: $maxHitPoints, ')
           ..write('currentHitPoints: $currentHitPoints, ')
           ..write('temporaryHitPoints: $temporaryHitPoints, ')
@@ -3043,6 +3090,7 @@ class Character extends DataClass implements Insertable<Character> {
     armorClass,
     initiativeBonus,
     speed,
+    speedMeters,
     maxHitPoints,
     currentHitPoints,
     temporaryHitPoints,
@@ -3122,6 +3170,7 @@ class Character extends DataClass implements Insertable<Character> {
           other.armorClass == this.armorClass &&
           other.initiativeBonus == this.initiativeBonus &&
           other.speed == this.speed &&
+          other.speedMeters == this.speedMeters &&
           other.maxHitPoints == this.maxHitPoints &&
           other.currentHitPoints == this.currentHitPoints &&
           other.temporaryHitPoints == this.temporaryHitPoints &&
@@ -3199,6 +3248,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
   final Value<int> armorClass;
   final Value<int> initiativeBonus;
   final Value<int> speed;
+  final Value<double?> speedMeters;
   final Value<int> maxHitPoints;
   final Value<int> currentHitPoints;
   final Value<int> temporaryHitPoints;
@@ -3275,6 +3325,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.armorClass = const Value.absent(),
     this.initiativeBonus = const Value.absent(),
     this.speed = const Value.absent(),
+    this.speedMeters = const Value.absent(),
     this.maxHitPoints = const Value.absent(),
     this.currentHitPoints = const Value.absent(),
     this.temporaryHitPoints = const Value.absent(),
@@ -3352,6 +3403,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.armorClass = const Value.absent(),
     this.initiativeBonus = const Value.absent(),
     this.speed = const Value.absent(),
+    this.speedMeters = const Value.absent(),
     this.maxHitPoints = const Value.absent(),
     this.currentHitPoints = const Value.absent(),
     this.temporaryHitPoints = const Value.absent(),
@@ -3432,6 +3484,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Expression<int>? armorClass,
     Expression<int>? initiativeBonus,
     Expression<int>? speed,
+    Expression<double>? speedMeters,
     Expression<int>? maxHitPoints,
     Expression<int>? currentHitPoints,
     Expression<int>? temporaryHitPoints,
@@ -3512,6 +3565,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       if (armorClass != null) 'armor_class': armorClass,
       if (initiativeBonus != null) 'initiative_bonus': initiativeBonus,
       if (speed != null) 'speed': speed,
+      if (speedMeters != null) 'speed_meters': speedMeters,
       if (maxHitPoints != null) 'max_hit_points': maxHitPoints,
       if (currentHitPoints != null) 'current_hit_points': currentHitPoints,
       if (temporaryHitPoints != null)
@@ -3594,6 +3648,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Value<int>? armorClass,
     Value<int>? initiativeBonus,
     Value<int>? speed,
+    Value<double?>? speedMeters,
     Value<int>? maxHitPoints,
     Value<int>? currentHitPoints,
     Value<int>? temporaryHitPoints,
@@ -3673,6 +3728,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       armorClass: armorClass ?? this.armorClass,
       initiativeBonus: initiativeBonus ?? this.initiativeBonus,
       speed: speed ?? this.speed,
+      speedMeters: speedMeters ?? this.speedMeters,
       maxHitPoints: maxHitPoints ?? this.maxHitPoints,
       currentHitPoints: currentHitPoints ?? this.currentHitPoints,
       temporaryHitPoints: temporaryHitPoints ?? this.temporaryHitPoints,
@@ -3797,6 +3853,9 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     }
     if (speed.present) {
       map['speed'] = Variable<int>(speed.value);
+    }
+    if (speedMeters.present) {
+      map['speed_meters'] = Variable<double>(speedMeters.value);
     }
     if (maxHitPoints.present) {
       map['max_hit_points'] = Variable<int>(maxHitPoints.value);
@@ -3991,6 +4050,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
           ..write('armorClass: $armorClass, ')
           ..write('initiativeBonus: $initiativeBonus, ')
           ..write('speed: $speed, ')
+          ..write('speedMeters: $speedMeters, ')
           ..write('maxHitPoints: $maxHitPoints, ')
           ..write('currentHitPoints: $currentHitPoints, ')
           ..write('temporaryHitPoints: $temporaryHitPoints, ')
@@ -7053,6 +7113,7 @@ typedef $$CharactersTableCreateCompanionBuilder =
       Value<int> armorClass,
       Value<int> initiativeBonus,
       Value<int> speed,
+      Value<double?> speedMeters,
       Value<int> maxHitPoints,
       Value<int> currentHitPoints,
       Value<int> temporaryHitPoints,
@@ -7131,6 +7192,7 @@ typedef $$CharactersTableUpdateCompanionBuilder =
       Value<int> armorClass,
       Value<int> initiativeBonus,
       Value<int> speed,
+      Value<double?> speedMeters,
       Value<int> maxHitPoints,
       Value<int> currentHitPoints,
       Value<int> temporaryHitPoints,
@@ -7401,6 +7463,11 @@ class $$CharactersTableFilterComposer
 
   ColumnFilters<int> get speed => $composableBuilder(
     column: $table.speed,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get speedMeters => $composableBuilder(
+    column: $table.speedMeters,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7886,6 +7953,11 @@ class $$CharactersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<double> get speedMeters => $composableBuilder(
+    column: $table.speedMeters,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get maxHitPoints => $composableBuilder(
     column: $table.maxHitPoints,
     builder: (column) => ColumnOrderings(column),
@@ -8247,6 +8319,11 @@ class $$CharactersTableAnnotationComposer
 
   GeneratedColumn<int> get speed =>
       $composableBuilder(column: $table.speed, builder: (column) => column);
+
+  GeneratedColumn<double> get speedMeters => $composableBuilder(
+    column: $table.speedMeters,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<int> get maxHitPoints => $composableBuilder(
     column: $table.maxHitPoints,
@@ -8672,6 +8749,7 @@ class $$CharactersTableTableManager
                 Value<int> armorClass = const Value.absent(),
                 Value<int> initiativeBonus = const Value.absent(),
                 Value<int> speed = const Value.absent(),
+                Value<double?> speedMeters = const Value.absent(),
                 Value<int> maxHitPoints = const Value.absent(),
                 Value<int> currentHitPoints = const Value.absent(),
                 Value<int> temporaryHitPoints = const Value.absent(),
@@ -8748,6 +8826,7 @@ class $$CharactersTableTableManager
                 armorClass: armorClass,
                 initiativeBonus: initiativeBonus,
                 speed: speed,
+                speedMeters: speedMeters,
                 maxHitPoints: maxHitPoints,
                 currentHitPoints: currentHitPoints,
                 temporaryHitPoints: temporaryHitPoints,
@@ -8826,6 +8905,7 @@ class $$CharactersTableTableManager
                 Value<int> armorClass = const Value.absent(),
                 Value<int> initiativeBonus = const Value.absent(),
                 Value<int> speed = const Value.absent(),
+                Value<double?> speedMeters = const Value.absent(),
                 Value<int> maxHitPoints = const Value.absent(),
                 Value<int> currentHitPoints = const Value.absent(),
                 Value<int> temporaryHitPoints = const Value.absent(),
@@ -8902,6 +8982,7 @@ class $$CharactersTableTableManager
                 armorClass: armorClass,
                 initiativeBonus: initiativeBonus,
                 speed: speed,
+                speedMeters: speedMeters,
                 maxHitPoints: maxHitPoints,
                 currentHitPoints: currentHitPoints,
                 temporaryHitPoints: temporaryHitPoints,

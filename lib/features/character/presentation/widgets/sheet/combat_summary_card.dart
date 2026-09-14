@@ -1,5 +1,6 @@
 import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/core/theme/app_typography.dart';
+import 'package:dnd_ficha_app/core/utils/distance_format.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:flutter/material.dart';
 
@@ -32,7 +33,7 @@ class CombatSummaryCard extends StatelessWidget {
             ),
             _CombatValue(
               label: 'Desloc.',
-              value: '${character.combatStats.speedInSquares}m',
+              value: formatMeters(character.combatStats.speedInMeters),
             ),
             _CombatValue(
               label: 'HP',

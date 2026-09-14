@@ -60,7 +60,9 @@ class CharacterMapper {
       combatStats: CombatStats(
         armorClass: character.armorClass,
         initiativeBonus: character.initiativeBonus,
-        speedInSquares: character.speed,
+        // A coluna decimal é a fonte de verdade; a inteira só cobre a base que
+        // ainda não passou pela migração 9.
+        speedInMeters: character.speedMeters ?? character.speed.toDouble(),
       ),
 
       // ✅ NOVO

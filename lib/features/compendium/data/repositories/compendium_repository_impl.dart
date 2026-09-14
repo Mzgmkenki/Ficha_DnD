@@ -1,11 +1,11 @@
 import 'package:dnd_ficha_app/features/compendium/data/sources/srd_asset_source.dart';
-import 'package:dnd_ficha_app/features/compendium/domain/entities/ability_score_rule.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/ability_bonus_mode.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_choice_group.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
-import 'package:dnd_ficha_app/features/compendium/domain/entities/race_spell_feature.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/race_skill_choice.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_slot_progression_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/repositories/compendium_repository.dart';
@@ -52,11 +52,10 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
       final rawTraits = _asList(item['traits']);
       final rawSizeOptions = _asList(item['size_options']);
       final rawLanguages = _asList(item['languages']);
-      final rawSkillOptions = _asList(item['skill_options']);
-      final rawAbilityRules = _asList(item['ability_score_rules']);
-      final rawSpellcasting = _asList(item['spellcasting']);
+      final rawGrantedSkills = _asList(item['granted_skills']);
       final rawChoiceGroups = _asList(item['choice_groups']);
       final rawTags = _asList(item['tags']);
+      final rawSkillChoice = item['skill_choice'];
 
       return RaceEntry(
         id: item['id'] as String,
@@ -64,11 +63,24 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
         source: item['source'] as String? ?? 'srd',
 
         size: item['size'] as String?,
-        speed: _asInt(item['speed']),
+        speed: _asDouble(item['speed']),
         allowsCustomOrigin: _asBool(item['allows_custom_origin'], fallback: true),
+        abilityBonusMode: AbilityBonusMode.fromId(
+          item['ability_bonus_mode'] as String?,
+        ),
         fixedAbilityBonuses: rawBonuses.map(
           (key, value) => MapEntry(key, _asInt(value) ?? 0),
         ),
+        abilityBonusChoices: _asList(item['ability_bonus_choices'])
+            .map((e) => _asInt(e) ?? 0)
+            .where((value) => value > 0)
+            .toList(growable: false),
+        grantedSkills: rawGrantedSkills
+            .map((e) => e.toString())
+            .toList(growable: false),
+        skillChoice: rawSkillChoice is Map
+            ? _parseRaceSkillChoice(Map<String, dynamic>.from(rawSkillChoice))
+            : null,
         traits: rawTraits
             .map((e) {
               if (e is String) return e;
@@ -93,17 +105,6 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
         darkvision: _asInt(item['darkvision']),
         languages: rawLanguages
             .map((e) => e.toString())
-            .toList(growable: false),
-        skillOptions: rawSkillOptions
-            .map((e) => e.toString())
-            .toList(growable: false),
-        abilityScoreRules: rawAbilityRules
-            .whereType<Map>()
-            .map((e) => _parseAbilityScoreRule(Map<String, dynamic>.from(e)))
-            .toList(growable: false),
-        spellcasting: rawSpellcasting
-            .whereType<Map>()
-            .map((e) => _parseRaceSpellFeature(Map<String, dynamic>.from(e)))
             .toList(growable: false),
         choiceGroups: rawChoiceGroups
             .whereType<Map>()
@@ -235,26 +236,14 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
     return allSpells;
   }
 
-  AbilityScoreRule _parseAbilityScoreRule(Map<String, dynamic> item) {
-    final rawBonuses = _asMap(item['fixed_bonuses']);
+  RaceSkillChoice _parseRaceSkillChoice(Map<String, dynamic> item) {
+    final options = _asList(
+      item['options'],
+    ).map((e) => e.toString()).toList(growable: false);
 
-    return AbilityScoreRule(
-      type: item['type'] as String? ?? 'fixed',
-      fixedBonuses: rawBonuses.isEmpty
-          ? null
-          : rawBonuses.map((key, value) => MapEntry(key, _asInt(value) ?? 0)),
-      choose: _asInt(item['choose']),
-      maxPerAbility: _asInt(item['max_per_ability']),
-    );
-  }
-
-  RaceSpellFeature _parseRaceSpellFeature(Map<String, dynamic> item) {
-    return RaceSpellFeature(
-      spellId: _asInt(item['spell_id']) ?? 0,
-      level: _asInt(item['level']),
-      isAtWill: _asBool(item['is_at_will']),
-      usesPerRest: _asInt(item['uses_per_rest']),
-      notes: item['notes'] as String?,
+    return RaceSkillChoice(
+      choose: _asInt(item['choose']) ?? 1,
+      options: options,
     );
   }
 
@@ -339,6 +328,14 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
     if (value is int) return value;
     if (value is num) return value.toInt();
     if (value is String) return int.tryParse(value);
+    return null;
+  }
+
+  /// Deslocamento aceita fração: 7,5 m do anão viraria 7 com `_asInt`.
+  double? _asDouble(dynamic value) {
+    if (value == null) return null;
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value.replaceAll(',', '.'));
     return null;
   }
 
