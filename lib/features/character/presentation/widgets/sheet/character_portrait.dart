@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:dnd_ficha_app/core/storage/portrait_storage.dart';
 import 'package:dnd_ficha_app/core/theme/app_colors.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/portrait_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -36,8 +35,6 @@ class _CharacterPortraitState extends ConsumerState<CharacterPortrait> {
 
   @override
   Widget build(BuildContext context) {
-    const radius = BorderRadius.all(Radius.circular(12));
-
     return Semantics(
       label: _hasPortrait
           ? 'Imagem do personagem. Toque para trocar ou remover.'
@@ -45,52 +42,17 @@ class _CharacterPortraitState extends ConsumerState<CharacterPortrait> {
       button: true,
       child: Tooltip(
         message: _hasPortrait ? 'Trocar imagem' : 'Adicionar imagem',
-        // A borda vem do `shape` do Material, não de um Container por cima:
-        // fundo opaco dentro do InkWell esconderia o efeito de toque.
-        child: Material(
-          color: AppColors.surfaceContainerHigh,
-          clipBehavior: Clip.antiAlias,
-          shape: RoundedRectangleBorder(
-            borderRadius: radius,
-            side: BorderSide(
-              color: _hasPortrait ? AppColors.red : AppColors.outline,
-              width: _hasPortrait ? 1.4 : 1,
-            ),
-          ),
-          child: InkWell(
-            onTap: _busy ? null : _openOptions,
-            child: SizedBox(
-              width: widget.size,
-              height: widget.size,
-              child: _busy ? const _Loading() : _content(context),
-            ),
-          ),
+        child: InkWell(
+          onTap: _busy ? null : _openOptions,
+          borderRadius: BorderRadius.circular(12),
+          child: _busy
+              ? _Loading(size: widget.size)
+              : PortraitAvatar(
+                  path: widget.portraitPath,
+                  size: widget.size,
+                  emptyLabel: 'imagem',
+                ),
         ),
-      ),
-    );
-  }
-
-  Widget _content(BuildContext context) {
-    if (!_hasPortrait) return const _Placeholder();
-
-    // `cacheWidth` limita a decodificação ao tamanho que aparece na tela:
-    // sem isso, a foto de 12 MP do celular seria decodificada inteira na
-    // memória só para desenhar um quadrado de 78 px.
-    final pixels =
-        (widget.size * MediaQuery.devicePixelRatioOf(context)).round();
-
-    return Image.file(
-      File(widget.portraitPath!),
-      fit: BoxFit.cover,
-      width: widget.size,
-      height: widget.size,
-      cacheWidth: pixels,
-      filterQuality: FilterQuality.medium,
-      // O arquivo mora no diretório do app, mas o jogador pode ter limpado
-      // os dados ou restaurado um backup sem ele. Cair no placeholder é
-      // melhor que a ficha inteira quebrar com exceção de render.
-      errorBuilder: (context, error, stackTrace) => const _Placeholder(
-        broken: true,
       ),
     );
   }
@@ -105,10 +67,7 @@ class _CharacterPortraitState extends ConsumerState<CharacterPortrait> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(
-                  Icons.folder_open,
-                  color: AppColors.red,
-                ),
+                leading: const Icon(Icons.folder_open, color: AppColors.red),
                 title: Text(
                   _hasPortrait ? 'Trocar imagem' : 'Escolher imagem',
                 ),
@@ -187,42 +146,27 @@ class _CharacterPortraitState extends ConsumerState<CharacterPortrait> {
   }
 }
 
-class _Placeholder extends StatelessWidget {
-  const _Placeholder({this.broken = false});
-
-  /// Havia um caminho salvo, mas o arquivo não abriu.
-  final bool broken;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          broken ? Icons.broken_image_outlined : Icons.person_outline,
-          color: AppColors.onDarkVariant,
-          size: 26,
-        ),
-        const SizedBox(height: 2),
-        Text(
-          broken ? 'sem arquivo' : 'imagem',
-          style: Theme.of(context).textTheme.labelSmall,
-        ),
-      ],
-    );
-  }
-}
-
 class _Loading extends StatelessWidget {
-  const _Loading();
+  const _Loading({required this.size});
+
+  final double size;
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: SizedBox(
-        width: 22,
-        height: 22,
-        child: CircularProgressIndicator(strokeWidth: 2.4),
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.outline),
+      ),
+      child: const Center(
+        child: SizedBox(
+          width: 22,
+          height: 22,
+          child: CircularProgressIndicator(strokeWidth: 2.4),
+        ),
       ),
     );
   }

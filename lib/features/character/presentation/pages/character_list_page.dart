@@ -1,6 +1,7 @@
 import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/portrait_avatar.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:flutter/material.dart';
@@ -47,6 +48,14 @@ class CharacterListPage extends ConsumerWidget {
                   final character = characters[index];
 
                   return ListTile(
+                    leading: PortraitAvatar(
+                      path: character.portraitPath,
+                      size: 56,
+                      // Sem legenda e sem borda vermelha: em miniatura o
+                      // texto fica ilegível e várias bordas destacadas
+                      // brigariam entre si na lista.
+                      highlightWhenFilled: false,
+                    ),
                     title: Text(
                       character.name,
                       style: const TextStyle(fontWeight: FontWeight.w600),

@@ -6,6 +6,17 @@ import 'package:flutter/services.dart' show PlatformException;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+/// Arquivo escolhido pelo jogador, antes de ser copiado para o app.
+class PickedImage {
+  const PickedImage({required this.path, this.extension});
+
+  /// Caminho de origem. É temporário: no Android o SAF entrega uma cópia no
+  /// cache, que o sistema pode apagar.
+  final String path;
+
+  final String? extension;
+}
+
 /// Erro previsível na escolha do retrato, com mensagem já pronta para o
 /// jogador. Falhas inesperadas continuam subindo como exceção normal.
 class PortraitException implements Exception {
@@ -41,9 +52,25 @@ class PortraitStorage {
     'bmp',
   ];
 
-  /// Abre o gerenciador de arquivos e devolve o caminho da cópia guardada
-  /// pelo app. Retorna `null` se o jogador cancelar.
+  /// Abre o gerenciador de arquivos e devolve a cópia já guardada pelo app.
+  /// Retorna `null` se o jogador cancelar.
   Future<String?> pickAndSave({required String characterId}) async {
+    final picked = await pick();
+    if (picked == null) return null;
+
+    return save(
+      characterId: characterId,
+      sourcePath: picked.path,
+      extension: picked.extension,
+    );
+  }
+
+  /// Só escolhe o arquivo, sem copiar.
+  ///
+  /// Existe separado por causa da criação de personagem: lá o jogador escolhe
+  /// a imagem antes do personagem ter id, e a cópia só pode ser feita na hora
+  /// de salvar.
+  Future<PickedImage?> pick() async {
     final FilePickerResult? result;
 
     try {
@@ -73,11 +100,7 @@ class PortraitStorage {
       );
     }
 
-    return save(
-      characterId: characterId,
-      sourcePath: sourcePath,
-      extension: picked.extension,
-    );
+    return PickedImage(path: sourcePath, extension: picked.extension);
   }
 
   /// Copia [sourcePath] para o diretório do app e devolve o novo caminho.

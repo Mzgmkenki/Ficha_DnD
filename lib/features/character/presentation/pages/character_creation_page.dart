@@ -1,6 +1,7 @@
 ﻿import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
+import 'package:dnd_ficha_app/core/storage/portrait_storage.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
@@ -14,6 +15,7 @@ import 'package:dnd_ficha_app/features/character/domain/value_objects/proficienc
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/spellcasting_type.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/custom_background_form.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/portrait_avatar.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart'
     as compendium_providers;
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_entry.dart';
@@ -45,6 +47,13 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
   /// Perícias do antecedente customizável (um antecedente concede duas).
   String? _customBackgroundSkillOne;
   String? _customBackgroundSkillTwo;
+
+  /// Imagem escolhida para a aparência, ainda não copiada para o app.
+  ///
+  /// A cópia só acontece no [_save], porque o nome do arquivo usa o id do
+  /// personagem — que só existe depois. Guardar só a escolha aqui também
+  /// evita deixar arquivo órfão se o jogador desistir da criação.
+  PickedImage? _pickedPortrait;
 
   final Set<String> _selectedSkills = {};
 
@@ -82,6 +91,57 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
 
   bool get _isCustomBackground =>
       _selectedBackgroundId == BackgroundEntry.customId;
+
+  Future<void> _pickPortrait() async {
+    try {
+      final picked = await ref.read(portraitStorageProvider).pick();
+      if (picked == null || !mounted) return;
+      setState(() => _pickedPortrait = picked);
+    } on PortraitException catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.message)),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao escolher a imagem: $error')),
+      );
+    }
+  }
+
+  /// Copia a imagem escolhida para o diretório do app.
+  ///
+  /// Devolve `null` e apenas avisa se falhar: perder a criação inteira do
+  /// personagem por causa da imagem seria um péssimo negócio, e o retrato
+  /// pode ser posto depois pela ficha.
+  Future<String?> _storePortrait(String characterId) async {
+    final picked = _pickedPortrait;
+    if (picked == null) return null;
+
+    try {
+      return await ref.read(portraitStorageProvider).save(
+            characterId: characterId,
+            sourcePath: picked.path,
+            extension: picked.extension,
+          );
+    } catch (error) {
+      debugPrint('Falha ao salvar o retrato na criacao: $error');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Personagem criado, mas a imagem não pôde ser salva. '
+              'Escolha novamente na ficha.',
+            ),
+          ),
+        );
+      }
+
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -182,6 +242,12 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                       decoration: const InputDecoration(
                         labelText: 'Jogador (opcional)',
                       ),
+                    ),
+                    const SizedBox(height: 16),
+                    _PortraitField(
+                      picked: _pickedPortrait,
+                      onPick: _pickPortrait,
+                      onClear: () => setState(() => _pickedPortrait = null),
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<String>(
@@ -623,9 +689,12 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
       final finalScores = _buildFinalAbilityScores(selectedRace);
       final maxHp = _startingHitPointsForClass(selectedClass, finalScores);
 
+      final portraitPath = await _storePortrait(id);
+
       final character = Character(
         id: id,
         name: _nameController.text.trim(),
+        portraitPath: portraitPath,
         playerName: _playerController.text.trim().isEmpty
             ? null
             : _playerController.text.trim(),
@@ -1031,3 +1100,72 @@ class _RaceSummaryCard extends StatelessWidget {
   }
 }
 
+
+/// Campo de aparência do personagem na criação.
+///
+/// Mostra a imagem escolhida direto do caminho de origem: a cópia para o
+/// diretório do app só acontece ao salvar, então aqui o preview aponta para o
+/// arquivo temporário do gerenciador de arquivos.
+class _PortraitField extends StatelessWidget {
+  const _PortraitField({
+    required this.picked,
+    required this.onPick,
+    required this.onClear,
+  });
+
+  final PickedImage? picked;
+  final Future<void> Function() onPick;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final has = picked != null;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        PortraitAvatar(
+          path: picked?.path,
+          size: 78,
+          emptyLabel: 'imagem',
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Aparência',
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                has
+                    ? 'Imagem escolhida. Ela é salva junto com o personagem.'
+                    : 'Opcional. Você também pode adicionar depois, na ficha.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 6),
+              Wrap(
+                spacing: 8,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: onPick,
+                    icon: const Icon(Icons.folder_open, size: 18),
+                    label: Text(has ? 'Trocar' : 'Escolher imagem'),
+                  ),
+                  if (has)
+                    TextButton.icon(
+                      onPressed: onClear,
+                      icon: const Icon(Icons.close, size: 18),
+                      label: const Text('Remover'),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
