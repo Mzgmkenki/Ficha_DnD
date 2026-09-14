@@ -4,6 +4,7 @@ import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
 import 'package:dnd_ficha_app/core/storage/portrait_storage.dart';
 import 'package:dnd_ficha_app/core/theme/app_colors.dart';
 import 'package:dnd_ficha_app/core/utils/distance_format.dart';
+import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
@@ -725,6 +726,12 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
 
       await repository.create(character);
 
+      // Clérigo, Feiticeiro e Bruxo escolhem a subclasse já no 1º nível, então
+      // as magias dela precisam entrar no livro assim que o personagem nasce.
+      if (subclassId != null) {
+        await _syncSubclassSpells(id);
+      }
+
       if (!mounted) return;
       await AppNavigator.replaceWithCharacterSheet(context, characterId: id);
     } catch (error, stackTrace) {
@@ -740,6 +747,39 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
         setState(() {
           _saving = false;
         });
+      }
+    }
+  }
+
+  /// Coloca as magias da subclasse no livro do personagem recém-criado.
+  ///
+  /// Não interrompe a criação se falhar: o personagem já existe, e perder a
+  /// ficha inteira por causa das magias seria pior que avisar.
+  Future<void> _syncSubclassSpells(String characterId) async {
+    try {
+      final subclasses = await ref.read(
+        compendium_providers.subclassEntriesProvider.future,
+      );
+      final spellIndex = await ref.read(spellNameIndexProvider.future);
+
+      await ref.read(syncSubclassSpellsProvider)(
+        characterId: characterId,
+        subclasses: subclasses,
+        spellIndex: spellIndex,
+      );
+    } catch (error, stackTrace) {
+      debugPrint('Falha ao sincronizar magias de subclasse: $error');
+      debugPrintStack(stackTrace: stackTrace);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Personagem criado, mas as magias da subclasse não entraram. '
+              'Adicione pelo gerenciador de magias.',
+            ),
+          ),
+        );
       }
     }
   }

@@ -1,5 +1,6 @@
 ﻿import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
+import 'package:dnd_ficha_app/features/character/application/use_cases/character/sync_subclass_spells.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
@@ -1506,6 +1507,8 @@ class _ManageCharacterSpellsPageState
     switch (value) {
       case 'class':
         return 'classe';
+      case subclassSpellSource:
+        return 'subclasse';
       case 'grimorio':
         return 'grimório';
       case 'item':

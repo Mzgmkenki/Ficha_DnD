@@ -1,11 +1,14 @@
 import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
 import 'package:dnd_ficha_app/features/character/domain/repositories/character_repository.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/character_creation_page.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
+import 'package:dnd_ficha_app/features/compendium/application/providers/spell_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/subclass_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,11 +16,33 @@ import 'package:flutter_test/flutter_test.dart';
 
 class _FakeCharacterRepository implements CharacterRepository {
   Character? created;
+  final List<CharacterSpell> addedSpells = [];
 
   @override
   Future<void> create(Character character) async {
     created = character;
   }
+
+  // A criação sincroniza as magias da subclasse logo depois de salvar, então o
+  // fake precisa responder a esse caminho também.
+  @override
+  Future<Character?> findById(String id) async => created;
+
+  @override
+  Future<void> addCharacterSpell({
+    required String characterId,
+    required CharacterSpell spell,
+  }) async {
+    addedSpells.add(spell);
+  }
+
+  @override
+  Future<void> removeCharacterSpell({
+    required String characterId,
+    required int spellId,
+    required String sourceType,
+    required String sourceId,
+  }) async {}
 
   @override
   dynamic noSuchMethod(Invocation invocation) {
@@ -53,12 +78,37 @@ const _fighter = ClassEntry(
   subclassLabel: 'Arquétipo Marcial',
 );
 
+/// Compêndio de magias mínimo, só para a sincronização ter o que resolver.
+const _blessEntry = SpellEntry(
+  id: 42,
+  namePt: 'Bênção',
+  nameOriginal: 'Bless',
+  level: 1,
+  school: 'Encantamento',
+  castingTime: 'Uma ação',
+  range: '9 m',
+  components: 'V S M',
+  hasCostlyMaterials: false,
+  duration: '1 minuto',
+  concentration: true,
+  ritual: false,
+  classes: ['cleric'],
+  subclasses: [],
+  description: '',
+  source: 'phb',
+  page: '1',
+  isSrd: true,
+);
+
 const _lifeDomain = SubclassEntry(
   id: 'cleric_life_domain',
   classId: 'cleric',
   name: 'Domínio da Vida',
   source: 'phb',
   description: 'Cura e vitalidade.',
+  spells: [
+    SubclassSpellGrant(level: 1, spellNames: ['Bless']),
+  ],
   features: [
     SubclassFeature(
       level: 1,
@@ -124,6 +174,9 @@ Future<_FakeCharacterRepository> _pumpCreationPage(
         subclassEntriesProvider.overrideWith(
           (ref) => const [_lifeDomain, _champion],
         ),
+        // Sem isso o teste tentaria carregar os três arquivos de magia do
+        // bundle e o pumpAndSettle nunca assentava.
+        spellEntriesProvider.overrideWith((ref) => const [_blessEntry]),
       ],
       child: MaterialApp(
         home: const CharacterCreationPage(),
@@ -192,6 +245,14 @@ void main() {
     final created = repository.created;
     expect(created, isNotNull);
     expect(created!.classLevels.single.subclassId, 'cleric_life_domain');
+
+    // E a magia do domínio vai para o livro já preparada.
+    expect(repository.addedSpells, hasLength(1));
+    final spell = repository.addedSpells.single;
+    expect(spell.spellId, 42);
+    expect(spell.sourceName, 'Domínio da Vida');
+    expect(spell.isPrepared, isTrue);
+    expect(spell.isAlwaysAvailable, isTrue);
   });
 
   testWidgets('classe que escolhe depois não grava subclasse', (tester) async {

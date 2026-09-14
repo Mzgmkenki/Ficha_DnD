@@ -1,5 +1,6 @@
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/combat_stats.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart';
@@ -49,6 +50,7 @@ Character characterFixture({
   ],
   HitPoints hitPoints = const HitPoints(current: 10, maximum: 10),
   SkillProficiencies skillProficiencies = const SkillProficiencies(),
+  List<CharacterSpell> spells = const [],
   int exhaustion = 0,
   int hitDiceUsed = 0,
 }) {
@@ -66,6 +68,7 @@ Character characterFixture({
       speedInMeters: 9,
     ),
     skillProficiencies: skillProficiencies,
+    spells: spells,
     exhaustion: exhaustion,
     hitDiceUsed: hitDiceUsed,
     createdAt: now,

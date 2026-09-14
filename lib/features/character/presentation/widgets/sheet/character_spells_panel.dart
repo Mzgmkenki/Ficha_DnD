@@ -1,5 +1,6 @@
 ﻿import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
+import 'package:dnd_ficha_app/features/character/application/use_cases/character/sync_subclass_spells.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item_spell.dart';
@@ -68,6 +69,7 @@ class _CharacterSpellsPanelState extends ConsumerState<CharacterSpellsPanel> {
                         );
 
                         final classSpells = <CharacterSpell>[];
+                        final subclassSpells = <CharacterSpell>[];
                         final grimorioSpells = <CharacterSpell>[];
                         final raceSpells = <CharacterSpell>[];
                         final featSpells = <CharacterSpell>[];
@@ -79,6 +81,9 @@ class _CharacterSpellsPanelState extends ConsumerState<CharacterSpellsPanel> {
                           switch (spell.sourceType) {
                             case 'class':
                               classSpells.add(spell);
+                              break;
+                            case subclassSpellSource:
+                              subclassSpells.add(spell);
                               break;
                             case 'grimorio':
                               grimorioSpells.add(spell);
@@ -109,6 +114,19 @@ class _CharacterSpellsPanelState extends ConsumerState<CharacterSpellsPanel> {
                               _OriginSection(
                                 title: 'Magias de Classe',
                                 spells: classSpells,
+                                spellEntries: spellEntries,
+                                character: character,
+                                slotSummary: slotSummary,
+                                usedSlots: usedSlots,
+                              ),
+                            // Vêm logo depois das de classe porque são um
+                            // apêndice delas: gastam os mesmos espaços, mas
+                            // estão sempre preparadas e não ocupam vaga no
+                            // limite de preparação.
+                            if (subclassSpells.isNotEmpty)
+                              _OriginSection(
+                                title: 'Magias de Subclasse',
+                                spells: subclassSpells,
                                 spellEntries: spellEntries,
                                 character: character,
                                 slotSummary: slotSummary,

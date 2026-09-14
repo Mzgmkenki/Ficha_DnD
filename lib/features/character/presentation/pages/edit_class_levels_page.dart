@@ -392,6 +392,10 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
         },
       );
 
+      // As magias de domínio, juramento e patrono acompanham a subclasse e o
+      // nível, então precisam ser reconciliadas depois de salvar.
+      await _syncSubclassSpells();
+
       if (!mounted) return;
       Navigator.of(context).pop(true);
     } catch (error, stackTrace) {
@@ -535,6 +539,45 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
         return 'Inteligência 13';
       default:
         return 'Sem requisito cadastrado';
+    }
+  }
+
+  /// Põe no livro as magias que a subclasse concede até o nível atual e tira as
+  /// que não valem mais.
+  ///
+  /// Falhar aqui não desfaz o nível já salvo: o jogador é avisado e pode
+  /// adicionar a magia à mão.
+  Future<void> _syncSubclassSpells() async {
+    try {
+      final subclasses = await ref.read(subclassEntriesProvider.future);
+      final spellIndex = await ref.read(spellNameIndexProvider.future);
+
+      final result = await ref.read(syncSubclassSpellsProvider)(
+        characterId: widget.characterId,
+        subclasses: subclasses,
+        spellIndex: spellIndex,
+      );
+
+      if (result.unknownSpellNames.isNotEmpty) {
+        debugPrint(
+          'Magias de subclasse sem correspondência no compendio: '
+          '${result.unknownSpellNames.join(', ')}',
+        );
+      }
+    } catch (error, stackTrace) {
+      debugPrint('Falha ao sincronizar magias de subclasse: $error');
+      debugPrintStack(stackTrace: stackTrace);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Níveis salvos, mas as magias da subclasse não entraram. '
+              'Adicione pelo gerenciador de magias.',
+            ),
+          ),
+        );
+      }
     }
   }
 

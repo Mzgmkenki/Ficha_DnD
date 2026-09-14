@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/services/spell_name_index.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Guarda os assets de classe e subclasse.
@@ -162,6 +164,112 @@ void main() {
 
       expect((item['name'] as String).trim(), isNotEmpty, reason: '$id sem nome');
       expect(item['source'], isA<String>(), reason: '$id sem fonte');
+    }
+  });
+
+  test('toda magia citada nas subclasses existe no compêndio', () {
+    // Sem isso, um nome digitado errado no asset simplesmente não entraria no
+    // livro do personagem, sem nenhum aviso.
+    final spells = <SpellEntry>[];
+
+    for (final path in const [
+      'assets/data/spells/magias-livro-do-jogador.json',
+      'assets/data/spells/magias-xanathar-guide.json',
+      'assets/data/spells/magias-tasha-cauldron.json',
+    ]) {
+      final file = File(path);
+      expect(file.existsSync(), isTrue, reason: 'asset ausente: $path');
+
+      final raw = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
+      final rows = raw['dados'] as List<dynamic>;
+
+      for (final row in rows) {
+        final item = Map<String, dynamic>.from(row as Map);
+        spells.add(
+          SpellEntry(
+            id: item['id'] as int,
+            namePt: item['nome'] as String? ?? '',
+            nameOriginal: item['original'] as String? ?? '',
+            level: item['nivel'] as int? ?? 0,
+            school: '',
+            castingTime: '',
+            range: '',
+            components: '',
+            hasCostlyMaterials: false,
+            duration: '',
+            concentration: false,
+            ritual: false,
+            classes: const [],
+            subclasses: const [],
+            description: '',
+            source: '',
+            page: '',
+            isSrd: false,
+          ),
+        );
+      }
+    }
+
+    final index = SpellNameIndex(spells);
+    final missing = <String>[];
+
+    for (final item in subclasses) {
+      final grants = item['spells'] as List<dynamic>? ?? const [];
+
+      for (final raw in grants) {
+        final grant = Map<String, dynamic>.from(raw as Map);
+        final level = grant['level'];
+        expect(level, isA<int>(), reason: '${item['id']} com magia sem nível');
+
+        final names = grant['names'] as List<dynamic>;
+        expect(names, isNotEmpty, reason: '${item['id']} com nível sem magias');
+
+        for (final name in names) {
+          if (index.find(name.toString()) == null) {
+            missing.add('${item['id']}: $name');
+          }
+        }
+      }
+    }
+
+    expect(missing, isEmpty, reason: 'magias sem correspondência: $missing');
+  });
+
+  test('magias da subclasse não vêm antes do nível de escolha', () {
+    // Uma magia concedida abaixo do nível em que a subclasse é escolhida nunca
+    // entraria no livro pela criação nem pela tela de níveis, porque até lá o
+    // personagem não tem subclasse nenhuma.
+    final subclassLevelByClass = {
+      for (final item in classes)
+        item['id'] as String: item['subclass_level'] as int,
+    };
+
+    for (final item in subclasses) {
+      final id = item['id'];
+      final classId = item['class_id'] as String;
+      final unlockLevel = subclassLevelByClass[classId]!;
+
+      final grants = item['spells'] as List<dynamic>? ?? const [];
+      final seenLevels = <int>{};
+
+      for (final raw in grants) {
+        final grant = Map<String, dynamic>.from(raw as Map);
+        final level = grant['level'] as int;
+
+        expect(
+          level,
+          inInclusiveRange(unlockLevel, 20),
+          reason:
+              '$id concede magia no nível $level, antes do nível '
+              '$unlockLevel em que $classId escolhe a subclasse',
+        );
+
+        expect(
+          seenLevels.add(level),
+          isTrue,
+          reason: '$id repete o nível $level na lista de magias',
+        );
+      }
     }
   });
 

@@ -177,6 +177,7 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
 
     return items.map((item) {
       final rawFeatures = _asList(item['features']);
+      final rawSpells = _asList(item['spells']);
       final rawTags = _asList(item['tags']);
 
       return SubclassEntry(
@@ -188,6 +189,10 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
         features: rawFeatures
             .whereType<Map>()
             .map((e) => _parseSubclassFeature(Map<String, dynamic>.from(e)))
+            .toList(growable: false),
+        spells: rawSpells
+            .whereType<Map>()
+            .map((e) => _parseSubclassSpellGrant(Map<String, dynamic>.from(e)))
             .toList(growable: false),
         tags: rawTags.map((e) => e.toString()).toList(growable: false),
       );
@@ -236,7 +241,10 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
         return SpellEntry(
           id: spell['id'] as int,
           namePt: spell['nome'] as String? ?? '',
-          nameOriginal: spell['nome_original'] as String? ?? '',
+          // O campo no asset chama `original`. Lia-se `nome_original`, que não
+          // existe, então o nome em inglês vinha vazio e a busca por ele nunca
+          // achava nada.
+          nameOriginal: spell['original'] as String? ?? '',
           level: spell['nivel'] as int? ?? 0,
           school: spell['escola'] as String? ?? '',
           castingTime: spell['tempo'] as String? ?? '',
@@ -260,6 +268,15 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
     }
 
     return allSpells;
+  }
+
+  SubclassSpellGrant _parseSubclassSpellGrant(Map<String, dynamic> item) {
+    return SubclassSpellGrant(
+      level: _asInt(item['level']) ?? 1,
+      spellNames: _asList(
+        item['names'],
+      ).map((e) => e.toString()).toList(growable: false),
+    );
   }
 
   SubclassFeature _parseSubclassFeature(Map<String, dynamic> item) {

@@ -2,6 +2,7 @@ import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/export_character.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/import_character.dart';
+import 'package:dnd_ficha_app/features/character/application/use_cases/character/sync_subclass_spells.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/update_character_ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/update_character_class_levels.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/update_character_identity.dart';
@@ -13,6 +14,8 @@ import 'package:dnd_ficha_app/features/character/domain/entities/character_magic
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item_spell.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/rest_service.dart';
+import 'package:dnd_ficha_app/features/compendium/application/providers/spell_providers.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/services/spell_name_index.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final charactersProvider = StreamProvider<List<Character>>((ref) {
@@ -78,6 +81,18 @@ final updateCharacterClassLevelsProvider =
     Provider<UpdateCharacterClassLevels>((ref) {
   final repository = ref.watch(characterRepositoryProvider);
   return UpdateCharacterClassLevels(repository);
+});
+
+final syncSubclassSpellsProvider = Provider<SyncSubclassSpells>((ref) {
+  final repository = ref.watch(characterRepositoryProvider);
+  return SyncSubclassSpells(repository);
+});
+
+/// Índice de nomes de magia do compêndio, para resolver as listas das
+/// subclasses.
+final spellNameIndexProvider = FutureProvider<SpellNameIndex>((ref) async {
+  final spells = await ref.watch(spellEntriesProvider.future);
+  return SpellNameIndex(spells);
 });
 
 final addCharacterSpellProvider = Provider<
