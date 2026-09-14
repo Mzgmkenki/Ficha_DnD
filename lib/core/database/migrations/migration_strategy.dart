@@ -148,6 +148,20 @@ MigrationStrategy buildMigrationStrategy(AppDatabase db) {
         // Retrato do personagem (imagem de aparência).
         await _tryAddColumn(m, db.characters, db.characters.portraitPath);
       }
+
+      if (from < 8) {
+        // Repete a coluna da versão 7 de propósito.
+        //
+        // Apareceu banco marcado como versão 7 sem a coluna: o `user_version`
+        // subiu numa execução em que o bloco `from < 7` ainda não existia, e
+        // como o drift só chama `onUpgrade` quando a versão difere, o banco
+        // ficava preso nesse estado para sempre — a leitura funcionava (coluna
+        // ausente vira null) e só o INSERT falhava.
+        //
+        // Não apague achando que é duplicado: `_tryAddColumn` engole o erro de
+        // "coluna já existe", então em banco saudável isso é no-op.
+        await _tryAddColumn(m, db.characters, db.characters.portraitPath);
+      }
     },
     beforeOpen: (details) async {
       // Roda fora da transação de migração, então aqui é seguro usar `db`.
