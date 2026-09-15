@@ -116,7 +116,9 @@ void main() {
       expect(SkillCalculator.passivePerception(character), 13);
     });
 
-    test('exaustão dá desvantagem e reduz os passivos em 5', () {
+    test('exaustão não mexe nos valores passivos', () {
+      // Antes o nível 1 descontava 5, tratando exaustão como desvantagem
+      // permanente em testes. A regra em uso não impõe isso.
       final rested = characterFixture(
         abilityScores: scoresWith(wisdom: 16),
         skillProficiencies: skillsWith(
@@ -132,17 +134,17 @@ void main() {
       );
 
       expect(SkillCalculator.passivePerception(rested), 15);
-      expect(SkillCalculator.passivePerception(tired), 10);
+      expect(SkillCalculator.passivePerception(tired), 15);
     });
 
-    test('a penalidade não se acumula com níveis maiores de exaustão', () {
-      // Desvantagem é desvantagem: -5 uma vez só.
+    test('nível alto de exaustão também não altera o passivo', () {
       final character = characterFixture(
         abilityScores: scoresWith(wisdom: 16),
-        exhaustion: 4,
+        exhaustion: 6,
       );
 
-      expect(SkillCalculator.passivePerception(character), 8);
+      // 10 + SAB +3, sem desconto nenhum.
+      expect(SkillCalculator.passivePerception(character), 13);
     });
 
     test('investigação usa Inteligência e intuição usa Sabedoria', () {

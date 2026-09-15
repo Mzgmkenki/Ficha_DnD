@@ -1,3 +1,4 @@
+import 'package:dnd_ficha_app/core/branding/app_branding.dart';
 import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/core/routing/app_router.dart';
 import 'package:dnd_ficha_app/core/theme/app_theme.dart';
@@ -12,7 +13,7 @@ class DndFichaApp extends ConsumerWidget {
     final router = ref.watch(appRouterProvider);
 
     return MaterialApp(
-      title: 'Ficha D&D 5e',
+      title: AppBranding.appName,
       debugShowCheckedModeBanner: false,
       // Um tema só: a ficha é feita para mesa à noite, e o preto e vermelho é
       // a identidade do app. `darkTheme` também é definido para o sistema não

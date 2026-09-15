@@ -21,12 +21,12 @@ class SkillCalculator {
 
   /// Valor passivo de uma perícia = 10 + bônus da perícia.
   ///
-  /// A exaustão a partir do nível 1 dá desvantagem em testes de perícia, e
-  /// desvantagem reduz valores passivos em 5 (PHB).
+  /// A exaustão não entra na conta. Antes descontava 5 aqui, tratando o nível 1
+  /// como desvantagem permanente em testes de atributo; a regra de exaustão em
+  /// uso não impõe essa penalidade aos valores passivos. Os efeitos da exaustão
+  /// ficam descritos na seção Condições da ficha, sem mexer nos números.
   static int passiveScore(Character character, Skill skill) {
-    final base = 10 + skillBonus(character, skill);
-    final hasDisadvantage = character.exhaustion >= 1;
-    return hasDisadvantage ? base - 5 : base;
+    return 10 + skillBonus(character, skill);
   }
 
   static int passivePerception(Character character) =>

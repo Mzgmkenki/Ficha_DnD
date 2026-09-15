@@ -24,6 +24,7 @@ import 'package:dnd_ficha_app/features/compendium/application/providers/class_pr
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:printing/printing.dart';
 
 class CharacterSheetPage extends ConsumerStatefulWidget {
   const CharacterSheetPage({required this.characterId, super.key});
@@ -41,13 +42,31 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
   /// virarem dois níveis.
   bool _levelingUp = false;
 
+  /// Trava a exportação: gerar o PDF lê o compêndio inteiro e leva um instante.
+  bool _exportingPdf = false;
+
   @override
   Widget build(BuildContext context) {
     final characterAsync = ref.watch(characterByIdProvider(widget.characterId));
     final classesAsync = ref.watch(classEntriesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Ficha do personagem')),
+      appBar: AppBar(
+        title: const Text('Ficha do personagem'),
+        actions: [
+          IconButton(
+            tooltip: 'Exportar em PDF',
+            onPressed: _exportingPdf ? null : _exportPdf,
+            icon: _exportingPdf
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.picture_as_pdf_outlined),
+          ),
+        ],
+      ),
       body: characterAsync.when(
         data: (character) {
           if (character == null) {
@@ -329,6 +348,39 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
 
   Future<void> _openIdentityEditor(Character character) {
     return AppNavigator.toEditIdentity(context, character: character);
+  }
+
+  /// Gera o PDF e entrega ao sistema.
+  ///
+  /// Usa a folha de compartilhamento em vez de gravar num diretório: o jogador
+  /// escolhe onde o arquivo vai parar (nuvem, mensagem, impressora) e o app não
+  /// precisa de permissão de escrita nem de um caminho que ele nunca acha.
+  Future<void> _exportPdf() async {
+    setState(() {
+      _exportingPdf = true;
+    });
+
+    try {
+      final pdf = await ref.read(exportCharacterPdfProvider)(
+        widget.characterId,
+      );
+
+      await Printing.sharePdf(bytes: pdf.bytes, filename: pdf.fileName);
+    } catch (error, stackTrace) {
+      debugPrint('Falha ao exportar o PDF: $error');
+      debugPrintStack(stackTrace: stackTrace);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao gerar o PDF: $error')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _exportingPdf = false;
+        });
+      }
+    }
   }
 
   /// Atalho de subida de nível.

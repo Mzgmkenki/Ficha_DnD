@@ -23,6 +23,12 @@ dependencies:
   path_provider: ^2.1.5
   path: ^1.9.0
 
+  # Exportar a ficha em PDF. `pdf` monta o documento; `printing` entrega ao
+  # sistema (compartilhar, salvar ou imprimir) sem precisarmos escrever num
+  # diretório e depois pedir um app que abra o arquivo.
+  pdf: ^3.13.0
+  printing: ^5.15.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -30,11 +36,40 @@ dev_dependencies:
   build_runner: ^2.5.0
   drift_dev: ^2.32.1
 
+  # Só para o teste conferir os bytes da logo (canal alfa, dimensões, cantos
+  # transparentes). Olhar a arte não distingue fundo transparente de fundo
+  # branco, e a diferença estraga um dos dois usos.
+  image: ^4.5.4
+
+  # Gera os ícones das plataformas a partir de assets/branding/logo_icon.png.
+  # Roda à mão (`flutter pub run flutter_launcher_icons`), não no build.
+  flutter_launcher_icons: ^0.14.4
+
+# Ícone do app. Só tem efeito depois que a logo existir e o comando rodar;
+# ver assets/branding/README.md.
+flutter_launcher_icons:
+  image_path: assets/branding/logo_icon.png
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  web:
+    generate: true
+  # Fundo preto do app onde a plataforma exige opacidade, e o ícone adaptativo
+  # do Android desenhado sobre ele.
+  background_color_ios: '#0A0A0C'
+  adaptive_icon_background: '#0A0A0C'
+  adaptive_icon_foreground: assets/branding/logo_icon.png
+
 flutter:
   uses-material-design: true
   assets:
     - assets/data/srd/
     - assets/data/spells/
+    - assets/branding/
+    # Declarada também aqui, não só em `fonts:`: o PDF lê o TTF por
+    # `rootBundle` para escrever os títulos na mesma fonte da ficha, e o que
+    # está apenas em `fonts:` não é acessível por lá.
+    - assets/fonts/
 
   # Cinzel Decorative (Google Fonts, SIL Open Font License 1.1 - ver
   # assets/fonts/OFL-CinzelDecorative.txt). Só os dois pesos usados nos

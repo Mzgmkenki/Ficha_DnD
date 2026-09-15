@@ -15,7 +15,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>dnd_ficha_app</string>
+	<string>DragonSheet</string>
+	<key>CFBundleDisplayName</key>
+	<string>DragonSheet</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

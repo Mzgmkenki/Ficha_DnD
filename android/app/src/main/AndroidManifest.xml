@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="dnd_ficha_app"
+        android:label="DragonSheet"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

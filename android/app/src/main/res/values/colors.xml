@@ -3,4 +3,5 @@
     <!-- Mesmo preto do AppColors.background, para a abertura do app não dar
          um flash claro antes do tema entrar. -->
     <color name="splash_background">#0A0A0C</color>
+	<color name="ic_launcher_background">#0A0A0C</color>
 </resources>

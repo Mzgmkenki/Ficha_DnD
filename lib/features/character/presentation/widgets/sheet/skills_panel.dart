@@ -69,8 +69,6 @@ class _PassiveScores extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasExhaustion = character.exhaustion >= 1;
-
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12),
@@ -107,14 +105,8 @@ class _PassiveScores extends StatelessWidget {
               ),
             ],
           ),
-          if (hasExhaustion) ...[
-            const SizedBox(height: 8),
-            Text(
-              'Exaustão ${character.exhaustion}: desvantagem em testes '
-              'reduz os valores passivos em 5.',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
+          // A nota de exaustão saiu daqui junto com a penalidade de 5 que ela
+          // explicava. Os efeitos da exaustão ficam na seção Condições.
         ],
       ),
     );

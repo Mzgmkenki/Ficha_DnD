@@ -1,6 +1,7 @@
 import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/export_character.dart';
+import 'package:dnd_ficha_app/features/character/application/use_cases/character/export_character_pdf.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/import_character.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/level_up_character_class.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/sync_subclass_spells.dart';
@@ -17,6 +18,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/character_spell
 import 'package:dnd_ficha_app/features/character/domain/services/active_effects.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/rest_service.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart';
+import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/spell_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/services/spell_name_index.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -63,6 +65,30 @@ final updateCharacterPortraitProvider =
   final repository = ref.watch(characterRepositoryProvider);
   final storage = ref.watch(portraitStorageProvider);
   return UpdateCharacterPortrait(repository, storage);
+});
+
+/// Gera o PDF da ficha, já com o compêndio carregado.
+///
+/// Devolve uma função em vez do caso de uso porque a tela não deveria precisar
+/// saber quais sete listas do compêndio o PDF consome.
+final exportCharacterPdfProvider =
+    Provider<Future<CharacterPdf> Function(String)>((ref) {
+  final repository = ref.watch(characterRepositoryProvider);
+
+  return (String characterId) async {
+    final useCase = ExportCharacterPdf(repository);
+
+    return useCase(
+      characterId: characterId,
+      classes: await ref.read(classEntriesProvider.future),
+      subclasses: await ref.read(subclassEntriesProvider.future),
+      races: await ref.read(raceEntriesProvider.future),
+      backgrounds: await ref.read(backgroundEntriesProvider.future),
+      classFeatures: await ref.read(classFeaturesProvider.future),
+      spells: await ref.read(spellEntriesProvider.future),
+      spellSlots: await ref.read(spellSlotProgressionsProvider.future),
+    );
+  };
 });
 
 final exportCharacterProvider = Provider<ExportCharacter>((ref) {

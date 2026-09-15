@@ -1,10 +1,12 @@
-﻿import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
+﻿import 'package:dnd_ficha_app/core/branding/app_logo.dart';
+import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/data/mappers/character_json_codec.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:printing/printing.dart';
 
 /// Exporta e importa fichas como texto JSON.
 ///
@@ -43,14 +45,16 @@ class _CharacterTransferPageState
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          Center(child: AppLogo(height: 64, opacity: 0.85)),
+          const SizedBox(height: 16),
           Text(
             'Exportar',
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 4),
           Text(
-            'Gera o texto da ficha para você guardar ou enviar. '
-            'Inclui atributos, perícias, magias, itens e moedas.',
+            'Toque no nome para gerar o texto da ficha, ou no ícone de PDF '
+            'para gerar a ficha pronta para imprimir e compartilhar.',
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 12),
@@ -59,6 +63,7 @@ class _CharacterTransferPageState
               characters: characters,
               busy: _exporting,
               onExport: _export,
+              onExportPdf: _exportPdf,
             ),
             error: (error, _) => Text('Erro ao carregar personagens: $error'),
             loading: () => const Center(child: CircularProgressIndicator()),
@@ -172,6 +177,23 @@ class _CharacterTransferPageState
     }
   }
 
+  Future<void> _exportPdf(Character character) async {
+    setState(() => _exporting = true);
+
+    try {
+      final pdf = await ref.read(exportCharacterPdfProvider)(character.id);
+      await Printing.sharePdf(bytes: pdf.bytes, filename: pdf.fileName);
+    } catch (error, stackTrace) {
+      debugPrint('Falha ao exportar o PDF: $error');
+      debugPrintStack(stackTrace: stackTrace);
+
+      if (!mounted) return;
+      _showMessage('Erro ao gerar o PDF: $error');
+    } finally {
+      if (mounted) setState(() => _exporting = false);
+    }
+  }
+
   Future<void> _copyExported() async {
     final json = _exportedJson;
     if (json == null) return;
@@ -238,11 +260,13 @@ class _ExportList extends StatelessWidget {
     required this.characters,
     required this.busy,
     required this.onExport,
+    required this.onExportPdf,
   });
 
   final List<Character> characters;
   final bool busy;
   final ValueChanged<Character> onExport;
+  final ValueChanged<Character> onExportPdf;
 
   @override
   Widget build(BuildContext context) {
@@ -263,7 +287,17 @@ class _ExportList extends StatelessWidget {
             ListTile(
               title: Text(characters[i].name),
               subtitle: Text('Nível ${characters[i].totalLevel}'),
-              trailing: const Icon(Icons.ios_share_outlined),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    tooltip: 'Exportar em PDF',
+                    onPressed: busy ? null : () => onExportPdf(characters[i]),
+                    icon: const Icon(Icons.picture_as_pdf_outlined),
+                  ),
+                  const Icon(Icons.ios_share_outlined),
+                ],
+              ),
               enabled: !busy,
               onTap: busy ? null : () => onExport(characters[i]),
             ),

@@ -1,3 +1,4 @@
+import 'package:dnd_ficha_app/core/branding/app_logo.dart';
 import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
 import 'package:dnd_ficha_app/core/theme/app_colors.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
@@ -18,7 +19,16 @@ class CharacterListPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Personagens'),
+        // A logo entra ao lado do título, não no lugar dele: sozinha ela não
+        // diz em que tela o jogador está.
+        title: const Row(
+          children: [
+            // Só a marca aqui: o wordmark da logo cheia não se lê a 28 px.
+            AppLogo(height: 30, preferIconOnly: true),
+            SizedBox(width: 10),
+            Text('Personagens'),
+          ],
+        ),
         actions: [
           IconButton(
             tooltip: 'Exportar e importar',
@@ -37,8 +47,28 @@ class CharacterListPage extends ConsumerWidget {
           return charactersAsync.when(
             data: (characters) {
               if (characters.isEmpty) {
-                return const Center(
-                  child: Text('Nenhum personagem criado ainda.'),
+                // Tela vazia é onde a marca respira: não há conteúdo para
+                // competir com ela.
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const AppLogo(height: 120, opacity: 0.5),
+                      const SizedBox(height: 20),
+                      Text(
+                        'Nenhum personagem criado ainda.',
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Toque em Novo personagem para começar.',
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(color: AppColors.onDarkVariant),
+                      ),
+                    ],
+                  ),
                 );
               }
 
