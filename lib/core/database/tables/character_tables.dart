@@ -118,6 +118,14 @@ class Characters extends Table {
   /// Níveis de exaustão (0 a 6).
   IntColumn get exhaustion => integer().withDefault(const Constant(0))();
 
+  /// Ids das condições ativas, separados por vírgula (`paralyzed,stunned`).
+  ///
+  /// CSV em vez de tabela filha porque o vocabulário é fixo e pequeno, e o
+  /// conjunto é sempre lido e gravado inteiro. Mesma escolha de
+  /// [customBackgroundSkills]. Exaustão não entra aqui: tem níveis, não
+  /// ligado/desligado, e já mora em [exhaustion].
+  TextColumn get conditions => text().withDefault(const Constant(''))();
+
   /// Dados de vida já gastos desde o último descanso longo.
   IntColumn get hitDiceUsed => integer().withDefault(const Constant(0))();
 

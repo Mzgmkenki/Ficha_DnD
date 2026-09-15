@@ -8,6 +8,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/custom_backgrou
 import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart';
 
 /// Marcador usado no [Character.copyWith] para distinguir "não informado"
 /// de "informado como null".
@@ -35,6 +36,7 @@ class Character {
     this.magicItems = const [],
     this.inspiration = false,
     this.exhaustion = 0,
+    this.conditions = const {},
     this.hitDiceUsed = 0,
     this.currency = const Currency(),
   });
@@ -74,6 +76,13 @@ class Character {
   /// Níveis de exaustão (0 a 6). A partir de 1 já impõe desvantagem em
   /// testes de atributo, o que afeta os valores passivos.
   final int exhaustion;
+
+  /// Condições ativas, como Paralisado ou Atordoado.
+  ///
+  /// Guarda só o que o jogador marcou. As condições que estas arrastam pelas
+  /// regras (Paralisado implica Incapacitado) são derivadas na leitura, por
+  /// `Condition.expand`, para desmarcar a original não deixar sobras.
+  final Set<Condition> conditions;
 
   /// Dados de vida gastos desde o último descanso longo.
   final int hitDiceUsed;
@@ -117,6 +126,7 @@ class Character {
     List<CharacterMagicItem>? magicItems,
     bool? inspiration,
     int? exhaustion,
+    Set<Condition>? conditions,
     int? hitDiceUsed,
     Currency? currency,
     DateTime? createdAt,
@@ -152,6 +162,9 @@ class Character {
       magicItems: magicItems ?? this.magicItems,
       inspiration: inspiration ?? this.inspiration,
       exhaustion: exhaustion ?? this.exhaustion,
+      // Sem sentinela: limpar as condições é passar um conjunto vazio, não
+      // null, então `?? this.conditions` dá conta.
+      conditions: conditions ?? this.conditions,
       hitDiceUsed: hitDiceUsed ?? this.hitDiceUsed,
       currency: currency ?? this.currency,
       createdAt: createdAt ?? this.createdAt,

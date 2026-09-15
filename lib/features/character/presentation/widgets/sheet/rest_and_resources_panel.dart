@@ -52,8 +52,9 @@ class RestAndResourcesPanel extends ConsumerWidget {
               contentPadding: EdgeInsets.zero,
             ),
 
-            const Divider(),
-            _ExhaustionControl(character: character),
+            // A exaustão saiu daqui para a seção Condições: ela é uma condição
+            // com níveis, e os efeitos dela precisavam ficar na mesma lista das
+            // outras para o jogador ler tudo de uma vez.
 
             const Divider(),
             Text(
@@ -207,56 +208,6 @@ class RestAndResourcesPanel extends ConsumerWidget {
   String _signed(int value) => value >= 0 ? '+$value' : '$value';
 }
 
-class _ExhaustionControl extends ConsumerWidget {
-  const _ExhaustionControl({required this.character});
-
-  final Character character;
-
-  /// Efeitos cumulativos por nível (PHB, Apêndice A).
-  static const List<String> _effects = [
-    'Sem exaustão.',
-    'Desvantagem em testes de atributo.',
-    'Deslocamento reduzido à metade.',
-    'Desvantagem em ataques e salvaguardas.',
-    'Pontos de vida máximos reduzidos à metade.',
-    'Deslocamento reduzido a zero.',
-    'Morte.',
-  ];
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final level = character.exhaustion.clamp(0, 6);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Exaustão', style: Theme.of(context).textTheme.labelLarge),
-        const SizedBox(height: 4),
-        Row(
-          children: [
-            IconButton(
-              tooltip: 'Reduzir exaustão',
-              onPressed: level > 0
-                  ? () => ref.read(setExhaustionProvider)(character, level - 1)
-                  : null,
-              icon: const Icon(Icons.remove_circle_outline),
-            ),
-            Text('$level / 6',
-                style: Theme.of(context).textTheme.titleMedium),
-            IconButton(
-              tooltip: 'Aumentar exaustão',
-              onPressed: level < 6
-                  ? () => ref.read(setExhaustionProvider)(character, level + 1)
-                  : null,
-              icon: const Icon(Icons.add_circle_outline),
-            ),
-          ],
-        ),
-        Text(
-          _effects[level],
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-      ],
-    );
-  }
-}
+// O antigo _ExhaustionControl vivia aqui. Foi para conditions_panel.dart, onde
+// a tabela de efeitos passou a ser cumulativa: esta versão mostrava só
+// `_effects[level]`, escondendo os efeitos dos níveis anteriores.

@@ -29,7 +29,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   /// Sem este override o drift usa a estratégia padrão, cujo `onUpgrade`
   /// lança exceção — qualquer base criada numa versão anterior deixaria o

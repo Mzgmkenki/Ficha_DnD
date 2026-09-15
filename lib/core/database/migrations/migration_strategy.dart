@@ -176,6 +176,19 @@ MigrationStrategy buildMigrationStrategy(AppDatabase db) {
           'WHERE speed_meters IS NULL',
         );
       }
+
+      if (from < 10) {
+        // Condições ativas (paralisado, atordoado, etc.), como CSV de ids.
+        await _tryAddColumn(m, db.characters, db.characters.conditions);
+
+        // O ALTER TABLE com DEFAULT já preenche as linhas existentes, mas em
+        // base que veio de uma versão onde a coluna foi criada sem default o
+        // valor fica nulo, e `parseCsv` receberia null. Barato garantir.
+        await _tryQuery(
+          db,
+          "UPDATE characters SET conditions = '' WHERE conditions IS NULL",
+        );
+      }
     },
     beforeOpen: (details) async {
       // Roda fora da transação de migração, então aqui é seguro usar `db`.

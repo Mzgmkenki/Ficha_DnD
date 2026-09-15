@@ -14,7 +14,9 @@ import 'package:dnd_ficha_app/features/character/domain/entities/character.dart'
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item_spell.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/active_effects.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/rest_service.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/spell_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/services/spell_name_index.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -356,7 +358,50 @@ final setExhaustionProvider =
   return (Character character, int level) {
     return repository.update(
       character.copyWith(
-        exhaustion: level.clamp(0, 6),
+        exhaustion: level.clamp(0, ActiveEffects.maxExhaustion),
+        updatedAt: DateTime.now(),
+      ),
+    );
+  };
+});
+
+/// Marca ou desmarca uma condição.
+///
+/// Grava só o que o jogador escolheu. As condições implicadas pelas regras
+/// (Paralisado arrasta Incapacitado) não são gravadas: a ficha as deriva na
+/// leitura, senão desmarcar Paralisado deixaria Incapacitado para trás.
+final toggleConditionProvider =
+    Provider<Future<void> Function(Character, Condition)>((ref) {
+  final repository = ref.watch(characterRepositoryProvider);
+
+  return (Character character, Condition condition) {
+    final updated = {...character.conditions};
+
+    if (!updated.remove(condition)) {
+      updated.add(condition);
+    }
+
+    return repository.update(
+      character.copyWith(
+        conditions: updated,
+        updatedAt: DateTime.now(),
+      ),
+    );
+  };
+});
+
+/// Desmarca todas as condições de uma vez.
+///
+/// Existe porque no fim de um combate o jogador costuma sair de várias ao
+/// mesmo tempo, e desmarcar uma a uma seriam vários toques e várias gravações.
+final clearConditionsProvider =
+    Provider<Future<void> Function(Character)>((ref) {
+  final repository = ref.watch(characterRepositoryProvider);
+
+  return (Character character) {
+    return repository.update(
+      character.copyWith(
+        conditions: const {},
         updatedAt: DateTime.now(),
       ),
     );

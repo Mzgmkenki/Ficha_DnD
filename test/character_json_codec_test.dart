@@ -12,6 +12,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/custom_backgrou
 import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/proficiency_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/spellcasting_type.dart';
@@ -50,6 +51,7 @@ Character _fullCharacter() {
       Skill.arcana: ProficiencyLevel.half,
     }),
     exhaustion: 2,
+    conditions: const {Condition.paralyzed, Condition.poisoned},
     hitDiceUsed: 3,
   ).copyWith(
     playerName: 'Marcos',
@@ -240,6 +242,7 @@ void main() {
 
       expect(restored.inspiration, isTrue);
       expect(restored.exhaustion, 2);
+      expect(restored.conditions, {Condition.paralyzed, Condition.poisoned});
       expect(restored.hitDiceUsed, 3);
       expect(restored.currency.copper, 5);
       expect(restored.currency.silver, 4);
@@ -455,6 +458,32 @@ void main() {
       });
 
       expect(restored.exhaustion, 6);
+    });
+
+    test('condição desconhecida no arquivo é ignorada', () {
+      // Arquivo de uma versão mais nova do app não pode travar a importação.
+      final restored = decodeMinimal({
+        'id': 'x',
+        'name': 'Vex',
+        'classLevels': [
+          {'classId': 'fighter', 'level': 1},
+        ],
+        'conditions': ['poisoned', 'enfeitiçado_de_lua'],
+      });
+
+      expect(restored.conditions, {Condition.poisoned});
+    });
+
+    test('arquivo antigo sem conditions abre sem condição', () {
+      final restored = decodeMinimal({
+        'id': 'x',
+        'name': 'Vex',
+        'classLevels': [
+          {'classId': 'fighter', 'level': 1},
+        ],
+      });
+
+      expect(restored.conditions, isEmpty);
     });
 
     test('nível de classe fora de 1..20 é ajustado', () {

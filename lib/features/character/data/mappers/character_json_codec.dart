@@ -13,6 +13,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart
 import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/proficiency_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/spellcasting_type.dart';
@@ -192,6 +193,12 @@ class CharacterJsonCodec {
       ],
       'inspiration': character.inspiration,
       'exhaustion': character.exhaustion,
+      // Lista de ids, não CSV: dentro do JSON um array é o formato natural, e
+      // o CSV é detalhe da coluna do banco.
+      'conditions': Condition.values
+          .where(character.conditions.contains)
+          .map((item) => item.id)
+          .toList(growable: false),
       'hitDiceUsed': character.hitDiceUsed,
       'currency': <String, dynamic>{
         'copper': character.currency.copper,
@@ -257,6 +264,7 @@ class CharacterJsonCodec {
       magicItems: _parseMagicItems(map['magicItems']),
       inspiration: _asBool(map['inspiration']),
       exhaustion: (_asInt(map['exhaustion']) ?? 0).clamp(0, 6),
+      conditions: _parseConditions(map['conditions']),
       hitDiceUsed: (_asInt(map['hitDiceUsed']) ?? 0).clamp(0, 20),
       currency: _parseCurrency(map['currency']),
       // Importar cria uma ficha nova: a data de criação é a de agora, mas a
@@ -357,6 +365,19 @@ class CharacterJsonCodec {
     }
 
     return SkillProficiencies(levels: levels);
+  }
+
+  /// Ids desconhecidos são descartados, como em [_parseSkills]: arquivo de uma
+  /// versão futura, ou editado à mão, não pode derrubar a importação.
+  static Set<Condition> _parseConditions(Object? raw) {
+    final result = <Condition>{};
+
+    for (final id in _asStringList(raw)) {
+      final condition = Condition.fromId(id);
+      if (condition != null) result.add(condition);
+    }
+
+    return result;
   }
 
   static List<CharacterSpell> _parseSpells(Object? raw) {

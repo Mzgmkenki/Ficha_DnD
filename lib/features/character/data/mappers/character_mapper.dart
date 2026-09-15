@@ -9,6 +9,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart
 import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/proficiency_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/spellcasting_type.dart';
@@ -104,6 +105,7 @@ class CharacterMapper {
 
       inspiration: character.inspiration,
       exhaustion: character.exhaustion,
+      conditions: Condition.parseCsv(character.conditions),
       hitDiceUsed: character.hitDiceUsed,
 
       currency: Currency(

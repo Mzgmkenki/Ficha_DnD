@@ -5,6 +5,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dar
 import 'package:dnd_ficha_app/features/character/domain/entities/combat_stats.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/proficiency_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 
@@ -52,6 +53,7 @@ Character characterFixture({
   SkillProficiencies skillProficiencies = const SkillProficiencies(),
   List<CharacterSpell> spells = const [],
   int exhaustion = 0,
+  Set<Condition> conditions = const {},
   int hitDiceUsed = 0,
 }) {
   final now = DateTime(2026, 1, 1);
@@ -70,6 +72,7 @@ Character characterFixture({
     skillProficiencies: skillProficiencies,
     spells: spells,
     exhaustion: exhaustion,
+    conditions: conditions,
     hitDiceUsed: hitDiceUsed,
     createdAt: now,
     updatedAt: now,

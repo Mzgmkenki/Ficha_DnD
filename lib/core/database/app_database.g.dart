@@ -866,6 +866,18 @@ class $CharactersTable extends Characters
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _conditionsMeta = const VerificationMeta(
+    'conditions',
+  );
+  @override
+  late final GeneratedColumn<String> conditions = GeneratedColumn<String>(
+    'conditions',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
   static const VerificationMeta _hitDiceUsedMeta = const VerificationMeta(
     'hitDiceUsed',
   );
@@ -1029,6 +1041,7 @@ class $CharactersTable extends Characters
     lvlSurvival,
     inspiration,
     exhaustion,
+    conditions,
     hitDiceUsed,
     copperPieces,
     silverPieces,
@@ -1600,6 +1613,12 @@ class $CharactersTable extends Characters
         exhaustion.isAcceptableOrUnknown(data['exhaustion']!, _exhaustionMeta),
       );
     }
+    if (data.containsKey('conditions')) {
+      context.handle(
+        _conditionsMeta,
+        conditions.isAcceptableOrUnknown(data['conditions']!, _conditionsMeta),
+      );
+    }
     if (data.containsKey('hit_dice_used')) {
       context.handle(
         _hitDiceUsedMeta,
@@ -2005,6 +2024,11 @@ class $CharactersTable extends Characters
             DriftSqlType.int,
             data['${effectivePrefix}exhaustion'],
           )!,
+      conditions:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}conditions'],
+          )!,
       hitDiceUsed:
           attachedDatabase.typeMapping.read(
             DriftSqlType.int,
@@ -2139,6 +2163,14 @@ class Character extends DataClass implements Insertable<Character> {
   /// Níveis de exaustão (0 a 6).
   final int exhaustion;
 
+  /// Ids das condições ativas, separados por vírgula (`paralyzed,stunned`).
+  ///
+  /// CSV em vez de tabela filha porque o vocabulário é fixo e pequeno, e o
+  /// conjunto é sempre lido e gravado inteiro. Mesma escolha de
+  /// [customBackgroundSkills]. Exaustão não entra aqui: tem níveis, não
+  /// ligado/desligado, e já mora em [exhaustion].
+  final String conditions;
+
   /// Dados de vida já gastos desde o último descanso longo.
   final int hitDiceUsed;
   final int copperPieces;
@@ -2216,6 +2248,7 @@ class Character extends DataClass implements Insertable<Character> {
     required this.lvlSurvival,
     required this.inspiration,
     required this.exhaustion,
+    required this.conditions,
     required this.hitDiceUsed,
     required this.copperPieces,
     required this.silverPieces,
@@ -2309,6 +2342,7 @@ class Character extends DataClass implements Insertable<Character> {
     map['lvl_survival'] = Variable<int>(lvlSurvival);
     map['inspiration'] = Variable<bool>(inspiration);
     map['exhaustion'] = Variable<int>(exhaustion);
+    map['conditions'] = Variable<String>(conditions);
     map['hit_dice_used'] = Variable<int>(hitDiceUsed);
     map['copper_pieces'] = Variable<int>(copperPieces);
     map['silver_pieces'] = Variable<int>(silverPieces);
@@ -2407,6 +2441,7 @@ class Character extends DataClass implements Insertable<Character> {
       lvlSurvival: Value(lvlSurvival),
       inspiration: Value(inspiration),
       exhaustion: Value(exhaustion),
+      conditions: Value(conditions),
       hitDiceUsed: Value(hitDiceUsed),
       copperPieces: Value(copperPieces),
       silverPieces: Value(silverPieces),
@@ -2499,6 +2534,7 @@ class Character extends DataClass implements Insertable<Character> {
       lvlSurvival: serializer.fromJson<int>(json['lvlSurvival']),
       inspiration: serializer.fromJson<bool>(json['inspiration']),
       exhaustion: serializer.fromJson<int>(json['exhaustion']),
+      conditions: serializer.fromJson<String>(json['conditions']),
       hitDiceUsed: serializer.fromJson<int>(json['hitDiceUsed']),
       copperPieces: serializer.fromJson<int>(json['copperPieces']),
       silverPieces: serializer.fromJson<int>(json['silverPieces']),
@@ -2584,6 +2620,7 @@ class Character extends DataClass implements Insertable<Character> {
       'lvlSurvival': serializer.toJson<int>(lvlSurvival),
       'inspiration': serializer.toJson<bool>(inspiration),
       'exhaustion': serializer.toJson<int>(exhaustion),
+      'conditions': serializer.toJson<String>(conditions),
       'hitDiceUsed': serializer.toJson<int>(hitDiceUsed),
       'copperPieces': serializer.toJson<int>(copperPieces),
       'silverPieces': serializer.toJson<int>(silverPieces),
@@ -2663,6 +2700,7 @@ class Character extends DataClass implements Insertable<Character> {
     int? lvlSurvival,
     bool? inspiration,
     int? exhaustion,
+    String? conditions,
     int? hitDiceUsed,
     int? copperPieces,
     int? silverPieces,
@@ -2744,6 +2782,7 @@ class Character extends DataClass implements Insertable<Character> {
     lvlSurvival: lvlSurvival ?? this.lvlSurvival,
     inspiration: inspiration ?? this.inspiration,
     exhaustion: exhaustion ?? this.exhaustion,
+    conditions: conditions ?? this.conditions,
     hitDiceUsed: hitDiceUsed ?? this.hitDiceUsed,
     copperPieces: copperPieces ?? this.copperPieces,
     silverPieces: silverPieces ?? this.silverPieces,
@@ -2962,6 +3001,8 @@ class Character extends DataClass implements Insertable<Character> {
           data.inspiration.present ? data.inspiration.value : this.inspiration,
       exhaustion:
           data.exhaustion.present ? data.exhaustion.value : this.exhaustion,
+      conditions:
+          data.conditions.present ? data.conditions.value : this.conditions,
       hitDiceUsed:
           data.hitDiceUsed.present ? data.hitDiceUsed.value : this.hitDiceUsed,
       copperPieces:
@@ -3057,6 +3098,7 @@ class Character extends DataClass implements Insertable<Character> {
           ..write('lvlSurvival: $lvlSurvival, ')
           ..write('inspiration: $inspiration, ')
           ..write('exhaustion: $exhaustion, ')
+          ..write('conditions: $conditions, ')
           ..write('hitDiceUsed: $hitDiceUsed, ')
           ..write('copperPieces: $copperPieces, ')
           ..write('silverPieces: $silverPieces, ')
@@ -3138,6 +3180,7 @@ class Character extends DataClass implements Insertable<Character> {
     lvlSurvival,
     inspiration,
     exhaustion,
+    conditions,
     hitDiceUsed,
     copperPieces,
     silverPieces,
@@ -3218,6 +3261,7 @@ class Character extends DataClass implements Insertable<Character> {
           other.lvlSurvival == this.lvlSurvival &&
           other.inspiration == this.inspiration &&
           other.exhaustion == this.exhaustion &&
+          other.conditions == this.conditions &&
           other.hitDiceUsed == this.hitDiceUsed &&
           other.copperPieces == this.copperPieces &&
           other.silverPieces == this.silverPieces &&
@@ -3296,6 +3340,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
   final Value<int> lvlSurvival;
   final Value<bool> inspiration;
   final Value<int> exhaustion;
+  final Value<String> conditions;
   final Value<int> hitDiceUsed;
   final Value<int> copperPieces;
   final Value<int> silverPieces;
@@ -3373,6 +3418,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.lvlSurvival = const Value.absent(),
     this.inspiration = const Value.absent(),
     this.exhaustion = const Value.absent(),
+    this.conditions = const Value.absent(),
     this.hitDiceUsed = const Value.absent(),
     this.copperPieces = const Value.absent(),
     this.silverPieces = const Value.absent(),
@@ -3451,6 +3497,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.lvlSurvival = const Value.absent(),
     this.inspiration = const Value.absent(),
     this.exhaustion = const Value.absent(),
+    this.conditions = const Value.absent(),
     this.hitDiceUsed = const Value.absent(),
     this.copperPieces = const Value.absent(),
     this.silverPieces = const Value.absent(),
@@ -3532,6 +3579,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Expression<int>? lvlSurvival,
     Expression<bool>? inspiration,
     Expression<int>? exhaustion,
+    Expression<String>? conditions,
     Expression<int>? hitDiceUsed,
     Expression<int>? copperPieces,
     Expression<int>? silverPieces,
@@ -3616,6 +3664,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       if (lvlSurvival != null) 'lvl_survival': lvlSurvival,
       if (inspiration != null) 'inspiration': inspiration,
       if (exhaustion != null) 'exhaustion': exhaustion,
+      if (conditions != null) 'conditions': conditions,
       if (hitDiceUsed != null) 'hit_dice_used': hitDiceUsed,
       if (copperPieces != null) 'copper_pieces': copperPieces,
       if (silverPieces != null) 'silver_pieces': silverPieces,
@@ -3696,6 +3745,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Value<int>? lvlSurvival,
     Value<bool>? inspiration,
     Value<int>? exhaustion,
+    Value<String>? conditions,
     Value<int>? hitDiceUsed,
     Value<int>? copperPieces,
     Value<int>? silverPieces,
@@ -3776,6 +3826,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       lvlSurvival: lvlSurvival ?? this.lvlSurvival,
       inspiration: inspiration ?? this.inspiration,
       exhaustion: exhaustion ?? this.exhaustion,
+      conditions: conditions ?? this.conditions,
       hitDiceUsed: hitDiceUsed ?? this.hitDiceUsed,
       copperPieces: copperPieces ?? this.copperPieces,
       silverPieces: silverPieces ?? this.silverPieces,
@@ -3998,6 +4049,9 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     if (exhaustion.present) {
       map['exhaustion'] = Variable<int>(exhaustion.value);
     }
+    if (conditions.present) {
+      map['conditions'] = Variable<String>(conditions.value);
+    }
     if (hitDiceUsed.present) {
       map['hit_dice_used'] = Variable<int>(hitDiceUsed.value);
     }
@@ -4098,6 +4152,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
           ..write('lvlSurvival: $lvlSurvival, ')
           ..write('inspiration: $inspiration, ')
           ..write('exhaustion: $exhaustion, ')
+          ..write('conditions: $conditions, ')
           ..write('hitDiceUsed: $hitDiceUsed, ')
           ..write('copperPieces: $copperPieces, ')
           ..write('silverPieces: $silverPieces, ')
@@ -7161,6 +7216,7 @@ typedef $$CharactersTableCreateCompanionBuilder =
       Value<int> lvlSurvival,
       Value<bool> inspiration,
       Value<int> exhaustion,
+      Value<String> conditions,
       Value<int> hitDiceUsed,
       Value<int> copperPieces,
       Value<int> silverPieces,
@@ -7240,6 +7296,7 @@ typedef $$CharactersTableUpdateCompanionBuilder =
       Value<int> lvlSurvival,
       Value<bool> inspiration,
       Value<int> exhaustion,
+      Value<String> conditions,
       Value<int> hitDiceUsed,
       Value<int> copperPieces,
       Value<int> silverPieces,
@@ -7703,6 +7760,11 @@ class $$CharactersTableFilterComposer
 
   ColumnFilters<int> get exhaustion => $composableBuilder(
     column: $table.exhaustion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get conditions => $composableBuilder(
+    column: $table.conditions,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -8193,6 +8255,11 @@ class $$CharactersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get conditions => $composableBuilder(
+    column: $table.conditions,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get hitDiceUsed => $composableBuilder(
     column: $table.hitDiceUsed,
     builder: (column) => ColumnOrderings(column),
@@ -8556,6 +8623,11 @@ class $$CharactersTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get conditions => $composableBuilder(
+    column: $table.conditions,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<int> get hitDiceUsed => $composableBuilder(
     column: $table.hitDiceUsed,
     builder: (column) => column,
@@ -8797,6 +8869,7 @@ class $$CharactersTableTableManager
                 Value<int> lvlSurvival = const Value.absent(),
                 Value<bool> inspiration = const Value.absent(),
                 Value<int> exhaustion = const Value.absent(),
+                Value<String> conditions = const Value.absent(),
                 Value<int> hitDiceUsed = const Value.absent(),
                 Value<int> copperPieces = const Value.absent(),
                 Value<int> silverPieces = const Value.absent(),
@@ -8874,6 +8947,7 @@ class $$CharactersTableTableManager
                 lvlSurvival: lvlSurvival,
                 inspiration: inspiration,
                 exhaustion: exhaustion,
+                conditions: conditions,
                 hitDiceUsed: hitDiceUsed,
                 copperPieces: copperPieces,
                 silverPieces: silverPieces,
@@ -8953,6 +9027,7 @@ class $$CharactersTableTableManager
                 Value<int> lvlSurvival = const Value.absent(),
                 Value<bool> inspiration = const Value.absent(),
                 Value<int> exhaustion = const Value.absent(),
+                Value<String> conditions = const Value.absent(),
                 Value<int> hitDiceUsed = const Value.absent(),
                 Value<int> copperPieces = const Value.absent(),
                 Value<int> silverPieces = const Value.absent(),
@@ -9030,6 +9105,7 @@ class $$CharactersTableTableManager
                 lvlSurvival: lvlSurvival,
                 inspiration: inspiration,
                 exhaustion: exhaustion,
+                conditions: conditions,
                 hitDiceUsed: hitDiceUsed,
                 copperPieces: copperPieces,
                 silverPieces: silverPieces,

@@ -9,6 +9,8 @@ import 'package:dnd_ficha_app/features/character/domain/entities/character_magic
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart'
     as domain_spells;
 import 'package:dnd_ficha_app/features/character/domain/repositories/character_repository.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart'
+    as domain_condition;
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart'
     as domain_skill;
 import 'package:drift/drift.dart' as drift;
@@ -120,6 +122,8 @@ class CharacterRepositoryImpl implements CharacterRepository {
               lvlSurvival: drift.Value(_lvl(character, domain_skill.Skill.survival)),
               inspiration: drift.Value(character.inspiration),
               exhaustion: drift.Value(character.exhaustion),
+              conditions:
+                  drift.Value(domain_condition.Condition.toCsv(character.conditions)),
               hitDiceUsed: drift.Value(character.hitDiceUsed),
               copperPieces: drift.Value(character.currency.copper),
               silverPieces: drift.Value(character.currency.silver),
@@ -463,6 +467,8 @@ class CharacterRepositoryImpl implements CharacterRepository {
           lvlSurvival: drift.Value(_lvl(character, domain_skill.Skill.survival)),
           inspiration: drift.Value(character.inspiration),
           exhaustion: drift.Value(character.exhaustion),
+          conditions:
+              drift.Value(domain_condition.Condition.toCsv(character.conditions)),
           hitDiceUsed: drift.Value(character.hitDiceUsed),
           copperPieces: drift.Value(character.currency.copper),
           silverPieces: drift.Value(character.currency.silver),
