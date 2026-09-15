@@ -1,6 +1,6 @@
 import 'package:dnd_ficha_app/features/character/domain/entities/custom_background.dart';
 import 'package:dnd_ficha_app/features/character/domain/repositories/character_repository.dart';
-import 'package:dnd_ficha_app/features/character/domain/value_objects/proficiency_level.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/granted_skills.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_entry.dart';
 
@@ -35,12 +35,10 @@ class UpdateCharacterIdentity {
     final effectiveCustomBackground =
         isCustom ? customBackground : const CustomBackground();
 
-    var skills = character.skillProficiencies;
-    for (final skill in grantedSkills) {
-      if (!skills.levelFor(skill).isProficientOrBetter) {
-        skills = skills.withLevel(skill, ProficiencyLevel.proficient);
-      }
-    }
+    final skills = GrantedSkills.apply(
+      character.skillProficiencies,
+      grantedSkills,
+    );
 
     final updatedCharacter = character.copyWith(
       name: name,

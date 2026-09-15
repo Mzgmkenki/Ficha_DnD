@@ -1,0 +1,1108 @@
+[
+  {
+    "id": "actor",
+    "name": "Ator",
+    "name_original": "Actor",
+    "description": "Carisma +1. Vantagem em Enganação e Atuação ao se passar por outra pessoa. Depois de ouvir alguém por 1 minuto, pode imitar sua fala; quem ouvir percebe vencendo Intuição contra sua Enganação.",
+    "prerequisite": "Nenhum",
+    "ability_increases": { "charisma": 1 },
+    "source": "phb"
+  },
+  {
+    "id": "alert",
+    "name": "Alerta",
+    "name_original": "Alert",
+    "description": "+5 em iniciativa. Consciente, não pode ser Surpreendido. Criaturas não ganham vantagem contra você só por estarem ocultas de você.",
+    "prerequisite": "Nenhum",
+    "source": "phb"
+  },
+  {
+    "id": "athlete",
+    "name": "Atleta",
+    "name_original": "Athlete",
+    "description": "Força ou Destreza +1. Levantar-se de Caído custa 1,5 m. Escalar não exige deslocamento extra. Salto com corrida exige só 1,5 m de corrida prévia.",
+    "prerequisite": "Nenhum",
+    "ability_increase_options": ["strength", "dexterity"],
+    "source": "phb"
+  },
+  {
+    "id": "charger",
+    "name": "Investida",
+    "name_original": "Charger",
+    "description": "Depois de Disparar, pode usar ação bônus para um ataque corpo a corpo ou Empurrar. Se andou 3 m em linha reta antes: +5 de dano no acerto, ou 3 m extras no empurrão.",
+    "prerequisite": "Nenhum",
+    "source": "phb"
+  },
+  {
+    "id": "crossbow_expert",
+    "name": "Especialista em Besta",
+    "name_original": "Crossbow Expert",
+    "description": "Ignora Recarga das bestas em que é proficiente. Inimigo a 1,5 m não impõe desvantagem nos ataques à distância. Atacando com arma de uma mão, pode usar ação bônus para atacar com besta de mão.",
+    "prerequisite": "Nenhum",
+    "source": "phb"
+  },
+  {
+    "id": "defensive_duelist",
+    "name": "Duelista Defensivo",
+    "name_original": "Defensive Duelist",
+    "description": "Reação: quando é acertado por ataque corpo a corpo empunhando arma de Acuidade em que é proficiente, soma seu Bônus de Proficiência à CA contra aquele ataque, podendo fazê-lo errar.",
+    "prerequisite": "Destreza 13 ou maior",
+    "requires": { "min_ability_any": { "dexterity": 13 } },
+    "source": "phb"
+  },
+  {
+    "id": "dual_wielder",
+    "name": "Empunhador Duplo",
+    "name_original": "Dual Wielder",
+    "description": "+1 na CA empunhando arma corpo a corpo em cada mão. Combate com Duas Armas mesmo sem a propriedade Leve. Saca ou guarda duas armas de uma mão de uma vez.",
+    "prerequisite": "Nenhum",
+    "source": "phb"
+  },
+  {
+    "id": "dungeon_delver",
+    "name": "Explorador de Masmorras",
+    "name_original": "Dungeon Delver",
+    "description": "Vantagem para detectar portas secretas e contra armadilhas. Resistência a dano de armadilha. Ritmo rápido não penaliza sua Percepção passiva.",
+    "prerequisite": "Nenhum",
+    "source": "phb"
+  },
+  {
+    "id": "durable",
+    "name": "Durável",
+    "name_original": "Durable",
+    "description": "Constituição +1. Ao gastar Dado de Vida, o mínimo recuperado é 2x seu modificador de Constituição, mínimo 2.",
+    "prerequisite": "Nenhum",
+    "ability_increases": { "constitution": 1 },
+    "source": "phb"
+  },
+  {
+    "id": "elemental_adept",
+    "name": "Adepto Elemental",
+    "name_original": "Elemental Adept",
+    "description": "Escolha ácido, frio, fogo, elétrico ou trovejante. Suas magias ignoram resistência a esse tipo, e cada 1 nos dados de dano vira 2. Não ignora imunidade.",
+    "prerequisite": "Capacidade de conjurar pelo menos uma magia",
+    "requires": { "spellcasting": true },
+    "repeatable": true,
+    "source": "phb"
+  },
+  {
+    "id": "grappler",
+    "name": "Agarrador",
+    "name_original": "Grappler",
+    "description": "Vantagem nos ataques contra criatura que você agarra. Agarrando, pode usar sua ação para outro teste de agarrar; em sucesso os dois ficam Restringidos.",
+    "prerequisite": "Força 13 ou maior",
+    "requires": { "min_ability_any": { "strength": 13 } },
+    "source": "phb"
+  },
+  {
+    "id": "great_weapon_master",
+    "name": "Mestre de Armas Grandes",
+    "name_original": "Great Weapon Master",
+    "description": "Crítico ou reduzir alguém a 0 PV corpo a corpo dá ataque de ação bônus. Com arma Pesada, pode aceitar -5 no ataque para +10 de dano.",
+    "prerequisite": "Nenhum",
+    "source": "phb"
+  },
+  {
+    "id": "healer",
+    "name": "Curandeiro",
+    "name_original": "Healer",
+    "description": "Estabilizar com kit de curandeiro devolve 1 PV. Como ação, gasta um uso do kit para restaurar 1d6 + 4 + o total de Dados de Vida da criatura; uma vez por descanso por criatura.",
+    "prerequisite": "Nenhum",
+    "source": "phb"
+  },
+  {
+    "id": "heavily_armored",
+    "name": "Fortemente Armadurado",
+    "name_original": "Heavily Armored",
+    "description": "Força +1 e proficiência com armaduras pesadas.",
+    "prerequisite": "Proficiência com armaduras médias",
+    "requires": { "notes": ["proficiência com armaduras médias"] },
+    "ability_increases": { "strength": 1 },
+    "source": "phb"
+  },
+  {
+    "id": "heavy_armor_master",
+    "name": "Mestre de Armadura Pesada",
+    "name_original": "Heavy Armor Master",
+    "description": "Força +1. Em armadura pesada, reduz em 3 o dano contundente, perfurante e cortante de ataques não mágicos.",
+    "prerequisite": "Proficiência com armaduras pesadas",
+    "requires": { "notes": ["proficiência com armaduras pesadas"] },
+    "ability_increases": { "strength": 1 },
+    "source": "phb"
+  },
+  {
+    "id": "inspiring_leader",
+    "name": "Líder Inspirador",
+    "name_original": "Inspiring Leader",
+    "description": "Com 10 minutos de discurso, até 6 criaturas a 9 m recebem PV temporários iguais ao seu nível + modificador de Carisma. Uma vez por descanso por criatura.",
+    "prerequisite": "Carisma 13 ou maior",
+    "requires": { "min_ability_any": { "charisma": 13 } },
+    "source": "phb"
+  },
+  {
+    "id": "keen_mind",
+    "name": "Mente Aguçada",
+    "name_original": "Keen Mind",
+    "description": "Inteligência +1. Sempre sabe onde é o norte e quanto falta para o nascer ou pôr do sol. Lembra com precisão de tudo que viu ou ouviu no último mês.",
+    "prerequisite": "Nenhum",
+    "ability_increases": { "intelligence": 1 },
+    "source": "phb"
+  },
+  {
+    "id": "lightly_armored",
+    "name": "Levemente Armadurado",
+    "name_original": "Lightly Armored",
+    "description": "Força ou Destreza +1 e proficiência com armaduras leves.",
+    "prerequisite": "Nenhum",
+    "ability_increase_options": ["strength", "dexterity"],
+    "source": "phb"
+  },
+  {
+    "id": "linguist",
+    "name": "Linguista",
+    "name_original": "Linguist",
+    "description": "Inteligência +1. Aprende 3 idiomas. Cria cifras escritas que exigem Inteligência contra CD igual ao seu valor de Inteligência + Bônus de Proficiência.",
+    "prerequisite": "Nenhum",
+    "ability_increases": { "intelligence": 1 },
+    "source": "phb"
+  },
+  {
+    "id": "lucky",
+    "name": "Sortudo",
+    "name_original": "Lucky",
+    "description": "3 pontos de sorte por descanso longo. Gasta 1 para rolar um d20 extra num ataque, teste ou resistência sua, ou num ataque feito contra você, e escolher o resultado.",
+    "prerequisite": "Nenhum",
+    "source": "phb"
+  },
+  {
+    "id": "mage_slayer",
+    "name": "Matador de Magos",
+    "name_original": "Mage Slayer",
+    "description": "Reação para atacar quem conjura a 1,5 m. Dano seu dá desvantagem no teste de Concentração. Vantagem contra magias conjuradas a até 1,5 m.",
+    "prerequisite": "Nenhum",
+    "source": "phb"
+  },
+  {
+    "id": "magic_initiate",
+    "name": "Iniciado em Magia",
+    "name_original": "Magic Initiate",
+    "description": "Escolha Bardo, Clérigo, Druida, Feiticeiro, Bruxo ou Mago: aprende 2 truques e 1 magia de 1º nível daquela lista, conjurável uma vez por descanso longo sem gastar espaço.",
+    "prerequisite": "Nenhum",
+    "repeatable": true,
+    "source": "phb"
+  },
+  {
+    "id": "martial_adept",
+    "name": "Adepto Marcial",
+    "name_original": "Martial Adept",
+    "description": "Aprende 2 manobras de Mestre de Batalha e ganha 1 Dado de Superioridade d6, recuperado em descanso curto ou longo.",
+    "prerequisite": "Nenhum",
+    "source": "phb"
+  },
+  {
+    "id": "medium_armor_master",
+    "name": "Mestre de Armadura Média",
+    "name_original": "Medium Armor Master",
+    "description": "Armadura média não impõe desvantagem em Furtividade, e permite aplicar até +3 de Destreza à CA em vez de +2.",
+    "prerequisite": "Proficiência com armaduras médias",
+    "requires": { "notes": ["proficiência com armaduras médias"] },
+    "source": "phb"
+  },
+  {
+    "id": "mobile",
+    "name": "Móvel",
+    "name_original": "Mobile",
+    "description": "Deslocamento +3 m. Ao Disparar, terreno difícil não custa extra. Depois de atacar corpo a corpo alguém, não provoca ataque de oportunidade daquela criatura no resto do turno.",
+    "prerequisite": "Nenhum",
+    "source": "phb"
+  },
+  {
+    "id": "moderately_armored",
+    "name": "Moderadamente Armadurado",
+    "name_original": "Moderately Armored",
+    "description": "Força ou Destreza +1 e proficiência com armaduras médias e escudos.",
+    "prerequisite": "Proficiência com armaduras leves",
+    "requires": { "notes": ["proficiência com armaduras leves"] },
+    "ability_increase_options": ["strength", "dexterity"],
+    "source": "phb"
+  },
+  {
+    "id": "mounted_combatant",
+    "name": "Combatente Montado",
+    "name_original": "Mounted Combatant",
+    "description": "Montado e não Incapacitado: vantagem contra criaturas desmontadas menores que a montaria, pode redirecionar para si ataques contra ela, e ela sofre 0 dano em resistências de Destreza bem-sucedidas.",
+    "prerequisite": "Nenhum",
+    "source": "phb"
+  },
+  {
+    "id": "observant",
+    "name": "Observador",
+    "name_original": "Observant",
+    "description": "Inteligência ou Sabedoria +1. Lê lábios de quem você vê e entende o idioma. +5 em Percepção passiva e em Investigação passiva.",
+    "prerequisite": "Nenhum",
+    "ability_increase_options": ["intelligence", "wisdom"],
+    "source": "phb"
+  },
+  {
+    "id": "polearm_master",
+    "name": "Mestre de Armas de Haste",
+    "name_original": "Polearm Master",
+    "description": "Atacando só com glaive, alabarda, bordão ou lança, ação bônus para atacar com a extremidade (1d4 contundente). Empunhando essas armas ou pique, criaturas provocam ataque de oportunidade ao entrar no seu alcance.",
+    "prerequisite": "Nenhum",
+    "source": "phb"
+  },
+  {
+    "id": "resilient",
+    "name": "Resiliente",
+    "name_original": "Resilient",
+    "description": "Escolha um atributo: ele aumenta em 1 e você ganha proficiência nos testes de resistência dele.",
+    "prerequisite": "Nenhum",
+    "ability_increase_options": [
+      "strength",
+      "dexterity",
+      "constitution",
+      "intelligence",
+      "wisdom",
+      "charisma"
+    ],
+    "repeatable": true,
+    "source": "phb"
+  },
+  {
+    "id": "ritual_caster",
+    "name": "Conjurador Ritual",
+    "name_original": "Ritual Caster",
+    "description": "Escolha uma classe conjuradora e receba um livro com 2 magias de 1º nível com a etiqueta Ritual dela, conjuráveis como ritual. Pode copiar outros rituais da mesma classe.",
+    "prerequisite": "Inteligência 13 ou Sabedoria 13",
+    "requires": { "min_ability_any": { "intelligence": 13, "wisdom": 13 } },
+    "source": "phb"
+  },
+  {
+    "id": "savage_attacker",
+    "name": "Atacante Selvagem",
+    "name_original": "Savage Attacker",
+    "description": "Uma vez por turno, pode rolar novamente os dados de dano da arma num ataque corpo a corpo e usar qualquer um dos totais.",
+    "prerequisite": "Nenhum",
+    "source": "phb"
+  },
+  {
+    "id": "sentinel",
+    "name": "Sentinela",
+    "name_original": "Sentinel",
+    "description": "Acerto em ataque de oportunidade zera o deslocamento do alvo. Desengajar não evita seu ataque de oportunidade. Reação para atacar quem, a 1,5 m, ataca outro alvo.",
+    "prerequisite": "Nenhum",
+    "source": "phb"
+  },
+  {
+    "id": "sharpshooter",
+    "name": "Atirador de Elite",
+    "name_original": "Sharpshooter",
+    "description": "Alcance longo não impõe desvantagem. Seus ataques à distância ignoram meia e três quartos de cobertura. Pode aceitar -5 no ataque para +10 de dano.",
+    "prerequisite": "Nenhum",
+    "source": "phb"
+  },
+  {
+    "id": "shield_master",
+    "name": "Mestre do Escudo",
+    "name_original": "Shield Master",
+    "description": "Com escudo: depois da ação Atacar, ação bônus para Empurrar. Soma o bônus do escudo a testes de Destreza contra efeitos que só tenham você como alvo, e reação para sofrer 0 dano num sucesso.",
+    "prerequisite": "Nenhum",
+    "source": "phb"
+  },
+  {
+    "id": "skilled",
+    "name": "Habilidoso",
+    "name_original": "Skilled",
+    "description": "Proficiência em 3 opções à escolha, em qualquer combinação de perícias e ferramentas.",
+    "prerequisite": "Nenhum",
+    "requires": {
+      "notes": [
+        "no livro as 3 escolhas podem ser perícias ou ferramentas; aqui só as perícias entram na ficha"
+      ]
+    },
+    "skill_choice": { "choose": 3, "options": [] },
+    "source": "phb"
+  },
+  {
+    "id": "skulker",
+    "name": "Furtivo",
+    "name_original": "Skulker",
+    "description": "Pode se Esconder estando apenas levemente obscurecido. Errar ataque à distância escondido não revela sua posição. Luz fraca não dá desvantagem na sua Percepção visual.",
+    "prerequisite": "Destreza 13 ou maior",
+    "requires": { "min_ability_any": { "dexterity": 13 } },
+    "source": "phb"
+  },
+  {
+    "id": "spell_sniper",
+    "name": "Franco-atirador de Magias",
+    "name_original": "Spell Sniper",
+    "description": "Dobra o alcance das magias que exigem jogada de ataque, ignora meia e três quartos de cobertura, e aprende 1 truque de ataque de uma lista conjuradora.",
+    "prerequisite": "Capacidade de conjurar pelo menos uma magia",
+    "requires": { "spellcasting": true },
+    "source": "phb"
+  },
+  {
+    "id": "tavern_brawler",
+    "name": "Brigão de Taverna",
+    "name_original": "Tavern Brawler",
+    "description": "Força ou Constituição +1. Proficiência com armas improvisadas. Ataque desarmado usa d4. Ao acertar desarmado ou com arma improvisada, ação bônus para agarrar.",
+    "prerequisite": "Nenhum",
+    "ability_increase_options": ["strength", "constitution"],
+    "source": "phb"
+  },
+  {
+    "id": "tough",
+    "name": "Resistente",
+    "name_original": "Tough",
+    "description": "Máximo de PV aumenta em 2 por nível que você já tem, e em 2 a cada nível novo.",
+    "prerequisite": "Nenhum",
+    "source": "phb"
+  },
+  {
+    "id": "war_caster",
+    "name": "Conjurador de Guerra",
+    "name_original": "War Caster",
+    "description": "Vantagem em Concentração ao sofrer dano. Executa componentes somáticos com as mãos ocupadas. Pode conjurar como reação de ataque de oportunidade, se a magia gastar 1 ação e ter só aquele alvo.",
+    "prerequisite": "Capacidade de conjurar pelo menos uma magia",
+    "requires": { "spellcasting": true },
+    "source": "phb"
+  },
+  {
+    "id": "weapon_master",
+    "name": "Mestre de Armas",
+    "name_original": "Weapon Master",
+    "description": "Força ou Destreza +1 e proficiência com 4 armas simples ou marciais à escolha.",
+    "prerequisite": "Nenhum",
+    "ability_increase_options": ["strength", "dexterity"],
+    "source": "phb"
+  },
+  {
+    "id": "bountiful_luck",
+    "name": "Sorte Generosa",
+    "name_original": "Bountiful Luck",
+    "description": "Reação: aliado a 9 m que tira 1 natural rola de novo e usa o resultado novo. Depois disso você não usa seu traço racial Sortudo até o fim do seu próximo turno.",
+    "prerequisite": "Halfling",
+    "requires": { "race_ids": ["halfling_phb"] },
+    "source": "xgte"
+  },
+  {
+    "id": "dragon_fear",
+    "name": "Medo Dracônico",
+    "name_original": "Dragon Fear",
+    "description": "Força, Constituição ou Carisma +1. Gasta um uso do Sopro Dracônico para rugir: criaturas a 9 m fazem Sabedoria CD 8 + PB + Carisma e ficam Amedrontadas por 1 minuto em caso de falha.",
+    "prerequisite": "Draconato",
+    "requires": {
+      "race_ids": [
+        "dragonborn_phb",
+        "dragonborn_ftd",
+        "dragonborn_chromatic_ftd",
+        "dragonborn_gem_ftd",
+        "dragonborn_metallic_ftd"
+      ]
+    },
+    "ability_increase_options": ["strength", "constitution", "charisma"],
+    "source": "xgte"
+  },
+  {
+    "id": "dragon_hide",
+    "name": "Pele de Dragão",
+    "name_original": "Dragon Hide",
+    "description": "Força, Constituição ou Carisma +1. Sem armadura, sua CA base é 13 + Destreza. Ganha garras retráteis que causam 1d4 + Força de dano cortante.",
+    "prerequisite": "Draconato",
+    "requires": {
+      "race_ids": [
+        "dragonborn_phb",
+        "dragonborn_ftd",
+        "dragonborn_chromatic_ftd",
+        "dragonborn_gem_ftd",
+        "dragonborn_metallic_ftd"
+      ]
+    },
+    "ability_increase_options": ["strength", "constitution", "charisma"],
+    "source": "xgte"
+  },
+  {
+    "id": "drow_high_magic",
+    "name": "Alta Magia Drow",
+    "name_original": "Drow High Magic",
+    "description": "Conjura Detectar Magia à vontade, e Levitação e Dissipar Magia uma vez cada por descanso longo, usando Carisma.",
+    "prerequisite": "Drow",
+    "requires": { "race_ids": ["elf_drow_phb"] },
+    "source": "xgte"
+  },
+  {
+    "id": "dwarven_fortitude",
+    "name": "Fortitude Anã",
+    "name_original": "Dwarven Fortitude",
+    "description": "Constituição +1. Ao usar a ação Esquivar, pode gastar 1 Dado de Vida e recuperar PV iguais ao resultado + modificador de Constituição.",
+    "prerequisite": "Anão",
+    "requires": { "race_ids": ["dwarf_phb", "duergar_motm"] },
+    "ability_increases": { "constitution": 1 },
+    "source": "xgte"
+  },
+  {
+    "id": "elven_accuracy",
+    "name": "Precisão Élfica",
+    "name_original": "Elven Accuracy",
+    "description": "Destreza, Inteligência, Sabedoria ou Carisma +1. Com vantagem num ataque desses atributos, pode rolar novamente um dos dados da vantagem.",
+    "prerequisite": "Elfo ou Meio-Elfo",
+    "requires": {
+      "race_ids": [
+        "elf_phb",
+        "half_elf_phb",
+        "astral_elf_aag",
+        "eladrin_motm",
+        "sea_elf_motm",
+        "shadar_kai_motm"
+      ]
+    },
+    "ability_increase_options": [
+      "dexterity",
+      "intelligence",
+      "wisdom",
+      "charisma"
+    ],
+    "source": "xgte"
+  },
+  {
+    "id": "fade_away",
+    "name": "Desaparecer",
+    "name_original": "Fade Away",
+    "description": "Destreza ou Inteligência +1. Ao sofrer dano, reação para ficar Invisível até o fim do seu próximo turno; termina se atacar, causar dano ou conjurar. Uma vez por descanso.",
+    "prerequisite": "Gnomo",
+    "requires": { "race_ids": ["gnome_phb", "deep_gnome_motm"] },
+    "ability_increase_options": ["dexterity", "intelligence"],
+    "source": "xgte"
+  },
+  {
+    "id": "fey_teleportation",
+    "name": "Teletransporte Feérico",
+    "name_original": "Fey Teleportation",
+    "description": "Inteligência ou Carisma +1. Aprende Silvestre e Passo Nebuloso, conjurável uma vez por descanso curto ou longo usando Inteligência.",
+    "prerequisite": "Elfo Alto",
+    "requires": { "race_ids": ["elf_high_phb"] },
+    "ability_increase_options": ["intelligence", "charisma"],
+    "source": "xgte"
+  },
+  {
+    "id": "flames_of_phlegethos",
+    "name": "Chamas de Phlegethos",
+    "name_original": "Flames of Phlegethos",
+    "description": "Inteligência ou Carisma +1. Rerrola 1 nos dados de dano de fogo das suas magias. Depois de conjurar magia de fogo, fica envolto em chamas que iluminam e queimam quem te acertar corpo a corpo.",
+    "prerequisite": "Tiefling",
+    "requires": { "race_ids": ["tiefling_phb"] },
+    "ability_increase_options": ["intelligence", "charisma"],
+    "source": "xgte"
+  },
+  {
+    "id": "infernal_constitution",
+    "name": "Constituição Infernal",
+    "name_original": "Infernal Constitution",
+    "description": "Constituição +1. Resistência a frio e a veneno, e vantagem em testes de resistência contra Envenenado.",
+    "prerequisite": "Tiefling",
+    "requires": { "race_ids": ["tiefling_phb"] },
+    "ability_increases": { "constitution": 1 },
+    "source": "xgte"
+  },
+  {
+    "id": "orcish_fury",
+    "name": "Fúria Órquica",
+    "name_original": "Orcish Fury",
+    "description": "Força ou Constituição +1. Uma vez por descanso, ao acertar com arma, rola um dado de dano extra. Depois de usar Resistência Implacável, reação para atacar.",
+    "prerequisite": "Meio-Orc",
+    "requires": { "race_ids": ["half_orc_phb", "orc_motm"] },
+    "ability_increase_options": ["strength", "constitution"],
+    "source": "xgte"
+  },
+  {
+    "id": "prodigy",
+    "name": "Prodígio",
+    "name_original": "Prodigy",
+    "description": "Proficiência em 1 perícia, 1 ferramenta e 1 idioma à escolha, e Especialização numa perícia em que já seja proficiente.",
+    "prerequisite": "Meio-Elfo, Meio-Orc ou Humano",
+    "requires": {
+      "race_ids": [
+        "half_elf_phb",
+        "half_orc_phb",
+        "orc_motm",
+        "human_phb",
+        "human_variant_phb"
+      ],
+      "notes": ["a ferramenta, o idioma e a Especialização não entram na ficha"]
+    },
+    "skill_choice": { "choose": 1, "options": [] },
+    "source": "xgte"
+  },
+  {
+    "id": "second_chance",
+    "name": "Segunda Chance",
+    "name_original": "Second Chance",
+    "description": "Destreza, Constituição ou Carisma +1. Quando alguém que você vê te acerta, reação para forçar a rerrolagem do ataque. Recupera na iniciativa ou em descanso.",
+    "prerequisite": "Halfling",
+    "requires": { "race_ids": ["halfling_phb"] },
+    "ability_increase_options": ["dexterity", "constitution", "charisma"],
+    "source": "xgte"
+  },
+  {
+    "id": "squat_nimbleness",
+    "name": "Agilidade Compacta",
+    "name_original": "Squat Nimbleness",
+    "description": "Força ou Destreza +1. Deslocamento +1,5 m. Proficiência em Acrobacia ou Atletismo. Vantagem para escapar de agarrões.",
+    "prerequisite": "Anão ou uma raça Pequena",
+    "requires": {
+      "race_ids": ["dwarf_phb", "duergar_motm"],
+      "race_sizes": ["small"]
+    },
+    "skill_choice": { "choose": 1, "options": ["acrobatics", "athletics"] },
+    "ability_increase_options": ["strength", "dexterity"],
+    "source": "xgte"
+  },
+  {
+    "id": "wood_elf_magic",
+    "name": "Magia dos Elfos da Floresta",
+    "name_original": "Wood Elf Magic",
+    "description": "Aprende 1 truque de Druida, mais Passos Longos e Passos sem Pegadas, cada uma uma vez por descanso longo, usando Sabedoria.",
+    "prerequisite": "Elfo da Floresta",
+    "requires": { "race_ids": ["elf_wood_phb"] },
+    "source": "xgte"
+  },
+  {
+    "id": "svirfneblin_magic",
+    "name": "Magia Svirfneblin",
+    "name_original": "Svirfneblin Magic",
+    "description": "Conjura Indetectável em si à vontade, e Cegueira/Surdez, Nublar e Disfarçar-se uma vez cada por descanso longo, usando Inteligência.",
+    "prerequisite": "Gnomo das Profundezas",
+    "requires": { "race_ids": ["deep_gnome_motm"] },
+    "source": "eepc"
+  },
+  {
+    "id": "aberrant_dragonmark",
+    "name": "Marca Dracônica Aberrante",
+    "name_original": "Aberrant Dragonmark",
+    "description": "Constituição +1. Aprende 1 truque e 1 magia de 1º nível de Feiticeiro usando Constituição, conjurável uma vez por descanso curto ou longo, com um efeito colateral ao gastar Dado de Vida.",
+    "prerequisite": "Não possuir outra marca dracônica",
+    "requires": {
+      "notes": ["não possuir outra marca dracônica"]
+    },
+    "ability_increases": { "constitution": 1 },
+    "source": "erlw"
+  },
+  {
+    "id": "revenant_blade",
+    "name": "Lâmina Revenante",
+    "name_original": "Revenant Blade",
+    "description": "Força ou Destreza +1. Empunhando cimitarra de lâmina dupla com duas mãos, +1 na CA; a arma passa a ter Acuidade para você.",
+    "prerequisite": "Elfo",
+    "requires": {
+      "race_ids": [
+        "elf_phb",
+        "astral_elf_aag",
+        "eladrin_motm",
+        "sea_elf_motm",
+        "shadar_kai_motm"
+      ]
+    },
+    "ability_increase_options": ["strength", "dexterity"],
+    "source": "erlw"
+  },
+  {
+    "id": "artificer_initiate",
+    "name": "Iniciado em Artífice",
+    "name_original": "Artificer Initiate",
+    "description": "Aprende 1 truque e 1 magia de 1º nível de Artífice usando Inteligência, conjurável uma vez por descanso longo. Proficiência com um tipo de ferramenta de artesão, usável como foco.",
+    "prerequisite": "Nenhum",
+    "source": "tcoe"
+  },
+  {
+    "id": "chef",
+    "name": "Chef",
+    "name_original": "Chef",
+    "description": "Constituição ou Sabedoria +1. Proficiência com utensílios de cozinheiro. Em descanso curto, cura extra de 1d8 para quem comer; e prepara petiscos que dão PV temporários.",
+    "prerequisite": "Nenhum",
+    "ability_increase_options": ["constitution", "wisdom"],
+    "source": "tcoe"
+  },
+  {
+    "id": "crusher",
+    "name": "Esmagador",
+    "name_original": "Crusher",
+    "description": "Força ou Constituição +1. Uma vez por turno, dano contundente move o alvo 1,5 m. Crítico contundente dá vantagem nos ataques contra ele até o começo do seu próximo turno.",
+    "prerequisite": "Nenhum",
+    "ability_increase_options": ["strength", "constitution"],
+    "source": "tcoe"
+  },
+  {
+    "id": "eldritch_adept",
+    "name": "Adepto de Invocação Mística",
+    "name_original": "Eldritch Adept",
+    "description": "Aprende 1 Invocação Mística de Bruxo. Invocação com pré-requisito exige níveis de Bruxo. Pode trocar a escolha ao subir de nível.",
+    "prerequisite": "Característica Conjuração ou Magia de Pacto",
+    "requires": { "spellcasting": true },
+    "source": "tcoe"
+  },
+  {
+    "id": "fey_touched",
+    "name": "Tocado pelas Fadas",
+    "name_original": "Fey Touched",
+    "description": "Inteligência, Sabedoria ou Carisma +1. Aprende Passo Nebuloso e 1 magia de 1º nível de Adivinhação ou Encantamento, cada uma grátis uma vez por descanso longo.",
+    "prerequisite": "Nenhum",
+    "ability_increase_options": ["intelligence", "wisdom", "charisma"],
+    "source": "tcoe"
+  },
+  {
+    "id": "fighting_initiate",
+    "name": "Iniciado em Estilo de Luta",
+    "name_original": "Fighting Initiate",
+    "description": "Aprende 1 Estilo de Luta de Guerreiro. Pode trocá-lo ao alcançar um nível de incremento de atributo.",
+    "prerequisite": "Proficiência com pelo menos uma arma marcial",
+    "requires": { "notes": ["proficiência com pelo menos uma arma marcial"] },
+    "source": "tcoe"
+  },
+  {
+    "id": "gunner",
+    "name": "Artilheiro",
+    "name_original": "Gunner",
+    "description": "Destreza +1. Proficiência com armas de fogo, ignora a propriedade Recarga delas, e inimigo a 1,5 m não impõe desvantagem nos ataques à distância.",
+    "prerequisite": "Nenhum",
+    "ability_increases": { "dexterity": 1 },
+    "source": "tcoe"
+  },
+  {
+    "id": "metamagic_adept",
+    "name": "Adepto de Metamagia",
+    "name_original": "Metamagic Adept",
+    "description": "Aprende 2 opções de Metamagia de Feiticeiro e ganha 2 Pontos de Feitiçaria, usáveis só em Metamagia, recuperados em descanso longo.",
+    "prerequisite": "Característica Conjuração ou Magia de Pacto",
+    "requires": { "spellcasting": true },
+    "source": "tcoe"
+  },
+  {
+    "id": "piercer",
+    "name": "Perfurador",
+    "name_original": "Piercer",
+    "description": "Força ou Destreza +1. Uma vez por turno, rerrola 1 dado de dano perfurante. Crítico perfurante rola 1 dado extra.",
+    "prerequisite": "Nenhum",
+    "ability_increase_options": ["strength", "dexterity"],
+    "source": "tcoe"
+  },
+  {
+    "id": "poisoner",
+    "name": "Envenenador",
+    "name_original": "Poisoner",
+    "description": "Ignora resistência a veneno. Aplica veneno como ação bônus. Proficiência com kit de envenenador e fabricação de doses que causam +2d8 e a condição Envenenado (Constituição CD 14).",
+    "prerequisite": "Nenhum",
+    "source": "tcoe"
+  },
+  {
+    "id": "shadow_touched",
+    "name": "Tocado pelas Sombras",
+    "name_original": "Shadow Touched",
+    "description": "Inteligência, Sabedoria ou Carisma +1. Aprende Invisibilidade e 1 magia de 1º nível de Ilusão ou Necromancia, cada uma grátis uma vez por descanso longo.",
+    "prerequisite": "Nenhum",
+    "ability_increase_options": ["intelligence", "wisdom", "charisma"],
+    "source": "tcoe"
+  },
+  {
+    "id": "skill_expert",
+    "name": "Especialista em Perícia",
+    "name_original": "Skill Expert",
+    "description": "Um atributo +1. Proficiência em 1 perícia, e Especialização numa perícia em que já seja proficiente.",
+    "prerequisite": "Nenhum",
+    "requires": { "notes": ["a Especialização não entra na ficha"] },
+    "skill_choice": { "choose": 1, "options": [] },
+    "ability_increase_options": [
+      "strength",
+      "dexterity",
+      "constitution",
+      "intelligence",
+      "wisdom",
+      "charisma"
+    ],
+    "source": "tcoe"
+  },
+  {
+    "id": "slasher",
+    "name": "Cortador",
+    "name_original": "Slasher",
+    "description": "Força ou Destreza +1. Uma vez por turno, dano cortante reduz o deslocamento do alvo em 3 m. Crítico cortante dá desvantagem nos ataques dele.",
+    "prerequisite": "Nenhum",
+    "ability_increase_options": ["strength", "dexterity"],
+    "source": "tcoe"
+  },
+  {
+    "id": "telekinetic",
+    "name": "Telecinético",
+    "name_original": "Telekinetic",
+    "description": "Inteligência, Sabedoria ou Carisma +1. Aprende Mão Mágica invisível e sem componentes. Ação bônus para empurrar ou atrair uma criatura 1,5 m (Força CD 8 + PB + atributo).",
+    "prerequisite": "Nenhum",
+    "ability_increase_options": ["intelligence", "wisdom", "charisma"],
+    "source": "tcoe"
+  },
+  {
+    "id": "telepathic",
+    "name": "Telepático",
+    "name_original": "Telepathic",
+    "description": "Inteligência, Sabedoria ou Carisma +1. Fala telepaticamente com quem vê a 18 m. Aprende Detectar Pensamentos, grátis uma vez por descanso longo.",
+    "prerequisite": "Nenhum",
+    "ability_increase_options": ["intelligence", "wisdom", "charisma"],
+    "source": "tcoe"
+  },
+  {
+    "id": "gift_of_the_chromatic_dragon",
+    "name": "Dádiva do Dragão Cromático",
+    "name_original": "Gift of the Chromatic Dragon",
+    "description": "Ação bônus para infundir uma arma com ácido, frio, fogo, elétrico ou veneno (+1d4 por 1 minuto), uma vez por descanso longo. Reação para ganhar resistência a esses tipos, PB vezes por descanso longo.",
+    "prerequisite": "Nenhum",
+    "source": "ftd"
+  },
+  {
+    "id": "gift_of_the_gem_dragon",
+    "name": "Dádiva do Dragão de Gema",
+    "name_original": "Gift of the Gem Dragon",
+    "description": "Inteligência, Sabedoria ou Carisma +1. Reação ao sofrer dano de alguém a 3 m: Força CD 8 + PB + atributo, causando 2d8 de força e empurrão de 3 m na falha. PB vezes por descanso longo.",
+    "prerequisite": "Nenhum",
+    "ability_increase_options": ["intelligence", "wisdom", "charisma"],
+    "source": "ftd"
+  },
+  {
+    "id": "gift_of_the_metallic_dragon",
+    "name": "Dádiva do Dragão Metálico",
+    "name_original": "Gift of the Metallic Dragon",
+    "description": "Aprende Curar Ferimentos, grátis uma vez por descanso longo. Reação para somar seu PB à CA de você ou de alguém a 1,5 m, PB vezes por descanso longo.",
+    "prerequisite": "Nenhum",
+    "ability_increase_options": ["intelligence", "wisdom", "charisma"],
+    "source": "ftd"
+  },
+  {
+    "id": "strixhaven_initiate",
+    "name": "Iniciado de Strixhaven",
+    "name_original": "Strixhaven Initiate",
+    "description": "Escolha uma faculdade: aprende 2 truques dela e 1 magia de 1º nível da lista correspondente, grátis uma vez por descanso longo.",
+    "prerequisite": "Nenhum",
+    "source": "scc"
+  },
+  {
+    "id": "strixhaven_mascot",
+    "name": "Mascote de Strixhaven",
+    "name_original": "Strixhaven Mascot",
+    "description": "Conjura Encontrar Familiar como ritual, com o familiar na forma do mascote da sua faculdade. Pode trocar de lugar com ele e coordenar ataques.",
+    "prerequisite": "4º nível e talento Iniciado de Strixhaven",
+    "requires": { "min_level": 4, "feat_ids": ["strixhaven_initiate"] },
+    "source": "scc"
+  },
+  {
+    "id": "divinely_favored",
+    "name": "Favorecido Divinamente",
+    "name_original": "Divinely Favored",
+    "description": "Aprende 1 truque de Clérigo, Augúrio e 1 magia de 1º nível de uma lista definida pelo seu alinhamento, cada uma grátis uma vez por descanso longo.",
+    "prerequisite": "4º nível; campanha de Dragonlance",
+    "requires": {
+      "min_level": 4,
+      "notes": ["campanha de Dragonlance"]
+    },
+    "ability_increase_options": ["intelligence", "wisdom", "charisma"],
+    "source": "dsotdq"
+  },
+  {
+    "id": "initiate_of_high_sorcery",
+    "name": "Iniciado da Alta Feitiçaria",
+    "name_original": "Initiate of High Sorcery",
+    "description": "Aprende 1 truque de Mago e, escolhendo uma lua (Nuitari, Lunitari ou Solinari), 2 magias de 1º nível dela, grátis uma vez cada por descanso longo.",
+    "prerequisite": "Campanha de Dragonlance e ser Feiticeiro ou Mago, ou ter o antecedente Mago da Alta Feitiçaria",
+    "requires": {
+      "notes": [
+        "campanha de Dragonlance",
+        "ser Feiticeiro ou Mago, ou ter o antecedente Mago da Alta Feitiçaria"
+      ]
+    },
+    "ability_increase_options": ["intelligence", "wisdom", "charisma"],
+    "source": "dsotdq"
+  },
+  {
+    "id": "adept_of_the_black_robes",
+    "name": "Adepto dos Mantos Negros",
+    "name_original": "Adept of the Black Robes",
+    "description": "Aprende 1 magia de 2º nível de Encantamento ou Necromancia. Canalizar Vida: gasta Dados de Vida para aumentar o dano de uma magia sua contra quem falhou na resistência.",
+    "prerequisite": "4º nível e Iniciado da Alta Feitiçaria com Nuitari",
+    "requires": {
+      "min_level": 4,
+      "feat_ids": ["initiate_of_high_sorcery"],
+      "notes": ["ter escolhido a lua Nuitari"]
+    },
+    "source": "dsotdq"
+  },
+  {
+    "id": "adept_of_the_red_robes",
+    "name": "Adepto dos Mantos Vermelhos",
+    "name_original": "Adept of the Red Robes",
+    "description": "Aprende 1 magia de 2º nível de Ilusão ou Transmutação. Equilíbrio Mágico: trata resultado 9 ou menor no d20 como 10, PB vezes por descanso longo.",
+    "prerequisite": "4º nível e Iniciado da Alta Feitiçaria com Lunitari",
+    "requires": {
+      "min_level": 4,
+      "feat_ids": ["initiate_of_high_sorcery"],
+      "notes": ["ter escolhido a lua Lunitari"]
+    },
+    "source": "dsotdq"
+  },
+  {
+    "id": "adept_of_the_white_robes",
+    "name": "Adepto dos Mantos Brancos",
+    "name_original": "Adept of the White Robes",
+    "description": "Aprende 1 magia de 2º nível de Abjuração ou Adivinhação. Proteção Mágica: reação gastando espaço de magia para reduzir dano em d6 por nível + modificador de conjuração.",
+    "prerequisite": "4º nível e Iniciado da Alta Feitiçaria com Solinari",
+    "requires": {
+      "min_level": 4,
+      "feat_ids": ["initiate_of_high_sorcery"],
+      "notes": ["ter escolhido a lua Solinari"]
+    },
+    "source": "dsotdq"
+  },
+  {
+    "id": "squire_of_solamnia",
+    "name": "Escudeiro de Solamnia",
+    "name_original": "Squire of Solamnia",
+    "description": "Montar ou desmontar custa 1,5 m. Golpe Preciso: uma vez por turno, ganha vantagem num ataque e +1d8 de dano se acertar; o uso só é gasto no acerto. PB vezes por descanso longo.",
+    "prerequisite": "Campanha de Dragonlance e ser Guerreiro ou Paladino, ou ter o antecedente Cavaleiro de Solamnia",
+    "requires": {
+      "notes": [
+        "campanha de Dragonlance",
+        "ser Guerreiro ou Paladino, ou ter o antecedente Cavaleiro de Solamnia"
+      ]
+    },
+    "source": "dsotdq"
+  },
+  {
+    "id": "knight_of_the_crown",
+    "name": "Cavaleiro da Coroa",
+    "name_original": "Knight of the Crown",
+    "description": "Força, Destreza ou Constituição +1. Ação bônus para um aliado a 9 m usar a reação e atacar com +1d8 de dano no acerto. PB vezes por descanso longo.",
+    "prerequisite": "4º nível e talento Escudeiro de Solamnia",
+    "requires": { "min_level": 4, "feat_ids": ["squire_of_solamnia"] },
+    "ability_increase_options": ["strength", "dexterity", "constitution"],
+    "source": "dsotdq"
+  },
+  {
+    "id": "knight_of_the_rose",
+    "name": "Cavaleiro da Rosa",
+    "name_original": "Knight of the Rose",
+    "description": "Constituição, Sabedoria ou Carisma +1. Ação bônus para dar a alguém a 9 m PV temporários iguais a 1d8 + PB + o atributo aumentado. PB vezes por descanso longo.",
+    "prerequisite": "4º nível e talento Escudeiro de Solamnia",
+    "requires": { "min_level": 4, "feat_ids": ["squire_of_solamnia"] },
+    "ability_increase_options": ["constitution", "wisdom", "charisma"],
+    "source": "dsotdq"
+  },
+  {
+    "id": "knight_of_the_sword",
+    "name": "Cavaleiro da Espada",
+    "name_original": "Knight of the Sword",
+    "description": "Inteligência, Sabedoria ou Carisma +1. Ao acertar, exige Sabedoria CD 8 + PB + atributo: falha deixa o alvo Amedrontado, sucesso dá desvantagem no próximo ataque dele. PB vezes por descanso longo.",
+    "prerequisite": "4º nível e talento Escudeiro de Solamnia",
+    "requires": { "min_level": 4, "feat_ids": ["squire_of_solamnia"] },
+    "ability_increase_options": ["intelligence", "wisdom", "charisma"],
+    "source": "dsotdq"
+  },
+  {
+    "id": "rune_shaper",
+    "name": "Moldador de Runas",
+    "name_original": "Rune Shaper",
+    "description": "Aprende Compreender Idiomas. Conhece metade do PB em runas e as inscreve em objetos após cada descanso longo, ganhando as magias associadas; uma conjuração gratuita de runa por descanso longo.",
+    "prerequisite": "Característica Conjuração ou antecedente Entalhador de Runas",
+    "requires": {
+      "notes": ["saber conjurar ou ter o antecedente Entalhador de Runas"]
+    },
+    "ability_increase_options": ["intelligence", "wisdom", "charisma"],
+    "source": "bpgotg"
+  },
+  {
+    "id": "strike_of_the_giants",
+    "name": "Golpe dos Gigantes",
+    "name_original": "Strike of the Giants",
+    "description": "Escolha um dos seis golpes (nuvem, fogo, gelo, colina, pedra ou tempestade). Uma vez por turno, ao acertar corpo a corpo ou com arma de Arremesso, aplica o efeito. PB vezes por descanso longo.",
+    "prerequisite": "Proficiência com arma marcial ou antecedente Enjeitado dos Gigantes",
+    "requires": {
+      "notes": [
+        "proficiência com arma marcial ou o antecedente Enjeitado dos Gigantes"
+      ]
+    },
+    "source": "bpgotg"
+  },
+  {
+    "id": "ember_of_the_fire_giant",
+    "name": "Brasa do Gigante do Fogo",
+    "name_original": "Ember of the Fire Giant",
+    "description": "Força, Constituição ou Sabedoria +1. Resistência a fogo. Substitui um ataque por explosão de raio 4,5 m: 1d8 + PB de fogo e Cego na falha (Destreza). PB vezes por descanso longo.",
+    "prerequisite": "4º nível e Golpe dos Gigantes com Golpe do Fogo",
+    "requires": {
+      "min_level": 4,
+      "feat_ids": ["strike_of_the_giants"],
+      "notes": ["ter escolhido o Golpe do Fogo"]
+    },
+    "ability_increase_options": ["strength", "constitution", "wisdom"],
+    "source": "bpgotg"
+  },
+  {
+    "id": "fury_of_the_frost_giant",
+    "name": "Fúria do Gigante do Gelo",
+    "name_original": "Fury of the Frost Giant",
+    "description": "Força, Constituição ou Sabedoria +1. Resistência a frio. Reação contra quem te acertou a 9 m: 1d8 + PB de frio e deslocamento 0 na falha (Constituição). PB vezes por descanso longo.",
+    "prerequisite": "4º nível e Golpe dos Gigantes com Golpe do Gelo",
+    "requires": {
+      "min_level": 4,
+      "feat_ids": ["strike_of_the_giants"],
+      "notes": ["ter escolhido o Golpe do Gelo"]
+    },
+    "ability_increase_options": ["strength", "constitution", "wisdom"],
+    "source": "bpgotg"
+  },
+  {
+    "id": "guile_of_the_cloud_giant",
+    "name": "Astúcia do Gigante das Nuvens",
+    "name_original": "Guile of the Cloud Giant",
+    "description": "Força, Constituição ou Carisma +1. Reação ao ser acertado: ganha resistência ao dano daquele ataque e se teletransporta até 9 m. PB vezes por descanso longo.",
+    "prerequisite": "4º nível e Golpe dos Gigantes com Golpe da Nuvem",
+    "requires": {
+      "min_level": 4,
+      "feat_ids": ["strike_of_the_giants"],
+      "notes": ["ter escolhido o Golpe da Nuvem"]
+    },
+    "ability_increase_options": ["strength", "constitution", "charisma"],
+    "source": "bpgotg"
+  },
+  {
+    "id": "keenness_of_the_stone_giant",
+    "name": "Acuidade do Gigante de Pedra",
+    "name_original": "Keenness of the Stone Giant",
+    "description": "Força, Constituição ou Sabedoria +1. Visão no escuro de 18 m, ou +18 m se já tiver. Ação bônus para arremessar pedra a 18 m: 1d10 de força e Caído na falha (Força). PB vezes por descanso longo.",
+    "prerequisite": "4º nível e Golpe dos Gigantes com Golpe da Pedra",
+    "requires": {
+      "min_level": 4,
+      "feat_ids": ["strike_of_the_giants"],
+      "notes": ["ter escolhido o Golpe da Pedra"]
+    },
+    "ability_increase_options": ["strength", "constitution", "wisdom"],
+    "source": "bpgotg"
+  },
+  {
+    "id": "soul_of_the_storm_giant",
+    "name": "Alma do Gigante da Tempestade",
+    "name_original": "Soul of the Storm Giant",
+    "description": "Força, Sabedoria ou Carisma +1. Ação bônus para uma aura de 3 m: resistência a elétrico e trovejante, desvantagem nos ataques contra você, e deslocamento reduzido de quem começa o turno nela. PB vezes por descanso longo.",
+    "prerequisite": "4º nível e Golpe dos Gigantes com Golpe da Tempestade",
+    "requires": {
+      "min_level": 4,
+      "feat_ids": ["strike_of_the_giants"],
+      "notes": ["ter escolhido o Golpe da Tempestade"]
+    },
+    "ability_increase_options": ["strength", "wisdom", "charisma"],
+    "source": "bpgotg"
+  },
+  {
+    "id": "vigor_of_the_hill_giant",
+    "name": "Vigor do Gigante da Colina",
+    "name_original": "Vigor of the Hill Giant",
+    "description": "Força, Constituição ou Sabedoria +1. Reação para não ser movido nem ficar Caído. Comendo em descanso curto e gastando Dado de Vida, recupera PV extras iguais a Constituição + PB.",
+    "prerequisite": "4º nível e Golpe dos Gigantes com Golpe da Colina",
+    "requires": {
+      "min_level": 4,
+      "feat_ids": ["strike_of_the_giants"],
+      "notes": ["ter escolhido o Golpe da Colina"]
+    },
+    "ability_increase_options": ["strength", "constitution", "wisdom"],
+    "source": "bpgotg"
+  },
+  {
+    "id": "scion_of_the_outer_planes",
+    "name": "Descendente dos Planos Exteriores",
+    "name_original": "Scion of the Outer Planes",
+    "description": "Escolha uma afinidade planar: ganha uma resistência a dano e um truque correspondente, sem componente material.",
+    "prerequisite": "Campanha de Planescape",
+    "requires": { "notes": ["campanha de Planescape"] },
+    "source": "pmv"
+  },
+  {
+    "id": "agent_of_order",
+    "name": "Agente da Ordem",
+    "name_original": "Agent of Order",
+    "description": "Um atributo +1. Uma vez por turno, ao causar dano a até 18 m, +1d8 de força e Restringido na falha de Sabedoria. PB vezes por descanso longo.",
+    "prerequisite": "4º nível e Descendente dos Planos Exteriores com afinidade de Plano Exterior Ordeiro",
+    "requires": {
+      "min_level": 4,
+      "feat_ids": ["scion_of_the_outer_planes"],
+      "notes": ["ter escolhido a afinidade Plano Exterior Ordeiro"]
+    },
+    "source": "pmv"
+  },
+  {
+    "id": "baleful_scion",
+    "name": "Descendente Funesto",
+    "name_original": "Baleful Scion",
+    "description": "Um atributo +1. Uma vez por turno, ao causar dano a até 18 m, +1d6 + PB de dano necrótico e recupera PV iguais a esse dano. PB vezes por descanso longo.",
+    "prerequisite": "4º nível e Descendente dos Planos Exteriores com afinidade de Plano Exterior Mau",
+    "requires": {
+      "min_level": 4,
+      "feat_ids": ["scion_of_the_outer_planes"],
+      "notes": ["ter escolhido a afinidade Plano Exterior Mau"]
+    },
+    "source": "pmv"
+  },
+  {
+    "id": "cohort_of_chaos",
+    "name": "Coorte do Caos",
+    "name_original": "Cohort of Chaos",
+    "description": "Um atributo +1. Ao tirar 1 ou 20 natural em ataque ou resistência, rola 1d4 e ganha um efeito caótico até o fim do próximo turno. Um clarão por vez.",
+    "prerequisite": "4º nível e Descendente dos Planos Exteriores com afinidade de Plano Exterior Caótico",
+    "requires": {
+      "min_level": 4,
+      "feat_ids": ["scion_of_the_outer_planes"],
+      "notes": ["ter escolhido a afinidade Plano Exterior Caótico"]
+    },
+    "source": "pmv"
+  },
+  {
+    "id": "outlands_envoy",
+    "name": "Emissário das Terras Exteriores",
+    "name_original": "Outlands Envoy",
+    "description": "Um atributo +1. Aprende Passo Nebuloso e Idiomas, cada uma grátis uma vez por descanso longo.",
+    "prerequisite": "4º nível e Descendente dos Planos Exteriores com afinidade das Terras Exteriores",
+    "requires": {
+      "min_level": 4,
+      "feat_ids": ["scion_of_the_outer_planes"],
+      "notes": ["ter escolhido a afinidade Terras Exteriores"]
+    },
+    "source": "pmv"
+  },
+  {
+    "id": "planar_wanderer",
+    "name": "Andarilho Planar",
+    "name_original": "Planar Wanderer",
+    "description": "Escolhe resistência a ácido, frio ou fogo a cada descanso longo. Pode forçar portais planares abertos ou fechados com Arcanismo CD 20, e detectar portais próximos.",
+    "prerequisite": "4º nível e talento Descendente dos Planos Exteriores",
+    "requires": {
+      "min_level": 4,
+      "feat_ids": ["scion_of_the_outer_planes"]
+    },
+    "source": "pmv"
+  },
+  {
+    "id": "righteous_heritor",
+    "name": "Herdeiro Justo",
+    "name_original": "Righteous Heritor",
+    "description": "Um atributo +1. Reação para reduzir em 1d10 + PB o dano sofrido por você ou por alguém a 9 m. PB vezes por descanso longo.",
+    "prerequisite": "4º nível e Descendente dos Planos Exteriores com afinidade de Plano Exterior Bom",
+    "requires": {
+      "min_level": 4,
+      "feat_ids": ["scion_of_the_outer_planes"],
+      "notes": ["ter escolhido a afinidade Plano Exterior Bom"]
+    },
+    "source": "pmv"
+  },
+  {
+    "id": "cartomancer",
+    "name": "Cartomante",
+    "name_original": "Cartomancer",
+    "description": "Usa um baralho como foco de conjuração. Aprende Prestidigitação. Ao terminar descanso longo, imbui uma magia de 1 ação numa carta e a conjura depois com ação bônus.",
+    "prerequisite": "4º nível e característica Conjuração",
+    "requires": { "min_level": 4, "spellcasting": true },
+    "source": "botmt"
+  }
+]

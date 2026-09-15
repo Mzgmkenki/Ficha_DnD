@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_feat.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item_spell.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
@@ -191,6 +192,18 @@ class CharacterJsonCodec {
             ],
           },
       ],
+      'feats': [
+        for (final feat in character.feats)
+          <String, dynamic>{
+            'featId': feat.featId,
+            'classId': feat.classId,
+            'level': feat.level,
+            // Arrays, não CSV: o CSV existe só porque a coluna do banco é
+            // texto. Dentro do JSON a lista é o formato natural.
+            'chosenSkills': feat.chosenSkillIds,
+            'grantedSkills': feat.grantedSkillIds,
+          },
+      ],
       'inspiration': character.inspiration,
       'exhaustion': character.exhaustion,
       // Lista de ids, não CSV: dentro do JSON um array é o formato natural, e
@@ -262,6 +275,7 @@ class CharacterJsonCodec {
       skillProficiencies: _parseSkills(map['skills']),
       spells: _parseSpells(map['spells']),
       magicItems: _parseMagicItems(map['magicItems']),
+      feats: _parseFeats(map['feats']),
       inspiration: _asBool(map['inspiration']),
       exhaustion: (_asInt(map['exhaustion']) ?? 0).clamp(0, 6),
       conditions: _parseConditions(map['conditions']),
@@ -403,6 +417,40 @@ class CharacterJsonCodec {
     }
 
     return result;
+  }
+
+  static List<CharacterFeat> _parseFeats(Object? raw) {
+    final result = <CharacterFeat>[];
+
+    for (final item in _asList(raw)) {
+      final map = _asMap(item);
+      final featId = _asString(map['featId'])?.trim();
+
+      // Talento sem id não tem como ser resolvido no compêndio depois.
+      if (featId == null || featId.isEmpty) continue;
+
+      result.add(
+        CharacterFeat(
+          featId: featId,
+          classId: _asString(map['classId']),
+          level: _asInt(map['level']),
+          chosenSkillIds: _parseSkillIdList(map['chosenSkills']),
+          grantedSkillIds: _parseSkillIdList(map['grantedSkills']),
+        ),
+      );
+    }
+
+    return result;
+  }
+
+  /// Aceita array e também o CSV que uma ficha exportada à mão poderia trazer.
+  static List<String> _parseSkillIdList(Object? raw) {
+    if (raw is String) return CharacterFeat.parseSkillIdsCsv(raw);
+
+    return [
+      for (final item in _asList(raw))
+        if (_asString(item)?.trim() case final id? when id.isNotEmpty) id,
+    ];
   }
 
   static List<CharacterMagicItem> _parseMagicItems(Object? raw) {

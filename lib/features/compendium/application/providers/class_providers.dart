@@ -2,6 +2,7 @@ import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_slot_progression_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/subclass_entry.dart';
@@ -21,6 +22,20 @@ final backgroundEntriesProvider =
     FutureProvider<List<BackgroundEntry>>((ref) async {
   final repository = ref.watch(compendiumRepositoryProvider);
   return repository.loadBackgrounds();
+});
+
+final featEntriesProvider = FutureProvider<List<FeatEntry>>((ref) async {
+  final repository = ref.watch(compendiumRepositoryProvider);
+  return repository.loadFeats();
+});
+
+final featByIdProvider =
+    FutureProvider.family<FeatEntry?, String>((ref, id) async {
+  final feats = await ref.watch(featEntriesProvider.future);
+  for (final item in feats) {
+    if (item.id == id) return item;
+  }
+  return null;
 });
 
 final backgroundByIdProvider =

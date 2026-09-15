@@ -1,6 +1,8 @@
 import 'package:dnd_ficha_app/core/database/app_database.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart' as domain;
+import 'package:dnd_ficha_app/features/character/domain/entities/character_feat.dart'
+    as domain_feats;
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/combat_stats.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/currency.dart';
@@ -18,6 +20,7 @@ class CharacterMapper {
   static domain.Character fromDatabase({
     required Character character,
     required List<CharacterClassLevel> classLevels,
+    List<CharacterFeat> feats = const [],
   }) {
     return domain.Character(
       id: character.id,
@@ -102,6 +105,23 @@ class CharacterMapper {
           Skill.survival: ProficiencyLevel.fromDb(character.lvlSurvival),
         },
       ),
+
+      feats: feats
+          .map(
+            (row) => domain_feats.CharacterFeat(
+              localId: row.localId,
+              featId: row.featId,
+              classId: row.classId,
+              level: row.level,
+              chosenSkillIds: domain_feats.CharacterFeat.parseSkillIdsCsv(
+                row.chosenSkills,
+              ),
+              grantedSkillIds: domain_feats.CharacterFeat.parseSkillIdsCsv(
+                row.grantedSkills,
+              ),
+            ),
+          )
+          .toList(growable: false),
 
       inspiration: character.inspiration,
       exhaustion: character.exhaustion,

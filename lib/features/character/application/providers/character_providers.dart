@@ -4,6 +4,7 @@ import 'package:dnd_ficha_app/features/character/application/use_cases/character
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/export_character_pdf.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/import_character.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/level_up_character_class.dart';
+import 'package:dnd_ficha_app/features/character/application/use_cases/character/manage_character_feats.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/sync_subclass_spells.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/update_character_ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/update_character_class_levels.dart';
@@ -58,6 +59,12 @@ final updateCharacterIdentityProvider =
     Provider<UpdateCharacterIdentity>((ref) {
   final repository = ref.watch(characterRepositoryProvider);
   return UpdateCharacterIdentity(repository);
+});
+
+final manageCharacterFeatsProvider =
+    Provider<ManageCharacterFeats>((ref) {
+  final repository = ref.watch(characterRepositoryProvider);
+  return ManageCharacterFeats(repository);
 });
 
 final updateCharacterPortraitProvider =

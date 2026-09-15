@@ -12,6 +12,7 @@ import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/clas
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/combat_summary_card.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/conditions_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/currency_panel.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/feats_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/magic_items_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/racial_traits_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/rest_and_resources_panel.dart';
@@ -314,6 +315,11 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                   ClassFeaturesPanel(classLevels: character.classLevels),
 
                   const SizedBox(height: 16),
+                  const _SectionHeader(title: 'Talentos'),
+                  const SizedBox(height: 8),
+                  FeatsPanel(character: character),
+
+                  const SizedBox(height: 16),
                   _SectionHeader(
                     title: 'Anotações',
                     actionLabel: 'Editar',
@@ -459,6 +465,10 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
       parts.add(
         'Escolha ${outcome.pendingSubclassLabel} em Editar nível.',
       );
+    }
+
+    if (outcome.grantsFeat) {
+      parts.add('Este nível dá incremento de atributo ou talento.');
     }
 
     if (outcome.spellSyncError != null) {

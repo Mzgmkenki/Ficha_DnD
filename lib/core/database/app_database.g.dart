@@ -6749,6 +6749,491 @@ class CharacterSpellSlotsUsageCompanion
   }
 }
 
+class $CharacterFeatsTable extends CharacterFeats
+    with TableInfo<$CharacterFeatsTable, CharacterFeat> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CharacterFeatsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _localIdMeta = const VerificationMeta(
+    'localId',
+  );
+  @override
+  late final GeneratedColumn<int> localId = GeneratedColumn<int>(
+    'local_id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _characterIdMeta = const VerificationMeta(
+    'characterId',
+  );
+  @override
+  late final GeneratedColumn<String> characterId = GeneratedColumn<String>(
+    'character_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES characters (id)',
+    ),
+  );
+  static const VerificationMeta _featIdMeta = const VerificationMeta('featId');
+  @override
+  late final GeneratedColumn<String> featId = GeneratedColumn<String>(
+    'feat_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _classIdMeta = const VerificationMeta(
+    'classId',
+  );
+  @override
+  late final GeneratedColumn<String> classId = GeneratedColumn<String>(
+    'class_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _levelMeta = const VerificationMeta('level');
+  @override
+  late final GeneratedColumn<int> level = GeneratedColumn<int>(
+    'level',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _chosenSkillsMeta = const VerificationMeta(
+    'chosenSkills',
+  );
+  @override
+  late final GeneratedColumn<String> chosenSkills = GeneratedColumn<String>(
+    'chosen_skills',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _grantedSkillsMeta = const VerificationMeta(
+    'grantedSkills',
+  );
+  @override
+  late final GeneratedColumn<String> grantedSkills = GeneratedColumn<String>(
+    'granted_skills',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    localId,
+    characterId,
+    featId,
+    classId,
+    level,
+    chosenSkills,
+    grantedSkills,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'character_feats';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CharacterFeat> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('local_id')) {
+      context.handle(
+        _localIdMeta,
+        localId.isAcceptableOrUnknown(data['local_id']!, _localIdMeta),
+      );
+    }
+    if (data.containsKey('character_id')) {
+      context.handle(
+        _characterIdMeta,
+        characterId.isAcceptableOrUnknown(
+          data['character_id']!,
+          _characterIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_characterIdMeta);
+    }
+    if (data.containsKey('feat_id')) {
+      context.handle(
+        _featIdMeta,
+        featId.isAcceptableOrUnknown(data['feat_id']!, _featIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_featIdMeta);
+    }
+    if (data.containsKey('class_id')) {
+      context.handle(
+        _classIdMeta,
+        classId.isAcceptableOrUnknown(data['class_id']!, _classIdMeta),
+      );
+    }
+    if (data.containsKey('level')) {
+      context.handle(
+        _levelMeta,
+        level.isAcceptableOrUnknown(data['level']!, _levelMeta),
+      );
+    }
+    if (data.containsKey('chosen_skills')) {
+      context.handle(
+        _chosenSkillsMeta,
+        chosenSkills.isAcceptableOrUnknown(
+          data['chosen_skills']!,
+          _chosenSkillsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('granted_skills')) {
+      context.handle(
+        _grantedSkillsMeta,
+        grantedSkills.isAcceptableOrUnknown(
+          data['granted_skills']!,
+          _grantedSkillsMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {localId};
+  @override
+  CharacterFeat map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CharacterFeat(
+      localId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}local_id'],
+          )!,
+      characterId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}character_id'],
+          )!,
+      featId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}feat_id'],
+          )!,
+      classId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}class_id'],
+      ),
+      level: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}level'],
+      ),
+      chosenSkills:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}chosen_skills'],
+          )!,
+      grantedSkills:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}granted_skills'],
+          )!,
+    );
+  }
+
+  @override
+  $CharacterFeatsTable createAlias(String alias) {
+    return $CharacterFeatsTable(attachedDatabase, alias);
+  }
+}
+
+class CharacterFeat extends DataClass implements Insertable<CharacterFeat> {
+  final int localId;
+  final String characterId;
+  final String featId;
+
+  /// Classe e nível em que o talento foi pego, para a ficha saber qual escolha
+  /// já foi gasta.
+  final String? classId;
+  final int? level;
+
+  /// Perícias escolhidas pelo jogador dentro das opções do talento, como CSV
+  /// de ids de perícia.
+  final String chosenSkills;
+
+  /// Perícias que este talento efetivamente concedeu, como CSV de ids.
+  final String grantedSkills;
+  const CharacterFeat({
+    required this.localId,
+    required this.characterId,
+    required this.featId,
+    this.classId,
+    this.level,
+    required this.chosenSkills,
+    required this.grantedSkills,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['local_id'] = Variable<int>(localId);
+    map['character_id'] = Variable<String>(characterId);
+    map['feat_id'] = Variable<String>(featId);
+    if (!nullToAbsent || classId != null) {
+      map['class_id'] = Variable<String>(classId);
+    }
+    if (!nullToAbsent || level != null) {
+      map['level'] = Variable<int>(level);
+    }
+    map['chosen_skills'] = Variable<String>(chosenSkills);
+    map['granted_skills'] = Variable<String>(grantedSkills);
+    return map;
+  }
+
+  CharacterFeatsCompanion toCompanion(bool nullToAbsent) {
+    return CharacterFeatsCompanion(
+      localId: Value(localId),
+      characterId: Value(characterId),
+      featId: Value(featId),
+      classId:
+          classId == null && nullToAbsent
+              ? const Value.absent()
+              : Value(classId),
+      level:
+          level == null && nullToAbsent ? const Value.absent() : Value(level),
+      chosenSkills: Value(chosenSkills),
+      grantedSkills: Value(grantedSkills),
+    );
+  }
+
+  factory CharacterFeat.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CharacterFeat(
+      localId: serializer.fromJson<int>(json['localId']),
+      characterId: serializer.fromJson<String>(json['characterId']),
+      featId: serializer.fromJson<String>(json['featId']),
+      classId: serializer.fromJson<String?>(json['classId']),
+      level: serializer.fromJson<int?>(json['level']),
+      chosenSkills: serializer.fromJson<String>(json['chosenSkills']),
+      grantedSkills: serializer.fromJson<String>(json['grantedSkills']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'localId': serializer.toJson<int>(localId),
+      'characterId': serializer.toJson<String>(characterId),
+      'featId': serializer.toJson<String>(featId),
+      'classId': serializer.toJson<String?>(classId),
+      'level': serializer.toJson<int?>(level),
+      'chosenSkills': serializer.toJson<String>(chosenSkills),
+      'grantedSkills': serializer.toJson<String>(grantedSkills),
+    };
+  }
+
+  CharacterFeat copyWith({
+    int? localId,
+    String? characterId,
+    String? featId,
+    Value<String?> classId = const Value.absent(),
+    Value<int?> level = const Value.absent(),
+    String? chosenSkills,
+    String? grantedSkills,
+  }) => CharacterFeat(
+    localId: localId ?? this.localId,
+    characterId: characterId ?? this.characterId,
+    featId: featId ?? this.featId,
+    classId: classId.present ? classId.value : this.classId,
+    level: level.present ? level.value : this.level,
+    chosenSkills: chosenSkills ?? this.chosenSkills,
+    grantedSkills: grantedSkills ?? this.grantedSkills,
+  );
+  CharacterFeat copyWithCompanion(CharacterFeatsCompanion data) {
+    return CharacterFeat(
+      localId: data.localId.present ? data.localId.value : this.localId,
+      characterId:
+          data.characterId.present ? data.characterId.value : this.characterId,
+      featId: data.featId.present ? data.featId.value : this.featId,
+      classId: data.classId.present ? data.classId.value : this.classId,
+      level: data.level.present ? data.level.value : this.level,
+      chosenSkills:
+          data.chosenSkills.present
+              ? data.chosenSkills.value
+              : this.chosenSkills,
+      grantedSkills:
+          data.grantedSkills.present
+              ? data.grantedSkills.value
+              : this.grantedSkills,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CharacterFeat(')
+          ..write('localId: $localId, ')
+          ..write('characterId: $characterId, ')
+          ..write('featId: $featId, ')
+          ..write('classId: $classId, ')
+          ..write('level: $level, ')
+          ..write('chosenSkills: $chosenSkills, ')
+          ..write('grantedSkills: $grantedSkills')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    localId,
+    characterId,
+    featId,
+    classId,
+    level,
+    chosenSkills,
+    grantedSkills,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CharacterFeat &&
+          other.localId == this.localId &&
+          other.characterId == this.characterId &&
+          other.featId == this.featId &&
+          other.classId == this.classId &&
+          other.level == this.level &&
+          other.chosenSkills == this.chosenSkills &&
+          other.grantedSkills == this.grantedSkills);
+}
+
+class CharacterFeatsCompanion extends UpdateCompanion<CharacterFeat> {
+  final Value<int> localId;
+  final Value<String> characterId;
+  final Value<String> featId;
+  final Value<String?> classId;
+  final Value<int?> level;
+  final Value<String> chosenSkills;
+  final Value<String> grantedSkills;
+  const CharacterFeatsCompanion({
+    this.localId = const Value.absent(),
+    this.characterId = const Value.absent(),
+    this.featId = const Value.absent(),
+    this.classId = const Value.absent(),
+    this.level = const Value.absent(),
+    this.chosenSkills = const Value.absent(),
+    this.grantedSkills = const Value.absent(),
+  });
+  CharacterFeatsCompanion.insert({
+    this.localId = const Value.absent(),
+    required String characterId,
+    required String featId,
+    this.classId = const Value.absent(),
+    this.level = const Value.absent(),
+    this.chosenSkills = const Value.absent(),
+    this.grantedSkills = const Value.absent(),
+  }) : characterId = Value(characterId),
+       featId = Value(featId);
+  static Insertable<CharacterFeat> custom({
+    Expression<int>? localId,
+    Expression<String>? characterId,
+    Expression<String>? featId,
+    Expression<String>? classId,
+    Expression<int>? level,
+    Expression<String>? chosenSkills,
+    Expression<String>? grantedSkills,
+  }) {
+    return RawValuesInsertable({
+      if (localId != null) 'local_id': localId,
+      if (characterId != null) 'character_id': characterId,
+      if (featId != null) 'feat_id': featId,
+      if (classId != null) 'class_id': classId,
+      if (level != null) 'level': level,
+      if (chosenSkills != null) 'chosen_skills': chosenSkills,
+      if (grantedSkills != null) 'granted_skills': grantedSkills,
+    });
+  }
+
+  CharacterFeatsCompanion copyWith({
+    Value<int>? localId,
+    Value<String>? characterId,
+    Value<String>? featId,
+    Value<String?>? classId,
+    Value<int?>? level,
+    Value<String>? chosenSkills,
+    Value<String>? grantedSkills,
+  }) {
+    return CharacterFeatsCompanion(
+      localId: localId ?? this.localId,
+      characterId: characterId ?? this.characterId,
+      featId: featId ?? this.featId,
+      classId: classId ?? this.classId,
+      level: level ?? this.level,
+      chosenSkills: chosenSkills ?? this.chosenSkills,
+      grantedSkills: grantedSkills ?? this.grantedSkills,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (localId.present) {
+      map['local_id'] = Variable<int>(localId.value);
+    }
+    if (characterId.present) {
+      map['character_id'] = Variable<String>(characterId.value);
+    }
+    if (featId.present) {
+      map['feat_id'] = Variable<String>(featId.value);
+    }
+    if (classId.present) {
+      map['class_id'] = Variable<String>(classId.value);
+    }
+    if (level.present) {
+      map['level'] = Variable<int>(level.value);
+    }
+    if (chosenSkills.present) {
+      map['chosen_skills'] = Variable<String>(chosenSkills.value);
+    }
+    if (grantedSkills.present) {
+      map['granted_skills'] = Variable<String>(grantedSkills.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CharacterFeatsCompanion(')
+          ..write('localId: $localId, ')
+          ..write('characterId: $characterId, ')
+          ..write('featId: $featId, ')
+          ..write('classId: $classId, ')
+          ..write('level: $level, ')
+          ..write('chosenSkills: $chosenSkills, ')
+          ..write('grantedSkills: $grantedSkills')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $ClassEntriesTable extends ClassEntries
     with TableInfo<$ClassEntriesTable, ClassEntry> {
   @override
@@ -7131,6 +7616,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $CharacterMagicItemSpellsTable(this);
   late final $CharacterSpellSlotsUsageTable characterSpellSlotsUsage =
       $CharacterSpellSlotsUsageTable(this);
+  late final $CharacterFeatsTable characterFeats = $CharacterFeatsTable(this);
   late final $ClassEntriesTable classEntries = $ClassEntriesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -7143,6 +7629,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     characterMagicItems,
     characterMagicItemSpells,
     characterSpellSlotsUsage,
+    characterFeats,
     classEntries,
   ];
 }
@@ -7413,6 +7900,27 @@ final class $$CharactersTableReferences
     final cache = $_typedResult.readTableOrNull(
       _characterSpellSlotsUsageRefsTable($_db),
     );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$CharacterFeatsTable, List<CharacterFeat>>
+  _characterFeatsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.characterFeats,
+    aliasName: $_aliasNameGenerator(
+      db.characters.id,
+      db.characterFeats.characterId,
+    ),
+  );
+
+  $$CharacterFeatsTableProcessedTableManager get characterFeatsRefs {
+    final manager = $$CharacterFeatsTableTableManager(
+      $_db,
+      $_db.characterFeats,
+    ).filter((f) => f.characterId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_characterFeatsRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -7907,6 +8415,31 @@ class $$CharactersTableFilterComposer
                     $removeJoinBuilderFromRootComposer,
               ),
         );
+    return f(composer);
+  }
+
+  Expression<bool> characterFeatsRefs(
+    Expression<bool> Function($$CharacterFeatsTableFilterComposer f) f,
+  ) {
+    final $$CharacterFeatsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.characterFeats,
+      getReferencedColumn: (t) => t.characterId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharacterFeatsTableFilterComposer(
+            $db: $db,
+            $table: $db.characterFeats,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
     return f(composer);
   }
 }
@@ -8767,6 +9300,31 @@ class $$CharactersTableAnnotationComposer
         );
     return f(composer);
   }
+
+  Expression<T> characterFeatsRefs<T extends Object>(
+    Expression<T> Function($$CharacterFeatsTableAnnotationComposer a) f,
+  ) {
+    final $$CharacterFeatsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.characterFeats,
+      getReferencedColumn: (t) => t.characterId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharacterFeatsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.characterFeats,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$CharactersTableTableManager
@@ -8787,6 +9345,7 @@ class $$CharactersTableTableManager
             bool characterSpellsRefs,
             bool characterMagicItemsRefs,
             bool characterSpellSlotsUsageRefs,
+            bool characterFeatsRefs,
           })
         > {
   $$CharactersTableTableManager(_$AppDatabase db, $CharactersTable table)
@@ -9131,6 +9690,7 @@ class $$CharactersTableTableManager
             characterSpellsRefs = false,
             characterMagicItemsRefs = false,
             characterSpellSlotsUsageRefs = false,
+            characterFeatsRefs = false,
           }) {
             return PrefetchHooks(
               db: db,
@@ -9139,6 +9699,7 @@ class $$CharactersTableTableManager
                 if (characterSpellsRefs) db.characterSpells,
                 if (characterMagicItemsRefs) db.characterMagicItems,
                 if (characterSpellSlotsUsageRefs) db.characterSpellSlotsUsage,
+                if (characterFeatsRefs) db.characterFeats,
               ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
@@ -9231,6 +9792,28 @@ class $$CharactersTableTableManager
                           ),
                       typedResults: items,
                     ),
+                  if (characterFeatsRefs)
+                    await $_getPrefetchedData<
+                      Character,
+                      $CharactersTable,
+                      CharacterFeat
+                    >(
+                      currentTable: table,
+                      referencedTable: $$CharactersTableReferences
+                          ._characterFeatsRefsTable(db),
+                      managerFromTypedResult:
+                          (p0) =>
+                              $$CharactersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).characterFeatsRefs,
+                      referencedItemsForCurrentItem:
+                          (item, referencedItems) => referencedItems.where(
+                            (e) => e.characterId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
                 ];
               },
             );
@@ -9256,6 +9839,7 @@ typedef $$CharactersTableProcessedTableManager =
         bool characterSpellsRefs,
         bool characterMagicItemsRefs,
         bool characterSpellSlotsUsageRefs,
+        bool characterFeatsRefs,
       })
     >;
 typedef $$CharacterClassLevelsTableCreateCompanionBuilder =
@@ -11351,6 +11935,373 @@ typedef $$CharacterSpellSlotsUsageTableProcessedTableManager =
       CharacterSpellSlotsUsageData,
       PrefetchHooks Function({bool characterId})
     >;
+typedef $$CharacterFeatsTableCreateCompanionBuilder =
+    CharacterFeatsCompanion Function({
+      Value<int> localId,
+      required String characterId,
+      required String featId,
+      Value<String?> classId,
+      Value<int?> level,
+      Value<String> chosenSkills,
+      Value<String> grantedSkills,
+    });
+typedef $$CharacterFeatsTableUpdateCompanionBuilder =
+    CharacterFeatsCompanion Function({
+      Value<int> localId,
+      Value<String> characterId,
+      Value<String> featId,
+      Value<String?> classId,
+      Value<int?> level,
+      Value<String> chosenSkills,
+      Value<String> grantedSkills,
+    });
+
+final class $$CharacterFeatsTableReferences
+    extends BaseReferences<_$AppDatabase, $CharacterFeatsTable, CharacterFeat> {
+  $$CharacterFeatsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $CharactersTable _characterIdTable(_$AppDatabase db) =>
+      db.characters.createAlias(
+        $_aliasNameGenerator(db.characterFeats.characterId, db.characters.id),
+      );
+
+  $$CharactersTableProcessedTableManager get characterId {
+    final $_column = $_itemColumn<String>('character_id')!;
+
+    final manager = $$CharactersTableTableManager(
+      $_db,
+      $_db.characters,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_characterIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$CharacterFeatsTableFilterComposer
+    extends Composer<_$AppDatabase, $CharacterFeatsTable> {
+  $$CharacterFeatsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get featId => $composableBuilder(
+    column: $table.featId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get classId => $composableBuilder(
+    column: $table.classId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get level => $composableBuilder(
+    column: $table.level,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get chosenSkills => $composableBuilder(
+    column: $table.chosenSkills,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get grantedSkills => $composableBuilder(
+    column: $table.grantedSkills,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CharactersTableFilterComposer get characterId {
+    final $$CharactersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableFilterComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterFeatsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CharacterFeatsTable> {
+  $$CharacterFeatsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get featId => $composableBuilder(
+    column: $table.featId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get classId => $composableBuilder(
+    column: $table.classId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get level => $composableBuilder(
+    column: $table.level,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get chosenSkills => $composableBuilder(
+    column: $table.chosenSkills,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get grantedSkills => $composableBuilder(
+    column: $table.grantedSkills,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CharactersTableOrderingComposer get characterId {
+    final $$CharactersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableOrderingComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterFeatsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CharacterFeatsTable> {
+  $$CharacterFeatsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get localId =>
+      $composableBuilder(column: $table.localId, builder: (column) => column);
+
+  GeneratedColumn<String> get featId =>
+      $composableBuilder(column: $table.featId, builder: (column) => column);
+
+  GeneratedColumn<String> get classId =>
+      $composableBuilder(column: $table.classId, builder: (column) => column);
+
+  GeneratedColumn<int> get level =>
+      $composableBuilder(column: $table.level, builder: (column) => column);
+
+  GeneratedColumn<String> get chosenSkills => $composableBuilder(
+    column: $table.chosenSkills,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get grantedSkills => $composableBuilder(
+    column: $table.grantedSkills,
+    builder: (column) => column,
+  );
+
+  $$CharactersTableAnnotationComposer get characterId {
+    final $$CharactersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterFeatsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CharacterFeatsTable,
+          CharacterFeat,
+          $$CharacterFeatsTableFilterComposer,
+          $$CharacterFeatsTableOrderingComposer,
+          $$CharacterFeatsTableAnnotationComposer,
+          $$CharacterFeatsTableCreateCompanionBuilder,
+          $$CharacterFeatsTableUpdateCompanionBuilder,
+          (CharacterFeat, $$CharacterFeatsTableReferences),
+          CharacterFeat,
+          PrefetchHooks Function({bool characterId})
+        > {
+  $$CharacterFeatsTableTableManager(
+    _$AppDatabase db,
+    $CharacterFeatsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer:
+              () => $$CharacterFeatsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer:
+              () =>
+                  $$CharacterFeatsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer:
+              () => $$CharacterFeatsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> localId = const Value.absent(),
+                Value<String> characterId = const Value.absent(),
+                Value<String> featId = const Value.absent(),
+                Value<String?> classId = const Value.absent(),
+                Value<int?> level = const Value.absent(),
+                Value<String> chosenSkills = const Value.absent(),
+                Value<String> grantedSkills = const Value.absent(),
+              }) => CharacterFeatsCompanion(
+                localId: localId,
+                characterId: characterId,
+                featId: featId,
+                classId: classId,
+                level: level,
+                chosenSkills: chosenSkills,
+                grantedSkills: grantedSkills,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> localId = const Value.absent(),
+                required String characterId,
+                required String featId,
+                Value<String?> classId = const Value.absent(),
+                Value<int?> level = const Value.absent(),
+                Value<String> chosenSkills = const Value.absent(),
+                Value<String> grantedSkills = const Value.absent(),
+              }) => CharacterFeatsCompanion.insert(
+                localId: localId,
+                characterId: characterId,
+                featId: featId,
+                classId: classId,
+                level: level,
+                chosenSkills: chosenSkills,
+                grantedSkills: grantedSkills,
+              ),
+          withReferenceMapper:
+              (p0) =>
+                  p0
+                      .map(
+                        (e) => (
+                          e.readTable(table),
+                          $$CharacterFeatsTableReferences(db, table, e),
+                        ),
+                      )
+                      .toList(),
+          prefetchHooksCallback: ({characterId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                T extends TableManagerState<
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic
+                >
+              >(state) {
+                if (characterId) {
+                  state =
+                      state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.characterId,
+                            referencedTable: $$CharacterFeatsTableReferences
+                                ._characterIdTable(db),
+                            referencedColumn:
+                                $$CharacterFeatsTableReferences
+                                    ._characterIdTable(db)
+                                    .id,
+                          )
+                          as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$CharacterFeatsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CharacterFeatsTable,
+      CharacterFeat,
+      $$CharacterFeatsTableFilterComposer,
+      $$CharacterFeatsTableOrderingComposer,
+      $$CharacterFeatsTableAnnotationComposer,
+      $$CharacterFeatsTableCreateCompanionBuilder,
+      $$CharacterFeatsTableUpdateCompanionBuilder,
+      (CharacterFeat, $$CharacterFeatsTableReferences),
+      CharacterFeat,
+      PrefetchHooks Function({bool characterId})
+    >;
 typedef $$ClassEntriesTableCreateCompanionBuilder =
     ClassEntriesCompanion Function({
       required String id,
@@ -11583,6 +12534,8 @@ class $AppDatabaseManager {
         _db,
         _db.characterSpellSlotsUsage,
       );
+  $$CharacterFeatsTableTableManager get characterFeats =>
+      $$CharacterFeatsTableTableManager(_db, _db.characterFeats);
   $$ClassEntriesTableTableManager get classEntries =>
       $$ClassEntriesTableTableManager(_db, _db.classEntries);
 }

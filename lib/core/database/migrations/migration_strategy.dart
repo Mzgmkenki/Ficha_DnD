@@ -189,6 +189,11 @@ MigrationStrategy buildMigrationStrategy(AppDatabase db) {
           "UPDATE characters SET conditions = '' WHERE conditions IS NULL",
         );
       }
+
+      if (from < 11) {
+        // Talentos escolhidos pelo personagem.
+        await _tryCreateTable(m, db.characterFeats);
+      }
     },
     beforeOpen: (details) async {
       // Roda fora da transação de migração, então aqui é seguro usar `db`.

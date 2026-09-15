@@ -3,6 +3,8 @@ import 'package:dnd_ficha_app/features/compendium/domain/entities/ability_bonus_
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_prerequisite.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_choice_group.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_skill_choice.dart';
@@ -25,6 +27,11 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
           item['skill_options'] as List<dynamic>? ?? const [];
       final savingThrowsRaw =
           item['saving_throws'] as List<dynamic>? ?? const [];
+      final featLevelsRaw = _asList(item['feat_levels'])
+          .map(_asInt)
+          .whereType<int>()
+          .where((level) => level > 0)
+          .toList(growable: false);
 
       return ClassEntry(
         id: item['id'] as String,
@@ -35,6 +42,11 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
         spellcastingAbility: item['spellcasting_ability'] as String?,
         subclassLevel: _asInt(item['subclass_level']),
         subclassLabel: item['subclass_label'] as String?,
+        // Ausente no JSON cai no padrão 4/8/12/16/19, que vale para quase
+        // todas as classes; só Guerreiro e Ladino precisam declarar.
+        featLevels: featLevelsRaw.isEmpty
+            ? ClassEntry.defaultFeatLevels
+            : featLevelsRaw,
         source: item['source'] as String? ?? 'srd',
         skillOptions: skillOptionsRaw
             .map((e) => e.toString())
@@ -150,6 +162,73 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
     }
 
     return List<BackgroundEntry>.unmodifiable(entries);
+  }
+
+  @override
+  Future<List<FeatEntry>> loadFeats() async {
+    final items = await _source.loadJsonList('assets/data/srd/feats.json');
+
+    return items.map((item) {
+      final rawChoice = _asMap(item['skill_choice']);
+      final rawIncreases = _asMap(item['ability_increases']);
+
+      return FeatEntry(
+        id: item['id'] as String,
+        name: item['name'] as String,
+        nameOriginal: item['name_original'] as String?,
+        description: item['description'] as String?,
+        prerequisite: item['prerequisite'] as String?,
+        requires: _parseFeatPrerequisite(_asMap(item['requires'])),
+        repeatable: _asBool(item['repeatable'], fallback: false),
+        skillIds: _asList(item['skills'])
+            .map((e) => e.toString())
+            .toList(growable: false),
+        // `choose: 0` não é escolha nenhuma, então vira nulo em vez de um
+        // objeto que a tela teria de checar depois.
+        skillChoice: rawChoice.isEmpty || (_asInt(rawChoice['choose']) ?? 0) <= 0
+            ? null
+            : FeatSkillChoice(
+                choose: _asInt(rawChoice['choose']) ?? 0,
+                options: _asList(rawChoice['options'])
+                    .map((e) => e.toString())
+                    .toList(growable: false),
+              ),
+        abilityIncreases: {
+          for (final entry in rawIncreases.entries)
+            if (_asInt(entry.value) case final value?) entry.key: value,
+        },
+        abilityIncreaseOptions: _asList(item['ability_increase_options'])
+            .map((e) => e.toString())
+            .toList(growable: false),
+        source: item['source'] as String? ?? 'phb',
+      );
+    }).toList(growable: false);
+  }
+
+  FeatPrerequisite _parseFeatPrerequisite(Map<String, dynamic> raw) {
+    if (raw.isEmpty) return const FeatPrerequisite();
+
+    List<String> ids(String key) => _asList(raw[key])
+        .map((e) => e.toString())
+        .where((e) => e.isNotEmpty)
+        .toList(growable: false);
+
+    final rawAbilities = _asMap(raw['min_ability_any']);
+
+    return FeatPrerequisite(
+      minLevel: _asInt(raw['min_level']) ?? 0,
+      minAbilityAny: {
+        for (final entry in rawAbilities.entries)
+          if (_asInt(entry.value) case final value?) entry.key: value,
+      },
+      requiresSpellcasting: _asBool(raw['spellcasting']),
+      raceIds: ids('race_ids'),
+      raceSizes: ids('race_sizes'),
+      classIds: ids('class_ids'),
+      requiredFeatIds: ids('feat_ids'),
+      forbiddenFeatIds: ids('not_feat_ids'),
+      notes: ids('notes'),
+    );
   }
 
   @override

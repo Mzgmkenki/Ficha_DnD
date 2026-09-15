@@ -13,8 +13,9 @@ import 'package:dnd_ficha_app/features/character/domain/entities/custom_backgrou
 import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/granted_skills.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
-import 'package:dnd_ficha_app/features/character/domain/value_objects/proficiency_level.dart';
+
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/spellcasting_type.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/custom_background_form.dart';
@@ -1158,31 +1159,18 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
     List<Skill> backgroundSkills,
     _CombinedRaceData race,
   ) {
-    final levels = <Skill, ProficiencyLevel>{};
+    // A escolha da raça é filtrada contra as opções dela: sem isso, uma opção
+    // desmarcada depois de trocar de raça entraria de carona.
+    final raceOptions = race.skillChoice?.options ?? const <String>[];
+    final racePicks = _raceSkillPicks.where(raceOptions.contains);
 
-    for (final skill in Skill.values) {
-      if (_selectedSkills.contains(skill.id)) {
-        levels[skill] = ProficiencyLevel.proficient;
-      }
-    }
-
-    for (final skill in backgroundSkills) {
-      levels[skill] = ProficiencyLevel.proficient;
-    }
-
-    for (final id in race.grantedSkills) {
-      final skill = Skill.fromId(id);
-      if (skill != null) levels[skill] = ProficiencyLevel.proficient;
-    }
-
-    final options = race.skillChoice?.options ?? const <String>[];
-    for (final id in _raceSkillPicks) {
-      if (!options.contains(id)) continue;
-      final skill = Skill.fromId(id);
-      if (skill != null) levels[skill] = ProficiencyLevel.proficient;
-    }
-
-    return SkillProficiencies(levels: levels);
+    return GrantedSkills.apply(const SkillProficiencies(), [
+      // Perícias de classe marcadas pelo jogador.
+      ...GrantedSkills.fromIds(_selectedSkills),
+      ...backgroundSkills,
+      ...GrantedSkills.fromIds(race.grantedSkills),
+      ...GrantedSkills.fromIds(racePicks),
+    ]);
   }
 
   Ability? _abilityFromString(String? value) {

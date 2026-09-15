@@ -166,6 +166,19 @@ class CharacterRepositoryImpl implements CharacterRepository {
             );
       }
 
+      for (final feat in character.feats) {
+        await _database.into(_database.characterFeats).insert(
+              db.CharacterFeatsCompanion.insert(
+                characterId: character.id,
+                featId: feat.featId,
+                classId: drift.Value(feat.classId),
+                level: drift.Value(feat.level),
+                chosenSkills: drift.Value(feat.chosenSkillsAsCsv),
+                grantedSkills: drift.Value(feat.grantedSkillsAsCsv),
+              ),
+            );
+      }
+
       // Antes os itens mágicos eram descartados silenciosamente aqui.
       for (final item in character.magicItems) {
         final insertedId =
@@ -227,6 +240,10 @@ class CharacterRepositoryImpl implements CharacterRepository {
             ..where((tbl) => tbl.characterId.equals(id)))
           .go();
 
+      await (_database.delete(_database.characterFeats)
+            ..where((tbl) => tbl.characterId.equals(id)))
+          .go();
+
       await (_database.delete(_database.characterClassLevels)
             ..where((tbl) => tbl.characterId.equals(id)))
           .go();
@@ -255,6 +272,10 @@ class CharacterRepositoryImpl implements CharacterRepository {
         .get();
 
     final itemRows = await (_database.select(_database.characterMagicItems)
+          ..where((tbl) => tbl.characterId.equals(id)))
+        .get();
+
+    final featRows = await (_database.select(_database.characterFeats)
           ..where((tbl) => tbl.characterId.equals(id)))
         .get();
 
@@ -294,6 +315,7 @@ class CharacterRepositoryImpl implements CharacterRepository {
     final mapped = CharacterMapper.fromDatabase(
       character: characterRow,
       classLevels: classLevelRows,
+      feats: featRows,
     );
 
     return mapped.copyWith(
@@ -357,6 +379,7 @@ class CharacterRepositoryImpl implements CharacterRepository {
       _database.characterSpells,
       _database.characterMagicItems,
       _database.characterMagicItemSpells,
+      _database.characterFeats,
     ]);
   }
 
@@ -481,6 +504,26 @@ class CharacterRepositoryImpl implements CharacterRepository {
 
       if (character.classLevels.isEmpty) {
         throw Exception('Personagem precisa ter pelo menos 1 classe');
+      }
+
+      // Talentos: apaga e reinsere, igual aos níveis de classe. A lista é
+      // curta e vem inteira no agregado, então reconciliar linha a linha só
+      // acrescentaria caminho para errar.
+      await (_database.delete(_database.characterFeats)
+            ..where((tbl) => tbl.characterId.equals(character.id)))
+          .go();
+
+      for (final feat in character.feats) {
+        await _database.into(_database.characterFeats).insert(
+              db.CharacterFeatsCompanion.insert(
+                characterId: character.id,
+                featId: feat.featId,
+                classId: drift.Value(feat.classId),
+                level: drift.Value(feat.level),
+                chosenSkills: drift.Value(feat.chosenSkillsAsCsv),
+                grantedSkills: drift.Value(feat.grantedSkillsAsCsv),
+              ),
+            );
       }
 
       await (_database.delete(_database.characterClassLevels)

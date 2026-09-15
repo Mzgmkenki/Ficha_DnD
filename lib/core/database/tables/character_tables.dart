@@ -192,6 +192,30 @@ class CharacterMagicItemSpells extends Table {
       boolean().withDefault(const Constant(true))();
 }
 
+/// Talentos que o personagem pegou.
+///
+/// [grantedSkills] guarda só as perícias que ESTE talento passou a conceder,
+/// isto é, as que o personagem ainda não tinha. Sem isso, remover o talento não
+/// teria como saber o que devolver: uma perícia que já vinha da classe ou do
+/// antecedente seria apagada junto.
+class CharacterFeats extends Table {
+  IntColumn get localId => integer().autoIncrement()();
+  TextColumn get characterId => text().references(Characters, #id)();
+  TextColumn get featId => text()();
+
+  /// Classe e nível em que o talento foi pego, para a ficha saber qual escolha
+  /// já foi gasta.
+  TextColumn get classId => text().nullable()();
+  IntColumn get level => integer().nullable()();
+
+  /// Perícias escolhidas pelo jogador dentro das opções do talento, como CSV
+  /// de ids de perícia.
+  TextColumn get chosenSkills => text().withDefault(const Constant(''))();
+
+  /// Perícias que este talento efetivamente concedeu, como CSV de ids.
+  TextColumn get grantedSkills => text().withDefault(const Constant(''))();
+}
+
 class CharacterSpellSlotsUsage extends Table {
   IntColumn get localId => integer().autoIncrement()();
   TextColumn get characterId => text().references(Characters, #id)();

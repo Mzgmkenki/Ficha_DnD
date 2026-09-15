@@ -11,7 +11,15 @@ class ClassEntry {
     this.spellcastingAbility,
     this.subclassLevel,
     this.subclassLabel,
+    this.featLevels = defaultFeatLevels,
   });
+
+  /// Níveis em que quase toda classe ganha Incremento no Valor de Atributo, e
+  /// portanto pode trocar por um talento.
+  ///
+  /// Guerreiro (6 e 14) e Ladino (10) ganham níveis extras, então cada classe
+  /// pode sobrescrever a lista pelo JSON.
+  static const List<int> defaultFeatLevels = [4, 8, 12, 16, 19];
 
   final String id;
   final String name;
@@ -41,6 +49,23 @@ class ClassEntry {
     final required = subclassLevel;
     if (required == null) return false;
     return level >= required;
+  }
+
+  /// Níveis desta classe que abrem a escolha de talento.
+  final List<int> featLevels;
+
+  /// Se [level] é exatamente um nível de escolha de talento.
+  ///
+  /// Diferente de [subclassUnlockedAt], que é "já passou do nível": talento é
+  /// concedido POR nível alcançado, então a comparação é de igualdade.
+  bool grantsFeatAt(int level) => featLevels.contains(level);
+
+  /// Quantos talentos a classe já concedeu até [level].
+  ///
+  /// É o teto de talentos vindos desta classe, e é o que permite avisar que
+  /// falta escolher um sem depender de saber em qual nível cada um foi pego.
+  int featsGrantedUpTo(int level) {
+    return featLevels.where((item) => item <= level).length;
   }
 
   /// Atributo usado para conjurar. Não confundir com [primaryAbility]: o

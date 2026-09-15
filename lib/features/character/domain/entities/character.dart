@@ -1,4 +1,5 @@
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_feat.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
@@ -34,6 +35,7 @@ class Character {
     this.skillProficiencies = const SkillProficiencies(),
     this.spells = const [],
     this.magicItems = const [],
+    this.feats = const [],
     this.inspiration = false,
     this.exhaustion = 0,
     this.conditions = const {},
@@ -69,6 +71,9 @@ class Character {
   final SkillProficiencies skillProficiencies;
   final List<CharacterSpell> spells;
   final List<CharacterMagicItem> magicItems;
+
+  /// Talentos escolhidos nos níveis em que a classe permite.
+  final List<CharacterFeat> feats;
 
   /// Inspiração heroica concedida pelo mestre.
   final bool inspiration;
@@ -124,6 +129,7 @@ class Character {
     SkillProficiencies? skillProficiencies,
     List<CharacterSpell>? spells,
     List<CharacterMagicItem>? magicItems,
+    List<CharacterFeat>? feats,
     bool? inspiration,
     int? exhaustion,
     Set<Condition>? conditions,
@@ -160,6 +166,7 @@ class Character {
       skillProficiencies: skillProficiencies ?? this.skillProficiencies,
       spells: spells ?? this.spells,
       magicItems: magicItems ?? this.magicItems,
+      feats: feats ?? this.feats,
       inspiration: inspiration ?? this.inspiration,
       exhaustion: exhaustion ?? this.exhaustion,
       // Sem sentinela: limpar as condições é passar um conjunto vazio, não

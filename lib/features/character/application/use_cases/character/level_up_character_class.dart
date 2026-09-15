@@ -18,6 +18,7 @@ class LevelUpOutcome {
     required this.newLevel,
     required this.totalLevel,
     this.pendingSubclassLabel,
+    this.grantsFeat = false,
     this.spellSyncError,
   });
 
@@ -36,6 +37,14 @@ class LevelUpOutcome {
   /// Subir de nível não escolhe o arquétipo no lugar do jogador, então a ficha
   /// precisa avisar que essa decisão ficou pendente.
   final String? pendingSubclassLabel;
+
+  /// Se o nível alcançado abre escolha de talento (ou incremento de atributo).
+  ///
+  /// Mesma ideia de [pendingSubclassLabel]: subir de nível não escolhe o
+  /// talento pelo jogador, só avisa que a decisão apareceu. Aqui a comparação é
+  /// por igualdade e não por "já passou", porque o talento é concedido POR
+  /// nível alcançado — quem chega ao 8º ganha um, independente do que fez no 4º.
+  final bool grantsFeat;
 
   /// O nível foi gravado, mas a reconciliação das magias de subclasse falhou.
   ///
@@ -131,6 +140,7 @@ class LevelUpCharacterClass {
         newLevel: newLevel,
         currentSubclassId: target.subclassId,
       ),
+      grantsFeat: classEntry?.grantsFeatAt(newLevel) ?? false,
       spellSyncError: syncError,
     );
   }
