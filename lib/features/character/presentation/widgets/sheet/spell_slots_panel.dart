@@ -1,8 +1,8 @@
 ﻿import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/spell_slot_calculator.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
-import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_slot_progression_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,7 +17,10 @@ class SpellSlotsPanel extends ConsumerWidget {
   final List<ClassLevel> classLevels;
   final String characterId;
 
-  static int pactUsageKey(int slotLevel) => 100 + slotLevel;
+  /// Mantido como atalho para quem já chamava por aqui; a conta vive no
+  /// [SpellSlotCalculator].
+  static int pactUsageKey(int slotLevel) =>
+      SpellSlotCalculator.pactUsageKey(slotLevel);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,8 +35,11 @@ class SpellSlotsPanel extends ConsumerWidget {
           data: (classes) {
             return progressionsAsync.when(
               data: (rows) {
-                final result =
-                    _buildSpellcastingSummary(classLevels, classes, rows);
+                final result = SpellSlotCalculator.summarize(
+                  classLevels: classLevels,
+                  classes: classes,
+                  progressions: rows,
+                );
 
                 return usedSlotsAsync.when(
                   data: (usedSlots) {
@@ -102,171 +108,6 @@ class SpellSlotsPanel extends ConsumerWidget {
     );
   }
 
-  _SpellcastingSummary _buildSpellcastingSummary(
-    List<ClassLevel> classLevels,
-    List<ClassEntry> classes,
-    List<SpellSlotProgressionEntry> rows,
-  ) {
-    ClassEntry? classForId(String id) {
-      for (final item in classes) {
-        if (item.id == id) return item;
-      }
-      return null;
-    }
-
-    SpellSlotProgressionEntry? findRow(String tableId, int level) {
-      for (final row in rows) {
-        if (row.tableId == tableId && row.level == level) {
-          return row;
-        }
-      }
-      return null;
-    }
-
-    int fullCasterLevels = 0;
-    int halfCasterLevels = 0;
-    int thirdCasterLevels = 0;
-    int halfContribution = 0;
-    int thirdContribution = 0;
-    int pactLevels = 0;
-    int spellcastingClassCount = 0;
-
-    for (final classLevel in classLevels) {
-      final classEntry = classForId(classLevel.classId);
-      final type = classEntry?.spellcastingType;
-
-      switch (type) {
-        case 'full':
-          fullCasterLevels += classLevel.level;
-          spellcastingClassCount++;
-          break;
-        case 'half':
-          halfCasterLevels += classLevel.level;
-          // Arredondamento por classe, conforme a regra oficial.
-          halfContribution += classLevel.level ~/ 2;
-          spellcastingClassCount++;
-          break;
-        case 'artificer':
-          halfCasterLevels += classLevel.level;
-          // O artífice é o único meio-conjurador que arredonda para cima.
-          halfContribution += (classLevel.level + 1) ~/ 2;
-          spellcastingClassCount++;
-          break;
-        case 'third':
-          thirdCasterLevels += classLevel.level;
-          thirdContribution += classLevel.level ~/ 3;
-          spellcastingClassCount++;
-          break;
-        case 'pact':
-          pactLevels += classLevel.level;
-          spellcastingClassCount++;
-          break;
-      }
-    }
-
-    final hasAnyCasting = spellcastingClassCount > 0;
-    if (!hasAnyCasting) {
-      return const _SpellcastingSummary(
-        hasAnyCasting: false,
-        standardSlots: null,
-        pactSlots: null,
-        modeLabel: null,
-        explanation: null,
-      );
-    }
-
-    SpellSlotProgressionEntry? standardSlots;
-    SpellSlotProgressionEntry? pactSlots;
-    String? modeLabel;
-    String? explanation;
-
-    final nonPactCastingPresent =
-        fullCasterLevels > 0 || halfCasterLevels > 0 || thirdCasterLevels > 0;
-
-    if (classLevels.length == 1) {
-      final classEntry = classForId(classLevels.first.classId);
-      final type = classEntry?.spellcastingType;
-
-      if (type == 'full' ||
-          type == 'half' ||
-          type == 'third' ||
-          type == 'artificer') {
-        standardSlots = findRow(type!, classLevels.first.level);
-        modeLabel =
-            'Progressão de ${classEntry?.name ?? classLevels.first.classId}';
-        explanation =
-            'Tabela usada: ${_tableLabel(type)} • nível de conjuração: ${classLevels.first.level}';
-      } else if (type == 'pact') {
-        pactSlots = findRow('pact', classLevels.first.level);
-        modeLabel = 'Magia de Pacto';
-        explanation = 'Bruxo usa progressão própria de slots de pacto.';
-      }
-    } else {
-      if (nonPactCastingPresent) {
-        // Regra oficial (PHB, Multiclass Spellcaster): o arredondamento é
-        // feito POR CLASSE, não sobre a soma. Paladino 3 + Patrulheiro 3 dá
-        // 1 + 1 = 2, e não 6 ~/ 2 = 3.
-        final effectiveCasterLevel =
-            fullCasterLevels + halfContribution + thirdContribution;
-
-        if (effectiveCasterLevel > 0) {
-          standardSlots = findRow(
-            'multiclass',
-            effectiveCasterLevel > 20 ? 20 : effectiveCasterLevel,
-          );
-          modeLabel = 'Progressão multiclasses de conjuração';
-          explanation =
-              'Nível efetivo de conjuração: $effectiveCasterLevel '
-              '(inteiros = $fullCasterLevels, meio = $halfContribution, um-terço = $thirdContribution).';
-        } else {
-          // Ex.: Paladino 1 / Guerreiro 1. Meio-conjurador só conjura a
-          // partir do nível 2, então não há slots — mas o usuário precisa
-          // ver o motivo em vez de um painel vazio.
-          modeLabel = 'Ainda sem slots de magia';
-          explanation =
-              'Meio-conjuradores começam a conjurar no nível 2 e '
-              'um-terço-conjuradores no nível 3.';
-        }
-      }
-
-      if (pactLevels > 0) {
-        pactSlots = findRow('pact', pactLevels > 20 ? 20 : pactLevels);
-      }
-
-      if (pactLevels > 0 && nonPactCastingPresent) {
-        explanation =
-            '${explanation ?? ''} Magia de Pacto permanece separada dos slots normais.';
-      } else if (pactLevels > 0 && !nonPactCastingPresent) {
-        modeLabel = 'Magia de Pacto';
-        explanation = 'Bruxo usa progressão própria de slots de pacto.';
-      }
-    }
-
-    return _SpellcastingSummary(
-      hasAnyCasting: true,
-      standardSlots: standardSlots,
-      pactSlots: pactSlots,
-      modeLabel: modeLabel,
-      explanation: explanation,
-    );
-  }
-
-  String _tableLabel(String type) {
-    switch (type) {
-      case 'full':
-        return 'conjurador completo';
-      case 'half':
-        return 'meio conjurador';
-      case 'artificer':
-        return 'meio conjurador (artífice)';
-      case 'third':
-        return 'um-terço conjurador';
-      case 'pact':
-        return 'magia de pacto';
-      default:
-        return type;
-    }
-  }
 }
 
 class _SlotsManager extends ConsumerWidget {
@@ -284,20 +125,8 @@ class _SlotsManager extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final entries = <int, int>{
-      1: row.first,
-      2: row.second,
-      3: row.third,
-      4: row.fourth,
-      5: row.fifth,
-      6: row.sixth,
-      7: row.seventh,
-      8: row.eighth,
-      9: row.ninth,
-    };
-
-    final visibleEntries =
-        entries.entries.where((entry) => entry.value > 0).toList();
+    final visibleEntries = SpellSlotCalculator.slotsByLevel(row).entries
+        .toList();
 
     if (visibleEntries.isEmpty) {
       return Text('$title: sem slots disponíveis.');
@@ -407,22 +236,11 @@ class _PactSlotsManager extends ConsumerWidget {
   final String characterId;
   final Map<int, int> usedSlots;
 
-  static int pactUsageKey(int slotLevel) => 100 + slotLevel;
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final slotLevel = row.pactSlotLevel ?? 1;
-    final pactSlots = row.first > 0
-        ? row.first
-        : row.second > 0
-            ? row.second
-            : row.third > 0
-                ? row.third
-                : row.fourth > 0
-                    ? row.fourth
-                    : row.fifth;
-
-    final usageKey = pactUsageKey(slotLevel);
+    final slotLevel = SpellSlotCalculator.pactSlotLevel(row);
+    final pactSlots = SpellSlotCalculator.pactSlotCount(row);
+    final usageKey = SpellSlotCalculator.pactUsageKey(slotLevel);
     final used = (usedSlots[usageKey] ?? 0).clamp(0, pactSlots);
     final remaining = pactSlots - used;
 
@@ -478,18 +296,3 @@ class _PactSlotsManager extends ConsumerWidget {
   }
 }
 
-class _SpellcastingSummary {
-  const _SpellcastingSummary({
-    required this.hasAnyCasting,
-    required this.standardSlots,
-    required this.pactSlots,
-    required this.modeLabel,
-    required this.explanation,
-  });
-
-  final bool hasAnyCasting;
-  final SpellSlotProgressionEntry? standardSlots;
-  final SpellSlotProgressionEntry? pactSlots;
-  final String? modeLabel;
-  final String? explanation;
-}

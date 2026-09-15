@@ -41,6 +41,49 @@ class SpellSlotCalculator {
   /// Teto das tabelas de progressão.
   static const int maxTableLevel = 20;
 
+  /// Círculo mais alto que um espaço de pacto alcança.
+  static const int maxPactSlotLevel = 5;
+
+  /// Deslocamento das chaves de uso dos espaços de pacto.
+  ///
+  /// Os espaços gastos são guardados num mapa por círculo, e o pacto corre por
+  /// fora dos normais. Sem deslocar a chave, gastar um espaço de pacto de 3º
+  /// círculo zeraria o 3º círculo normal, porque as duas coisas escreveriam na
+  /// mesma posição. 100 fica bem longe de qualquer círculo real.
+  static const int pactUsageOffset = 100;
+
+  /// Chave onde o uso de um espaço de pacto é guardado.
+  static int pactUsageKey(int slotLevel) => pactUsageOffset + slotLevel;
+
+  /// Todas as chaves de pacto, para quem precisa limpar de uma vez.
+  static List<int> pactUsageKeys() => [
+        for (var level = 1; level <= maxPactSlotLevel; level++)
+          pactUsageKey(level),
+      ];
+
+  /// Círculo em que o bruxo gasta o espaço de pacto.
+  static int pactSlotLevel(SpellSlotProgressionEntry row) =>
+      row.pactSlotLevel ?? 1;
+
+  /// Quantos espaços de pacto a linha oferece.
+  ///
+  /// A tabela guarda a quantidade na coluna do círculo em que o bruxo conjura,
+  /// e esse círculo sobe com o nível — por isso o valor é o primeiro círculo
+  /// com espaço, e não uma coluna fixa.
+  static int pactSlotCount(SpellSlotProgressionEntry row) {
+    for (final value in [
+      row.first,
+      row.second,
+      row.third,
+      row.fourth,
+      row.fifth,
+    ]) {
+      if (value > 0) return value;
+    }
+
+    return 0;
+  }
+
   static SpellSlotSummary summarize({
     required List<ClassLevel> classLevels,
     required List<ClassEntry> classes,
@@ -117,7 +160,9 @@ class SpellSlotCalculator {
         standardSlots = findRow(type!, classLevel.level);
         effectiveCasterLevel = classLevel.level;
         modeLabel = 'Progressão de ${classEntry?.name ?? classLevel.classId}';
-        explanation = 'Tabela usada: ${tableLabel(type)}, '
+        // Separador em bullet para não mudar o que a ficha já mostrava quando
+        // esta conta morava dentro do painel.
+        explanation = 'Tabela usada: ${tableLabel(type)} • '
             'nível de conjuração: ${classLevel.level}';
       } else if (type == 'pact') {
         pactSlots = findRow('pact', classLevel.level);

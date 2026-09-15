@@ -196,6 +196,82 @@ void main() {
     });
   });
 
+  group('espaços de pacto', () {
+    SpellSlotProgressionEntry pactRow({
+      required int slotLevel,
+      required int count,
+    }) {
+      // A tabela guarda a quantidade na coluna do círculo em que o bruxo
+      // conjura, então a linha muda de coluna conforme o nível.
+      return SpellSlotProgressionEntry(
+        tableId: 'pact',
+        level: 5,
+        pactSlotLevel: slotLevel,
+        first: slotLevel == 1 ? count : 0,
+        second: slotLevel == 2 ? count : 0,
+        third: slotLevel == 3 ? count : 0,
+        fourth: slotLevel == 4 ? count : 0,
+        fifth: slotLevel == 5 ? count : 0,
+        sixth: 0,
+        seventh: 0,
+        eighth: 0,
+        ninth: 0,
+      );
+    }
+
+    test('acha a quantidade na coluna do círculo, não numa coluna fixa', () {
+      expect(SpellSlotCalculator.pactSlotCount(pactRow(slotLevel: 1, count: 1)), 1);
+      expect(SpellSlotCalculator.pactSlotCount(pactRow(slotLevel: 3, count: 2)), 2);
+      expect(SpellSlotCalculator.pactSlotCount(pactRow(slotLevel: 5, count: 4)), 4);
+    });
+
+    test('linha sem espaço nenhum devolve zero', () {
+      expect(
+        SpellSlotCalculator.pactSlotCount(pactRow(slotLevel: 3, count: 0)),
+        0,
+      );
+    });
+
+    test('círculo cai no primeiro quando a linha não diz', () {
+      const row = SpellSlotProgressionEntry(
+        tableId: 'pact',
+        level: 1,
+        first: 1,
+        second: 0,
+        third: 0,
+        fourth: 0,
+        fifth: 0,
+        sixth: 0,
+        seventh: 0,
+        eighth: 0,
+        ninth: 0,
+      );
+
+      expect(SpellSlotCalculator.pactSlotLevel(row), 1);
+    });
+
+    test('a chave de uso sai fora do alcance dos círculos normais', () {
+      // É o ponto da existência do deslocamento: gastar um espaço de pacto de
+      // 3º círculo não pode escrever na mesma chave do 3º círculo normal.
+      for (var level = 1; level <= SpellSlotCalculator.maxPactSlotLevel; level++) {
+        expect(SpellSlotCalculator.pactUsageKey(level), greaterThan(9));
+      }
+
+      expect(SpellSlotCalculator.pactUsageKey(3), isNot(3));
+    });
+
+    test('pactUsageKeys cobre todos os círculos possíveis', () {
+      final keys = SpellSlotCalculator.pactUsageKeys();
+
+      expect(keys, hasLength(SpellSlotCalculator.maxPactSlotLevel));
+      expect(keys.first, SpellSlotCalculator.pactUsageKey(1));
+      expect(
+        keys.last,
+        SpellSlotCalculator.pactUsageKey(SpellSlotCalculator.maxPactSlotLevel),
+      );
+    });
+  });
+
   group('slotsByLevel', () {
     test('devolve só os círculos com espaço', () {
       const row = SpellSlotProgressionEntry(

@@ -11,6 +11,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart
 import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/proficiency_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/portrait_avatar.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_entry.dart';
@@ -309,6 +310,18 @@ void main() {
       // A imagem entra no documento, então ele cresce em relação ao sem logo.
       final plain = await CharacterSheetPdf.build(base);
       expect(bytes.length, greaterThan(plain.length));
+    });
+
+    test('a moldura do retrato tem a proporção do painel de personagens', () {
+      // Amarrado no widget de propósito: "igual ao painel" só continua verdade
+      // se as duas proporções andarem juntas. Antes o PDF usava um quadrado, e
+      // num retrato vertical o quadrado mostra o corpo inteiro em miniatura.
+      const painel = PortraitBanner(path: null);
+
+      expect(
+        CharacterSheetPdf.portraitWidth / CharacterSheetPdf.portraitHeight,
+        closeTo(painel.aspectRatio, 0.001),
+      );
     });
 
     test('o retrato entra sem derrubar a geração', () async {

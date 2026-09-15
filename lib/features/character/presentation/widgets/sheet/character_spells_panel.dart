@@ -6,6 +6,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/character_magic
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item_spell.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/spell_slot_calculator.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/spell_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
@@ -22,7 +23,10 @@ class CharacterSpellsPanel extends ConsumerStatefulWidget {
 
   final Character character;
 
-  static int pactUsageKey(int slotLevel) => 100 + slotLevel;
+  /// Atalho para quem já chamava por aqui; a conta vive no
+  /// [SpellSlotCalculator].
+  static int pactUsageKey(int slotLevel) =>
+      SpellSlotCalculator.pactUsageKey(slotLevel);
 
   @override
   ConsumerState<CharacterSpellsPanel> createState() =>
@@ -257,127 +261,27 @@ class _CharacterSpellsPanelState extends ConsumerState<CharacterSpellsPanel> {
     List<ClassEntry> classes,
     List<SpellSlotProgressionEntry> rows,
   ) {
-    ClassEntry? classForId(String id) {
-      for (final item in classes) {
-        if (item.id == id) return item;
-      }
-      return null;
-    }
+    final summary = SpellSlotCalculator.summarize(
+      classLevels: classLevels,
+      classes: classes,
+      progressions: rows,
+    );
 
-    SpellSlotProgressionEntry? findRow(String tableId, int level) {
-      for (final row in rows) {
-        if (row.tableId == tableId && row.level == level) {
-          return row;
-        }
-      }
-      return null;
-    }
-
-    int fullCasterLevels = 0;
-    int halfCasterLevels = 0;
-    int thirdCasterLevels = 0;
-    int halfContribution = 0;
-    int thirdContribution = 0;
-    int pactLevels = 0;
-
-    for (final classLevel in classLevels) {
-      final classEntry = classForId(classLevel.classId);
-      final type = classEntry?.spellcastingType;
-
-      switch (type) {
-        case 'full':
-          fullCasterLevels += classLevel.level;
-          break;
-        case 'half':
-          halfCasterLevels += classLevel.level;
-          // Arredondamento por classe (regra oficial de multiclasse).
-          halfContribution += classLevel.level ~/ 2;
-          break;
-        case 'artificer':
-          halfCasterLevels += classLevel.level;
-          // O artífice é o único meio-conjurador que arredonda para cima.
-          halfContribution += (classLevel.level + 1) ~/ 2;
-          break;
-        case 'third':
-          thirdCasterLevels += classLevel.level;
-          thirdContribution += classLevel.level ~/ 3;
-          break;
-        case 'pact':
-          pactLevels += classLevel.level;
-          break;
-      }
-    }
-
-    SpellSlotProgressionEntry? standardSlots;
-    SpellSlotProgressionEntry? pactSlots;
-
-    final nonPactCastingPresent =
-        fullCasterLevels > 0 || halfCasterLevels > 0 || thirdCasterLevels > 0;
-
-    if (classLevels.length == 1) {
-      final classEntry = classForId(classLevels.first.classId);
-      final type = classEntry?.spellcastingType;
-
-      if (type == 'full' ||
-          type == 'half' ||
-          type == 'third' ||
-          type == 'artificer') {
-        standardSlots = findRow(type!, classLevels.first.level);
-      } else if (type == 'pact') {
-        pactSlots = findRow('pact', classLevels.first.level);
-      }
-    } else {
-      if (nonPactCastingPresent) {
-        final effectiveCasterLevel =
-            fullCasterLevels + halfContribution + thirdContribution;
-
-        if (effectiveCasterLevel > 0) {
-          standardSlots = findRow(
-            'multiclass',
-            effectiveCasterLevel > 20 ? 20 : effectiveCasterLevel,
-          );
-        }
-      }
-
-      if (pactLevels > 0) {
-        pactSlots = findRow('pact', pactLevels > 20 ? 20 : pactLevels);
-      }
-    }
-
-    final standardMap = <int, int>{};
-    if (standardSlots != null) {
-      standardMap.addAll({
-        1: standardSlots.first,
-        2: standardSlots.second,
-        3: standardSlots.third,
-        4: standardSlots.fourth,
-        5: standardSlots.fifth,
-        6: standardSlots.sixth,
-        7: standardSlots.seventh,
-        8: standardSlots.eighth,
-        9: standardSlots.ninth,
-      });
-    }
-
-    int? pactSlotLevel;
-    int? pactSlotCount;
-    if (pactSlots != null) {
-      pactSlotLevel = pactSlots.pactSlotLevel ?? 1;
-      pactSlotCount = pactSlots.first > 0
-          ? pactSlots.first
-          : pactSlots.second > 0
-              ? pactSlots.second
-              : pactSlots.third > 0
-                  ? pactSlots.third
-                  : pactSlots.fourth > 0
-                      ? pactSlots.fourth
-                      : pactSlots.fifth;
-    }
+    final standardSlots = summary.standardSlots;
+    final pactSlots = summary.pactSlots;
 
     return _SpellcastingSummaryData(
-      standardSlots: standardMap,
-      pactSlotLevel: pactSlotLevel,
-      pactSlotCount: pactSlotCount,
+      // Os círculos sem espaço ficam fora do mapa. Quem consome lê por chave
+      // com `?? 0`, então some do mapa e valer zero dão no mesmo.
+      standardSlots: standardSlots == null
+          ? const {}
+          : SpellSlotCalculator.slotsByLevel(standardSlots),
+      pactSlotLevel: pactSlots == null
+          ? null
+          : SpellSlotCalculator.pactSlotLevel(pactSlots),
+      pactSlotCount: pactSlots == null
+          ? null
+          : SpellSlotCalculator.pactSlotCount(pactSlots),
     );
   }
 }
@@ -601,7 +505,8 @@ class _CastSpellButton extends ConsumerWidget {
   final _SpellcastingSummaryData slotSummary;
   final Map<int, int> usedSlots;
 
-  static int pactUsageKey(int slotLevel) => 100 + slotLevel;
+  static int pactUsageKey(int slotLevel) =>
+      SpellSlotCalculator.pactUsageKey(slotLevel);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

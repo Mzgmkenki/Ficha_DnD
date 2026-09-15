@@ -3,6 +3,7 @@ import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/hit_points_calculator.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/spell_slot_calculator.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -141,12 +142,11 @@ class RestAndResourcesPanel extends ConsumerWidget {
   }
 
   Future<void> _shortRest(BuildContext context, WidgetRef ref) async {
-    // Chaves de uso dos slots de pacto (ver SpellSlotsPanel: 100 + nível).
-    final pactKeys = <int>[for (var level = 1; level <= 5; level++) 100 + level];
-
     final summary = await ref.read(shortRestProvider)(
       character: character,
-      pactSlotUsageKeys: _hasPactCaster ? pactKeys : const [],
+      pactSlotUsageKeys: _hasPactCaster
+          ? SpellSlotCalculator.pactUsageKeys()
+          : const [],
     );
 
     if (!context.mounted) return;

@@ -74,6 +74,15 @@ class CharacterSheetPdf {
   static const PdfColor _rule = PdfColor.fromInt(0xFFD8D8DC);
   static const PdfColor _band = PdfColor.fromInt(0xFFF4F4F6);
 
+  /// Moldura do retrato, na mesma proporção 4:3 do painel de personagens
+  /// (`PortraitBanner`). Antes era um quadrado, e num retrato vertical o
+  /// quadrado só cabia mostrando o corpo inteiro em miniatura.
+  @visibleForTesting
+  static const double portraitWidth = 88;
+
+  @visibleForTesting
+  static const double portraitHeight = portraitWidth / (4 / 3);
+
   /// Nome sugerido do arquivo, já sem caracteres que atrapalham no sistema.
   static String fileName(Character character) {
     final slug = character.name
@@ -135,6 +144,30 @@ class CharacterSheetPdf {
       debugPrint('Fonte dos títulos não pôde ser usada no PDF: $error');
       return null;
     }
+  }
+
+  /// Retrato enquadrado igual ao painel de personagens.
+  ///
+  /// O app resolve isso em `_PortraitFrame`: `cover` para preencher a moldura
+  /// sem distorcer, e âncora no topo. As duas coisas juntas importam — `cover`
+  /// centralizado, que era o padrão aqui, corta a faixa do meio de uma imagem
+  /// vertical e é justamente a cabeça que se perde. Retrato de personagem é
+  /// quase sempre vertical, e o rosto é o que identifica.
+  static pw.Widget _portrait(Uint8List bytes) {
+    return pw.Container(
+      width: portraitWidth,
+      height: portraitHeight,
+      decoration: pw.BoxDecoration(
+        border: pw.Border.all(color: _rule),
+        image: pw.DecorationImage(
+          image: pw.MemoryImage(bytes),
+          fit: pw.BoxFit.cover,
+          // No espaço do PDF o y cresce para cima, então `topCenter` é
+          // `Alignment(0, 1)` e realmente ancora no topo da imagem.
+          alignment: pw.Alignment.topCenter,
+        ),
+      ),
+    );
   }
 
   static pw.Widget _watermark(pw.MemoryImage? logo) {
@@ -228,17 +261,7 @@ class CharacterSheetPdf {
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
           if (data.portraitBytes != null) ...[
-            pw.Container(
-              width: 62,
-              height: 62,
-              decoration: pw.BoxDecoration(
-                border: pw.Border.all(color: _rule),
-                image: pw.DecorationImage(
-                  image: pw.MemoryImage(data.portraitBytes!),
-                  fit: pw.BoxFit.cover,
-                ),
-              ),
-            ),
+            _portrait(data.portraitBytes!),
             pw.SizedBox(width: 12),
           ],
           pw.Expanded(
