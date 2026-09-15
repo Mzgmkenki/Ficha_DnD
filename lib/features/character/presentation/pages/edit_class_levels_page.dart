@@ -3,8 +3,10 @@ import 'package:dnd_ficha_app/features/character/application/providers/character
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/hit_points_calculator.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/subclass_choice.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/spellcasting_type.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/subclass_choice_dialog.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/subclass_summary.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
@@ -336,6 +338,10 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
         ),
       );
     });
+
+    // Clérigo, Feiticeiro e Bruxo escolhem no 1º nível, então a classe nasce
+    // com a decisão aberta e o diálogo aparece já ao adicionar.
+    await _promptSubclassIfPending(_classLevels.length - 1, selectedClass);
   }
 
   Future<void> _save() async {
@@ -607,6 +613,57 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
         spellcastingAbility: current.spellcastingAbility,
         spellcastingType: current.spellcastingType,
       );
+    });
+
+    // Subir até o nível de escolha abre o diálogo na hora. Descer não pergunta
+    // nada, senão limpar a subclasse ao descer provocaria a pergunta de volta.
+    if (newLevel > current.level) {
+      _promptSubclassIfPending(index, classEntry);
+    }
+  }
+
+  /// Pergunta a subclasse quando a classe do índice está com a escolha aberta.
+  ///
+  /// Aqui só mexe no formulário: quem grava é o [_save], igual a qualquer outro
+  /// campo desta tela. Gravar direto faria a escolha sobreviver a um cancelar.
+  Future<void> _promptSubclassIfPending(
+    int index,
+    ClassEntry? classEntry,
+  ) async {
+    if (index >= _classLevels.length) return;
+
+    final classLevel = _classLevels[index];
+    if (!SubclassChoices.isPending(classLevel, classEntry)) return;
+
+    final all = ref.read(subclassEntriesProvider).value ?? const [];
+    final options = all
+        .where((item) => item.classId == classLevel.classId)
+        .toList(growable: false);
+
+    if (options.isEmpty) return;
+
+    final chosen = await showSubclassChoiceDialog(
+      context: context,
+      choice: PendingSubclassChoice(
+        classId: classLevel.classId,
+        className: classEntry?.name ?? classLevel.classId,
+        label: classEntry?.subclassLabelOrDefault ?? 'Subclasse',
+        level: classLevel.level,
+      ),
+      options: options,
+    );
+
+    if (chosen == null || !mounted) return;
+
+    setState(() {
+      // Reencontra pelo id da classe: a lista pode ter mudado durante o
+      // diálogo, e o índice antigo apontaria para outra classe.
+      final target = _classLevels.indexWhere(
+        (item) => item.classId == classLevel.classId,
+      );
+      if (target < 0) return;
+
+      _classLevels[target] = _classLevels[target].copyWith(subclassId: chosen);
     });
   }
 

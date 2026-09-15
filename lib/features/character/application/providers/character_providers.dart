@@ -1,5 +1,6 @@
 import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
+import 'package:dnd_ficha_app/features/character/application/use_cases/character/choose_subclass.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/export_character.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/export_character_pdf.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/import_character.dart';
@@ -117,6 +118,13 @@ final updateCharacterClassLevelsProvider =
     Provider<UpdateCharacterClassLevels>((ref) {
   final repository = ref.watch(characterRepositoryProvider);
   return UpdateCharacterClassLevels(repository);
+});
+
+final chooseSubclassProvider = Provider<ChooseSubclass>((ref) {
+  return ChooseSubclass(
+    ref.watch(characterRepositoryProvider),
+    ref.watch(syncSubclassSpellsProvider),
+  );
 });
 
 final syncSubclassSpellsProvider = Provider<SyncSubclassSpells>((ref) {

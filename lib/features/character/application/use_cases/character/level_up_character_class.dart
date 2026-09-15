@@ -1,7 +1,9 @@
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/sync_subclass_spells.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/update_character_class_levels.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/repositories/character_repository.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/hit_points_calculator.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/subclass_choice.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/subclass_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/services/spell_name_index.dart';
@@ -145,20 +147,29 @@ class LevelUpCharacterClass {
     );
   }
 
-  /// Rótulo da subclasse quando o novo nível abre a escolha e ela está vazia.
+  /// Rótulo da subclasse quando o nível alcançado deixa a escolha em aberto.
   ///
-  /// Só avisa na transição: quem já passou do nível de escolha e segue sem
-  /// subclasse veria o mesmo aviso a cada subida, o que viraria ruído.
+  /// A decisão de "está em aberto" vive no [SubclassChoices], porque a tela de
+  /// classes precisa da mesma regra. Antes era privada aqui e só valia na
+  /// transição exata do nível, então quem passasse do nível de escolha sem
+  /// escolher nunca era perguntado de novo.
   String? _pendingSubclassLabel({
     required ClassEntry? classEntry,
     required int newLevel,
     required String? currentSubclassId,
   }) {
     if (classEntry == null) return null;
-    if (currentSubclassId != null && currentSubclassId.isNotEmpty) return null;
-    if (classEntry.subclassLevel != newLevel) return null;
 
-    return classEntry.subclassLabelOrDefault;
+    final pending = SubclassChoices.isPending(
+      ClassLevel(
+        classId: classEntry.id,
+        level: newLevel,
+        subclassId: currentSubclassId,
+      ),
+      classEntry,
+    );
+
+    return pending ? classEntry.subclassLabelOrDefault : null;
   }
 
   ClassEntry? _classEntryFor(List<ClassEntry> classes, String classId) {

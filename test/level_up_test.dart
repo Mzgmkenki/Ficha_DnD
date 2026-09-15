@@ -251,10 +251,34 @@ void main() {
       expect(repository.updated!.classLevels.single.subclassId, isNull);
     });
 
-    test('não repete o aviso em níveis acima do de escolha', () async {
+    test('segue pedindo a subclasse acima do nível de escolha', () async {
+      // Comportamento trocado de propósito: antes o aviso só saía na transição
+      // exata, então quem passasse do 3º nível sem escolher o arquétipo nunca
+      // era perguntado de novo e ficava com as características travadas para
+      // sempre. Agora a decisão em aberto volta a ser oferecida, e quem já
+      // escolheu não é incomodado (o teste seguinte cobre isso).
       final repository = _FakeRepository(
         characterFixture(
           classLevels: const [ClassLevel(classId: 'fighter', level: 5)],
+        ),
+      );
+
+      final outcome = await _levelUp(repository, 'fighter');
+
+      expect(outcome.needsSubclassChoice, isTrue);
+      expect(outcome.pendingSubclassLabel, 'Arquétipo Marcial');
+    });
+
+    test('não pede a subclasse de quem já escolheu', () async {
+      final repository = _FakeRepository(
+        characterFixture(
+          classLevels: const [
+            ClassLevel(
+              classId: 'fighter',
+              level: 5,
+              subclassId: 'fighter_champion',
+            ),
+          ],
         ),
       );
 

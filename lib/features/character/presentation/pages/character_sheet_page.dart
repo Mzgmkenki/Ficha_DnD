@@ -2,6 +2,7 @@
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/level_up_character_class.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/subclass_choice.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/level_up_class_dialog.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/ability_score_block.dart';
@@ -21,8 +22,11 @@ import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/shee
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/skills_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/spell_slots_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/spellcasting_summary_panel.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/subclass_choice_dialog.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/subclass_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/services/spell_name_index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:printing/printing.dart';
@@ -438,6 +442,19 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(_levelUpMessage(outcome))),
       );
+
+      // A escolha da subclasse vem depois do aviso, e não em vez dele: o
+      // jogador precisa ver que o nível entrou mesmo que feche o diálogo.
+      if (outcome.needsSubclassChoice) {
+        await _promptSubclass(
+          classId: outcome.classId,
+          className: outcome.className,
+          label: outcome.pendingSubclassLabel!,
+          level: outcome.newLevel,
+          subclasses: subclasses,
+          spellIndex: spellIndex,
+        );
+      }
     } catch (error, stackTrace) {
       debugPrint('Falha ao subir de nível: $error');
       debugPrintStack(stackTrace: stackTrace);
@@ -455,17 +472,83 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
     }
   }
 
+  /// Abre a escolha de subclasse e grava o que o jogador decidir.
+  ///
+  /// Sair sem escolher não é erro: a decisão continua em aberto e volta a ser
+  /// oferecida na próxima subida e na tela de classes.
+  Future<void> _promptSubclass({
+    required String classId,
+    required String className,
+    required String label,
+    required int level,
+    required List<SubclassEntry> subclasses,
+    required SpellNameIndex spellIndex,
+  }) async {
+    final options = subclasses
+        .where((item) => item.classId == classId)
+        .toList(growable: false);
+
+    final chosen = await showSubclassChoiceDialog(
+      context: context,
+      choice: PendingSubclassChoice(
+        classId: classId,
+        className: className,
+        label: label,
+        level: level,
+      ),
+      options: options,
+    );
+
+    if (chosen == null || !mounted) return;
+
+    try {
+      final syncError = await ref.read(chooseSubclassProvider)(
+        characterId: widget.characterId,
+        classId: classId,
+        subclassId: chosen,
+        subclasses: subclasses,
+        spellIndex: spellIndex,
+      );
+
+      if (!mounted) return;
+
+      var name = chosen;
+      for (final option in options) {
+        if (option.id == chosen) {
+          name = option.name;
+          break;
+        }
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            syncError == null
+                ? '$name escolhida para $className.'
+                : '$name escolhida, mas as magias da subclasse não entraram; '
+                    'use o gerenciador de magias.',
+          ),
+        ),
+      );
+    } catch (error, stackTrace) {
+      debugPrint('Falha ao escolher a subclasse: $error');
+      debugPrintStack(stackTrace: stackTrace);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao escolher a subclasse: $error')),
+      );
+    }
+  }
+
   String _levelUpMessage(LevelUpOutcome outcome) {
     final parts = <String>[
       '${outcome.className} agora está no nível ${outcome.newLevel} '
           '(total ${outcome.totalLevel}).',
     ];
 
-    if (outcome.pendingSubclassLabel != null) {
-      parts.add(
-        'Escolha ${outcome.pendingSubclassLabel} em Editar nível.',
-      );
-    }
+    // A subclasse não entra aqui: quando fica em aberto, a ficha abre o
+    // diálogo de escolha em seguida, e repetir no aviso seria redundante.
 
     if (outcome.grantsFeat) {
       parts.add('Este nível dá incremento de atributo ou talento.');
