@@ -5,13 +5,25 @@ import 'package:dnd_ficha_app/features/character/domain/services/granted_skills.
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
 
 /// Quantas escolhas de talento o personagem tem e quantas já gastou.
 class FeatAllowance {
-  const FeatAllowance({required this.granted, required this.taken});
+  const FeatAllowance({
+    required this.granted,
+    required this.taken,
+    this.fromRace = false,
+  });
 
-  /// Escolhas que as classes já concederam, somando o multiclasse.
+  /// Escolhas concedidas, somando as classes e a raça.
   final int granted;
+
+  /// Se uma das escolhas veio da raça, e não de um nível de classe.
+  ///
+  /// Serve para a ficha explicar de onde saiu a escolha: um Humano Variante de
+  /// 1º nível tem direito a um talento sem que classe nenhuma tenha chegado ao
+  /// nível de incremento.
+  final bool fromRace;
 
   /// Talentos já escolhidos.
   final int taken;
@@ -35,14 +47,22 @@ class ManageCharacterFeats {
 
   final CharacterRepository _repository;
 
-  /// Escolhas de talento que as classes do personagem já concederam.
+  /// Escolhas de talento que o personagem já tem direito.
   ///
   /// Soma por classe, porque no multiclasse cada classe concede nos níveis
   /// dela: Guerreiro 4 / Mago 4 dá duas escolhas, uma de cada.
+  ///
+  /// A raça soma mais uma quando concede talento de saída — o Humano Variante
+  /// troca o +1 nos seis atributos por perícia e talento, e por isso escolhe já
+  /// no 1º nível. Isso vem de `RaceEntry.grantsFeat`, e não de um id fixo aqui.
+  ///
+  /// [races] é opcional para não obrigar quem só quer a conta das classes; sem
+  /// ela a concessão racial simplesmente não entra.
   static FeatAllowance allowanceFor(
     Character character,
-    List<ClassEntry> classes,
-  ) {
+    List<ClassEntry> classes, {
+    List<RaceEntry> races = const [],
+  }) {
     var granted = 0;
 
     for (final classLevel in character.classLevels) {
@@ -53,7 +73,29 @@ class ManageCharacterFeats {
       }
     }
 
-    return FeatAllowance(granted: granted, taken: character.feats.length);
+    final fromRace = _raceGrantsFeat(character, races);
+    if (fromRace) granted += 1;
+
+    return FeatAllowance(
+      granted: granted,
+      taken: character.feats.length,
+      fromRace: fromRace,
+    );
+  }
+
+  /// Se a raça do personagem concede um talento.
+  ///
+  /// Comparação pelo id exato, sem herança de sub-raça: o talento do Humano
+  /// Variante é dele, não de "humano" em geral, e o Humano comum não recebe.
+  static bool _raceGrantsFeat(Character character, List<RaceEntry> races) {
+    final speciesId = character.speciesId;
+    if (speciesId == null || speciesId.isEmpty) return false;
+
+    for (final race in races) {
+      if (race.id == speciesId) return race.grantsFeat;
+    }
+
+    return false;
   }
 
   /// Registra o talento e marca as perícias que ele concede.

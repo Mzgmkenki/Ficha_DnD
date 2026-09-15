@@ -90,6 +90,7 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
             .map((e) => _asInt(e) ?? 0)
             .where((value) => value > 0)
             .toList(growable: false),
+        grantsFeat: _asBool(item['grants_feat']),
         grantedSkills: rawGrantedSkills
             .map((e) => e.toString())
             .toList(growable: false),

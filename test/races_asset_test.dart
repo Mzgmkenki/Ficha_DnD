@@ -185,6 +185,30 @@ void main() {
     }
   });
 
+  test('só o Humano Variante concede talento no 1º nível', () {
+    // A exceção é dele: troca o +1 nos seis atributos por perícia e talento.
+    // Se outra raça ganhar essa flag por engano, o personagem recebe uma
+    // escolha de talento a que não tem direito, e nada mais acusa isso.
+    final granting = races
+        .where((race) => race['grants_feat'] == true)
+        .map((race) => race['id'] as String);
+
+    expect(granting, ['human_variant_phb']);
+  });
+
+  test('grants_feat, quando existe, é booleano', () {
+    for (final race in races) {
+      final value = race['grants_feat'];
+      if (value == null) continue;
+
+      expect(
+        value,
+        isA<bool>(),
+        reason: '${race['id']} tem grants_feat não booleano',
+      );
+    }
+  });
+
   test('grupos de escolha estão completos', () {
     for (final race in races) {
       final id = race['id'];

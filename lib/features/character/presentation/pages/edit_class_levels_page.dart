@@ -729,11 +729,16 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
           // arquétipo no lugar do jogador.
           helperText: currentId == null ? 'Escolha para liberar as características' : null,
         ),
+        isExpanded: true,
         items: options
             .map(
               (item) => DropdownMenuItem<String>(
                 value: item.id,
-                child: Text(item.name),
+                child: Text(
+                  item.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             )
             .toList(),

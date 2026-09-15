@@ -7,6 +7,7 @@ import 'package:dnd_ficha_app/features/character/domain/value_objects/proficienc
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'helpers/character_fixture.dart';
@@ -60,6 +61,17 @@ const _observant = FeatEntry(
   name: 'Observador',
   skillIds: ['perception'],
 );
+
+/// Humano Variante concede um talento no 1º nível; o Humano comum não.
+const _races = [
+  RaceEntry(
+    id: 'human_variant_phb',
+    name: 'Humano Variante',
+    source: 'phb',
+    grantsFeat: true,
+  ),
+  RaceEntry(id: 'human_phb', name: 'Humano', source: 'phb'),
+];
 
 /// Talento em que o jogador escolhe, como o Versátil.
 const _skilled = FeatEntry(
@@ -153,6 +165,106 @@ void main() {
       final allowance = ManageCharacterFeats.allowanceFor(
         character,
         const [_wizard],
+      );
+
+      expect(allowance.granted, 0);
+    });
+  });
+
+  group('talento concedido pela raça', () {
+    test('o Humano Variante escolhe um talento já no 1º nível', () {
+      // A exceção da raça: ela troca o +1 nos seis atributos por perícia e
+      // talento, então a escolha existe antes de qualquer nível de classe.
+      final character = characterFixture(
+        speciesId: 'human_variant_phb',
+        classLevels: const [ClassLevel(classId: 'wizard', level: 1)],
+      );
+
+      final allowance = ManageCharacterFeats.allowanceFor(
+        character,
+        const [_wizard],
+        races: _races,
+      );
+
+      expect(allowance.granted, 1);
+      expect(allowance.fromRace, isTrue);
+      expect(allowance.hasPending, isTrue);
+    });
+
+    test('o Humano comum não recebe nada', () {
+      final character = characterFixture(
+        speciesId: 'human_phb',
+        classLevels: const [ClassLevel(classId: 'wizard', level: 1)],
+      );
+
+      final allowance = ManageCharacterFeats.allowanceFor(
+        character,
+        const [_wizard],
+        races: _races,
+      );
+
+      expect(allowance.granted, 0);
+      expect(allowance.fromRace, isFalse);
+    });
+
+    test('a concessão da raça soma com a da classe', () {
+      // Humano Variante no 4º nível tem duas: a da raça e a do nível.
+      final character = characterFixture(
+        speciesId: 'human_variant_phb',
+        classLevels: const [ClassLevel(classId: 'wizard', level: 4)],
+      );
+
+      final allowance = ManageCharacterFeats.allowanceFor(
+        character,
+        const [_wizard],
+        races: _races,
+      );
+
+      expect(allowance.granted, 2);
+    });
+
+    test('pegar o talento da raça consome a vaga', () {
+      final character = characterFixture(
+        speciesId: 'human_variant_phb',
+        classLevels: const [ClassLevel(classId: 'wizard', level: 1)],
+        feats: const [CharacterFeat(featId: 'observant')],
+      );
+
+      final allowance = ManageCharacterFeats.allowanceFor(
+        character,
+        const [_wizard],
+        races: _races,
+      );
+
+      expect(allowance.remaining, 0);
+      expect(allowance.hasPending, isFalse);
+    });
+
+    test('sem a lista de raças a concessão racial não entra', () {
+      // O parâmetro é opcional: quem só quer a conta das classes não é
+      // obrigado a carregar o compêndio de raças.
+      final character = characterFixture(
+        speciesId: 'human_variant_phb',
+        classLevels: const [ClassLevel(classId: 'wizard', level: 1)],
+      );
+
+      final allowance = ManageCharacterFeats.allowanceFor(
+        character,
+        const [_wizard],
+      );
+
+      expect(allowance.granted, 0);
+    });
+
+    test('personagem sem raça não recebe nada', () {
+      final character = characterFixture(
+        classLevels: const [ClassLevel(classId: 'wizard', level: 1)],
+      );
+
+      final allowance = ManageCharacterFeats.allowanceFor(
+        character,
+        const [_wizard],
+        races: _races,
       );
 
       expect(allowance.granted, 0);

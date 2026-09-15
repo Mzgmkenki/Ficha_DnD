@@ -58,7 +58,11 @@ class FeatsPanel extends ConsumerWidget {
     List<FeatEntry> catalog,
     List<RaceEntry> races,
   ) {
-    final allowance = ManageCharacterFeats.allowanceFor(character, classes);
+    final allowance = ManageCharacterFeats.allowanceFor(
+      character,
+      classes,
+      races: races,
+    );
     final theme = Theme.of(context);
 
     return Column(
@@ -72,6 +76,14 @@ class FeatsPanel extends ConsumerWidget {
                   '${allowance.granted} usadas.',
           style: theme.textTheme.bodyMedium,
         ),
+
+        // Sem esta linha, um Humano Variante de 1º nível veria uma escolha
+        // disponível sem nada na ficha explicando de onde ela veio.
+        if (allowance.fromRace)
+          Text(
+            'Uma delas vem da raça, que concede um talento no 1º nível.',
+            style: theme.textTheme.bodySmall,
+          ),
 
         if (catalog.isEmpty) ...[
           const SizedBox(height: 8),
@@ -98,7 +110,7 @@ class FeatsPanel extends ConsumerWidget {
             alignment: Alignment.centerLeft,
             child: FilledButton.tonalIcon(
               key: const ValueKey('add-feat'),
-              onPressed: () => _add(context, ref, catalog, races),
+              onPressed: () => _add(context, ref, classes, catalog, races),
               icon: const Icon(Icons.auto_awesome),
               label: const Text('Escolher talento'),
             ),
@@ -118,13 +130,18 @@ class FeatsPanel extends ConsumerWidget {
   Future<void> _add(
     BuildContext context,
     WidgetRef ref,
+    List<ClassEntry> classes,
     List<FeatEntry> catalog,
     List<RaceEntry> races,
   ) async {
     // Só entra na lista o que o personagem alcança. `available` também descarta
     // o talento não repetível que ele já tem, senão o caso de uso recusaria
     // depois de o jogador ter escolhido.
-    final classes = ref.read(classEntriesProvider).value ?? const [];
+    //
+    // As classes vêm por parâmetro, não de um `ref.read`: elas já foram
+    // carregadas para montar o painel, e reler daria uma lista vazia se o
+    // provider tivesse sido invalidado no meio — o que faria todo talento de
+    // conjurador desaparecer sem motivo.
     final available = FeatEligibility.available(
       feats: catalog,
       character: character,
@@ -289,9 +306,21 @@ class _FeatPickerDialogState extends State<_FeatPickerDialog> {
               key: const ValueKey('feat-dropdown'),
               initialValue: selected?.id,
               decoration: const InputDecoration(labelText: 'Talento'),
+              // Sem `isExpanded` o dropdown se dimensiona pelo item mais largo.
+              // Com 105 talentos, nomes como "Descendente dos Planos
+              // Exteriores" passam da largura do diálogo, o texto quebra em
+              // duas linhas e estoura a altura fixa do campo.
+              isExpanded: true,
               items: [
                 for (final feat in widget.available)
-                  DropdownMenuItem(value: feat.id, child: Text(feat.name)),
+                  DropdownMenuItem(
+                    value: feat.id,
+                    child: Text(
+                      feat.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
               ],
               onChanged: (id) {
                 setState(() {

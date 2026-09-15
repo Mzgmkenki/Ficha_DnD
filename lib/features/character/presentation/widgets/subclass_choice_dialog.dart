@@ -77,9 +77,20 @@ class _SubclassChoiceDialogState extends State<_SubclassChoiceDialog> {
                 labelText: choice.label,
                 border: const OutlineInputBorder(),
               ),
+              // Mesmo motivo do dropdown de talentos: nome comprido como
+              // "Caminho do Berserker" quebraria em duas linhas e estouraria a
+              // altura do campo.
+              isExpanded: true,
               items: [
                 for (final option in widget.options)
-                  DropdownMenuItem(value: option.id, child: Text(option.name)),
+                  DropdownMenuItem(
+                    value: option.id,
+                    child: Text(
+                      option.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
               ],
               onChanged: (value) {
                 setState(() {

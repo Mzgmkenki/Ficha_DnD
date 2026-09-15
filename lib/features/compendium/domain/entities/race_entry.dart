@@ -14,6 +14,7 @@ class RaceEntry {
     this.fixedAbilityBonuses = const {},
     this.abilityBonusChoices = const [],
     this.grantedSkills = const [],
+    this.grantsFeat = false,
     this.skillChoice,
     this.traits = const [],
     this.parentRaceId,
@@ -56,6 +57,14 @@ class RaceEntry {
   /// Perícias concedidas direto pela raça, por id de `Skill`.
   final List<String> grantedSkills;
 
+  /// Se a raça concede um talento já no 1º nível.
+  ///
+  /// É a exceção do Humano Variante, que troca o +1 nos seis atributos por
+  /// perícia e talento. Fica como dado do compêndio, e não como um id fixo no
+  /// código, porque a Linhagem Personalizada tem a mesma regra e outras podem
+  /// aparecer.
+  final bool grantsFeat;
+
   final RaceSkillChoice? skillChoice;
 
   final List<String> traits;
@@ -93,6 +102,7 @@ class RaceEntry {
     Map<String, int>? fixedAbilityBonuses,
     List<int>? abilityBonusChoices,
     List<String>? grantedSkills,
+    bool? grantsFeat,
     RaceSkillChoice? skillChoice,
     List<String>? traits,
     String? parentRaceId,
@@ -116,6 +126,7 @@ class RaceEntry {
       fixedAbilityBonuses: fixedAbilityBonuses ?? this.fixedAbilityBonuses,
       abilityBonusChoices: abilityBonusChoices ?? this.abilityBonusChoices,
       grantedSkills: grantedSkills ?? this.grantedSkills,
+      grantsFeat: grantsFeat ?? this.grantsFeat,
       skillChoice: skillChoice ?? this.skillChoice,
       traits: traits ?? this.traits,
       parentRaceId: parentRaceId ?? this.parentRaceId,

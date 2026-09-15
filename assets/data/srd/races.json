@@ -43,6 +43,7 @@
     "allows_custom_origin": true,
     "languages": ["Comum", "um idioma à escolha"],
     "granted_skills": [],
+    "grants_feat": true,
     "skill_choice": {
       "choose": 1,
       "options": [
