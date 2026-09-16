@@ -406,6 +406,7 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
       level: _asInt(item['level']) ?? 1,
       name: item['name'] as String? ?? '',
       description: item['description'] as String? ?? '',
+      action: FeatureAction.tryParse(item['action']),
     );
   }
 

@@ -1,3 +1,5 @@
+import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_entry.dart';
+
 /// Magias que a subclasse concede num nível de classe.
 ///
 /// Guardamos o nome, não o id: o documento de origem lista as magias por nome,
@@ -19,6 +21,7 @@ class SubclassFeature {
     required this.level,
     required this.name,
     required this.description,
+    this.action,
   });
 
   /// Nível de classe em que a característica é liberada.
@@ -26,6 +29,10 @@ class SubclassFeature {
 
   final String name;
   final String description;
+
+  /// O que custa na economia do turno, no mesmo formato das características de
+  /// classe. Nulo é o caso normal: a maioria é passiva.
+  final FeatureAction? action;
 }
 
 /// Subclasse de uma classe: Campeão do Guerreiro, Domínio da Vida do Clérigo.

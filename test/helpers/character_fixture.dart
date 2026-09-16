@@ -1,6 +1,7 @@
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_feat.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/combat_stats.dart';
@@ -54,6 +55,7 @@ Character characterFixture({
   SkillProficiencies skillProficiencies = const SkillProficiencies(),
   List<CharacterSpell> spells = const [],
   List<CharacterFeat> feats = const [],
+  List<CharacterMagicItem> magicItems = const [],
   String? backgroundId,
   String? speciesId,
   int exhaustion = 0,
@@ -76,6 +78,7 @@ Character characterFixture({
     skillProficiencies: skillProficiencies,
     spells: spells,
     feats: feats,
+    magicItems: magicItems,
     backgroundId: backgroundId,
     speciesId: speciesId,
     exhaustion: exhaustion,

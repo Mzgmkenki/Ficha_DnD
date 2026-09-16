@@ -5,7 +5,12 @@
     "features": [
       {
         "name": "Fúria",
-        "description": "Ação bônus, dura até 1 minuto. Sem armadura pesada você ganha vantagem em testes e resistências de Força, sofre metade do dano contundente, perfurante e cortante, e soma o bônus de dano da Fúria aos ataques corpo a corpo que usam Força. Não pode conjurar nem manter Concentração. Termina se ficar Inconsciente, ou no fim do turno em que não atacou um hostil nem sofreu dano. Recupera os usos em descanso longo."
+        "description": "Ação bônus, dura até 1 minuto. Sem armadura pesada você ganha vantagem em testes e resistências de Força, sofre metade do dano contundente, perfurante e cortante, e soma o bônus de dano da Fúria aos ataques corpo a corpo que usam Força. Não pode conjurar nem manter Concentração. Termina se ficar Inconsciente, ou no fim do turno em que não atacou um hostil nem sofreu dano. Recupera os usos em descanso longo.",
+        "action": {
+          "type": "bonus",
+          "recharge": "long",
+          "requires": "Não pode vestir armadura pesada."
+        }
       },
       {
         "name": "Defesa sem Armadura",
@@ -57,7 +62,12 @@
     "features": [
       {
         "name": "Ataque Extra",
-        "description": "Quando usa a ação Atacar, você faz dois ataques em vez de um."
+        "description": "Quando usa a ação Atacar, você faz dois ataques em vez de um.",
+        "action": {
+          "type": "special",
+          "group": "extra_attack",
+          "attacks": 2
+        }
       },
       {
         "name": "Movimento Rápido",
@@ -209,7 +219,14 @@
       },
       {
         "name": "Inspiração de Bardo (d6)",
-        "description": "Ação bônus para dar um dado de inspiração a uma criatura a até 18 m que possa ouvir você. Nos 10 minutos seguintes ela pode somar o dado a um teste de atributo, ataque ou resistência, depois de ver o d20 e antes de saber o resultado. Cada criatura só carrega um dado por vez. Usos iguais ao seu Carisma, recuperados em descanso longo."
+        "description": "Ação bônus para dar um dado de inspiração a uma criatura a até 18 m que possa ouvir você. Nos 10 minutos seguintes ela pode somar o dado a um teste de atributo, ataque ou resistência, depois de ver o d20 e antes de saber o resultado. Cada criatura só carrega um dado por vez. Usos iguais ao seu Carisma, recuperados em descanso longo.",
+        "action": {
+          "type": "bonus",
+          "label": "Inspiração de Bardo",
+          "group": "bard.inspiration",
+          "recharge": "long",
+          "requires": "A criatura precisa estar a até 18 m e conseguir ouvir você."
+        }
       }
     ],
     "source": "phb"
@@ -443,7 +460,14 @@
     "features": [
       {
         "name": "Canalizar Divindade (1 uso)",
-        "description": "Você canaliza energia divina para alimentar efeitos específicos. Começa com Expulsar Mortos-Vivos e com o efeito do seu domínio. Recupera o uso em descanso curto ou longo; passa a ter 2 usos no 6º nível e 3 no 18º. Quando um efeito exige teste de resistência, a CD é a das suas magias de Clérigo."
+        "description": "Você canaliza energia divina para alimentar efeitos específicos. Começa com Expulsar Mortos-Vivos e com o efeito do seu domínio. Recupera o uso em descanso curto ou longo; passa a ter 2 usos no 6º nível e 3 no 18º. Quando um efeito exige teste de resistência, a CD é a das suas magias de Clérigo.",
+        "action": {
+          "type": "action",
+          "label": "Canalizar Divindade",
+          "group": "cleric.channel_divinity",
+          "uses": 1,
+          "recharge": "short"
+        }
       },
       {
         "name": "Expulsar Mortos-Vivos",
@@ -480,7 +504,14 @@
     "features": [
       {
         "name": "Canalizar Divindade (2 usos)",
-        "description": "Você passa a ter dois usos de Canalizar Divindade entre descansos."
+        "description": "Você passa a ter dois usos de Canalizar Divindade entre descansos.",
+        "action": {
+          "type": "action",
+          "label": "Canalizar Divindade",
+          "group": "cleric.channel_divinity",
+          "uses": 2,
+          "recharge": "short"
+        }
       }
     ],
     "source": "phb"
@@ -568,7 +599,14 @@
     "features": [
       {
         "name": "Canalizar Divindade (3 usos)",
-        "description": "Você passa a ter três usos de Canalizar Divindade entre descansos."
+        "description": "Você passa a ter três usos de Canalizar Divindade entre descansos.",
+        "action": {
+          "type": "action",
+          "label": "Canalizar Divindade",
+          "group": "cleric.channel_divinity",
+          "uses": 3,
+          "recharge": "short"
+        }
       }
     ],
     "source": "phb"
@@ -617,7 +655,8 @@
     "features": [
       {
         "name": "Forma Selvagem",
-        "description": "Ação para assumir a forma de uma Besta que você já tenha visto, duas vezes por descanso curto ou longo. Dura horas iguais à metade do seu nível de Druida, arredondada para baixo, e você pode voltar ao normal como ação bônus. Na forma nova você usa a Força, Destreza, Constituição, CA, pontos de vida, deslocamentos e sentidos da Besta, mas mantém Inteligência, Sabedoria, Carisma e personalidade. Não conjura novas magias, mas mantém Concentração no que já estava ativo. Ao chegar a 0 pontos de vida você volta ao normal, e o dano excedente passa para a sua forma verdadeira. No 2º nível o limite é nível de desafio 1/4, sem natação nem voo."
+        "description": "Ação para assumir a forma de uma Besta que você já tenha visto, duas vezes por descanso curto ou longo. Dura horas iguais à metade do seu nível de Druida, arredondada para baixo, e você pode voltar ao normal como ação bônus. Na forma nova você usa a Força, Destreza, Constituição, CA, pontos de vida, deslocamentos e sentidos da Besta, mas mantém Inteligência, Sabedoria, Carisma e personalidade. Não conjura novas magias, mas mantém Concentração no que já estava ativo. Ao chegar a 0 pontos de vida você volta ao normal, e o dano excedente passa para a sua forma verdadeira. No 2º nível o limite é nível de desafio 1/4, sem natação nem voo.",
+        "action": { "type": "action", "uses": 2, "recharge": "short" }
       },
       {
         "name": "Círculo Druídico",
@@ -726,7 +765,8 @@
       },
       {
         "name": "Retomar o Fôlego",
-        "description": "Ação bônus para recuperar 1d10 + seu nível de Guerreiro pontos de vida. Uma vez por descanso curto ou longo."
+        "description": "Ação bônus para recuperar 1d10 + seu nível de Guerreiro pontos de vida. Uma vez por descanso curto ou longo.",
+        "action": { "type": "bonus", "uses": 1, "recharge": "short" }
       }
     ],
     "source": "phb"
@@ -737,7 +777,15 @@
     "features": [
       {
         "name": "Surto de Ação (1 uso)",
-        "description": "No seu turno, você pode agir uma vez além do normal: ganha uma ação adicional. Recupera o uso em descanso curto ou longo."
+        "description": "No seu turno, você pode agir uma vez além do normal: ganha uma ação adicional. Recupera o uso em descanso curto ou longo.",
+        "action": {
+          "type": "special",
+          "label": "Surto de Ação",
+          "group": "fighter.action_surge",
+          "uses": 1,
+          "recharge": "short",
+          "requires": "Um uso por turno, mesmo tendo mais de um disponível."
+        }
       }
     ],
     "source": "phb"
@@ -770,7 +818,12 @@
     "features": [
       {
         "name": "Ataque Extra",
-        "description": "Quando usa a ação Atacar, você faz dois ataques em vez de um."
+        "description": "Quando usa a ação Atacar, você faz dois ataques em vez de um.",
+        "action": {
+          "type": "special",
+          "group": "extra_attack",
+          "attacks": 2
+        }
       }
     ],
     "source": "phb"
@@ -814,7 +867,13 @@
     "features": [
       {
         "name": "Ataque Extra (2)",
-        "description": "Quando usa a ação Atacar, você faz três ataques em vez de um."
+        "description": "Quando usa a ação Atacar, você faz três ataques em vez de um.",
+        "action": {
+          "type": "special",
+          "label": "Ataque Extra",
+          "group": "extra_attack",
+          "attacks": 3
+        }
       }
     ],
     "source": "phb"
@@ -869,7 +928,15 @@
     "features": [
       {
         "name": "Surto de Ação (2 usos)",
-        "description": "Você passa a ter dois usos de Surto de Ação entre descansos, mas ainda só pode usar um por turno."
+        "description": "Você passa a ter dois usos de Surto de Ação entre descansos, mas ainda só pode usar um por turno.",
+        "action": {
+          "type": "special",
+          "label": "Surto de Ação",
+          "group": "fighter.action_surge",
+          "uses": 2,
+          "recharge": "short",
+          "requires": "Um uso por turno, mesmo tendo mais de um disponível."
+        }
       },
       {
         "name": "Indomável (3 usos)",
@@ -895,7 +962,13 @@
     "features": [
       {
         "name": "Ataque Extra (3)",
-        "description": "Quando usa a ação Atacar, você faz quatro ataques em vez de um."
+        "description": "Quando usa a ação Atacar, você faz quatro ataques em vez de um.",
+        "action": {
+          "type": "special",
+          "label": "Ataque Extra",
+          "group": "extra_attack",
+          "attacks": 4
+        }
       }
     ],
     "source": "phb"
@@ -922,7 +995,13 @@
     "features": [
       {
         "name": "Ki",
-        "description": "Você tem pontos de Ki iguais ao seu nível de Monge, recuperados em descanso curto ou longo com pelo menos 30 minutos de meditação. A CD dos seus efeitos de Ki é 8 + bônus de proficiência + Sabedoria. Gastando 1 ponto você pode usar Rajada de Golpes, que dá dois golpes desarmados como ação bônus depois da ação Atacar; Defesa Paciente, que usa Esquivar como ação bônus; ou Passo do Vento, que usa Desengajar ou Disparar como ação bônus e dobra seu salto no turno."
+        "description": "Você tem pontos de Ki iguais ao seu nível de Monge, recuperados em descanso curto ou longo com pelo menos 30 minutos de meditação. A CD dos seus efeitos de Ki é 8 + bônus de proficiência + Sabedoria. Gastando 1 ponto você pode usar Rajada de Golpes, que dá dois golpes desarmados como ação bônus depois da ação Atacar; Defesa Paciente, que usa Esquivar como ação bônus; ou Passo do Vento, que usa Desengajar ou Disparar como ação bônus e dobra seu salto no turno.",
+        "action": {
+          "type": "bonus",
+          "label": "Ki: Rajada de Golpes, Defesa Paciente ou Passo do Vento",
+          "recharge": "short",
+          "cost": "1 ponto de Ki"
+        }
       },
       {
         "name": "Movimento sem Armadura",
@@ -967,11 +1046,21 @@
     "features": [
       {
         "name": "Ataque Extra",
-        "description": "Quando usa a ação Atacar, você faz dois ataques em vez de um."
+        "description": "Quando usa a ação Atacar, você faz dois ataques em vez de um.",
+        "action": {
+          "type": "special",
+          "group": "extra_attack",
+          "attacks": 2
+        }
       },
       {
         "name": "Golpe Atordoante",
-        "description": "Ao acertar um ataque corpo a corpo com arma, gaste 1 ponto de Ki para tentar atordoar: o alvo faz teste de resistência de Constituição contra a sua CD de Ki e, falhando, fica Atordoado até o fim do seu próximo turno."
+        "description": "Ao acertar um ataque corpo a corpo com arma, gaste 1 ponto de Ki para tentar atordoar: o alvo faz teste de resistência de Constituição contra a sua CD de Ki e, falhando, fica Atordoado até o fim do seu próximo turno.",
+        "action": {
+          "type": "special",
+          "cost": "1 ponto de Ki",
+          "requires": "Ao acertar um ataque corpo a corpo com arma."
+        }
       }
     ],
     "source": "phb"
@@ -1130,11 +1219,18 @@
     "features": [
       {
         "name": "Sentido Divino",
-        "description": "Ação para abrir os sentidos ao sobrenatural até o fim do seu próximo turno. Você detecta a presença e o tipo de Celestiais, Ínferos e Mortos-vivos a até 18 m que não estejam atrás de cobertura total, sem necessariamente identificar quem são, e percebe lugares ou objetos consagrados ou profanados. Usos iguais a 1 + Carisma por descanso longo."
+        "description": "Ação para abrir os sentidos ao sobrenatural até o fim do seu próximo turno. Você detecta a presença e o tipo de Celestiais, Ínferos e Mortos-vivos a até 18 m que não estejam atrás de cobertura total, sem necessariamente identificar quem são, e percebe lugares ou objetos consagrados ou profanados. Usos iguais a 1 + Carisma por descanso longo.",
+        "action": { "type": "action", "recharge": "long" }
       },
       {
         "name": "Imposição das Mãos",
-        "description": "Você tem uma reserva de cura igual a 5 × seu nível de Paladino. Como ação, toca uma criatura e gasta pontos dessa reserva para curar a mesma quantidade de pontos de vida. Gastando 5 pontos você pode, em vez disso, neutralizar um veneno ou curar uma doença. Não funciona em Constructos nem Mortos-vivos. A reserva volta cheia em descanso longo."
+        "description": "Você tem uma reserva de cura igual a 5 × seu nível de Paladino. Como ação, toca uma criatura e gasta pontos dessa reserva para curar a mesma quantidade de pontos de vida. Gastando 5 pontos você pode, em vez disso, neutralizar um veneno ou curar uma doença. Não funciona em Constructos nem Mortos-vivos. A reserva volta cheia em descanso longo.",
+        "action": {
+          "type": "action",
+          "recharge": "long",
+          "cost": "Pontos da reserva de cura",
+          "requires": "Precisa tocar a criatura; não funciona em Constructo nem Morto-vivo."
+        }
       }
     ],
     "source": "phb"
@@ -1190,7 +1286,12 @@
     "features": [
       {
         "name": "Ataque Extra",
-        "description": "Quando usa a ação Atacar, você faz dois ataques em vez de um."
+        "description": "Quando usa a ação Atacar, você faz dois ataques em vez de um.",
+        "action": {
+          "type": "special",
+          "group": "extra_attack",
+          "attacks": 2
+        }
       }
     ],
     "source": "phb"
@@ -1356,7 +1457,12 @@
     "features": [
       {
         "name": "Ataque Extra",
-        "description": "Quando usa a ação Atacar, você faz dois ataques em vez de um."
+        "description": "Quando usa a ação Atacar, você faz dois ataques em vez de um.",
+        "action": {
+          "type": "special",
+          "group": "extra_attack",
+          "attacks": 2
+        }
       }
     ],
     "source": "phb"
@@ -1487,7 +1593,13 @@
       },
       {
         "name": "Inimigo Favorecido",
-        "description": "Substitui Inimigo Favorito. Ao acertar uma criatura com um ataque, você pode marcá-la imediatamente, sem gastar ação, ação bônus nem reação. A marca dura 1 minuto e exige Concentração, como uma magia: você não pode manter outra Concentração ao mesmo tempo. Na primeira vez em cada um dos seus turnos em que você causar dano ao alvo marcado, o dano aumenta em 1d4. O próprio ataque que aplica a marca já pode receber esse dado. Você tem um número de marcações igual ao seu bônus de proficiência, recuperadas em descanso longo. Você não recebe as categorias de inimigo, os idiomas nem a progressão do Inimigo Favorito original."
+        "description": "Substitui Inimigo Favorito. Ao acertar uma criatura com um ataque, você pode marcá-la imediatamente, sem gastar ação, ação bônus nem reação. A marca dura 1 minuto e exige Concentração, como uma magia: você não pode manter outra Concentração ao mesmo tempo. Na primeira vez em cada um dos seus turnos em que você causar dano ao alvo marcado, o dano aumenta em 1d4. O próprio ataque que aplica a marca já pode receber esse dado. Você tem um número de marcações igual ao seu bônus de proficiência, recuperadas em descanso longo. Você não recebe as categorias de inimigo, os idiomas nem a progressão do Inimigo Favorito original.",
+        "action": {
+          "type": "special",
+          "uses_formula": "proficiency",
+          "recharge": "long",
+          "requires": "Ao acertar um ataque. Exige Concentração, então disputa com magias de Concentração."
+        }
       }
     ],
     "source": "tcoe"
@@ -1551,7 +1663,12 @@
     "features": [
       {
         "name": "Ataque Extra",
-        "description": "Ao usar a ação de Atacar, você faz dois ataques em vez de um."
+        "description": "Ao usar a ação de Atacar, você faz dois ataques em vez de um.",
+        "action": {
+          "type": "special",
+          "group": "extra_attack",
+          "attacks": 2
+        }
       },
       {
         "name": "Consciência Primal: Sentido Bestial",
@@ -1607,11 +1724,22 @@
     "features": [
       {
         "name": "Explorador Hábil: Incansável",
-        "description": "Como ação, você recebe 1d8 + modificador de Sabedoria em pontos de vida temporários, no mínimo 1. São usos iguais ao seu bônus de proficiência por descanso longo. Além disso, ao concluir um descanso curto você reduz seu nível de Exaustão em 1."
+        "description": "Como ação, você recebe 1d8 + modificador de Sabedoria em pontos de vida temporários, no mínimo 1. São usos iguais ao seu bônus de proficiência por descanso longo. Além disso, ao concluir um descanso curto você reduz seu nível de Exaustão em 1.",
+        "action": {
+          "type": "action",
+          "label": "Incansável: pontos de vida temporários",
+          "uses_formula": "proficiency",
+          "recharge": "long"
+        }
       },
       {
         "name": "Véu da Natureza",
-        "description": "Substitui Esconder-se à Vista de Todos. Como ação bônus, você fica magicamente Invisível, junto com o que estiver vestindo e carregando, até o início do seu próximo turno. Diferente da magia Invisibilidade, atacar ou conjurar não encerra o efeito antes disso. São usos iguais ao seu bônus de proficiência por descanso longo."
+        "description": "Substitui Esconder-se à Vista de Todos. Como ação bônus, você fica magicamente Invisível, junto com o que estiver vestindo e carregando, até o início do seu próximo turno. Diferente da magia Invisibilidade, atacar ou conjurar não encerra o efeito antes disso. São usos iguais ao seu bônus de proficiência por descanso longo.",
+        "action": {
+          "type": "bonus",
+          "uses_formula": "proficiency",
+          "recharge": "long"
+        }
       }
     ],
     "source": "tcoe"
@@ -1734,7 +1862,8 @@
     "features": [
       {
         "name": "Ação Ardilosa",
-        "description": "Você pode usar Disparar, Desengajar ou Esconder-se como ação bônus no seu turno."
+        "description": "Você pode usar Disparar, Desengajar ou Esconder-se como ação bônus no seu turno.",
+        "action": { "type": "bonus" }
       }
     ],
     "source": "phb"
@@ -1767,7 +1896,11 @@
     "features": [
       {
         "name": "Esquiva Sobrenatural",
-        "description": "Reação quando um atacante que você possa ver acerta você: o dano daquele ataque é reduzido à metade."
+        "description": "Reação quando um atacante que você possa ver acerta você: o dano daquele ataque é reduzido à metade.",
+        "action": {
+          "type": "reaction",
+          "trigger": "Um atacante que você pode ver acerta você com um ataque."
+        }
       }
     ],
     "source": "phb"
@@ -1926,7 +2059,13 @@
     "features": [
       {
         "name": "Fonte de Magia",
-        "description": "Você tem Pontos de Feitiçaria iguais ao seu nível de Feiticeiro, recuperados em descanso longo. Com Conjuração Flexível pode gastá-los para criar espaços de magia — 2 pontos para um de 1º nível, 3 para 2º, 5 para 3º, 6 para 4º e 7 para 5º — e espaços criados assim desaparecem no descanso longo. Também pode fazer o contrário: como ação bônus, converter um espaço de magia em pontos iguais ao nível dele."
+        "description": "Você tem Pontos de Feitiçaria iguais ao seu nível de Feiticeiro, recuperados em descanso longo. Com Conjuração Flexível pode gastá-los para criar espaços de magia — 2 pontos para um de 1º nível, 3 para 2º, 5 para 3º, 6 para 4º e 7 para 5º — e espaços criados assim desaparecem no descanso longo. Também pode fazer o contrário: como ação bônus, converter um espaço de magia em pontos iguais ao nível dele.",
+        "action": {
+          "type": "bonus",
+          "label": "Conjuração Flexível",
+          "recharge": "long",
+          "cost": "Pontos de Feitiçaria ou um espaço de magia"
+        }
       }
     ],
     "source": "phb"
@@ -2189,7 +2328,13 @@
       },
       {
         "name": "Recuperação Arcana",
-        "description": "Uma vez por dia, ao terminar um descanso curto, você recupera espaços de magia gastos cuja soma dos níveis não passe da metade do seu nível de Mago, arredondada para cima. Nenhum espaço recuperado pode ser de 6º nível ou superior. Um Mago de 4º nível, por exemplo, recupera 2 níveis: um espaço de 2º ou dois de 1º."
+        "description": "Uma vez por dia, ao terminar um descanso curto, você recupera espaços de magia gastos cuja soma dos níveis não passe da metade do seu nível de Mago, arredondada para cima. Nenhum espaço recuperado pode ser de 6º nível ou superior. Um Mago de 4º nível, por exemplo, recupera 2 níveis: um espaço de 2º ou dois de 1º.",
+        "action": {
+          "type": "special",
+          "uses": 1,
+          "recharge": "long",
+          "requires": "Só ao terminar um descanso curto."
+        }
       }
     ],
     "source": "phb"

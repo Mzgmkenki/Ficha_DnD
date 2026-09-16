@@ -10,6 +10,7 @@ import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/back
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/character_portrait.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/character_spells_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/class_features_panel.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/combat_actions_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/combat_summary_card.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/conditions_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/currency_panel.dart';
@@ -182,6 +183,11 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                   ),
                   const SizedBox(height: 8),
                   CombatSummaryCard(character: character),
+
+                  const SizedBox(height: 16),
+                  const _SectionHeader(title: 'Ações em combate'),
+                  const SizedBox(height: 8),
+                  CombatActionsPanel(character: character),
 
                   const SizedBox(height: 16),
                   const _SectionHeader(title: 'Condições'),
