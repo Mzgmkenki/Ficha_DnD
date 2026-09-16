@@ -1,3 +1,4 @@
+import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
@@ -59,7 +60,7 @@ class _EditProficienciesPageState extends ConsumerState<EditProficienciesPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Editar proficiências')),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: context.scrollContentPadding(),
         children: [
           Text('Salvaguardas', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 8),

@@ -1,4 +1,5 @@
 ﻿import 'package:dnd_ficha_app/core/di/providers.dart';
+import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
 import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
 import 'package:dnd_ficha_app/core/storage/portrait_storage.dart';
@@ -259,7 +260,10 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
               return Form(
                 key: _formKey,
                 child: ListView(
-                  padding: const EdgeInsets.all(16),
+                  // A folga da barra de navegação entra aqui: o botão de criar
+                  // é o último filho, e sem ela ficava atrás dos controles do
+                  // sistema no fim da rolagem.
+                  padding: context.scrollContentPadding(),
                   children: [
                     TextFormField(
                       controller: _nameController,

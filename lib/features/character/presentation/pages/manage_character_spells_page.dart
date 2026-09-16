@@ -1,4 +1,5 @@
-﻿import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
+﻿import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
+import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/sync_subclass_spells.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
@@ -86,7 +87,7 @@ class _ManageCharacterSpellsPageState
                       : null;
 
                   return ListView(
-                    padding: const EdgeInsets.all(16),
+                    padding: context.scrollContentPadding(),
                     children: [
                       _buildCurrentSpellsCard(context, ref, character, spells),
                       const SizedBox(height: 16),

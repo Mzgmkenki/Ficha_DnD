@@ -1,4 +1,5 @@
 import 'package:dnd_ficha_app/core/di/providers.dart';
+import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/hit_points_calculator.dart';
@@ -69,7 +70,7 @@ class _EditAbilityScoresPageState extends ConsumerState<EditAbilityScoresPage> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: context.scrollContentPadding(),
           children: [
             _scoreField('Força', _strengthController),
             const SizedBox(height: 12),

@@ -1,4 +1,5 @@
 import 'package:dnd_ficha_app/core/di/providers.dart';
+import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/armor_class_calculator.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +41,7 @@ class _EditArmorClassPageState extends ConsumerState<EditArmorClassPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Calcular CA')),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: context.scrollContentPadding(),
         children: [
           Card(
             child: Padding(

@@ -1,4 +1,5 @@
-﻿import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_entry.dart';
+﻿import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_entry.dart';
 import 'package:flutter/material.dart';
 
 class SpellDetailPage extends StatelessWidget {
@@ -16,7 +17,7 @@ class SpellDetailPage extends StatelessWidget {
         title: Text(spell.namePt),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: context.scrollContentPadding(),
         children: [
           Text(
             spell.namePt,

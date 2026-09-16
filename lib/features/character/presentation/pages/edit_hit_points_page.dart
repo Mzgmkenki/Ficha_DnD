@@ -1,3 +1,4 @@
+import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +55,7 @@ class _EditHitPointsPageState extends ConsumerState<EditHitPointsPage> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: context.scrollContentPadding(),
           children: [
             _numberField('HP atual', _currentController),
             const SizedBox(height: 12),

@@ -1,4 +1,5 @@
-﻿import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
+﻿import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
+import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item_spell.dart';
@@ -57,7 +58,7 @@ class _ManageCharacterMagicItemsPageState
           }
 
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: context.scrollContentPadding(),
             children: [
               _CurrentItemsCard(character: character),
               const SizedBox(height: 16),

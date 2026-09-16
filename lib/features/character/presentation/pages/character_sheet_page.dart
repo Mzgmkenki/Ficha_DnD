@@ -1,4 +1,5 @@
-﻿import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
+﻿import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
+import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/level_up_character_class.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
@@ -10,6 +11,7 @@ import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/back
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/character_portrait.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/character_spells_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/class_features_panel.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/collapsible_section.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/combat_actions_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/combat_summary_card.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/conditions_panel.dart';
@@ -51,6 +53,81 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
   /// Trava a exportação: gerar o PDF lê o compêndio inteiro e leva um instante.
   bool _exportingPdf = false;
 
+  /// Seções recolhíveis: id da seção → aberta.
+  ///
+  /// Vive só na sessão, e é decisão consciente. O projeto não tem preferências
+  /// locais (não há `shared_preferences` no pubspec), e o único armazenamento é
+  /// o banco do personagem — criar tabela e migração para lembrar um booleano
+  /// de interface não se paga. Ausente conta como fechada, que é o estado
+  /// inicial pedido.
+  final Map<String, bool> _openSections = {};
+
+  bool _isOpen(String id) => _openSections[id] ?? false;
+
+  void _setOpen(String id, bool value) {
+    setState(() => _openSections[id] = value);
+  }
+
+  /// Resumo de Condições: quantas estão ativas, contando a exaustão.
+  String _conditionsSummary(Character character) {
+    final active = character.conditions.length;
+    final exhaustion = character.exhaustion;
+
+    if (active == 0 && exhaustion == 0) return 'Nenhuma condição';
+
+    return [
+      if (active == 1) '1 condição ativa' else if (active > 1) '$active condições ativas',
+      if (exhaustion > 0) 'exaustão nível $exhaustion',
+    ].join(' • ');
+  }
+
+  /// Resumo de Recursos: dados de vida disponíveis e inspiração.
+  String _resourcesSummary(Character character) {
+    final total = character.totalLevel;
+    final available = total - character.hitDiceUsed;
+
+    return [
+      'Dados de vida $available de $total',
+      if (character.inspiration) 'com inspiração',
+    ].join(' • ');
+  }
+
+  /// Resumo de Características raciais: raça e quantas características tem.
+  ///
+  /// Lê o compêndio de raças, que é um arquivo pequeno e já fica em cache do
+  /// Riverpod. Enquanto não chega, o resumo fica vazio em vez de mostrar
+  /// "carregando": a seção fechada não precisa de indicador de progresso.
+  String? _racialSummary(Character character) {
+    final speciesId = character.speciesId;
+    if (speciesId == null || speciesId.isEmpty) return 'Nenhuma raça definida';
+
+    final race = ref.watch(raceByIdProvider(speciesId)).value;
+    if (race == null) return null;
+
+    final traits = race.traits.length;
+
+    return [
+      race.name,
+      if (traits == 1) '1 característica' else if (traits > 1) '$traits características',
+    ].join(' • ');
+  }
+
+  /// Resumo de Características de classe: classe e nível de cada uma.
+  ///
+  /// Usa a lista de classes que a página já carregou, então não custa leitura
+  /// nova. Contar as características exigiria o compêndio de características
+  /// por nível, e classe com nível é o que o jogador procura de todo jeito.
+  String _classSummary(Character character, List<ClassEntry> classes) {
+    if (character.classLevels.isEmpty) return 'Nenhuma classe';
+
+    return character.classLevels.map((classLevel) {
+      final match = classes.where((item) => item.id == classLevel.classId);
+      final name = match.isEmpty ? classLevel.classId : match.first.name;
+
+      return '$name Nv. ${classLevel.level}';
+    }).join(' • ');
+  }
+
   @override
   Widget build(BuildContext context) {
     final characterAsync = ref.watch(characterByIdProvider(widget.characterId));
@@ -85,7 +162,7 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
               _showSpellcasting ??= isCaster;
 
               return ListView(
-                padding: const EdgeInsets.all(16),
+                padding: context.scrollContentPadding(),
                 children: [
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,21 +262,49 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                   CombatSummaryCard(character: character),
 
                   const SizedBox(height: 16),
-                  const _SectionHeader(title: 'Ações em combate'),
-                  const SizedBox(height: 8),
-                  CombatActionsPanel(character: character),
+                  CollapsibleSection(
+                    id: 'combat_actions',
+                    title: 'Ações em combate',
+                    // Sem contagem de propósito: contar as opções obrigaria a
+                    // resolver a lista inteira de magias do compêndio a cada
+                    // abertura da ficha, inclusive com a seção fechada — que é
+                    // justamente o custo que recolher evita.
+                    summary: 'Ver opções do turno',
+                    isExpanded: _isOpen('combat_actions'),
+                    onExpansionChanged: (value) =>
+                        _setOpen('combat_actions', value),
+                    child: CombatActionsPanel(character: character),
+                  ),
 
                   const SizedBox(height: 16),
-                  const _SectionHeader(title: 'Condições'),
-                  const SizedBox(height: 8),
-                  ConditionsPanel(character: character),
+                  CollapsibleSection(
+                    id: 'conditions',
+                    title: 'Condições',
+                    summary: _conditionsSummary(character),
+                    // Condição ativa não pode ficar escondida atrás de um
+                    // painel fechado: é o que muda o que o personagem
+                    // consegue fazer no turno.
+                    badge: character.conditions.isEmpty &&
+                            character.exhaustion == 0
+                        ? null
+                        : 'Ativa',
+                    isExpanded: _isOpen('conditions'),
+                    onExpansionChanged: (value) => _setOpen('conditions', value),
+                    child: ConditionsPanel(character: character),
+                  ),
 
                   const SizedBox(height: 16),
-                  const _SectionHeader(title: 'Recursos e descanso'),
-                  const SizedBox(height: 8),
-                  RestAndResourcesPanel(
-                    character: character,
-                    classes: classes,
+                  CollapsibleSection(
+                    id: 'resources',
+                    title: 'Recursos e descanso',
+                    summary: _resourcesSummary(character),
+                    badge: character.hitDiceUsed > 0 ? 'Gasto' : null,
+                    isExpanded: _isOpen('resources'),
+                    onExpansionChanged: (value) => _setOpen('resources', value),
+                    child: RestAndResourcesPanel(
+                      character: character,
+                      classes: classes,
+                    ),
                   ),
 
                   const SizedBox(height: 16),
@@ -315,14 +420,28 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                   ),
 
                   const SizedBox(height: 16),
-                  const _SectionHeader(title: 'Características raciais'),
-                  const SizedBox(height: 8),
-                  RacialTraitsPanel(speciesId: character.speciesId),
+                  CollapsibleSection(
+                    id: 'racial_traits',
+                    title: 'Características raciais',
+                    summary: _racialSummary(character),
+                    isExpanded: _isOpen('racial_traits'),
+                    onExpansionChanged: (value) =>
+                        _setOpen('racial_traits', value),
+                    child: RacialTraitsPanel(speciesId: character.speciesId),
+                  ),
 
                   const SizedBox(height: 16),
-                  const _SectionHeader(title: 'Características de classe'),
-                  const SizedBox(height: 8),
-                  ClassFeaturesPanel(classLevels: character.classLevels),
+                  CollapsibleSection(
+                    id: 'class_features',
+                    title: 'Características de classe',
+                    summary: _classSummary(character, classes),
+                    isExpanded: _isOpen('class_features'),
+                    onExpansionChanged: (value) =>
+                        _setOpen('class_features', value),
+                    child: ClassFeaturesPanel(
+                      classLevels: character.classLevels,
+                    ),
+                  ),
 
                   const SizedBox(height: 16),
                   const _SectionHeader(title: 'Talentos'),

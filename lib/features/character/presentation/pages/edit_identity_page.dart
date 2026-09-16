@@ -1,4 +1,5 @@
-﻿import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
+﻿import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
+import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/custom_background.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/custom_background_form.dart';
@@ -92,7 +93,7 @@ class _EditIdentityPageState extends ConsumerState<EditIdentityPage> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: context.scrollContentPadding(),
           children: [
             TextFormField(
               controller: _nameController,

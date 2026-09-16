@@ -1,3 +1,4 @@
+import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
 import 'package:dnd_ficha_app/core/theme/app_colors.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
@@ -70,7 +71,7 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
       body: classesAsync.when(
         data: (classes) {
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: context.scrollContentPadding(),
             children: [
               Card(
                 child: Padding(

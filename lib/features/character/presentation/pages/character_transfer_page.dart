@@ -1,4 +1,5 @@
 ﻿import 'package:dnd_ficha_app/core/branding/app_logo.dart';
+import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
 import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/data/mappers/character_json_codec.dart';
@@ -43,7 +44,7 @@ class _CharacterTransferPageState
     return Scaffold(
       appBar: AppBar(title: const Text('Exportar e importar')),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: context.scrollContentPadding(),
         children: [
           Center(child: AppLogo(height: 64, opacity: 0.85)),
           const SizedBox(height: 16),
