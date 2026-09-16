@@ -1,3 +1,5 @@
+import 'package:dnd_ficha_app/features/character/domain/services/granted_ability_increases.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 
 /// Um talento que o personagem pegou.
@@ -12,6 +14,8 @@ class CharacterFeat {
     this.level,
     this.chosenSkillIds = const [],
     this.grantedSkillIds = const [],
+    this.chosenAbility,
+    this.appliedAbilityIncreases = const {},
   });
 
   /// Chave da linha no banco. Nulo em talento recém-montado, ainda não salvo.
@@ -37,6 +41,22 @@ class CharacterFeat {
   /// que vinha da classe ou do antecedente.
   final List<String> grantedSkillIds;
 
+  /// Atributo que o jogador escolheu, quando o talento deixa escolher.
+  ///
+  /// Guardado separado de [appliedAbilityIncreases] porque responde outra
+  /// pergunta: um Resiliente pego com Constituição já em 20 não aumenta nada,
+  /// mas a ficha ainda precisa dizer "Resiliente (Constituição)".
+  final Ability? chosenAbility;
+
+  /// Quanto este talento realmente somou em cada atributo.
+  ///
+  /// Mesma ideia de [grantedSkillIds]: é o efeito que de fato aconteceu, não o
+  /// que o talento promete. Atributo que já estava no teto de 20 não entra
+  /// aqui, senão remover o talento tiraria um ponto que ele nunca deu.
+  final Map<String, int> appliedAbilityIncreases;
+
+  bool get increasesAbility => appliedAbilityIncreases.isNotEmpty;
+
   List<Skill> get chosenSkills => _resolve(chosenSkillIds);
 
   List<Skill> get grantedSkills => _resolve(grantedSkillIds);
@@ -51,6 +71,9 @@ class CharacterFeat {
   String get chosenSkillsAsCsv => chosenSkillIds.join(',');
 
   String get grantedSkillsAsCsv => grantedSkillIds.join(',');
+
+  String get appliedAbilityIncreasesAsCsv =>
+      GrantedAbilityIncreases.toCsv(appliedAbilityIncreases);
 
   /// Lê o CSV guardado no banco, tolerando nulo, vazio e espaços soltos.
   static List<String> parseSkillIdsCsv(String? raw) {
@@ -70,6 +93,8 @@ class CharacterFeat {
     int? level,
     List<String>? chosenSkillIds,
     List<String>? grantedSkillIds,
+    Ability? chosenAbility,
+    Map<String, int>? appliedAbilityIncreases,
   }) {
     return CharacterFeat(
       localId: localId ?? this.localId,
@@ -78,6 +103,9 @@ class CharacterFeat {
       level: level ?? this.level,
       chosenSkillIds: chosenSkillIds ?? this.chosenSkillIds,
       grantedSkillIds: grantedSkillIds ?? this.grantedSkillIds,
+      chosenAbility: chosenAbility ?? this.chosenAbility,
+      appliedAbilityIncreases:
+          appliedAbilityIncreases ?? this.appliedAbilityIncreases,
     );
   }
 }

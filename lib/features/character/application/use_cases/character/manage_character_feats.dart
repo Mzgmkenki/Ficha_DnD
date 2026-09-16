@@ -1,7 +1,9 @@
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_feat.dart';
 import 'package:dnd_ficha_app/features/character/domain/repositories/character_repository.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/granted_ability_increases.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/granted_skills.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_entry.dart';
@@ -36,12 +38,13 @@ class FeatAllowance {
   bool get hasPending => remaining > 0;
 }
 
-/// Adiciona e remove talentos, aplicando o efeito nas perícias.
+/// Adiciona e remove talentos, aplicando o efeito nas perícias e nos atributos.
 ///
 /// Fica num caso de uso, e não na tela, porque a escolha do talento mexe em
-/// dois lugares do agregado ao mesmo tempo: a lista de talentos e as
-/// proficiências. Deixar isso na tela faria cada ponto de entrada repetir a
-/// regra — e a regra tem uma sutileza que é fácil errar (ver [addFeat]).
+/// três lugares do agregado ao mesmo tempo: a lista de talentos, as
+/// proficiências e os valores de atributo. Deixar isso na tela faria cada ponto
+/// de entrada repetir a regra — e a regra tem sutilezas que são fáceis de errar
+/// (ver [addFeat]).
 class ManageCharacterFeats {
   ManageCharacterFeats(this._repository);
 
@@ -98,19 +101,24 @@ class ManageCharacterFeats {
     return false;
   }
 
-  /// Registra o talento e marca as perícias que ele concede.
+  /// Registra o talento e aplica o que ele concede: perícia e atributo.
   ///
   /// [chosenSkills] são as perícias que o jogador escolheu dentro das opções do
-  /// talento; as fixas vêm do próprio [feat].
+  /// talento; as fixas vêm do próprio [feat]. [chosenAbility] é o atributo
+  /// escolhido, nos talentos que oferecem "+1 em X ou Y".
   ///
   /// Só as perícias que o personagem ainda NÃO tinha são gravadas em
   /// `grantedSkillIds`. Essa é a sutileza: se o talento concede Furtividade e o
   /// Ladino já era proficiente nela, o talento não pode registrar que concedeu
   /// — senão removê-lo depois tiraria uma proficiência de classe.
+  ///
+  /// O aumento de atributo segue a mesma ideia em `appliedAbilityIncreases`:
+  /// fica gravado o que realmente entrou, já limitado ao teto de 20.
   Future<void> addFeat({
     required String characterId,
     required FeatEntry feat,
     List<Skill> chosenSkills = const [],
+    Ability? chosenAbility,
     String? classId,
     int? level,
   }) async {
@@ -136,6 +144,25 @@ class ManageCharacterFeats {
       offered,
     );
 
+    // Escolha de atributo fora das opções do talento é descartada, pela mesma
+    // razão das perícias: a tela filtra, mas um import poderia trazer outra.
+    final pickedAbility =
+        chosenAbility != null &&
+            feat.abilityIncreaseOptions.contains(chosenAbility.name)
+        ? chosenAbility
+        : null;
+
+    // O que o talento pede versus o que cabe: atributo no teto de 20 rende
+    // zero, e é o valor que cabe que fica guardado, para a remoção devolver
+    // exatamente isso.
+    final applied = GrantedAbilityIncreases.resolve(
+      character.abilityScores,
+      GrantedAbilityIncreases.wanted(
+        fixed: feat.abilityIncreases,
+        chosen: pickedAbility,
+      ),
+    );
+
     final updated = character.copyWith(
       feats: [
         ...character.feats,
@@ -146,11 +173,17 @@ class ManageCharacterFeats {
           chosenSkillIds: picks.map((skill) => skill.id).toList(growable: false),
           grantedSkillIds:
               newlyGranted.map((skill) => skill.id).toList(growable: false),
+          chosenAbility: pickedAbility,
+          appliedAbilityIncreases: applied,
         ),
       ],
       skillProficiencies: GrantedSkills.apply(
         character.skillProficiencies,
         offered,
+      ),
+      abilityScores: GrantedAbilityIncreases.apply(
+        character.abilityScores,
+        applied,
       ),
       updatedAt: DateTime.now(),
     );
@@ -183,6 +216,10 @@ class ManageCharacterFeats {
       skillProficiencies: GrantedSkills.revoke(
         character.skillProficiencies,
         target.grantedSkills,
+      ),
+      abilityScores: GrantedAbilityIncreases.revoke(
+        character.abilityScores,
+        target.appliedAbilityIncreases,
       ),
       updatedAt: DateTime.now(),
     );

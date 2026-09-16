@@ -1,3 +1,4 @@
+import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_prerequisite.dart';
 
@@ -109,9 +110,9 @@ class FeatEntry {
 
   /// Atributos entre os quais o jogador escolhe um para receber +1.
   ///
-  /// Guardado porque o dado está no compêndio, mas ainda não é aplicado na
-  /// ficha: aplicar exigiria decidir o que fazer ao remover o talento e como
-  /// respeitar o teto de 20, e isso é uma feature própria.
+  /// Quem aplica é `GrantedAbilityIncreases`, chamado por
+  /// `ManageCharacterFeats.addFeat`: o aumento que de fato entrou fica gravado
+  /// no talento do personagem, para a remoção devolver exatamente aquilo.
   final List<String> abilityIncreaseOptions;
 
   final String source;
@@ -130,4 +131,15 @@ class FeatEntry {
 
   /// Se o talento mexe em perícia de alguma forma.
   bool get touchesSkills => skillIds.isNotEmpty || skillsToChoose > 0;
+
+  /// Se o jogador precisa escolher em qual atributo cai o +1.
+  bool get choosesAbility => abilityIncreaseOptions.isNotEmpty;
+
+  /// As opções de atributo já resolvidas em enum, descartando nome inválido.
+  List<Ability> get abilityOptions {
+    return [
+      for (final name in abilityIncreaseOptions)
+        if (Ability.fromName(name) case final ability?) ability,
+    ];
+  }
 }

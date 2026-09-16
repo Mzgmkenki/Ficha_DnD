@@ -3,6 +3,7 @@ import 'package:dnd_ficha_app/features/character/application/use_cases/character
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_feat.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/feat_eligibility.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
@@ -179,6 +180,7 @@ class FeatsPanel extends ConsumerWidget {
             characterId: character.id,
             feat: choice.feat,
             chosenSkills: choice.skills,
+            chosenAbility: choice.ability,
             classId: classId,
             level: classId == null ? null : character.totalLevel,
           );
@@ -252,6 +254,8 @@ class _FeatTile extends StatelessWidget {
                     '${granted.map((skill) => skill.label).join(', ')}',
                     style: theme.textTheme.bodySmall,
                   ),
+                if (_abilityLine(feat) case final line?)
+                  Text(line, style: theme.textTheme.bodySmall),
               ],
             ),
           ),
@@ -264,14 +268,42 @@ class _FeatTile extends StatelessWidget {
       ),
     );
   }
+
+  /// Linha do aumento de atributo, ou nulo quando não há o que dizer.
+  ///
+  /// Quando o talento tinha escolha mas nada entrou, o atributo já estava no
+  /// teto de 20 — dizer isso é melhor que omitir, senão o jogador acha que o
+  /// app esqueceu de aplicar.
+  static String? _abilityLine(CharacterFeat feat) {
+    final applied = feat.appliedAbilityIncreases;
+
+    if (applied.isNotEmpty) {
+      final parts = [
+        for (final entry in applied.entries)
+          if (Ability.fromName(entry.key) case final ability?)
+            '${ability.label} +${entry.value}',
+      ];
+
+      if (parts.isNotEmpty) return 'Atributo: ${parts.join(', ')}';
+    }
+
+    if (feat.chosenAbility case final ability?) {
+      return '${ability.label} já estava no máximo de 20, sem aumento.';
+    }
+
+    return null;
+  }
 }
 
 /// O que o jogador decidiu no diálogo.
 class _FeatChoice {
-  const _FeatChoice({required this.feat, required this.skills});
+  const _FeatChoice({required this.feat, required this.skills, this.ability});
 
   final FeatEntry feat;
   final List<Skill> skills;
+
+  /// Atributo escolhido, nos talentos que oferecem "+1 em X ou Y".
+  final Ability? ability;
 }
 
 class _FeatPickerDialog extends StatefulWidget {
@@ -286,6 +318,7 @@ class _FeatPickerDialog extends StatefulWidget {
 class _FeatPickerDialogState extends State<_FeatPickerDialog> {
   FeatEntry? _selected;
   final Set<Skill> _skills = {};
+  Ability? _ability;
 
   @override
   Widget build(BuildContext context) {
@@ -293,7 +326,13 @@ class _FeatPickerDialogState extends State<_FeatPickerDialog> {
     final selected = _selected;
     final choice = selected?.skillChoice;
     final toChoose = selected?.skillsToChoose ?? 0;
-    final complete = selected != null && _skills.length == toChoose;
+    final abilityOptions = selected?.abilityOptions ?? const <Ability>[];
+
+    // Talento com escolha de atributo só fica completo depois de escolher: sem
+    // essa trava o jogador confirmaria e perderia o +1 sem perceber.
+    final complete = selected != null &&
+        _skills.length == toChoose &&
+        (abilityOptions.isEmpty || _ability != null);
 
     return AlertDialog(
       title: const Text('Escolher talento'),
@@ -328,6 +367,7 @@ class _FeatPickerDialogState extends State<_FeatPickerDialog> {
                   // Trocar de talento zera as escolhas: as opções do anterior
                   // não valem para o novo.
                   _skills.clear();
+                  _ability = null;
                 });
               },
             ),
@@ -350,6 +390,31 @@ class _FeatPickerDialogState extends State<_FeatPickerDialog> {
                   ),
                 ),
               ),
+
+            if (abilityOptions.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              const Text('Escolha o atributo que recebe +1:'),
+              // O grupo vive num ancestral, e não em cada item: `groupValue` e
+              // `onChanged` do RadioListTile foram depreciados depois do
+              // Flutter 3.32 em favor do RadioGroup.
+              RadioGroup<Ability>(
+                groupValue: _ability,
+                onChanged: (picked) => setState(() => _ability = picked),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (final ability in abilityOptions)
+                      RadioListTile<Ability>(
+                        key: ValueKey('feat-ability-${ability.name}'),
+                        value: ability,
+                        title: Text(ability.label),
+                        dense: true,
+                        controlAffinity: ListTileControlAffinity.leading,
+                      ),
+                  ],
+                ),
+              ),
+            ],
 
             if (choice != null) ...[
               const SizedBox(height: 12),
@@ -394,6 +459,7 @@ class _FeatPickerDialogState extends State<_FeatPickerDialog> {
                     _FeatChoice(
                       feat: selected,
                       skills: _skills.toList(growable: false),
+                      ability: _ability,
                     ),
                   ),
           child: const Text('Adicionar'),

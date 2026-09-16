@@ -175,6 +175,10 @@ class CharacterRepositoryImpl implements CharacterRepository {
                 level: drift.Value(feat.level),
                 chosenSkills: drift.Value(feat.chosenSkillsAsCsv),
                 grantedSkills: drift.Value(feat.grantedSkillsAsCsv),
+                chosenAbility: drift.Value(feat.chosenAbility?.name),
+                appliedAbilityIncreases: drift.Value(
+                  feat.appliedAbilityIncreasesAsCsv,
+                ),
               ),
             );
       }
@@ -522,6 +526,10 @@ class CharacterRepositoryImpl implements CharacterRepository {
                 level: drift.Value(feat.level),
                 chosenSkills: drift.Value(feat.chosenSkillsAsCsv),
                 grantedSkills: drift.Value(feat.grantedSkillsAsCsv),
+                chosenAbility: drift.Value(feat.chosenAbility?.name),
+                appliedAbilityIncreases: drift.Value(
+                  feat.appliedAbilityIncreasesAsCsv,
+                ),
               ),
             );
       }

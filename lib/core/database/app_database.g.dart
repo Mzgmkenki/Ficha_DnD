@@ -6837,6 +6837,29 @@ class $CharacterFeatsTable extends CharacterFeats
     requiredDuringInsert: false,
     defaultValue: const Constant(''),
   );
+  static const VerificationMeta _chosenAbilityMeta = const VerificationMeta(
+    'chosenAbility',
+  );
+  @override
+  late final GeneratedColumn<String> chosenAbility = GeneratedColumn<String>(
+    'chosen_ability',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _appliedAbilityIncreasesMeta =
+      const VerificationMeta('appliedAbilityIncreases');
+  @override
+  late final GeneratedColumn<String> appliedAbilityIncreases =
+      GeneratedColumn<String>(
+        'applied_ability_increases',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(''),
+      );
   @override
   List<GeneratedColumn> get $columns => [
     localId,
@@ -6846,6 +6869,8 @@ class $CharacterFeatsTable extends CharacterFeats
     level,
     chosenSkills,
     grantedSkills,
+    chosenAbility,
+    appliedAbilityIncreases,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -6914,6 +6939,24 @@ class $CharacterFeatsTable extends CharacterFeats
         ),
       );
     }
+    if (data.containsKey('chosen_ability')) {
+      context.handle(
+        _chosenAbilityMeta,
+        chosenAbility.isAcceptableOrUnknown(
+          data['chosen_ability']!,
+          _chosenAbilityMeta,
+        ),
+      );
+    }
+    if (data.containsKey('applied_ability_increases')) {
+      context.handle(
+        _appliedAbilityIncreasesMeta,
+        appliedAbilityIncreases.isAcceptableOrUnknown(
+          data['applied_ability_increases']!,
+          _appliedAbilityIncreasesMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -6956,6 +6999,15 @@ class $CharacterFeatsTable extends CharacterFeats
             DriftSqlType.string,
             data['${effectivePrefix}granted_skills'],
           )!,
+      chosenAbility: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}chosen_ability'],
+      ),
+      appliedAbilityIncreases:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}applied_ability_increases'],
+          )!,
     );
   }
 
@@ -6981,6 +7033,18 @@ class CharacterFeat extends DataClass implements Insertable<CharacterFeat> {
 
   /// Perícias que este talento efetivamente concedeu, como CSV de ids.
   final String grantedSkills;
+
+  /// Atributo que o jogador escolheu, quando o talento deixa escolher.
+  ///
+  /// Nome em inglês, igual ao do enum `Ability`.
+  final String? chosenAbility;
+
+  /// Quanto este talento somou em cada atributo, como CSV `atributo:valor`.
+  ///
+  /// Guardado pelo mesmo motivo de [grantedSkills]: sem saber o que entrou,
+  /// remover o talento não teria como devolver. Atributo que já estava no teto
+  /// de 20 não aparece aqui.
+  final String appliedAbilityIncreases;
   const CharacterFeat({
     required this.localId,
     required this.characterId,
@@ -6989,6 +7053,8 @@ class CharacterFeat extends DataClass implements Insertable<CharacterFeat> {
     this.level,
     required this.chosenSkills,
     required this.grantedSkills,
+    this.chosenAbility,
+    required this.appliedAbilityIncreases,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -7004,6 +7070,12 @@ class CharacterFeat extends DataClass implements Insertable<CharacterFeat> {
     }
     map['chosen_skills'] = Variable<String>(chosenSkills);
     map['granted_skills'] = Variable<String>(grantedSkills);
+    if (!nullToAbsent || chosenAbility != null) {
+      map['chosen_ability'] = Variable<String>(chosenAbility);
+    }
+    map['applied_ability_increases'] = Variable<String>(
+      appliedAbilityIncreases,
+    );
     return map;
   }
 
@@ -7020,6 +7092,11 @@ class CharacterFeat extends DataClass implements Insertable<CharacterFeat> {
           level == null && nullToAbsent ? const Value.absent() : Value(level),
       chosenSkills: Value(chosenSkills),
       grantedSkills: Value(grantedSkills),
+      chosenAbility:
+          chosenAbility == null && nullToAbsent
+              ? const Value.absent()
+              : Value(chosenAbility),
+      appliedAbilityIncreases: Value(appliedAbilityIncreases),
     );
   }
 
@@ -7036,6 +7113,10 @@ class CharacterFeat extends DataClass implements Insertable<CharacterFeat> {
       level: serializer.fromJson<int?>(json['level']),
       chosenSkills: serializer.fromJson<String>(json['chosenSkills']),
       grantedSkills: serializer.fromJson<String>(json['grantedSkills']),
+      chosenAbility: serializer.fromJson<String?>(json['chosenAbility']),
+      appliedAbilityIncreases: serializer.fromJson<String>(
+        json['appliedAbilityIncreases'],
+      ),
     );
   }
   @override
@@ -7049,6 +7130,10 @@ class CharacterFeat extends DataClass implements Insertable<CharacterFeat> {
       'level': serializer.toJson<int?>(level),
       'chosenSkills': serializer.toJson<String>(chosenSkills),
       'grantedSkills': serializer.toJson<String>(grantedSkills),
+      'chosenAbility': serializer.toJson<String?>(chosenAbility),
+      'appliedAbilityIncreases': serializer.toJson<String>(
+        appliedAbilityIncreases,
+      ),
     };
   }
 
@@ -7060,6 +7145,8 @@ class CharacterFeat extends DataClass implements Insertable<CharacterFeat> {
     Value<int?> level = const Value.absent(),
     String? chosenSkills,
     String? grantedSkills,
+    Value<String?> chosenAbility = const Value.absent(),
+    String? appliedAbilityIncreases,
   }) => CharacterFeat(
     localId: localId ?? this.localId,
     characterId: characterId ?? this.characterId,
@@ -7068,6 +7155,10 @@ class CharacterFeat extends DataClass implements Insertable<CharacterFeat> {
     level: level.present ? level.value : this.level,
     chosenSkills: chosenSkills ?? this.chosenSkills,
     grantedSkills: grantedSkills ?? this.grantedSkills,
+    chosenAbility:
+        chosenAbility.present ? chosenAbility.value : this.chosenAbility,
+    appliedAbilityIncreases:
+        appliedAbilityIncreases ?? this.appliedAbilityIncreases,
   );
   CharacterFeat copyWithCompanion(CharacterFeatsCompanion data) {
     return CharacterFeat(
@@ -7085,6 +7176,14 @@ class CharacterFeat extends DataClass implements Insertable<CharacterFeat> {
           data.grantedSkills.present
               ? data.grantedSkills.value
               : this.grantedSkills,
+      chosenAbility:
+          data.chosenAbility.present
+              ? data.chosenAbility.value
+              : this.chosenAbility,
+      appliedAbilityIncreases:
+          data.appliedAbilityIncreases.present
+              ? data.appliedAbilityIncreases.value
+              : this.appliedAbilityIncreases,
     );
   }
 
@@ -7097,7 +7196,9 @@ class CharacterFeat extends DataClass implements Insertable<CharacterFeat> {
           ..write('classId: $classId, ')
           ..write('level: $level, ')
           ..write('chosenSkills: $chosenSkills, ')
-          ..write('grantedSkills: $grantedSkills')
+          ..write('grantedSkills: $grantedSkills, ')
+          ..write('chosenAbility: $chosenAbility, ')
+          ..write('appliedAbilityIncreases: $appliedAbilityIncreases')
           ..write(')'))
         .toString();
   }
@@ -7111,6 +7212,8 @@ class CharacterFeat extends DataClass implements Insertable<CharacterFeat> {
     level,
     chosenSkills,
     grantedSkills,
+    chosenAbility,
+    appliedAbilityIncreases,
   );
   @override
   bool operator ==(Object other) =>
@@ -7122,7 +7225,9 @@ class CharacterFeat extends DataClass implements Insertable<CharacterFeat> {
           other.classId == this.classId &&
           other.level == this.level &&
           other.chosenSkills == this.chosenSkills &&
-          other.grantedSkills == this.grantedSkills);
+          other.grantedSkills == this.grantedSkills &&
+          other.chosenAbility == this.chosenAbility &&
+          other.appliedAbilityIncreases == this.appliedAbilityIncreases);
 }
 
 class CharacterFeatsCompanion extends UpdateCompanion<CharacterFeat> {
@@ -7133,6 +7238,8 @@ class CharacterFeatsCompanion extends UpdateCompanion<CharacterFeat> {
   final Value<int?> level;
   final Value<String> chosenSkills;
   final Value<String> grantedSkills;
+  final Value<String?> chosenAbility;
+  final Value<String> appliedAbilityIncreases;
   const CharacterFeatsCompanion({
     this.localId = const Value.absent(),
     this.characterId = const Value.absent(),
@@ -7141,6 +7248,8 @@ class CharacterFeatsCompanion extends UpdateCompanion<CharacterFeat> {
     this.level = const Value.absent(),
     this.chosenSkills = const Value.absent(),
     this.grantedSkills = const Value.absent(),
+    this.chosenAbility = const Value.absent(),
+    this.appliedAbilityIncreases = const Value.absent(),
   });
   CharacterFeatsCompanion.insert({
     this.localId = const Value.absent(),
@@ -7150,6 +7259,8 @@ class CharacterFeatsCompanion extends UpdateCompanion<CharacterFeat> {
     this.level = const Value.absent(),
     this.chosenSkills = const Value.absent(),
     this.grantedSkills = const Value.absent(),
+    this.chosenAbility = const Value.absent(),
+    this.appliedAbilityIncreases = const Value.absent(),
   }) : characterId = Value(characterId),
        featId = Value(featId);
   static Insertable<CharacterFeat> custom({
@@ -7160,6 +7271,8 @@ class CharacterFeatsCompanion extends UpdateCompanion<CharacterFeat> {
     Expression<int>? level,
     Expression<String>? chosenSkills,
     Expression<String>? grantedSkills,
+    Expression<String>? chosenAbility,
+    Expression<String>? appliedAbilityIncreases,
   }) {
     return RawValuesInsertable({
       if (localId != null) 'local_id': localId,
@@ -7169,6 +7282,9 @@ class CharacterFeatsCompanion extends UpdateCompanion<CharacterFeat> {
       if (level != null) 'level': level,
       if (chosenSkills != null) 'chosen_skills': chosenSkills,
       if (grantedSkills != null) 'granted_skills': grantedSkills,
+      if (chosenAbility != null) 'chosen_ability': chosenAbility,
+      if (appliedAbilityIncreases != null)
+        'applied_ability_increases': appliedAbilityIncreases,
     });
   }
 
@@ -7180,6 +7296,8 @@ class CharacterFeatsCompanion extends UpdateCompanion<CharacterFeat> {
     Value<int?>? level,
     Value<String>? chosenSkills,
     Value<String>? grantedSkills,
+    Value<String?>? chosenAbility,
+    Value<String>? appliedAbilityIncreases,
   }) {
     return CharacterFeatsCompanion(
       localId: localId ?? this.localId,
@@ -7189,6 +7307,9 @@ class CharacterFeatsCompanion extends UpdateCompanion<CharacterFeat> {
       level: level ?? this.level,
       chosenSkills: chosenSkills ?? this.chosenSkills,
       grantedSkills: grantedSkills ?? this.grantedSkills,
+      chosenAbility: chosenAbility ?? this.chosenAbility,
+      appliedAbilityIncreases:
+          appliedAbilityIncreases ?? this.appliedAbilityIncreases,
     );
   }
 
@@ -7216,6 +7337,14 @@ class CharacterFeatsCompanion extends UpdateCompanion<CharacterFeat> {
     if (grantedSkills.present) {
       map['granted_skills'] = Variable<String>(grantedSkills.value);
     }
+    if (chosenAbility.present) {
+      map['chosen_ability'] = Variable<String>(chosenAbility.value);
+    }
+    if (appliedAbilityIncreases.present) {
+      map['applied_ability_increases'] = Variable<String>(
+        appliedAbilityIncreases.value,
+      );
+    }
     return map;
   }
 
@@ -7228,7 +7357,9 @@ class CharacterFeatsCompanion extends UpdateCompanion<CharacterFeat> {
           ..write('classId: $classId, ')
           ..write('level: $level, ')
           ..write('chosenSkills: $chosenSkills, ')
-          ..write('grantedSkills: $grantedSkills')
+          ..write('grantedSkills: $grantedSkills, ')
+          ..write('chosenAbility: $chosenAbility, ')
+          ..write('appliedAbilityIncreases: $appliedAbilityIncreases')
           ..write(')'))
         .toString();
   }
@@ -11944,6 +12075,8 @@ typedef $$CharacterFeatsTableCreateCompanionBuilder =
       Value<int?> level,
       Value<String> chosenSkills,
       Value<String> grantedSkills,
+      Value<String?> chosenAbility,
+      Value<String> appliedAbilityIncreases,
     });
 typedef $$CharacterFeatsTableUpdateCompanionBuilder =
     CharacterFeatsCompanion Function({
@@ -11954,6 +12087,8 @@ typedef $$CharacterFeatsTableUpdateCompanionBuilder =
       Value<int?> level,
       Value<String> chosenSkills,
       Value<String> grantedSkills,
+      Value<String?> chosenAbility,
+      Value<String> appliedAbilityIncreases,
     });
 
 final class $$CharacterFeatsTableReferences
@@ -12023,6 +12158,16 @@ class $$CharacterFeatsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get chosenAbility => $composableBuilder(
+    column: $table.chosenAbility,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get appliedAbilityIncreases => $composableBuilder(
+    column: $table.appliedAbilityIncreases,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$CharactersTableFilterComposer get characterId {
     final $$CharactersTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -12086,6 +12231,16 @@ class $$CharacterFeatsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get chosenAbility => $composableBuilder(
+    column: $table.chosenAbility,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get appliedAbilityIncreases => $composableBuilder(
+    column: $table.appliedAbilityIncreases,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$CharactersTableOrderingComposer get characterId {
     final $$CharactersTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -12138,6 +12293,16 @@ class $$CharacterFeatsTableAnnotationComposer
 
   GeneratedColumn<String> get grantedSkills => $composableBuilder(
     column: $table.grantedSkills,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get chosenAbility => $composableBuilder(
+    column: $table.chosenAbility,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get appliedAbilityIncreases => $composableBuilder(
+    column: $table.appliedAbilityIncreases,
     builder: (column) => column,
   );
 
@@ -12206,6 +12371,8 @@ class $$CharacterFeatsTableTableManager
                 Value<int?> level = const Value.absent(),
                 Value<String> chosenSkills = const Value.absent(),
                 Value<String> grantedSkills = const Value.absent(),
+                Value<String?> chosenAbility = const Value.absent(),
+                Value<String> appliedAbilityIncreases = const Value.absent(),
               }) => CharacterFeatsCompanion(
                 localId: localId,
                 characterId: characterId,
@@ -12214,6 +12381,8 @@ class $$CharacterFeatsTableTableManager
                 level: level,
                 chosenSkills: chosenSkills,
                 grantedSkills: grantedSkills,
+                chosenAbility: chosenAbility,
+                appliedAbilityIncreases: appliedAbilityIncreases,
               ),
           createCompanionCallback:
               ({
@@ -12224,6 +12393,8 @@ class $$CharacterFeatsTableTableManager
                 Value<int?> level = const Value.absent(),
                 Value<String> chosenSkills = const Value.absent(),
                 Value<String> grantedSkills = const Value.absent(),
+                Value<String?> chosenAbility = const Value.absent(),
+                Value<String> appliedAbilityIncreases = const Value.absent(),
               }) => CharacterFeatsCompanion.insert(
                 localId: localId,
                 characterId: characterId,
@@ -12232,6 +12403,8 @@ class $$CharacterFeatsTableTableManager
                 level: level,
                 chosenSkills: chosenSkills,
                 grantedSkills: grantedSkills,
+                chosenAbility: chosenAbility,
+                appliedAbilityIncreases: appliedAbilityIncreases,
               ),
           withReferenceMapper:
               (p0) =>

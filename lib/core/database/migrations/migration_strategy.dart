@@ -194,6 +194,29 @@ MigrationStrategy buildMigrationStrategy(AppDatabase db) {
         // Talentos escolhidos pelo personagem.
         await _tryCreateTable(m, db.characterFeats);
       }
+
+      if (from < 12) {
+        // Aumento de atributo do talento: o atributo que o jogador escolheu e
+        // quanto o talento realmente somou.
+        await _tryAddColumn(
+          m,
+          db.characterFeats,
+          db.characterFeats.chosenAbility,
+        );
+        await _tryAddColumn(
+          m,
+          db.characterFeats,
+          db.characterFeats.appliedAbilityIncreases,
+        );
+
+        // Talento pego antes desta versão não somou nada, então fica com o
+        // mapa vazio — e removê-lo não vai tirar ponto de atributo nenhum.
+        await _tryQuery(
+          db,
+          "UPDATE character_feats SET applied_ability_increases = '' "
+          'WHERE applied_ability_increases IS NULL',
+        );
+      }
     },
     beforeOpen: (details) async {
       // Roda fora da transação de migração, então aqui é seguro usar `db`.

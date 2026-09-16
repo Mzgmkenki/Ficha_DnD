@@ -39,6 +39,27 @@ class AbilityScores {
     }
   }
 
+  /// Cópia com [ability] valendo [value].
+  ///
+  /// Existe para quem trabalha com o enum em vez dos seis campos nomeados,
+  /// como o serviço que aplica aumento de atributo de talento.
+  AbilityScores withValue(Ability ability, int value) {
+    switch (ability) {
+      case Ability.strength:
+        return copyWith(strength: value);
+      case Ability.dexterity:
+        return copyWith(dexterity: value);
+      case Ability.constitution:
+        return copyWith(constitution: value);
+      case Ability.intelligence:
+        return copyWith(intelligence: value);
+      case Ability.wisdom:
+        return copyWith(wisdom: value);
+      case Ability.charisma:
+        return copyWith(charisma: value);
+    }
+  }
+
   AbilityScores copyWith({
     int? strength,
     int? dexterity,

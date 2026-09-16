@@ -214,6 +214,19 @@ class CharacterFeats extends Table {
 
   /// Perícias que este talento efetivamente concedeu, como CSV de ids.
   TextColumn get grantedSkills => text().withDefault(const Constant(''))();
+
+  /// Atributo que o jogador escolheu, quando o talento deixa escolher.
+  ///
+  /// Nome em inglês, igual ao do enum `Ability`.
+  TextColumn get chosenAbility => text().nullable()();
+
+  /// Quanto este talento somou em cada atributo, como CSV `atributo:valor`.
+  ///
+  /// Guardado pelo mesmo motivo de [grantedSkills]: sem saber o que entrou,
+  /// remover o talento não teria como devolver. Atributo que já estava no teto
+  /// de 20 não aparece aqui.
+  TextColumn get appliedAbilityIncreases =>
+      text().withDefault(const Constant(''))();
 }
 
 class CharacterSpellSlotsUsage extends Table {

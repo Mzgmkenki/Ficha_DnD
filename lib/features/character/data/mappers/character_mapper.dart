@@ -10,6 +10,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/custom_backgrou
 import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/granted_ability_increases.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/proficiency_level.dart';
@@ -118,6 +119,10 @@ class CharacterMapper {
               ),
               grantedSkillIds: domain_feats.CharacterFeat.parseSkillIdsCsv(
                 row.grantedSkills,
+              ),
+              chosenAbility: Ability.fromName(row.chosenAbility),
+              appliedAbilityIncreases: GrantedAbilityIncreases.parseCsv(
+                row.appliedAbilityIncreases,
               ),
             ),
           )

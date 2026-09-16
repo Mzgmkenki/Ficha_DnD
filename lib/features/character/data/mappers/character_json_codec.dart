@@ -13,6 +13,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/custom_backgrou
 import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/granted_ability_increases.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/proficiency_level.dart';
@@ -202,6 +203,9 @@ class CharacterJsonCodec {
             // texto. Dentro do JSON a lista é o formato natural.
             'chosenSkills': feat.chosenSkillIds,
             'grantedSkills': feat.grantedSkillIds,
+            'chosenAbility': feat.chosenAbility?.name,
+            // Mapa, pelo mesmo motivo das perícias: o CSV é detalhe da coluna.
+            'appliedAbilityIncreases': feat.appliedAbilityIncreases,
           },
       ],
       'inspiration': character.inspiration,
@@ -436,6 +440,10 @@ class CharacterJsonCodec {
           level: _asInt(map['level']),
           chosenSkillIds: _parseSkillIdList(map['chosenSkills']),
           grantedSkillIds: _parseSkillIdList(map['grantedSkills']),
+          chosenAbility: Ability.fromName(_asString(map['chosenAbility'])),
+          appliedAbilityIncreases: _parseAbilityIncreases(
+            map['appliedAbilityIncreases'],
+          ),
         ),
       );
     }
@@ -451,6 +459,25 @@ class CharacterJsonCodec {
       for (final item in _asList(raw))
         if (_asString(item)?.trim() case final id? when id.isNotEmpty) id,
     ];
+  }
+
+  /// Aceita o mapa que o export escreve e também o CSV `atributo:valor` do
+  /// banco, que uma ficha montada à mão poderia trazer.
+  static Map<String, int> _parseAbilityIncreases(Object? raw) {
+    if (raw is String) return GrantedAbilityIncreases.parseCsv(raw);
+    if (raw is! Map) return const {};
+
+    final result = <String, int>{};
+
+    for (final entry in raw.entries) {
+      final ability = Ability.fromName(_asString(entry.key));
+      final amount = _asInt(entry.value);
+      if (ability == null || amount == null || amount <= 0) continue;
+
+      result[ability.name] = amount;
+    }
+
+    return result;
   }
 
   static List<CharacterMagicItem> _parseMagicItems(Object? raw) {
