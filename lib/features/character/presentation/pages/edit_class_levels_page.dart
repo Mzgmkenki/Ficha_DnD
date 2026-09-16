@@ -433,6 +433,24 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
     return null;
   }
 
+  /// Id da classe-base, para variante seguir o pré-requisito da original.
+  ///
+  /// O Patrulheiro Revisado pede Destreza 13 e Sabedoria 13 igual ao
+  /// Patrulheiro. Sem resolver isso, o id da variante cairia no `default` dos
+  /// dois switches abaixo e o multiclasse entraria sem exigir atributo nenhum.
+  ///
+  /// Tolerante ao carregamento: com o compêndio ainda em voo, devolve o id
+  /// recebido, que é o comportamento de antes.
+  String _baseClassIdOf(String classId) {
+    final classes = ref.read(classEntriesProvider).value ?? const <ClassEntry>[];
+
+    for (final item in classes) {
+      if (item.id == classId) return item.baseClassId;
+    }
+
+    return classId;
+  }
+
   String? _missingPrerequisitesForClass(String classId) {
     final scores = widget.abilityScores;
 
@@ -476,7 +494,7 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
       }
     }
 
-    switch (classId) {
+    switch (_baseClassIdOf(classId)) {
       case 'barbarian':
         return atLeast13('strength') ? null : label('strength');
       case 'bard':
@@ -518,7 +536,7 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
   }
 
   String _requirementTextForClassId(String classId) {
-    switch (classId) {
+    switch (_baseClassIdOf(classId)) {
       case 'barbarian':
         return 'Força 13';
       case 'bard':

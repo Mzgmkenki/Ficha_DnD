@@ -12,6 +12,7 @@ class ClassEntry {
     this.subclassLevel,
     this.subclassLabel,
     this.featLevels = defaultFeatLevels,
+    this.variantOf,
   });
 
   /// Níveis em que quase toda classe ganha Incremento no Valor de Atributo, e
@@ -76,6 +77,31 @@ class ClassEntry {
   final String source;
   final List<String> skillOptions;
   final List<String> savingThrows;
+
+  /// Id da classe de que esta é uma variante, quando for o caso.
+  ///
+  /// Existe porque uma variante é a mesma classe com outra lista de
+  /// características: o Patrulheiro com as opções de Tasha continua sendo
+  /// patrulheiro para tudo que não são as características em si. O que a
+  /// variante herda da classe-base:
+  ///
+  /// - as subclasses, expandidas em `loadSubclasses`;
+  /// - a lista de magias, que nos assets é marcada pelo nome da classe-base;
+  /// - o pré-requisito de multiclasse.
+  ///
+  /// O que NÃO é herdado são as características de classe: elas são o motivo
+  /// de a variante existir e ficam declaradas para o id dela em
+  /// `class_features.json`.
+  final String? variantOf;
+
+  /// Id a usar quando a pergunta é "de qual classe isso vem", e não "qual
+  /// linha do compêndio é esta".
+  ///
+  /// Para uma classe comum é o próprio id, então quem chama não precisa saber
+  /// se está lidando com variante ou não.
+  String get baseClassId => variantOf ?? id;
+
+  bool get isVariant => variantOf != null;
 
   bool get isSpellcaster {
     final type = spellcastingType?.trim().toLowerCase();

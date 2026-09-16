@@ -932,13 +932,15 @@ class _ManageCharacterSpellsPageState
   ) {
     final aliases = <String>{};
 
-    final entry = classes
-        .where((item) => item.id == classId)
+    ClassEntry? findById(String id) => classes
+        .where((item) => item.id == id)
         .cast<ClassEntry?>()
         .firstWhere(
           (item) => item != null,
           orElse: () => null,
         );
+
+    final entry = findById(classId);
 
     aliases.add(classId.trim().toLowerCase());
 
@@ -947,7 +949,23 @@ class _ManageCharacterSpellsPageState
       aliases.add(_normalizeClassText(entry.name) ?? '');
     }
 
-    switch (classId.trim().toLowerCase()) {
+    // Variante de classe herda a lista de magias da base. Nos assets a magia
+    // declara a classe pelo nome dela, que o compêndio traduz para o id da
+    // classe-base — então sem o alias da base o filtro devolveria vazio, mesmo
+    // com a variante tendo exatamente a mesma lista.
+    final baseId = entry?.baseClassId ?? classId;
+
+    if (baseId != classId) {
+      aliases.add(baseId.trim().toLowerCase());
+
+      final base = findById(baseId);
+      if (base != null) {
+        aliases.add(base.name.trim().toLowerCase());
+        aliases.add(_normalizeClassText(base.name) ?? '');
+      }
+    }
+
+    switch (baseId.trim().toLowerCase()) {
       case 'wizard':
       case 'mago':
         aliases.addAll({'wizard', 'mago'});
@@ -1166,7 +1184,10 @@ class _ManageCharacterSpellsPageState
       return character.abilityScores.valueFor(ability).abilityModifier;
     }
 
-    final key = classId.trim().toLowerCase();
+    // Variante de classe usa os limites da classe-base: o Patrulheiro
+    // Revisado conhece magias na mesma progressão do Patrulheiro. Sem isso o
+    // id novo cairia no `default` e a tela ficaria sem limite nenhum.
+    final key = (classEntry?.baseClassId ?? classId).trim().toLowerCase();
     final currentCantrips = countClassCantrips();
     final cantripLimit = _cantripLimit(key, level);
 

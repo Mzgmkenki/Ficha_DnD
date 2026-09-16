@@ -47,6 +47,7 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
         featLevels: featLevelsRaw.isEmpty
             ? ClassEntry.defaultFeatLevels
             : featLevelsRaw,
+        variantOf: item['variant_of'] as String?,
         source: item['source'] as String? ?? 'srd',
         skillOptions: skillOptionsRaw
             .map((e) => e.toString())
@@ -255,28 +256,69 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
   Future<List<SubclassEntry>> loadSubclasses() async {
     final items = await _source.loadJsonList('assets/data/srd/subclasses.json');
 
-    return items.map((item) {
-      final rawFeatures = _asList(item['features']);
-      final rawSpells = _asList(item['spells']);
-      final rawTags = _asList(item['tags']);
+    final declared = items
+        .map((item) => _parseSubclass(item))
+        .toList(growable: false);
 
-      return SubclassEntry(
-        id: item['id'] as String,
-        classId: item['class_id'] as String,
-        name: item['name'] as String,
-        source: item['source'] as String? ?? 'srd',
-        description: item['description'] as String?,
-        features: rawFeatures
-            .whereType<Map>()
-            .map((e) => _parseSubclassFeature(Map<String, dynamic>.from(e)))
-            .toList(growable: false),
-        spells: rawSpells
-            .whereType<Map>()
-            .map((e) => _parseSubclassSpellGrant(Map<String, dynamic>.from(e)))
-            .toList(growable: false),
-        tags: rawTags.map((e) => e.toString()).toList(growable: false),
-      );
-    }).toList(growable: false);
+    // Variante de classe reaproveita as subclasses da classe-base. A expansão
+    // acontece aqui, e não em cada tela, porque os filtros de subclasse
+    // comparam `classId` por igualdade em vários lugares (criação, níveis,
+    // ficha) e ainda há a guarda de `ChooseSubclass`. Resolvendo na leitura,
+    // todos passam a funcionar sem saber que variantes existem.
+    final variants = await _variantClassIds();
+    if (variants.isEmpty) return declared;
+
+    return [
+      ...declared,
+      for (final variant in variants.entries)
+        ...declared
+            .where((subclass) => subclass.classId == variant.value)
+            .map((subclass) => subclass.forClass(variant.key)),
+    ];
+  }
+
+  SubclassEntry _parseSubclass(Map<String, dynamic> item) {
+    final rawFeatures = _asList(item['features']);
+    final rawSpells = _asList(item['spells']);
+    final rawTags = _asList(item['tags']);
+
+    return SubclassEntry(
+      id: item['id'] as String,
+      classId: item['class_id'] as String,
+      name: item['name'] as String,
+      source: item['source'] as String? ?? 'srd',
+      description: item['description'] as String?,
+      features: rawFeatures
+          .whereType<Map>()
+          .map((e) => _parseSubclassFeature(Map<String, dynamic>.from(e)))
+          .toList(growable: false),
+      spells: rawSpells
+          .whereType<Map>()
+          .map((e) => _parseSubclassSpellGrant(Map<String, dynamic>.from(e)))
+          .toList(growable: false),
+      tags: rawTags.map((e) => e.toString()).toList(growable: false),
+    );
+  }
+
+  /// Variantes declaradas em `classes.json`, no formato `{id: id da base}`.
+  ///
+  /// Só um nível de herança: a base precisa ser uma classe com subclasses
+  /// próprias. Variante de variante não é resolvida em cadeia, porque não há
+  /// caso real disso e a recursão só acrescentaria uma forma de escrever um
+  /// ciclo no asset.
+  Future<Map<String, String>> _variantClassIds() async {
+    final items = await _source.loadJsonList('assets/data/srd/classes.json');
+    final result = <String, String>{};
+
+    for (final item in items) {
+      final id = item['id'] as String?;
+      final base = item['variant_of'] as String?;
+      if (id == null || base == null || base == id) continue;
+
+      result[id] = base;
+    }
+
+    return result;
   }
 
   @override

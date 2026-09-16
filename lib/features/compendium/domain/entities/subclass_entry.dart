@@ -69,6 +69,28 @@ class SubclassEntry {
     return visible..sort((a, b) => a.level.compareTo(b.level));
   }
 
+  /// A mesma subclasse, apresentada como pertencente a [classId].
+  ///
+  /// Serve para uma variante de classe reaproveitar as subclasses da
+  /// classe-base sem duplicar as entradas do asset. O conteúdo é idêntico de
+  /// propósito: o Caçador de uma variante do Patrulheiro é o mesmo Caçador, só
+  /// precisa aparecer para o id da variante nos filtros que comparam
+  /// `classId`.
+  SubclassEntry forClass(String classId) {
+    if (classId == this.classId) return this;
+
+    return SubclassEntry(
+      id: id,
+      classId: classId,
+      name: name,
+      source: source,
+      description: description,
+      features: features,
+      spells: spells,
+      tags: tags,
+    );
+  }
+
   /// Nomes das magias já liberadas para quem tem [level] níveis na classe.
   ///
   /// Sem repetição: uma magia que apareça em dois níveis (acontece nas listas

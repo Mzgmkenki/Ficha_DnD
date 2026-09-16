@@ -1478,6 +1478,238 @@
   },
 
   {
+    "class_id": "ranger_tcoe",
+    "level": 1,
+    "features": [
+      {
+        "name": "Explorador Hábil: Sagaz",
+        "description": "Substitui Explorador Natural. Escolha uma perícia em que já seja proficiente: seu bônus de proficiência é dobrado em todos os testes de atributo que usem essa perícia. Você também aprende dois idiomas à sua escolha, e pode falar, ler e escrever nos dois. Você não recebe terrenos favoritos nem os benefícios de viagem do Explorador Natural."
+      },
+      {
+        "name": "Inimigo Favorecido",
+        "description": "Substitui Inimigo Favorito. Ao acertar uma criatura com um ataque, você pode marcá-la imediatamente, sem gastar ação, ação bônus nem reação. A marca dura 1 minuto e exige Concentração, como uma magia: você não pode manter outra Concentração ao mesmo tempo. Na primeira vez em cada um dos seus turnos em que você causar dano ao alvo marcado, o dano aumenta em 1d4. O próprio ataque que aplica a marca já pode receber esse dado. Você tem um número de marcações igual ao seu bônus de proficiência, recuperadas em descanso longo. Você não recebe as categorias de inimigo, os idiomas nem a progressão do Inimigo Favorito original."
+      }
+    ],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "ranger_tcoe",
+    "level": 2,
+    "features": [
+      {
+        "name": "Estilo de Luta",
+        "description": "Escolha Arquearia, Defesa, Duelo ou Combate com Duas Armas, com o mesmo efeito descrito para o Guerreiro. Esta versão da classe também abre as opções de Tasha: Luta às Cegas, que dá visão às cegas de 3 m; Guerreiro Druídico, que ensina dois truques de Druida contados como magias de Patrulheiro e conjurados com Sabedoria; e Combate com Armas Arremessadas, que permite sacar a arma como parte do ataque e soma +2 no dano dos acertos à distância com arma de arremesso."
+      },
+      {
+        "name": "Conjuração",
+        "description": "Você conjura magias de Patrulheiro usando Sabedoria. CD das suas magias = 8 + bônus de proficiência + Sabedoria; ataque mágico = bônus de proficiência + Sabedoria. Você conhece uma quantidade fixa de magias, em vez de preparar diariamente, e ao subir de nível pode trocar uma delas por outra. Os espaços voltam em descanso longo."
+      },
+      {
+        "name": "Foco de Conjuração",
+        "description": "Você pode usar um foco druídico como foco de conjuração das suas magias de Patrulheiro: visco, azevinho, uma varinha, um cajado ou um objeto feito com penas, pelos, ossos ou dentes de animais sagrados."
+      },
+      {
+        "name": "Magias Adicionais de Patrulheiro",
+        "description": "Sua lista de magias de Patrulheiro cresce, mas as magias não passam a ser conhecidas automaticamente. Entram na lista: Emaranhar e Golpe Cauterizante no 1º círculo; Ajuda, Aprimorar Habilidade, Rajada de Vento, Arma Mágica e Invocar Besta no 2º; Arma Elemental, Fundir-se à Pedra, Revivificar e Invocar Feérico no 3º; Dominar Besta e Invocar Elemental no 4º; e Restauração Maior no 5º."
+      }
+    ],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "ranger_tcoe",
+    "level": 3,
+    "features": [
+      {
+        "name": "Arquétipo de Patrulheiro",
+        "description": "Você escolhe o arquétipo que orienta sua caçada, entre os mesmos do Patrulheiro. Ele concede características agora e nos níveis 7, 11 e 15."
+      },
+      {
+        "name": "Consciência Primal",
+        "description": "Substitui Consciência Primitiva. Você aprende Falar com Animais, e mais uma magia a cada marco: Sentido Bestial no 5º nível, Falar com Plantas no 9º, Localizar Criatura no 13º e Comunhão com a Natureza no 17º. Elas contam como magias de Patrulheiro e não ocupam lugar entre as suas magias conhecidas. Você pode conjurar cada uma delas uma vez sem gastar espaço; para repetir a conjuração gratuita daquela magia específica, precisa de um descanso longo. Nada impede conjurá-las normalmente gastando espaço."
+      }
+    ],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "ranger_tcoe",
+    "level": 4,
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      },
+      {
+        "name": "Versatilidade Marcial",
+        "description": "Sempre que alcançar um nível de Patrulheiro que conceda aumento de atributo, você pode substituir seu Estilo de Luta por outro disponível à classe. Vale nos níveis 4, 8, 12, 16 e 19."
+      }
+    ],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "ranger_tcoe",
+    "level": 5,
+    "features": [
+      {
+        "name": "Ataque Extra",
+        "description": "Ao usar a ação de Atacar, você faz dois ataques em vez de um."
+      },
+      {
+        "name": "Consciência Primal: Sentido Bestial",
+        "description": "Você aprende Sentido Bestial, com uma conjuração gratuita por descanso longo, nas condições da Consciência Primal."
+      }
+    ],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "ranger_tcoe",
+    "level": 6,
+    "features": [
+      {
+        "name": "Explorador Hábil: Errante",
+        "description": "Seu deslocamento de caminhada aumenta em 1,5 m, e você passa a ter deslocamento de escalada e de natação iguais ao seu deslocamento de caminhada. Quem andava 9 m passa a andar 10,5 m, escalando e nadando também a 10,5 m."
+      },
+      {
+        "name": "Inimigo Favorecido (1d6)",
+        "description": "O dano adicional do seu Inimigo Favorecido sobe de 1d4 para 1d6. As demais regras seguem iguais: Concentração, 1 minuto, uma vez em cada um dos seus turnos, e usos iguais ao bônus de proficiência."
+      }
+    ],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "ranger_tcoe",
+    "level": 8,
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      },
+      {
+        "name": "Caminho da Terra",
+        "description": "Terreno difícil não mágico não custa deslocamento adicional, e você atravessa plantas não mágicas sem perder movimento nem sofrer dano por espinhos e farpas. Também tem vantagem em testes de resistência contra plantas criadas ou manipuladas magicamente para impedir movimento, como as da magia Emaranhar."
+      }
+    ],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "ranger_tcoe",
+    "level": 9,
+    "features": [
+      {
+        "name": "Consciência Primal: Falar com Plantas",
+        "description": "Você aprende Falar com Plantas, com uma conjuração gratuita por descanso longo, nas condições da Consciência Primal."
+      }
+    ],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "ranger_tcoe",
+    "level": 10,
+    "features": [
+      {
+        "name": "Explorador Hábil: Incansável",
+        "description": "Como ação, você recebe 1d8 + modificador de Sabedoria em pontos de vida temporários, no mínimo 1. São usos iguais ao seu bônus de proficiência por descanso longo. Além disso, ao concluir um descanso curto você reduz seu nível de Exaustão em 1."
+      },
+      {
+        "name": "Véu da Natureza",
+        "description": "Substitui Esconder-se à Vista de Todos. Como ação bônus, você fica magicamente Invisível, junto com o que estiver vestindo e carregando, até o início do seu próximo turno. Diferente da magia Invisibilidade, atacar ou conjurar não encerra o efeito antes disso. São usos iguais ao seu bônus de proficiência por descanso longo."
+      }
+    ],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "ranger_tcoe",
+    "level": 12,
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "ranger_tcoe",
+    "level": 13,
+    "features": [
+      {
+        "name": "Consciência Primal: Localizar Criatura",
+        "description": "Você aprende Localizar Criatura, com uma conjuração gratuita por descanso longo, nas condições da Consciência Primal."
+      }
+    ],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "ranger_tcoe",
+    "level": 14,
+    "features": [
+      {
+        "name": "Desaparecer",
+        "description": "Você pode usar a ação de Esconder-se como ação bônus no seu turno, e não pode ser rastreado por meios não mágicos, a menos que escolha deixar rastros."
+      },
+      {
+        "name": "Inimigo Favorecido (1d8)",
+        "description": "O dano adicional do seu Inimigo Favorecido sobe de 1d6 para 1d8, e este é o valor final."
+      }
+    ],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "ranger_tcoe",
+    "level": 16,
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "ranger_tcoe",
+    "level": 17,
+    "features": [
+      {
+        "name": "Consciência Primal: Comunhão com a Natureza",
+        "description": "Você aprende Comunhão com a Natureza, com uma conjuração gratuita por descanso longo, nas condições da Consciência Primal."
+      }
+    ],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "ranger_tcoe",
+    "level": 18,
+    "features": [
+      {
+        "name": "Sentidos Ferozes",
+        "description": "Atacar uma criatura que você não consegue ver não impõe desvantagem só por causa disso; outras fontes de desvantagem continuam valendo. Você também sabe a localização de qualquer criatura Invisível a até 9 m, desde que ela não esteja Escondida de você e você não esteja Cego nem Surdo. Isso informa onde ela está, não necessariamente permite vê-la."
+      }
+    ],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "ranger_tcoe",
+    "level": 19,
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
+    "source": "tcoe"
+  },
+  {
+    "class_id": "ranger_tcoe",
+    "level": 20,
+    "features": [
+      {
+        "name": "Matador de Inimigos",
+        "description": "Uma criatura marcada pelo seu Inimigo Favorecido conta como inimigo favorito para esta característica. Uma vez em cada um dos seus turnos, você soma o modificador de Sabedoria a uma jogada de ataque ou a uma jogada de dano contra o alvo marcado. Pode decidir antes ou depois de ver a rolagem, mas antes de os efeitos dela serem aplicados. Isso é independente do dado extra do Inimigo Favorecido, então um mesmo acerto pode receber os dois."
+      }
+    ],
+    "source": "tcoe"
+  },
+
+  {
     "class_id": "rogue",
     "level": 1,
     "features": [

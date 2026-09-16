@@ -175,6 +175,29 @@
     "source": "srd"
   },
   {
+    "id": "ranger_tcoe",
+    "name": "Patrulheiro Revisado",
+    "variant_of": "ranger",
+    "subclass_level": 3,
+    "subclass_label": "Arquétipo de Patrulheiro",
+    "hit_die": "d10",
+    "primary_ability": "dexterity",
+    "spellcasting_type": "half",
+    "spellcasting_ability": "wisdom",
+    "saving_throws": ["strength", "dexterity"],
+    "skill_options": [
+      "animalHandling",
+      "athletics",
+      "insight",
+      "investigation",
+      "nature",
+      "perception",
+      "stealth",
+      "survival"
+    ],
+    "source": "tcoe"
+  },
+  {
     "id": "rogue",
     "name": "Ladino",
     "subclass_level": 3,
