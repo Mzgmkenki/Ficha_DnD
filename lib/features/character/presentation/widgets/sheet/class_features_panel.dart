@@ -3,6 +3,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dar
 import 'package:dnd_ficha_app/features/character/presentation/widgets/subclass_summary.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -61,23 +62,22 @@ class _SingleClassFeatureBlock extends ConsumerWidget {
 
         return featuresAsync.when(
           data: (entries) {
-            final rows = <({String feature, int level})>[];
+            final rows = <({ClassFeature feature, int level})>[];
 
             for (final entry in entries) {
               for (final feature in entry.features) {
-                final trimmed = feature.trim();
-                if (trimmed.isNotEmpty) {
-                  rows.add((feature: trimmed, level: entry.level));
-                }
+                rows.add((feature: feature, level: entry.level));
               }
             }
+
+            final text = Theme.of(context).textTheme;
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   '$className • Nível ${classLevel.level}',
-                  style: Theme.of(context).textTheme.titleSmall,
+                  style: text.titleSmall,
                 ),
                 const SizedBox(height: 8),
                 if (rows.isEmpty)
@@ -85,16 +85,24 @@ class _SingleClassFeatureBlock extends ConsumerWidget {
                 else
                   ...rows.map(
                     (row) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('• '),
-                          Expanded(
-                            child: Text(
-                              '${row.feature} (Nível ${row.level})',
-                            ),
+                          // Mesmo formato do resumo de subclasse, para o
+                          // jogador não ter que trocar de leitura no meio do
+                          // painel.
+                          Text(
+                            '${row.level}º nível — ${row.feature.name}',
+                            style: text.labelLarge,
                           ),
+                          if (row.feature.hasDescription) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              row.feature.description!,
+                              style: text.bodySmall,
+                            ),
+                          ],
                         ],
                       ),
                     ),

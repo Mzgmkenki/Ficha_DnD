@@ -221,13 +221,26 @@ CharacterSheetPdfData _data({bool rich = true}) {
       ClassFeatureEntry(
         classId: 'cleric',
         level: 1,
-        features: ['Conjuração', 'Divindade'],
+        features: [
+          ClassFeature(
+            name: 'Conjuração',
+            description: 'Conjura magias de clérigo usando Sabedoria.',
+          ),
+          // Sem descrição de propósito: cobre o caminho em que o PDF imprime
+          // só o nome.
+          ClassFeature(name: 'Divindade'),
+        ],
         source: 'srd',
       ),
       ClassFeatureEntry(
         classId: 'cleric',
         level: 2,
-        features: ['Canalizar Divindade'],
+        features: [
+          ClassFeature(
+            name: 'Canalizar Divindade',
+            description: 'Canaliza energia divina uma vez por descanso.',
+          ),
+        ],
         source: 'srd',
       ),
     ],

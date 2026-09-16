@@ -238,14 +238,14 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
         await _source.loadJsonList('assets/data/srd/class_features.json');
 
     return items.map((item) {
-      final rawFeatures = item['features'] as List<dynamic>? ?? const [];
-
       return ClassFeatureEntry(
         classId: item['class_id'] as String,
         level: item['level'] as int,
-        features: rawFeatures
-            .map((e) => e.toString())
-            .toList(growable: false),
+        // `tryParse` aceita texto e objeto, e descarta entrada sem nome.
+        features: [
+          for (final raw in _asList(item['features']))
+            if (ClassFeature.tryParse(raw) case final feature?) feature,
+        ],
         source: item['source'] as String? ?? 'srd',
       );
     }).toList(growable: false);

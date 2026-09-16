@@ -918,7 +918,16 @@ class CharacterSheetPdf {
       } else {
         for (final entry in features) {
           for (final feature in entry.features) {
-            widgets.add(_plain('- $feature (nível ${entry.level})'));
+            // Mesmo formato do bloco de subclasse logo abaixo. Quando não há
+            // texto cadastrado, sai só o nome em vez de dois-pontos vazios.
+            widgets.add(
+              _plain(
+                feature.hasDescription
+                    ? '- ${feature.name} (nível ${entry.level}): '
+                        '${feature.description}'
+                    : '- ${feature.name} (nível ${entry.level})',
+              ),
+            );
           }
         }
       }

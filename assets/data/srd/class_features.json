@@ -2,1111 +2,2226 @@
   {
     "class_id": "barbarian",
     "level": 1,
-    "features": ["Fúria", "Defesa sem Armadura"],
+    "features": [
+      {
+        "name": "Fúria",
+        "description": "Ação bônus, dura até 1 minuto. Sem armadura pesada você ganha vantagem em testes e resistências de Força, sofre metade do dano contundente, perfurante e cortante, e soma o bônus de dano da Fúria aos ataques corpo a corpo que usam Força. Não pode conjurar nem manter Concentração. Termina se ficar Inconsciente, ou no fim do turno em que não atacou um hostil nem sofreu dano. Recupera os usos em descanso longo."
+      },
+      {
+        "name": "Defesa sem Armadura",
+        "description": "Sem vestir armadura, sua CA passa a ser 10 + modificador de Destreza + modificador de Constituição. Escudo continua permitido e soma normalmente."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "barbarian",
     "level": 2,
-    "features": ["Ataque Descuidado", "Sentido de Perigo"],
+    "features": [
+      {
+        "name": "Ataque Imprudente",
+        "description": "No primeiro ataque do seu turno você pode atacar com abandono: ganha vantagem em todos os ataques corpo a corpo com Força naquele turno, mas até o começo do seu próximo turno os ataques contra você também têm vantagem."
+      },
+      {
+        "name": "Sentido de Perigo",
+        "description": "Vantagem em testes de resistência de Destreza contra efeitos que você possa ver, como armadilhas e magias. Não funciona se você estiver Cego, Surdo ou Incapacitado."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "barbarian",
     "level": 3,
-    "features": ["Caminho Primitivo"],
+    "features": [
+      {
+        "name": "Caminho Primal",
+        "description": "Você escolhe o caminho que molda sua fúria. Ele concede características agora e nos níveis 6, 10 e 14."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "barbarian",
     "level": 4,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "barbarian",
     "level": 5,
-    "features": ["Ataque Extra", "Movimento Rápido"],
+    "features": [
+      {
+        "name": "Ataque Extra",
+        "description": "Quando usa a ação Atacar, você faz dois ataques em vez de um."
+      },
+      {
+        "name": "Movimento Rápido",
+        "description": "Seu deslocamento aumenta em 3 m enquanto você não estiver vestindo armadura pesada."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "barbarian",
     "level": 7,
-    "features": ["Instinto Feral"],
+    "features": [
+      {
+        "name": "Instinto Feral",
+        "description": "Vantagem em testes de iniciativa. Se estiver Surpreendido no começo do combate e não estiver Incapacitado, você ainda pode agir normalmente no primeiro turno, desde que entre em Fúria antes de fazer qualquer outra coisa."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "barbarian",
     "level": 8,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "barbarian",
     "level": 9,
-    "features": ["Crítico Brutal (1 dado)"],
+    "features": [
+      {
+        "name": "Crítico Brutal (1 dado)",
+        "description": "Em um acerto crítico com ataque corpo a corpo, role 1 dado de dano adicional da arma e some ao dano extra do crítico."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "barbarian",
     "level": 11,
-    "features": ["Fúria Implacável"],
+    "features": [
+      {
+        "name": "Fúria Implacável",
+        "description": "Em Fúria, ao cair a 0 pontos de vida sem morrer instantaneamente, você pode fazer um teste de resistência de Constituição CD 10 e ficar com 1 ponto de vida em caso de sucesso. Cada uso adicional antes de um descanso aumenta a CD em 5; ela volta a 10 depois de um descanso curto ou longo."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "barbarian",
     "level": 12,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "barbarian",
     "level": 13,
-    "features": ["Crítico Brutal (2 dados)"],
+    "features": [
+      {
+        "name": "Crítico Brutal (2 dados)",
+        "description": "Em um acerto crítico com ataque corpo a corpo, role 2 dados de dano adicionais da arma e some ao dano extra do crítico."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "barbarian",
     "level": 15,
-    "features": ["Fúria Persistente"],
+    "features": [
+      {
+        "name": "Fúria Persistente",
+        "description": "Sua Fúria só termina cedo se você ficar Inconsciente ou se escolher encerrá-la. Ela não acaba mais por falta de ataque ou de dano no turno."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "barbarian",
     "level": 16,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "barbarian",
     "level": 17,
-    "features": ["Crítico Brutal (3 dados)"],
+    "features": [
+      {
+        "name": "Crítico Brutal (3 dados)",
+        "description": "Em um acerto crítico com ataque corpo a corpo, role 3 dados de dano adicionais da arma e some ao dano extra do crítico."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "barbarian",
     "level": 18,
-    "features": ["Força Indomável"],
+    "features": [
+      {
+        "name": "Poder Indomável",
+        "description": "Se o total de um teste de Força seu for menor que o seu valor de Força, use o valor de Força como resultado do teste."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "barbarian",
     "level": 19,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "barbarian",
     "level": 20,
-    "features": ["Campeão Primordial"],
+    "features": [
+      {
+        "name": "Campeão Primal",
+        "description": "Força e Constituição aumentam em 4 cada, e o máximo desses dois atributos passa a ser 24."
+      }
+    ],
     "source": "phb"
   },
 
   {
     "class_id": "bard",
     "level": 1,
-    "features": ["Conjuração", "Inspiração de Bardo"],
+    "features": [
+      {
+        "name": "Conjuração",
+        "description": "Você conjura magias de Bardo usando Carisma. CD das suas magias = 8 + bônus de proficiência + Carisma; ataque mágico = bônus de proficiência + Carisma. Conjura como ritual qualquer magia conhecida com a etiqueta Ritual e usa um instrumento musical como foco. Ao subir de nível pode trocar uma magia conhecida por outra."
+      },
+      {
+        "name": "Inspiração de Bardo (d6)",
+        "description": "Ação bônus para dar um dado de inspiração a uma criatura a até 18 m que possa ouvir você. Nos 10 minutos seguintes ela pode somar o dado a um teste de atributo, ataque ou resistência, depois de ver o d20 e antes de saber o resultado. Cada criatura só carrega um dado por vez. Usos iguais ao seu Carisma, recuperados em descanso longo."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "bard",
     "level": 2,
-    "features": ["Versatilidade", "Canção de Descanso"],
+    "features": [
+      {
+        "name": "Pau para Toda Obra",
+        "description": "Some metade do seu bônus de proficiência, arredondado para baixo, a qualquer teste de atributo que ainda não inclua o bônus de proficiência. Vale também para a iniciativa."
+      },
+      {
+        "name": "Canção de Descanso (d6)",
+        "description": "Se você fizer música ou contar histórias durante um descanso curto, cada criatura amigável que ouvir e gastar pelo menos um Dado de Vida recupera 1d6 pontos de vida adicionais. O dado cresce para d8 no 9º nível, d10 no 13º e d12 no 17º."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "bard",
     "level": 3,
-    "features": ["Especialização", "Colégio de Bardo"],
+    "features": [
+      {
+        "name": "Especialização",
+        "description": "Escolha duas perícias em que já seja proficiente: seu bônus de proficiência é dobrado em qualquer teste com elas."
+      },
+      {
+        "name": "Colégio de Bardo",
+        "description": "Você escolhe o colégio que orienta sua arte. Ele concede características agora e nos níveis 6 e 14."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "bard",
     "level": 4,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "bard",
     "level": 5,
-    "features": ["Fonte de Inspiração", "Inspiração de Bardo (d8)"],
+    "features": [
+      {
+        "name": "Fonte de Inspiração",
+        "description": "A Inspiração de Bardo passa a recarregar em descanso curto ou longo, e não só no longo."
+      },
+      {
+        "name": "Inspiração de Bardo (d8)",
+        "description": "O dado da sua Inspiração de Bardo sobe de d6 para d8."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "bard",
     "level": 6,
-    "features": ["Contracanto", "Segredo Mágico do Colégio"],
+    "features": [
+      {
+        "name": "Contracanto",
+        "description": "Ação para iniciar uma apresentação que dura até o fim do seu próximo turno. Enquanto ela durar, você e os aliados a até 9 m que puderem ouvir você têm vantagem em testes de resistência contra ficar Enfeitiçado ou Amedrontado. Termina se você ficar Incapacitado, for silenciado ou encerrar voluntariamente."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "bard",
     "level": 8,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
+    "source": "phb"
+  },
+  {
+    "class_id": "bard",
+    "level": 9,
+    "features": [
+      {
+        "name": "Canção de Descanso (d8)",
+        "description": "A cura adicional da sua Canção de Descanso sobe de 1d6 para 1d8."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "bard",
     "level": 10,
-    "features": ["Especialização", "Segredos Mágicos", "Inspiração de Bardo (d10)", "Versatilidade"],
+    "features": [
+      {
+        "name": "Especialização",
+        "description": "Escolha outras duas perícias em que já seja proficiente para dobrar o bônus de proficiência."
+      },
+      {
+        "name": "Segredos Mágicos",
+        "description": "Aprenda duas magias de qualquer classe, truques inclusive, desde que sejam de um nível que você possa conjurar. Elas contam como magias de Bardo e ocupam espaço na sua lista de magias conhecidas."
+      },
+      {
+        "name": "Inspiração de Bardo (d10)",
+        "description": "O dado da sua Inspiração de Bardo sobe de d8 para d10."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "bard",
     "level": 12,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
+    "source": "phb"
+  },
+  {
+    "class_id": "bard",
+    "level": 13,
+    "features": [
+      {
+        "name": "Canção de Descanso (d10)",
+        "description": "A cura adicional da sua Canção de Descanso sobe de 1d8 para 1d10."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "bard",
     "level": 14,
-    "features": ["Segredos Mágicos", "Segredo Mágico do Colégio"],
+    "features": [
+      {
+        "name": "Segredos Mágicos",
+        "description": "Aprenda outras duas magias de qualquer classe, nas mesmas condições do 10º nível."
+      }
+    ],
+    "source": "phb"
+  },
+  {
+    "class_id": "bard",
+    "level": 15,
+    "features": [
+      {
+        "name": "Inspiração de Bardo (d12)",
+        "description": "O dado da sua Inspiração de Bardo sobe de d10 para d12."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "bard",
     "level": 16,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
+    "source": "phb"
+  },
+  {
+    "class_id": "bard",
+    "level": 17,
+    "features": [
+      {
+        "name": "Canção de Descanso (d12)",
+        "description": "A cura adicional da sua Canção de Descanso sobe de 1d10 para 1d12."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "bard",
     "level": 18,
-    "features": ["Segredos Mágicos"],
+    "features": [
+      {
+        "name": "Segredos Mágicos",
+        "description": "Aprenda outras duas magias de qualquer classe, nas mesmas condições do 10º nível."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "bard",
     "level": 19,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "bard",
     "level": 20,
-    "features": ["Inspiração Superior"],
+    "features": [
+      {
+        "name": "Inspiração Superior",
+        "description": "Quando você rola iniciativa e está sem usos de Inspiração de Bardo, recupera um uso."
+      }
+    ],
     "source": "phb"
   },
 
   {
     "class_id": "cleric",
     "level": 1,
-    "features": ["Conjuração", "Domínio Divino"],
+    "features": [
+      {
+        "name": "Conjuração",
+        "description": "Você conjura magias de Clérigo usando Sabedoria. CD das suas magias = 8 + bônus de proficiência + Sabedoria; ataque mágico = bônus de proficiência + Sabedoria. Prepara um número de magias igual ao seu nível de Clérigo + Sabedoria e pode trocar a lista após um descanso longo. Conjura como ritual as magias preparadas com etiqueta Ritual e usa um símbolo sagrado como foco."
+      },
+      {
+        "name": "Domínio Divino",
+        "description": "Você escolhe o domínio da sua divindade. Ele concede magias sempre preparadas, que não contam no seu limite, e características agora e nos níveis 2, 6, 8 e 17."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "cleric",
     "level": 2,
-    "features": ["Canalizar Divindade"],
+    "features": [
+      {
+        "name": "Canalizar Divindade (1 uso)",
+        "description": "Você canaliza energia divina para alimentar efeitos específicos. Começa com Expulsar Mortos-Vivos e com o efeito do seu domínio. Recupera o uso em descanso curto ou longo; passa a ter 2 usos no 6º nível e 3 no 18º. Quando um efeito exige teste de resistência, a CD é a das suas magias de Clérigo."
+      },
+      {
+        "name": "Expulsar Mortos-Vivos",
+        "description": "Ação: cada Morto-vivo a até 9 m que possa ver ou ouvir você faz um teste de resistência de Sabedoria. Quem falhar fica Expulso por 1 minuto ou até sofrer dano. Enquanto Expulso, precisa se afastar de você, não pode chegar voluntariamente a menos de 9 m, não usa reações e só pode Disparar ou tentar escapar de algo que o impeça de mover; sem poder se mover, usa Esquivar."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "cleric",
     "level": 4,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "cleric",
     "level": 5,
-    "features": ["Destruir Mortos-Vivos (ND 1/2)"],
+    "features": [
+      {
+        "name": "Destruir Mortos-Vivos (ND 1/2)",
+        "description": "Quando um Morto-vivo falha no teste de resistência contra o seu Expulsar Mortos-Vivos, ele é destruído na hora se o nível de desafio dele for 1/2 ou menor."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "cleric",
     "level": 6,
-    "features": ["Canalizar Divindade (2/rest)"],
+    "features": [
+      {
+        "name": "Canalizar Divindade (2 usos)",
+        "description": "Você passa a ter dois usos de Canalizar Divindade entre descansos."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "cleric",
     "level": 8,
-    "features": ["Aumento no Valor de Habilidade", "Poder Divino"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "cleric",
     "level": 10,
-    "features": ["Intervenção Divina"],
+    "features": [
+      {
+        "name": "Intervenção Divina",
+        "description": "Ação para implorar auxílio à sua divindade. Role d100: se o resultado for igual ou menor que o seu nível de Clérigo, ela intervém, e o Mestre escolhe o efeito — uma magia de Clérigo ou do seu domínio é uma referência apropriada. Em caso de sucesso, só pode usar de novo depois de 7 dias; em caso de falha, pode tentar novamente após um descanso longo."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "cleric",
     "level": 11,
-    "features": ["Destruir Mortos-Vivos (ND 1)"],
+    "features": [
+      {
+        "name": "Destruir Mortos-Vivos (ND 1)",
+        "description": "O limite de destruição do seu Expulsar Mortos-Vivos sobe para nível de desafio 1 ou menor."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "cleric",
     "level": 12,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "cleric",
     "level": 14,
-    "features": ["Destruir Mortos-Vivos (ND 2)"],
+    "features": [
+      {
+        "name": "Destruir Mortos-Vivos (ND 2)",
+        "description": "O limite de destruição do seu Expulsar Mortos-Vivos sobe para nível de desafio 2 ou menor."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "cleric",
     "level": 16,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "cleric",
     "level": 17,
-    "features": ["Destruir Mortos-Vivos (ND 3)"],
+    "features": [
+      {
+        "name": "Destruir Mortos-Vivos (ND 3)",
+        "description": "O limite de destruição do seu Expulsar Mortos-Vivos sobe para nível de desafio 3 ou menor."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "cleric",
     "level": 18,
-    "features": ["Canalizar Divindade (3/rest)"],
+    "features": [
+      {
+        "name": "Canalizar Divindade (3 usos)",
+        "description": "Você passa a ter três usos de Canalizar Divindade entre descansos."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "cleric",
     "level": 19,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "cleric",
     "level": 20,
-    "features": ["Intervenção Divina Aprimorada"],
+    "features": [
+      {
+        "name": "Intervenção Divina Aprimorada",
+        "description": "Sua Intervenção Divina passa a funcionar automaticamente, sem precisar rolar o d100."
+      }
+    ],
     "source": "phb"
   },
 
   {
     "class_id": "druid",
     "level": 1,
-    "features": ["Conjuração", "Idioma Druídico"],
+    "features": [
+      {
+        "name": "Druídico",
+        "description": "Você conhece o idioma secreto dos druidas. Consegue deixar mensagens escondidas em objetos e lugares, que outro druida percebe automaticamente. Quem não é druida pode notar que há uma mensagem com um teste de Percepção CD 15, mas não consegue entendê-la sem magia."
+      },
+      {
+        "name": "Conjuração",
+        "description": "Você conjura magias de Druida usando Sabedoria. CD das suas magias = 8 + bônus de proficiência + Sabedoria; ataque mágico = bônus de proficiência + Sabedoria. Prepara um número de magias igual ao seu nível de Druida + Sabedoria e pode trocar a lista após um descanso longo. Conjura como ritual as magias preparadas com etiqueta Ritual e usa um foco druídico."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "druid",
     "level": 2,
-    "features": ["Forma Selvagem", "Círculo Druídico"],
+    "features": [
+      {
+        "name": "Forma Selvagem",
+        "description": "Ação para assumir a forma de uma Besta que você já tenha visto, duas vezes por descanso curto ou longo. Dura horas iguais à metade do seu nível de Druida, arredondada para baixo, e você pode voltar ao normal como ação bônus. Na forma nova você usa a Força, Destreza, Constituição, CA, pontos de vida, deslocamentos e sentidos da Besta, mas mantém Inteligência, Sabedoria, Carisma e personalidade. Não conjura novas magias, mas mantém Concentração no que já estava ativo. Ao chegar a 0 pontos de vida você volta ao normal, e o dano excedente passa para a sua forma verdadeira. No 2º nível o limite é nível de desafio 1/4, sem natação nem voo."
+      },
+      {
+        "name": "Círculo Druídico",
+        "description": "Você escolhe o círculo ao qual pertence. Ele concede características agora e nos níveis 6, 10 e 14."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "druid",
     "level": 4,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      },
+      {
+        "name": "Forma Selvagem Aprimorada (ND 1/2)",
+        "description": "Sua Forma Selvagem passa a alcançar Bestas de nível de desafio 1/2, e você já pode assumir formas com deslocamento de natação. Voo continua fora do alcance."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "druid",
     "level": 8,
-    "features": ["Aumento no Valor de Habilidade", "Forma Selvagem Aprimorada"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      },
+      {
+        "name": "Forma Selvagem Aprimorada (ND 1)",
+        "description": "Sua Forma Selvagem passa a alcançar Bestas de nível de desafio 1, e formas com deslocamento de voo ficam liberadas."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "druid",
     "level": 12,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "druid",
     "level": 16,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "druid",
     "level": 18,
-    "features": ["Conjurar em Forma Selvagem"],
+    "features": [
+      {
+        "name": "Corpo Atemporal",
+        "description": "A magia primordial retarda seu envelhecimento: a cada 10 anos que passam, seu corpo envelhece apenas 1."
+      },
+      {
+        "name": "Magias Bestiais",
+        "description": "Em Forma Selvagem você já consegue executar os componentes verbais e somáticos das suas magias de Druida. Componentes materiais continuam sendo um problema à parte."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "druid",
     "level": 19,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "druid",
     "level": 20,
-    "features": ["Arquidruida"],
+    "features": [
+      {
+        "name": "Arquidruida",
+        "description": "Sua Forma Selvagem passa a ter usos ilimitados. Além disso, você pode ignorar os componentes verbais, somáticos e materiais sem custo e não consumidos das suas magias de Druida, tanto na forma normal quanto em Forma Selvagem."
+      }
+    ],
     "source": "phb"
   },
 
   {
     "class_id": "fighter",
     "level": 1,
-    "features": ["Estilo de Luta", "Retomar o Fôlego"],
+    "features": [
+      {
+        "name": "Estilo de Luta",
+        "description": "Você adota um estilo de combate. Arquearia dá +2 em ataques à distância; Defesa dá +1 de CA com armadura; Duelo dá +2 de dano com arma de uma mão sem outra arma na outra; Combate com Armas Grandes rerrola resultado 1 ou 2 no dano de arma empunhada com duas mãos; Proteção usa reação e escudo para dar desvantagem a um ataque contra aliado a até 1,5 m; Combate com Duas Armas soma o modificador de atributo ao dano do ataque de ação bônus."
+      },
+      {
+        "name": "Retomar o Fôlego",
+        "description": "Ação bônus para recuperar 1d10 + seu nível de Guerreiro pontos de vida. Uma vez por descanso curto ou longo."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "fighter",
     "level": 2,
-    "features": ["Surto de Ação"],
+    "features": [
+      {
+        "name": "Surto de Ação (1 uso)",
+        "description": "No seu turno, você pode agir uma vez além do normal: ganha uma ação adicional. Recupera o uso em descanso curto ou longo."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "fighter",
     "level": 3,
-    "features": ["Arquétipo Marcial"],
+    "features": [
+      {
+        "name": "Arquétipo Marcial",
+        "description": "Você escolhe o arquétipo que define seu estilo marcial. Ele concede características agora e nos níveis 7, 10, 15 e 18."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "fighter",
     "level": 4,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "fighter",
     "level": 5,
-    "features": ["Ataque Extra"],
+    "features": [
+      {
+        "name": "Ataque Extra",
+        "description": "Quando usa a ação Atacar, você faz dois ataques em vez de um."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "fighter",
     "level": 6,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "fighter",
     "level": 8,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "fighter",
     "level": 9,
-    "features": ["Indomável (1 uso)"],
+    "features": [
+      {
+        "name": "Indomável (1 uso)",
+        "description": "Ao falhar em um teste de resistência, você pode rolar de novo e precisa usar o novo resultado. Uma vez por descanso longo, virando 2 usos no 13º nível e 3 no 17º."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "fighter",
     "level": 11,
-    "features": ["Ataque Extra (2)"],
+    "features": [
+      {
+        "name": "Ataque Extra (2)",
+        "description": "Quando usa a ação Atacar, você faz três ataques em vez de um."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "fighter",
     "level": 12,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "fighter",
     "level": 13,
-    "features": ["Indomável (2 usos)"],
+    "features": [
+      {
+        "name": "Indomável (2 usos)",
+        "description": "Você passa a poder rerrolar dois testes de resistência falhados por descanso longo."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "fighter",
     "level": 14,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "fighter",
     "level": 16,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "fighter",
     "level": 17,
-    "features": ["Surto de Ação (2 usos)", "Indomável (3 usos)"],
+    "features": [
+      {
+        "name": "Surto de Ação (2 usos)",
+        "description": "Você passa a ter dois usos de Surto de Ação entre descansos, mas ainda só pode usar um por turno."
+      },
+      {
+        "name": "Indomável (3 usos)",
+        "description": "Você passa a poder rerrolar três testes de resistência falhados por descanso longo."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "fighter",
     "level": 19,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "fighter",
     "level": 20,
-    "features": ["Ataque Extra (3)"],
+    "features": [
+      {
+        "name": "Ataque Extra (3)",
+        "description": "Quando usa a ação Atacar, você faz quatro ataques em vez de um."
+      }
+    ],
     "source": "phb"
   },
 
   {
     "class_id": "monk",
     "level": 1,
-    "features": ["Defesa sem Armadura", "Artes Marciais"],
+    "features": [
+      {
+        "name": "Defesa sem Armadura",
+        "description": "Sem armadura e sem escudo, sua CA passa a ser 10 + modificador de Destreza + modificador de Sabedoria."
+      },
+      {
+        "name": "Artes Marciais",
+        "description": "Sem armadura nem escudo, ao usar golpe desarmado ou arma de monge você pode usar Destreza no ataque e no dano, pode trocar o dado de dano da arma pelo seu Dado de Artes Marciais, e depois da ação Atacar pode dar um golpe desarmado como ação bônus. Arma de monge é a espada curta ou qualquer arma simples corpo a corpo sem as propriedades Pesada e Duas Mãos. O dado começa em d4 e sobe para d6 no 5º nível, d8 no 11º e d10 no 17º."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "monk",
     "level": 2,
-    "features": ["Ki", "Movimento sem Armadura"],
+    "features": [
+      {
+        "name": "Ki",
+        "description": "Você tem pontos de Ki iguais ao seu nível de Monge, recuperados em descanso curto ou longo com pelo menos 30 minutos de meditação. A CD dos seus efeitos de Ki é 8 + bônus de proficiência + Sabedoria. Gastando 1 ponto você pode usar Rajada de Golpes, que dá dois golpes desarmados como ação bônus depois da ação Atacar; Defesa Paciente, que usa Esquivar como ação bônus; ou Passo do Vento, que usa Desengajar ou Disparar como ação bônus e dobra seu salto no turno."
+      },
+      {
+        "name": "Movimento sem Armadura",
+        "description": "Sem armadura nem escudo, seu deslocamento aumenta em 3 m. O bônus sobe para 4,5 m no 6º nível, 6 m no 10º, 7,5 m no 14º e 9 m no 18º."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "monk",
     "level": 3,
-    "features": ["Tradição Monástica", "Desviar Projéteis"],
+    "features": [
+      {
+        "name": "Tradição Monástica",
+        "description": "Você escolhe a tradição que orienta seu treinamento. Ela concede características agora e nos níveis 6, 11 e 17."
+      },
+      {
+        "name": "Desviar Projéteis",
+        "description": "Reação quando um ataque com arma à distância acerta você: reduz o dano em 1d10 + Destreza + seu nível de Monge. Se reduzir a zero e o projétil couber em uma mão livre, você o pega, e pode gastar 1 ponto de Ki para arremessá-lo de volta na mesma reação, com alcance 6/18 m, tratando-o como arma de monge com a qual é proficiente."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "monk",
     "level": 4,
-    "features": ["Aumento no Valor de Habilidade", "Queda Lenta"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      },
+      {
+        "name": "Queda Lenta",
+        "description": "Reação ao cair para reduzir o dano da queda em 5 × seu nível de Monge."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "monk",
     "level": 5,
-    "features": ["Ataque Extra", "Golpe Atordoante"],
+    "features": [
+      {
+        "name": "Ataque Extra",
+        "description": "Quando usa a ação Atacar, você faz dois ataques em vez de um."
+      },
+      {
+        "name": "Golpe Atordoante",
+        "description": "Ao acertar um ataque corpo a corpo com arma, gaste 1 ponto de Ki para tentar atordoar: o alvo faz teste de resistência de Constituição contra a sua CD de Ki e, falhando, fica Atordoado até o fim do seu próximo turno."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "monk",
     "level": 6,
-    "features": ["Golpes Ki-Empoderados"],
+    "features": [
+      {
+        "name": "Ataques Potencializados por Ki",
+        "description": "Seus golpes desarmados contam como mágicos para superar resistência e imunidade a dano não mágico."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "monk",
     "level": 7,
-    "features": ["Evasão", "Mente Tranquila"],
+    "features": [
+      {
+        "name": "Evasão",
+        "description": "Contra efeitos que permitem teste de Destreza para sofrer metade do dano, você passa a não sofrer dano nenhum se tiver sucesso, e apenas metade se falhar. Não funciona se você estiver Incapacitado."
+      },
+      {
+        "name": "Quietude da Mente",
+        "description": "Ação para encerrar em si mesmo um efeito que o deixe Enfeitiçado ou Amedrontado."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "monk",
     "level": 8,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "monk",
     "level": 9,
-    "features": ["Movimento sem Armadura Aprimorado"],
+    "features": [
+      {
+        "name": "Movimento sem Armadura Aprimorado",
+        "description": "Durante o seu deslocamento você pode se mover por superfícies verticais e pela superfície de líquidos sem cair, desde que termine o movimento em terreno firme."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "monk",
     "level": 10,
-    "features": ["Pureza Corporal"],
+    "features": [
+      {
+        "name": "Pureza do Corpo",
+        "description": "Você fica imune a doenças e a venenos."
+      }
+    ],
+    "source": "phb"
+  },
+  {
+    "class_id": "monk",
+    "level": 12,
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "monk",
     "level": 13,
-    "features": ["Língua do Sol e da Lua"],
+    "features": [
+      {
+        "name": "Língua do Sol e da Lua",
+        "description": "Você entende qualquer idioma falado, e qualquer criatura que conheça algum idioma entende o que você diz."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "monk",
     "level": 14,
-    "features": ["Alma de Diamante"],
+    "features": [
+      {
+        "name": "Alma de Diamante",
+        "description": "Você ganha proficiência em todos os testes de resistência. Além disso, ao falhar em um deles, pode gastar 1 ponto de Ki para rolar de novo e usar o novo resultado."
+      }
+    ],
+    "source": "phb"
+  },
+  {
+    "class_id": "monk",
+    "level": 15,
+    "features": [
+      {
+        "name": "Corpo Atemporal",
+        "description": "Você não sofre mais as fragilidades da velhice e não pode ser envelhecido magicamente. Ainda pode morrer de velhice, mas não precisa mais de comida nem de água."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "monk",
     "level": 16,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "monk",
     "level": 18,
-    "features": ["Corpo Vazio"],
+    "features": [
+      {
+        "name": "Corpo Vazio",
+        "description": "Ação e 4 pontos de Ki para ficar Invisível por 1 minuto, com resistência a todo dano exceto força. Gastando 8 pontos de Ki, você conjura Projeção Astral em si mesmo, sem componentes materiais e sem levar ninguém com você."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "monk",
     "level": 19,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "monk",
     "level": 20,
-    "features": ["Eu Perfeito"],
+    "features": [
+      {
+        "name": "Eu Perfeito",
+        "description": "Quando você rola iniciativa e está sem pontos de Ki, recupera 4 pontos."
+      }
+    ],
     "source": "phb"
   },
 
   {
     "class_id": "paladin",
     "level": 1,
-    "features": ["Sentido Divino", "Mãos Curativas"],
+    "features": [
+      {
+        "name": "Sentido Divino",
+        "description": "Ação para abrir os sentidos ao sobrenatural até o fim do seu próximo turno. Você detecta a presença e o tipo de Celestiais, Ínferos e Mortos-vivos a até 18 m que não estejam atrás de cobertura total, sem necessariamente identificar quem são, e percebe lugares ou objetos consagrados ou profanados. Usos iguais a 1 + Carisma por descanso longo."
+      },
+      {
+        "name": "Imposição das Mãos",
+        "description": "Você tem uma reserva de cura igual a 5 × seu nível de Paladino. Como ação, toca uma criatura e gasta pontos dessa reserva para curar a mesma quantidade de pontos de vida. Gastando 5 pontos você pode, em vez disso, neutralizar um veneno ou curar uma doença. Não funciona em Constructos nem Mortos-vivos. A reserva volta cheia em descanso longo."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "paladin",
     "level": 2,
-    "features": ["Estilo de Luta", "Conjuração", "Golpe Divino"],
+    "features": [
+      {
+        "name": "Estilo de Luta",
+        "description": "Escolha Defesa, Duelo, Combate com Armas Grandes ou Proteção, com o mesmo efeito descrito para o Guerreiro."
+      },
+      {
+        "name": "Conjuração",
+        "description": "Você conjura magias de Paladino usando Carisma. CD das suas magias = 8 + bônus de proficiência + Carisma; ataque mágico = bônus de proficiência + Carisma. Prepara um número de magias igual a Carisma + metade do seu nível de Paladino, arredondada para baixo, e pode trocar a lista após um descanso longo. Usa um símbolo sagrado como foco e não recebe truques pela classe."
+      },
+      {
+        "name": "Golpe Divino",
+        "description": "Ao acertar um ataque corpo a corpo com arma, você pode gastar um espaço de magia para causar dano radiante adicional: 2d8 com espaço de 1º nível, mais 1d8 por nível acima, até 5d8. Contra Ínferos e Mortos-vivos o dano ganha mais 1d8, podendo chegar a 6d8."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "paladin",
     "level": 3,
-    "features": ["Saúde Divina", "Juramento Sagrado"],
+    "features": [
+      {
+        "name": "Saúde Divina",
+        "description": "A energia divina que corre em você o deixa imune a doenças."
+      },
+      {
+        "name": "Juramento Sagrado",
+        "description": "Você faz o juramento que define seu propósito. Ele concede magias de juramento, um efeito próprio de Canalizar Divindade com um uso por descanso curto ou longo, e características nos níveis 7, 15 e 20."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "paladin",
     "level": 4,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "paladin",
     "level": 5,
-    "features": ["Ataque Extra"],
+    "features": [
+      {
+        "name": "Ataque Extra",
+        "description": "Quando usa a ação Atacar, você faz dois ataques em vez de um."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "paladin",
     "level": 6,
-    "features": ["Aura de Proteção"],
+    "features": [
+      {
+        "name": "Aura de Proteção",
+        "description": "Enquanto estiver consciente, você e os aliados a até 3 m somam o seu modificador de Carisma, no mínimo +1, a todos os testes de resistência. O raio cresce para 9 m no 18º nível."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "paladin",
     "level": 8,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "paladin",
     "level": 10,
-    "features": ["Aura de Coragem"],
+    "features": [
+      {
+        "name": "Aura de Coragem",
+        "description": "Enquanto estiver consciente, você e os aliados a até 3 m não podem ficar Amedrontados. O raio cresce para 9 m no 18º nível."
+      }
+    ],
+    "source": "phb"
+  },
+  {
+    "class_id": "paladin",
+    "level": 11,
+    "features": [
+      {
+        "name": "Golpe Divino Aprimorado",
+        "description": "Todo ataque corpo a corpo com arma que você acerta causa 1d8 de dano radiante adicional, sem gastar nada. Isso soma ao Golpe Divino quando você também gasta um espaço de magia."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "paladin",
     "level": 12,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "paladin",
     "level": 14,
-    "features": ["Toque Purificador"],
+    "features": [
+      {
+        "name": "Toque Purificador",
+        "description": "Ação para tocar em si mesmo ou em uma criatura voluntária e encerrar um efeito de magia que a esteja afetando. Usos iguais ao seu Carisma, no mínimo 1, por descanso longo."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "paladin",
     "level": 16,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "paladin",
     "level": 18,
-    "features": ["Aura Aprimorada"],
+    "features": [
+      {
+        "name": "Auras Aprimoradas",
+        "description": "O raio da sua Aura de Proteção e da sua Aura de Coragem cresce de 3 m para 9 m."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "paladin",
     "level": 19,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
-  {
-    "class_id": "paladin",
-    "level": 20,
-    "features": ["Capstone do Juramento Sagrado"],
-    "source": "phb"
-  },
-
   {
     "class_id": "ranger",
     "level": 1,
-    "features": ["Inimigo Favorito", "Explorador Nato"],
+    "features": [
+      {
+        "name": "Inimigo Favorito",
+        "description": "Escolha um tipo de criatura, ou duas raças de Humanoides, como seu inimigo favorito. Você tem vantagem em testes de Sobrevivência para rastreá-lo e em testes de Inteligência para recordar informações sobre ele, e aprende um idioma que ele fale, se houver. Novas escolhas nos níveis 6 e 14."
+      },
+      {
+        "name": "Explorador Natural",
+        "description": "Escolha um terreno favorito, com outro nos níveis 6 e 10. Em testes de Inteligência ou Sabedoria ligados a esse terreno, seu bônus de proficiência é dobrado se você já for proficiente na perícia. Viajando por ele por uma hora ou mais, terreno difícil não reduz o ritmo do grupo, você não se perde por meios não mágicos, permanece alerta mesmo fazendo outra atividade, se move furtivamente em ritmo normal quando sozinho, encontra o dobro de comida ao forragear e, ao rastrear, descobre número, tamanho e há quanto tempo as criaturas passaram."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "ranger",
     "level": 2,
-    "features": ["Estilo de Luta", "Conjuração"],
+    "features": [
+      {
+        "name": "Estilo de Luta",
+        "description": "Escolha Arquearia, Defesa, Duelo ou Combate com Duas Armas, com o mesmo efeito descrito para o Guerreiro."
+      },
+      {
+        "name": "Conjuração",
+        "description": "Você conjura magias de Patrulheiro usando Sabedoria. CD das suas magias = 8 + bônus de proficiência + Sabedoria; ataque mágico = bônus de proficiência + Sabedoria. Você conhece uma quantidade fixa de magias, em vez de preparar diariamente, e ao subir de nível pode trocar uma delas por outra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "ranger",
     "level": 3,
-    "features": ["Arquétipo de Patrulheiro", "Consciência Primitiva"],
+    "features": [
+      {
+        "name": "Arquétipo de Patrulheiro",
+        "description": "Você escolhe o arquétipo que orienta sua caçada. Ele concede características agora e nos níveis 7, 11 e 15."
+      },
+      {
+        "name": "Consciência Primitiva",
+        "description": "Ação e um espaço de magia para sentir se há Aberrações, Celestiais, Dragões, Elementais, Feéricos ou Mortos-vivos por perto: 1,6 km de raio, ou 9,6 km se você estiver no seu terreno favorito. Dura 1 minuto por nível do espaço gasto e informa apenas a presença, sem quantidade nem localização."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "ranger",
     "level": 4,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "ranger",
     "level": 5,
-    "features": ["Ataque Extra"],
+    "features": [
+      {
+        "name": "Ataque Extra",
+        "description": "Quando usa a ação Atacar, você faz dois ataques em vez de um."
+      }
+    ],
+    "source": "phb"
+  },
+  {
+    "class_id": "ranger",
+    "level": 6,
+    "features": [
+      {
+        "name": "Inimigo Favorito (escolha adicional)",
+        "description": "Escolha outro tipo de criatura, ou outras duas raças de Humanoides, como inimigo favorito, com os mesmos benefícios."
+      },
+      {
+        "name": "Explorador Natural (terreno adicional)",
+        "description": "Escolha outro terreno favorito, com os mesmos benefícios de viagem e conhecimento."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "ranger",
     "level": 8,
-    "features": ["Aumento no Valor de Habilidade", "Passo na Terra"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      },
+      {
+        "name": "Caminho da Terra",
+        "description": "Terreno difícil não mágico deixa de custar movimento extra. Vegetação não mágica não reduz seu deslocamento nem causa dano em você, e você tem vantagem em testes contra plantas criadas por magia para impedir movimento."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "ranger",
     "level": 10,
-    "features": ["Esconder-se à Vista"],
+    "features": [
+      {
+        "name": "Explorador Natural (terreno adicional)",
+        "description": "Escolha o terceiro terreno favorito, com os mesmos benefícios."
+      },
+      {
+        "name": "Esconder-se à Vista",
+        "description": "Gastando 1 minuto para se camuflar com terra, plantas e fuligem, você ganha +10 em testes de Furtividade enquanto ficar imóvel e sem usar ação nem reação. Mover-se ou agir encerra o benefício."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "ranger",
     "level": 12,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "ranger",
     "level": 14,
-    "features": ["Desaparecer"],
+    "features": [
+      {
+        "name": "Inimigo Favorito (escolha adicional)",
+        "description": "Escolha o terceiro tipo de criatura, ou outras duas raças de Humanoides, como inimigo favorito."
+      },
+      {
+        "name": "Desaparecer",
+        "description": "Você pode usar a ação Esconder-se como ação bônus, e não pode ser rastreado por meios não mágicos a menos que queira deixar rastro."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "ranger",
     "level": 16,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "ranger",
     "level": 18,
-    "features": ["Sentidos Ferinos"],
+    "features": [
+      {
+        "name": "Sentidos Ferozes",
+        "description": "Você não sofre desvantagem em ataques só por não conseguir ver o alvo, e sabe a localização de qualquer criatura Invisível a até 9 m, desde que ela não esteja Escondida e você não esteja Cego nem Surdo."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "ranger",
     "level": 19,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "ranger",
     "level": 20,
-    "features": ["Matador de Inimigos"],
+    "features": [
+      {
+        "name": "Matador de Inimigos",
+        "description": "Uma vez por turno, ao atacar um inimigo favorito, você soma o modificador de Sabedoria à jogada de ataque ou à de dano. No ataque, pode decidir depois de rolar o d20 e antes de saber o resultado."
+      }
+    ],
     "source": "phb"
   },
 
   {
     "class_id": "rogue",
     "level": 1,
-    "features": ["Especialização", "Ataque Furtivo", "Gíria de Ladrão"],
+    "features": [
+      {
+        "name": "Especialização",
+        "description": "Escolha duas perícias, ou uma perícia e as ferramentas de ladrão, em que já seja proficiente: seu bônus de proficiência é dobrado nesses testes. Outras duas escolhas no 6º nível."
+      },
+      {
+        "name": "Ataque Furtivo (1d6)",
+        "description": "Uma vez por turno, você causa dano extra a um alvo que atacou com arma de Acuidade ou à distância, desde que tenha vantagem no ataque, ou que um inimigo do alvo esteja a até 1,5 m dele e você não tenha desvantagem. O dano começa em 1d6 e sobe 1d6 a cada dois níveis ímpares, chegando a 10d6 no 19º. Pode acontecer fora do seu turno, se você atacar por reação."
+      },
+      {
+        "name": "Gíria de Ladrão",
+        "description": "Você conhece o código secreto do submundo, misturado à fala comum e a símbolos escondidos. Uma conversa em gíria leva cerca de quatro vezes mais tempo que a mesma conversa direta."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "rogue",
     "level": 2,
-    "features": ["Ação Ardilosa"],
+    "features": [
+      {
+        "name": "Ação Ardilosa",
+        "description": "Você pode usar Disparar, Desengajar ou Esconder-se como ação bônus no seu turno."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "rogue",
     "level": 3,
-    "features": ["Arquétipo Ladino"],
+    "features": [
+      {
+        "name": "Arquétipo de Ladino",
+        "description": "Você escolhe o arquétipo que define seu ofício. Ele concede características agora e nos níveis 9, 13 e 17."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "rogue",
     "level": 4,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "rogue",
     "level": 5,
-    "features": ["Esquiva Sobrenatural"],
+    "features": [
+      {
+        "name": "Esquiva Sobrenatural",
+        "description": "Reação quando um atacante que você possa ver acerta você: o dano daquele ataque é reduzido à metade."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "rogue",
     "level": 6,
-    "features": ["Especialização"],
+    "features": [
+      {
+        "name": "Especialização",
+        "description": "Escolha outras duas perícias em que já seja proficiente para dobrar o bônus de proficiência."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "rogue",
     "level": 7,
-    "features": ["Evasão"],
+    "features": [
+      {
+        "name": "Evasão",
+        "description": "Contra efeitos que permitem teste de Destreza para sofrer metade do dano, você passa a não sofrer dano nenhum se tiver sucesso, e apenas metade se falhar. Não funciona se você estiver Incapacitado."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "rogue",
     "level": 8,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "rogue",
     "level": 10,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "rogue",
     "level": 11,
-    "features": ["Talento Confiável"],
+    "features": [
+      {
+        "name": "Talento Confiável",
+        "description": "Em qualquer teste de atributo que inclua seu bônus de proficiência, um resultado de 9 ou menos no d20 passa a ser tratado como 10."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "rogue",
     "level": 12,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "rogue",
     "level": 14,
-    "features": ["Sentido Cego"],
+    "features": [
+      {
+        "name": "Sentido às Cegas",
+        "description": "Se você puder ouvir, sabe a localização de qualquer criatura escondida ou Invisível a até 3 m."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "rogue",
     "level": 15,
-    "features": ["Mente Escorregadia"],
+    "features": [
+      {
+        "name": "Mente Escorregadia",
+        "description": "Você ganha proficiência em testes de resistência de Sabedoria."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "rogue",
     "level": 16,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "rogue",
     "level": 18,
-    "features": ["Elusivo"],
+    "features": [
+      {
+        "name": "Elusivo",
+        "description": "Enquanto você não estiver Incapacitado, nenhuma jogada de ataque contra você tem vantagem."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "rogue",
     "level": 19,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "rogue",
     "level": 20,
-    "features": ["Golpe de Sorte"],
+    "features": [
+      {
+        "name": "Golpe de Sorte",
+        "description": "Uma vez por descanso curto ou longo, você pode transformar um ataque seu que errou em acerto, ou tratar como 20 o d20 de um teste de atributo que falhou."
+      }
+    ],
     "source": "phb"
   },
 
   {
     "class_id": "sorcerer",
     "level": 1,
-    "features": ["Conjuração", "Origem Feiticeira"],
+    "features": [
+      {
+        "name": "Conjuração",
+        "description": "Você conjura magias de Feiticeiro usando Carisma. CD das suas magias = 8 + bônus de proficiência + Carisma; ataque mágico = bônus de proficiência + Carisma. Você conhece uma quantidade fixa de magias, em vez de preparar diariamente, e ao subir de nível pode trocar uma delas. Usa um foco arcano e não recebe conjuração ritual pela classe."
+      },
+      {
+        "name": "Origem de Feitiçaria",
+        "description": "Você escolhe a origem do poder que corre no seu sangue. Ela concede características agora e nos níveis 6, 14 e 18."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "sorcerer",
     "level": 2,
-    "features": ["Fonte de Magia"],
+    "features": [
+      {
+        "name": "Fonte de Magia",
+        "description": "Você tem Pontos de Feitiçaria iguais ao seu nível de Feiticeiro, recuperados em descanso longo. Com Conjuração Flexível pode gastá-los para criar espaços de magia — 2 pontos para um de 1º nível, 3 para 2º, 5 para 3º, 6 para 4º e 7 para 5º — e espaços criados assim desaparecem no descanso longo. Também pode fazer o contrário: como ação bônus, converter um espaço de magia em pontos iguais ao nível dele."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "sorcerer",
     "level": 3,
-    "features": ["Metamagia"],
+    "features": [
+      {
+        "name": "Metamagia (2 opções)",
+        "description": "Você aprende a moldar suas magias, escolhendo duas opções de Metamagia. Normalmente só pode aplicar uma por magia. Entre as opções estão Cuidadosa, que protege aliados do efeito; Distante, que dobra o alcance; Potencializada, que rerrola dados de dano; Estendida, que dobra a duração; Aumentada, que dá desvantagem no teste de resistência; Acelerada, que transforma a conjuração em ação bônus; Sutil, que dispensa componentes verbais e somáticos; e Duplicada, que atinge um segundo alvo."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "sorcerer",
     "level": 4,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "sorcerer",
     "level": 8,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "sorcerer",
     "level": 10,
-    "features": ["Metamagia adicional"],
+    "features": [
+      {
+        "name": "Metamagia (3ª opção)",
+        "description": "Você aprende mais uma opção de Metamagia."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "sorcerer",
     "level": 12,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "sorcerer",
     "level": 16,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "sorcerer",
     "level": 17,
-    "features": ["Metamagia adicional"],
+    "features": [
+      {
+        "name": "Metamagia (4ª opção)",
+        "description": "Você aprende a última opção de Metamagia."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "sorcerer",
     "level": 19,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "sorcerer",
     "level": 20,
-    "features": ["Restauração Feiticeira"],
+    "features": [
+      {
+        "name": "Restauração Feiticeira",
+        "description": "Ao terminar um descanso curto, você recupera 4 Pontos de Feitiçaria."
+      }
+    ],
     "source": "phb"
   },
 
   {
     "class_id": "warlock",
     "level": 1,
-    "features": ["Magia de Pacto", "Patrono Sobrenatural"],
+    "features": [
+      {
+        "name": "Magia de Pacto",
+        "description": "Você conjura magias de Bruxo usando Carisma. CD das suas magias = 8 + bônus de proficiência + Carisma; ataque mágico = bônus de proficiência + Carisma. Seus espaços de magia são poucos, mas todos têm o nível mais alto que a tabela mostra, e você recupera todos em descanso curto ou longo. Ao subir de nível pode trocar uma magia conhecida e usa um foco arcano."
+      },
+      {
+        "name": "Patrono Sobrenatural",
+        "description": "Você escolhe o ser com quem fez o pacto. Ele concede magias de patrono e características agora e nos níveis 6, 10 e 14."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "warlock",
     "level": 2,
-    "features": ["Invocações Místicas"],
+    "features": [
+      {
+        "name": "Invocações Místicas (2)",
+        "description": "Você aprende fragmentos de conhecimento proibido que concedem habilidades permanentes, escolhendo duas invocações. Algumas exigem nível mínimo ou uma Dádiva do Pacto específica. Ao subir de nível você pode substituir uma invocação conhecida por outra para a qual seja elegível, e o total cresce até 8 no 18º nível."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "warlock",
     "level": 3,
-    "features": ["Dádiva do Pacto"],
+    "features": [
+      {
+        "name": "Dádiva do Pacto",
+        "description": "Seu patrono entrega um presente. Pacto da Corrente dá um familiar que pode assumir formas especiais e atacar com a reação dele; Pacto da Lâmina permite criar uma arma corpo a corpo mágica na mão vazia; Pacto do Tomo dá o Livro das Sombras com três truques de qualquer lista; e o Pacto do Talismã, de Tasha, dá um amuleto que soma 1d4 a testes falhados de quem o usa."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "warlock",
     "level": 4,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "warlock",
     "level": 8,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "warlock",
     "level": 11,
-    "features": ["Arcanum Místico (6º círculo)"],
+    "features": [
+      {
+        "name": "Arcano Místico (6º círculo)",
+        "description": "Escolha uma magia de Bruxo de 6º nível. Você pode conjurá-la uma vez sem gastar espaço de magia e recupera esse uso em descanso longo."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "warlock",
     "level": 12,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "warlock",
     "level": 13,
-    "features": ["Arcanum Místico (7º círculo)"],
-    "source": "phb"
-  },
-  {
-    "class_id": "warlock",
-    "level": 14,
-    "features": ["Capstone do Patrono"],
+    "features": [
+      {
+        "name": "Arcano Místico (7º círculo)",
+        "description": "Escolha uma magia de Bruxo de 7º nível, conjurável uma vez por descanso longo sem gastar espaço."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "warlock",
     "level": 15,
-    "features": ["Arcanum Místico (8º círculo)"],
+    "features": [
+      {
+        "name": "Arcano Místico (8º círculo)",
+        "description": "Escolha uma magia de Bruxo de 8º nível, conjurável uma vez por descanso longo sem gastar espaço."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "warlock",
     "level": 16,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "warlock",
     "level": 17,
-    "features": ["Arcanum Místico (9º círculo)"],
+    "features": [
+      {
+        "name": "Arcano Místico (9º círculo)",
+        "description": "Escolha uma magia de Bruxo de 9º nível, conjurável uma vez por descanso longo sem gastar espaço."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "warlock",
     "level": 19,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "warlock",
     "level": 20,
-    "features": ["Mestre Místico"],
+    "features": [
+      {
+        "name": "Mestre Místico",
+        "description": "Uma vez por descanso longo, você passa 1 minuto suplicando ao seu patrono e recupera todos os espaços de Magia de Pacto gastos."
+      }
+    ],
     "source": "phb"
   },
 
   {
     "class_id": "wizard",
     "level": 1,
-    "features": ["Conjuração", "Recuperação Arcana"],
+    "features": [
+      {
+        "name": "Conjuração",
+        "description": "Você conjura magias de Mago usando Inteligência. CD das suas magias = 8 + bônus de proficiência + Inteligência; ataque mágico = bônus de proficiência + Inteligência. Começa com um grimório contendo seis magias de 1º nível e ganha duas magias novas nele a cada nível de Mago. Prepara um número de magias igual ao seu nível de Mago + Inteligência, escolhidas entre as do grimório, e pode trocar a lista após um descanso longo. Conjura como ritual qualquer magia do grimório com etiqueta Ritual, mesmo sem preparar. Copiar uma magia encontrada custa 2 horas e 50 po por nível."
+      },
+      {
+        "name": "Recuperação Arcana",
+        "description": "Uma vez por dia, ao terminar um descanso curto, você recupera espaços de magia gastos cuja soma dos níveis não passe da metade do seu nível de Mago, arredondada para cima. Nenhum espaço recuperado pode ser de 6º nível ou superior. Um Mago de 4º nível, por exemplo, recupera 2 níveis: um espaço de 2º ou dois de 1º."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "wizard",
     "level": 2,
-    "features": ["Tradição Arcana"],
+    "features": [
+      {
+        "name": "Tradição Arcana",
+        "description": "Você escolhe a escola de magia em que se especializa. Ela concede características agora e nos níveis 6, 10 e 14."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "wizard",
     "level": 4,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "wizard",
     "level": 8,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "wizard",
     "level": 12,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "wizard",
     "level": 16,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "wizard",
     "level": 18,
-    "features": ["Domínio de Magias"],
+    "features": [
+      {
+        "name": "Maestria em Magia",
+        "description": "Escolha uma magia de 1º nível e uma de 2º do seu grimório. Enquanto estiverem preparadas, você pode conjurá-las no nível mínimo sem gastar espaço de magia; para conjurar em nível mais alto, gasta espaço normalmente. Depois de 8 horas de estudo você pode trocar uma ou as duas."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "wizard",
     "level": 19,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "phb"
   },
   {
     "class_id": "wizard",
     "level": 20,
-    "features": ["Magias Assinatura"],
+    "features": [
+      {
+        "name": "Magias Características",
+        "description": "Escolha duas magias de 3º nível do seu grimório. Elas ficam sempre preparadas sem contar no seu limite, e você pode conjurar cada uma delas uma vez em 3º nível sem gastar espaço, recuperando esses usos em descanso curto ou longo. Também pode conjurá-las normalmente gastando espaços."
+      }
+    ],
     "source": "phb"
   },
 
   {
     "class_id": "artificer",
     "level": 1,
-    "features": ["Bugiganga Mágica", "Conjuração"],
+    "features": [
+      {
+        "name": "Conjuração",
+        "description": "Você conjura magias de Artífice usando Inteligência. CD das suas magias = 8 + bônus de proficiência + Inteligência; ataque mágico = bônus de proficiência + Inteligência. Prepara um número de magias igual ao modificador de Inteligência + metade do seu nível de Artífice, arredondada para baixo, com mínimo de 1, e pode trocar a lista após um descanso longo. Conjura como ritual as magias preparadas com etiqueta Ritual e usa ferramentas de ladrão ou de artesão como foco."
+      },
+      {
+        "name": "Engenharia Mágica",
+        "description": "Com as ferramentas apropriadas, você toca um objeto Minúsculo não mágico e lhe dá um efeito pequeno: emitir luz, guardar uma mensagem de até 6 segundos, produzir um som ou odor contínuo, ou exibir uma imagem ou texto curto. O número de objetos afetados ao mesmo tempo é igual ao seu modificador de Inteligência, com mínimo de 1, e criar um a mais encerra o efeito mais antigo."
+      }
+    ],
     "source": "tcoe"
   },
   {
     "class_id": "artificer",
     "level": 2,
-    "features": ["Infundir Item"],
+    "features": [
+      {
+        "name": "Infundir Item",
+        "description": "Ao terminar um descanso longo, você imbui objetos não mágicos com infusões que conhece, criando itens mágicos temporários como Arma Aprimorada, Defesa Aprimorada, Servo Homúnculo e Replicar Item Mágico. Cada objeto recebe uma infusão só, e a infusão dura enquanto você a mantiver; ao passar do limite de itens, a mais antiga termina. Se você morrer, as infusões duram Inteligência dias, com mínimo de 1. Ao subir de nível pode substituir uma infusão conhecida."
+      }
+    ],
     "source": "tcoe"
   },
   {
     "class_id": "artificer",
     "level": 3,
-    "features": ["Especialista em Artífice", "A Ferramenta Certa para o Trabalho"],
+    "features": [
+      {
+        "name": "Especialista em Artífice",
+        "description": "Você escolhe a especialidade que orienta seu trabalho. Ela concede características agora e nos níveis 5, 9 e 15."
+      },
+      {
+        "name": "A Ferramenta Certa para o Trabalho",
+        "description": "Com uma hora ininterrupta de trabalho usando ferramentas, você cria um conjunto de ferramentas de artesão em um espaço a até 1,5 m. Ele desaparece se você usar esta característica novamente."
+      }
+    ],
     "source": "tcoe"
   },
   {
     "class_id": "artificer",
     "level": 4,
-    "features": ["Aumento no Valor de Habilidade"],
-    "source": "tcoe"
-  },
-  {
-    "class_id": "artificer",
-    "level": 5,
-    "features": ["Característica de Especialista em Artífice"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "tcoe"
   },
   {
     "class_id": "artificer",
     "level": 6,
-    "features": ["Perícia com Ferramentas"],
+    "features": [
+      {
+        "name": "Especialização em Ferramentas",
+        "description": "Seu bônus de proficiência é dobrado em qualquer teste feito com ferramentas nas quais você seja proficiente."
+      }
+    ],
     "source": "tcoe"
   },
   {
     "class_id": "artificer",
     "level": 7,
-    "features": ["Vislumbre de Genialidade"],
+    "features": [
+      {
+        "name": "Lampejo de Gênio",
+        "description": "Reação quando você ou uma criatura que possa ver a até 9 m faz um teste de atributo ou de resistência: some o seu modificador de Inteligência ao resultado. Usos iguais ao seu Inteligência, com mínimo de 1, por descanso longo."
+      }
+    ],
     "source": "tcoe"
   },
   {
     "class_id": "artificer",
     "level": 8,
-    "features": ["Aumento no Valor de Habilidade"],
-    "source": "tcoe"
-  },
-  {
-    "class_id": "artificer",
-    "level": 9,
-    "features": ["Característica de Especialista em Artífice"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "tcoe"
   },
   {
     "class_id": "artificer",
     "level": 10,
-    "features": ["Adepto de Itens Mágicos"],
+    "features": [
+      {
+        "name": "Adepto de Itens Mágicos",
+        "description": "Você passa a se sintonizar com até quatro itens mágicos ao mesmo tempo, e fabrica itens Comuns e Incomuns em um quarto do tempo e pela metade do custo normal."
+      }
+    ],
     "source": "tcoe"
   },
   {
     "class_id": "artificer",
     "level": 11,
-    "features": ["Item Armazenador de Magia"],
+    "features": [
+      {
+        "name": "Item que Armazena Magia",
+        "description": "Ao terminar um descanso longo, você toca uma arma simples ou marcial, ou um foco de conjuração, e armazena nele uma magia de Artífice de 1º ou 2º nível com tempo de conjuração de 1 ação, mesmo sem tê-la preparado. Quem estiver com o item usa uma ação para produzir o efeito, com a sua CD e o seu ataque mágico, e se concentra pela magia quando ela exigir. O item comporta 2 × Inteligência usos, com mínimo de 2."
+      }
+    ],
     "source": "tcoe"
   },
   {
     "class_id": "artificer",
     "level": 12,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "tcoe"
   },
   {
     "class_id": "artificer",
     "level": 14,
-    "features": ["Sábio de Itens Mágicos"],
-    "source": "tcoe"
-  },
-  {
-    "class_id": "artificer",
-    "level": 15,
-    "features": ["Característica de Especialista em Artífice"],
+    "features": [
+      {
+        "name": "Sábio de Itens Mágicos",
+        "description": "Você passa a se sintonizar com até cinco itens mágicos, e pode ignorar os requisitos de classe, raça, magia e nível para usar ou se sintonizar com um item."
+      }
+    ],
     "source": "tcoe"
   },
   {
     "class_id": "artificer",
     "level": 16,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "tcoe"
   },
   {
     "class_id": "artificer",
     "level": 18,
-    "features": ["Mestre de Itens Mágicos"],
+    "features": [
+      {
+        "name": "Mestre de Itens Mágicos",
+        "description": "Você passa a se sintonizar com até seis itens mágicos ao mesmo tempo."
+      }
+    ],
     "source": "tcoe"
   },
   {
     "class_id": "artificer",
     "level": 19,
-    "features": ["Aumento no Valor de Habilidade"],
+    "features": [
+      {
+        "name": "Aumento no Valor de Habilidade",
+        "description": "Aumente um atributo em +2, ou dois atributos em +1 cada, até o máximo de 20. Se a mesa usar talentos, este aumento pode ser trocado por um talento cujos pré-requisitos você cumpra."
+      }
+    ],
     "source": "tcoe"
   },
   {
     "class_id": "artificer",
     "level": 20,
-    "features": ["Alma do Artifício"],
+    "features": [
+      {
+        "name": "Alma do Artifício",
+        "description": "Você ganha +1 em todos os testes de resistência por item mágico com o qual esteja sintonizado. Além disso, se cair a 0 pontos de vida sem morrer instantaneamente, pode usar sua reação para encerrar uma infusão e ficar com 1 ponto de vida."
+      }
+    ],
     "source": "tcoe"
   }
 ]
