@@ -51,3 +51,22 @@ app.*.map.json
 # Flutter SDK local (mantido dentro do projeto por causa da politica AppLocker
 # desta maquina, que bloqueia scripts .bat fora de C:\app\Ficha_DnD).
 /.flutter-sdk/
+
+# Rascunhos da raiz do projeto.
+#
+# Rodar analyze, teste e build nesta maquina exige script .cmd na raiz que
+# redireciona a saida para arquivo, porque o terminal integrado corta o texto.
+# Esses scripts e as saidas deles sao descartaveis, e ficavam aparecendo no
+# `git status` misturados com alteracao de verdade.
+/_*.cmd
+/_*.txt
+/_*.png
+/_*.bin
+
+# Capturas de tela e APK gerados para teste manual.
+/shot*.png
+/flutter_*.png
+/*.apk
+
+# Ficha exportada em PDF durante teste.
+/ficha-*.pdf
