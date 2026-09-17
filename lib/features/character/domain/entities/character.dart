@@ -7,9 +7,11 @@ import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dar
 import 'package:dnd_ficha_app/features/character/domain/entities/combat_stats.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/currency.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/custom_background.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/death_saves.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/alignment.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart';
 
 /// Marcador usado no [Character.copyWith] para distinguir "não informado"
@@ -41,8 +43,10 @@ class Character {
     this.inspiration = false,
     this.exhaustion = 0,
     this.conditions = const {},
+    this.deathSaves = const DeathSaves(),
     this.hitDiceUsed = 0,
     this.currency = const Currency(),
+    this.alignment,
   });
 
   final String id;
@@ -95,8 +99,21 @@ class Character {
   /// `Condition.expand`, para desmarcar a original não deixar sobras.
   final Set<Condition> conditions;
 
+  /// Sucessos e falhas nos testes contra a morte.
+  ///
+  /// Só tem sentido a 0 pontos de vida, mas fica guardado sempre: zerar ao subir
+  /// de PV é decisão de regra (ver `DeathSaveService`), não do armazenamento.
+  final DeathSaves deathSaves;
+
   /// Dados de vida gastos desde o último descanso longo.
   final int hitDiceUsed;
+
+  /// Alinhamento do personagem.
+  ///
+  /// Nulo é "não definido", e não neutro: o neutro é uma escolha, e ainda não
+  /// ter escolhido é outra coisa. Personagem criado antes deste campo existir
+  /// chega aqui como nulo e continua abrindo normalmente.
+  final CharacterAlignment? alignment;
 
   /// Moedas carregadas pelo personagem.
   final Currency currency;
@@ -140,8 +157,10 @@ class Character {
     bool? inspiration,
     int? exhaustion,
     Set<Condition>? conditions,
+    DeathSaves? deathSaves,
     int? hitDiceUsed,
     Currency? currency,
+    Object? alignment = _sentinel,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -180,8 +199,16 @@ class Character {
       // Sem sentinela: limpar as condições é passar um conjunto vazio, não
       // null, então `?? this.conditions` dá conta.
       conditions: conditions ?? this.conditions,
+      // Também sem sentinela: zerar os testes contra a morte é passar
+      // `DeathSaves()`, que não é null.
+      deathSaves: deathSaves ?? this.deathSaves,
       hitDiceUsed: hitDiceUsed ?? this.hitDiceUsed,
       currency: currency ?? this.currency,
+      // Sentinela é obrigatória: voltar o alinhamento para "não definido" é
+      // setar null, e com `?? this.alignment` isso seria impossível.
+      alignment: alignment == _sentinel
+          ? this.alignment
+          : alignment as CharacterAlignment?,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

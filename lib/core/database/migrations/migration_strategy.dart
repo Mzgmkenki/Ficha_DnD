@@ -335,6 +335,37 @@ MigrationStrategy buildMigrationStrategy(AppDatabase db) {
         // mesmo e nada é perdido: o item só passa a gravar no formato novo
         // quando o jogador o edita.
       }
+
+      if (from < 15) {
+        // Alinhamento. Fica anulável e SEM backfill de propósito: nulo é "não
+        // definido", e escolher um alinhamento para o personagem que já existe
+        // seria inventar uma decisão do jogador. Neutro não é o padrão.
+        await _tryAddColumn(m, db.characters, db.characters.alignment);
+
+        // Testes contra a morte: um contador para cada lado.
+        await _tryAddColumn(
+          m,
+          db.characters,
+          db.characters.deathSaveSuccesses,
+        );
+        await _tryAddColumn(
+          m,
+          db.characters,
+          db.characters.deathSaveFailures,
+        );
+
+        // Personagem que já existia não estava no meio de uma sequência de
+        // testes, então começa zerado nos dois lados.
+        for (final column in const [
+          'death_save_successes',
+          'death_save_failures',
+        ]) {
+          await _tryQuery(
+            db,
+            'UPDATE characters SET $column = 0 WHERE $column IS NULL',
+          );
+        }
+      }
     },
     beforeOpen: (details) async {
       // Roda fora da transação de migração, então aqui é seguro usar `db`.

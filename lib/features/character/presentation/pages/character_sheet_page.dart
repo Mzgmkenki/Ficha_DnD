@@ -16,6 +16,7 @@ import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/comb
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/combat_summary_card.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/conditions_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/currency_panel.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/death_saves_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/feats_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/magic_items_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/racial_traits_panel.dart';
@@ -91,6 +92,32 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
       'Dados de vida $available de $total',
       if (character.inspiration) 'com inspiração',
     ].join(' • ');
+  }
+
+  /// Resumo de Testes contra a morte: o estado alcançado ou a contagem.
+  String _deathSavesSummary(Character character) {
+    final saves = character.deathSaves;
+
+    if (saves.isDead) return 'Três falhas: morto';
+    if (saves.isStable) return 'Três sucessos: estável';
+    if (saves.isNotEmpty) return saves.describe();
+
+    return character.hitPoints.current <= 0
+        ? 'A 0 PV: role no começo do turno'
+        : 'Nenhum teste registrado';
+  }
+
+  /// Indicador do cabeçalho, para o estado não ficar escondido na seção fechada.
+  String? _deathSavesBadge(Character character) {
+    final saves = character.deathSaves;
+
+    if (saves.isDead) return 'Morto';
+    if (saves.isStable) return 'Estável';
+    if (character.hitPoints.current <= 0 || saves.isNotEmpty) {
+      return 'Morrendo';
+    }
+
+    return null;
   }
 
   /// Resumo de Características raciais: raça e quantas características tem.
@@ -185,6 +212,16 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                             Text(
                               'Nível ${character.totalLevel} • Proficiência +${character.proficiencyBonus}',
                             ),
+                            // Só aparece quando há alinhamento: uma linha
+                            // dizendo "Não definido" em toda ficha antiga seria
+                            // ruído no lugar mais nobre da tela.
+                            if (character.alignment case final alignment?) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                alignment.label,
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
                             if (character.playerName != null &&
                                 character.playerName!.trim().isNotEmpty) ...[
                               const SizedBox(height: 4),
@@ -325,6 +362,20 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                       character: character,
                       classes: classes,
                     ),
+                  ),
+
+                  const SizedBox(height: 16),
+                  CollapsibleSection(
+                    id: 'death_saves',
+                    title: 'Testes contra a morte',
+                    summary: _deathSavesSummary(character),
+                    // A 0 PV o indicador não deixa a seção passar despercebida:
+                    // é justamente quando ela precisa ser aberta a cada turno.
+                    badge: _deathSavesBadge(character),
+                    isExpanded: _isOpen('death_saves'),
+                    onExpansionChanged: (value) =>
+                        _setOpen('death_saves', value),
+                    child: DeathSavesPanel(character: character),
                   ),
 
                   const SizedBox(height: 16),

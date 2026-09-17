@@ -75,6 +75,7 @@ class AppRouter {
             initialPlayerName: args.character.playerName,
             initialBackgroundId: args.character.backgroundId,
             initialCustomBackground: args.character.customBackground,
+            initialAlignment: args.character.alignment,
           ),
         );
 

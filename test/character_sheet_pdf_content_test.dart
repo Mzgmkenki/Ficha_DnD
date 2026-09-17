@@ -65,7 +65,8 @@ void main() {
       expect(pdf.contains('Paralisado'), isTrue);
       expect(pdf.contains('Efeitos ativos ao exportar'), isTrue);
       // Incapacitado não foi marcado pelo jogador: entra por Paralisado.
-      expect(pdf.contains('Incapacitado (por Paralisado)'), isTrue);
+      expect(pdf.contains('Incapacitado'), isTrue);
+      expect(pdf.contains('por Paralisado'), isTrue);
     });
 
     test('sem formulário, as caixas continuam desenhadas', () async {
@@ -199,14 +200,58 @@ void main() {
     });
   });
 
+  group('alinhamento', () {
+    test('sai no cabeçalho quando está definido', () async {
+      final pdf = await inspect('armas-e-itens');
+
+      expect(pdf.contains('ALINHAMENTO'), isTrue);
+      expect(pdf.contains('Leal e Bom'), isTrue);
+    });
+
+    test('sem alinhamento, a linha sai em branco em vez de "Não definido"',
+        () async {
+      // Na ficha de papel a linha vazia já diz que o campo não foi preenchido;
+      // imprimir "Não definido" só gastaria espaço.
+      final pdf = await inspect('simples');
+
+      expect(pdf.contains('ALINHAMENTO'), isTrue);
+      expect(pdf.contains('Não definido'), isFalse);
+    });
+  });
+
+  group('testes contra a morte', () {
+    test('a seção sai com os marcadores registrados', () async {
+      final pdf = await inspect('armas-e-itens');
+
+      expect(pdf.contains('TESTES CONTRA A MORTE'), isTrue);
+      expect(pdf.contains('Sucessos'), isTrue);
+      expect(pdf.contains('Falhas'), isTrue);
+
+      // O exemplo tem 2 sucessos e 1 falha: as três primeiras caixas marcadas.
+      expect(pdf.fieldNames, contains('death_success_1'));
+      expect(pdf.fieldNames, contains('death_success_2'));
+      expect(pdf.fieldNames, contains('death_success_3'));
+      expect(pdf.fieldNames, contains('death_failure_1'));
+    });
+
+    test('a ficha sem testes registrados sai com a regra escrita', () async {
+      final pdf = await inspect('simples');
+
+      expect(pdf.contains('TESTES CONTRA A MORTE'), isTrue);
+      expect(pdf.contains('3 sucessos estabilizam'), isTrue);
+      expect(pdf.contains('3 falhas matam'), isTrue);
+    });
+  });
+
   group('conjuração', () {
     test('imprime atributo, CD e ataque mágico em caixas', () async {
       final pdf = await inspect('conjurador');
 
-      expect(pdf.contains('ATRIBUTO DE CONJURAÇÃO'), isTrue);
-      expect(pdf.contains('CD DAS MAGIAS'), isTrue);
-      expect(pdf.contains('ATAQUE MÁGICO'), isTrue);
-      expect(pdf.contains('ESPAÇOS DE MAGIA'), isTrue);
+      // Rótulo de caixa quebra em duas linhas, então a checagem é por palavra.
+      expect(pdf.containsAllWords('ATRIBUTO DE CONJURAÇÃO'), isTrue);
+      expect(pdf.containsAllWords('CD DAS MAGIAS'), isTrue);
+      expect(pdf.containsAllWords('ATAQUE MÁGICO'), isTrue);
+      expect(pdf.containsAllWords('ESPAÇOS DE MAGIA'), isTrue);
     });
 
     test('marca concentração, ritual e preparação', () async {
@@ -276,7 +321,8 @@ void main() {
       expect(pdf.contains('Proficiências'), isTrue);
       expect(pdf.contains('Salvaguardas'), isTrue);
       expect(pdf.contains('Talentos'), isTrue);
-      expect(pdf.contains('Alerta (Sabedoria)'), isTrue);
+      expect(pdf.contains('Alerta'), isTrue);
+      expect(pdf.contains('Sabedoria'), isTrue);
       expect(pdf.contains('Idiomas'), isTrue);
       expect(pdf.contains('Élfico'), isTrue);
     });

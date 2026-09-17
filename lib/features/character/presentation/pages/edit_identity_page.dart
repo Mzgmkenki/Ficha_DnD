@@ -1,7 +1,9 @@
 ﻿import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/custom_background.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/alignment.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/alignment_field.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/custom_background_form.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_entry.dart';
@@ -18,6 +20,7 @@ class EditIdentityPage extends ConsumerStatefulWidget {
     this.initialPlayerName,
     this.initialBackgroundId,
     this.initialCustomBackground = const CustomBackground(),
+    this.initialAlignment,
     super.key,
   });
 
@@ -27,6 +30,9 @@ class EditIdentityPage extends ConsumerStatefulWidget {
   final String? initialPlayerName;
   final String? initialBackgroundId;
   final CustomBackground initialCustomBackground;
+
+  /// Nulo é "não definido", inclusive em personagem criado antes do campo.
+  final CharacterAlignment? initialAlignment;
 
   @override
   ConsumerState<EditIdentityPage> createState() => _EditIdentityPageState();
@@ -44,6 +50,7 @@ class _EditIdentityPageState extends ConsumerState<EditIdentityPage> {
   String? _selectedBackgroundId;
   String? _customSkillOne;
   String? _customSkillTwo;
+  CharacterAlignment? _selectedAlignment;
   bool _saving = false;
 
   @override
@@ -62,6 +69,7 @@ class _EditIdentityPageState extends ConsumerState<EditIdentityPage> {
     );
 
     _selectedBackgroundId = widget.initialBackgroundId;
+    _selectedAlignment = widget.initialAlignment;
 
     final skillIds = widget.initialCustomBackground.skillIds;
     _customSkillOne = skillIds.isNotEmpty ? skillIds[0] : null;
@@ -117,6 +125,13 @@ class _EditIdentityPageState extends ConsumerState<EditIdentityPage> {
                 border: OutlineInputBorder(),
               ),
               textCapitalization: TextCapitalization.words,
+            ),
+            const SizedBox(height: 12),
+            AlignmentField(
+              value: _selectedAlignment,
+              border: true,
+              onChanged: (value) =>
+                  setState(() => _selectedAlignment = value),
             ),
             if (backgrounds.isNotEmpty) ...[
               const SizedBox(height: 20),
@@ -278,6 +293,7 @@ class _EditIdentityPageState extends ConsumerState<EditIdentityPage> {
         backgroundId: _selectedBackgroundId,
         customBackground: customBackground,
         grantedSkills: grantedSkills,
+        alignment: _selectedAlignment,
       );
 
       if (!mounted) return;

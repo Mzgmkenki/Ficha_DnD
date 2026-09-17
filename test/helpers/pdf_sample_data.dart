@@ -10,8 +10,10 @@ import 'package:dnd_ficha_app/features/character/domain/entities/character_weapo
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/combat_stats.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/currency.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/death_saves.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/alignment.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/magic_item_bonus.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/proficiency_level.dart';
@@ -291,6 +293,9 @@ class PdfSamples {
           ),
         ],
       ).copyWith(
+        alignment: CharacterAlignment.lawfulGood,
+        // Sequência de testes em andamento, para o PDF sair com marcadores.
+        deathSaves: const DeathSaves(successes: 2, failures: 1),
         weapons: const [
           CharacterWeapon(
             localId: 1,

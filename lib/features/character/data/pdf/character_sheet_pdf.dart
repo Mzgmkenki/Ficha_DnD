@@ -5,6 +5,7 @@ import 'package:dnd_ficha_app/features/character/application/use_cases/character
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/death_saves.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/active_effects.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/hit_points_calculator.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/initiative_calculator.dart';
@@ -509,8 +510,14 @@ class CharacterSheetPdf {
         pw.SizedBox(height: 6),
         pw.Row(
           children: [
-            pw.Expanded(child: _field('Alinhamento', null)),
+            // Sem alinhamento a linha sai em branco para preencher à mão, em vez
+            // de imprimir "Não definido" — na ficha de papel a linha vazia já
+            // diz isso.
+            pw.Expanded(
+              child: _field('Alinhamento', character.alignment?.label),
+            ),
             pw.SizedBox(width: 8),
+            // Experiência não existe no modelo do app: sai como linha em branco.
             pw.Expanded(child: _field('Experiência', null)),
             pw.SizedBox(width: 8),
             pw.Expanded(
@@ -658,11 +665,19 @@ class CharacterSheetPdf {
     ];
   }
 
-  /// Testes contra a morte.
+  /// Testes contra a morte, com os marcadores já registrados na ficha.
   ///
-  /// O app não guarda estes marcadores: eles duram uma cena e não fazem sentido
-  /// persistidos. Saem sempre em branco, para marcar durante o jogo.
+  /// Sai marcado como está no app, e o resto fica vazio para continuar a
+  /// contagem à mão na mesa.
   static pw.Widget _deathSavesBox(CharacterSheetPdfData data) {
+    final saves = data.character.deathSaves;
+
+    final state = saves.isDead
+        ? 'Morto: três falhas.'
+        : saves.isStable
+            ? 'Estável: três sucessos.'
+            : '3 sucessos estabilizam; 3 falhas matam.';
+
     return pw.Container(
       padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: pw.BoxDecoration(
@@ -682,8 +697,12 @@ class CharacterSheetPdf {
             style: pw.TextStyle(fontSize: 8, color: _ink),
           ),
           pw.SizedBox(width: 5),
-          for (var i = 1; i <= 3; i++) ...[
-            _checkBox(data, name: 'death_success_$i'),
+          for (var i = 1; i <= DeathSaves.maxMarks; i++) ...[
+            _checkBox(
+              data,
+              name: 'death_success_$i',
+              value: i <= saves.successes,
+            ),
             pw.SizedBox(width: 4),
           ],
           pw.SizedBox(width: 12),
@@ -692,14 +711,21 @@ class CharacterSheetPdf {
             style: pw.TextStyle(fontSize: 8, color: _ink),
           ),
           pw.SizedBox(width: 5),
-          for (var i = 1; i <= 3; i++) ...[
-            _checkBox(data, name: 'death_failure_$i'),
+          for (var i = 1; i <= DeathSaves.maxMarks; i++) ...[
+            _checkBox(
+              data,
+              name: 'death_failure_$i',
+              value: i <= saves.failures,
+            ),
             pw.SizedBox(width: 4),
           ],
           pw.Expanded(child: pw.SizedBox()),
           pw.Text(
-            _safe('3 sucessos estabilizam; 3 falhas matam.'),
-            style: pw.TextStyle(fontSize: 6.5, color: _muted),
+            _safe(state),
+            style: pw.TextStyle(
+              fontSize: 6.5,
+              color: saves.isResolved ? _accent : _muted,
+            ),
           ),
         ],
       ),

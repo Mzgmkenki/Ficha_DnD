@@ -16,9 +16,10 @@ import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_pr
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/granted_skills.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
-
+import 'package:dnd_ficha_app/features/character/domain/value_objects/alignment.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/spellcasting_type.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/alignment_field.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/custom_background_form.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/portrait_avatar.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/subclass_summary.dart';
@@ -53,6 +54,10 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
   String? _selectedSubraceId;
   String? _selectedSubclassId;
   String? _selectedBackgroundId;
+
+  /// Alinhamento escolhido. Nulo é "não definido", e é o padrão: o campo é
+  /// opcional, e assumir neutro seria decidir pelo jogador.
+  CharacterAlignment? _selectedAlignment;
 
   /// Perícias do antecedente customizável (um antecedente concede duas).
   String? _customBackgroundSkillOne;
@@ -283,6 +288,12 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                       decoration: const InputDecoration(
                         labelText: 'Jogador (opcional)',
                       ),
+                    ),
+                    const SizedBox(height: 12),
+                    AlignmentField(
+                      value: _selectedAlignment,
+                      onChanged: (value) =>
+                          setState(() => _selectedAlignment = value),
                     ),
                     const SizedBox(height: 16),
                     _PortraitField(
@@ -679,6 +690,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
             : _playerController.text.trim(),
         speciesId: selectedRace.idToSave,
         backgroundId: _selectedBackgroundId,
+        alignment: _selectedAlignment,
         customBackground: customBackground,
         abilityScores: finalScores,
         classLevels: [

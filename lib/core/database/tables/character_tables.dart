@@ -11,6 +11,13 @@ class Characters extends Table {
   TextColumn get speciesId => text().nullable()();
   TextColumn get backgroundId => text().nullable()();
 
+  /// Id do alinhamento (`lawful_good`, `true_neutral`, ...).
+  ///
+  /// Anulável de propósito: nulo é "não definido", que não é a mesma coisa que
+  /// neutro. Personagem criado antes desta coluna existir fica nulo e continua
+  /// abrindo — nenhum alinhamento é atribuído por conta própria.
+  TextColumn get alignment => text().nullable()();
+
   // Antecedente customizável: usado quando background_id == 'custom'. O
   // compêndio é somente leitura, então o antecedente criado pelo jogador
   // precisa morar no próprio personagem.
@@ -125,6 +132,17 @@ class Characters extends Table {
   /// [customBackgroundSkills]. Exaustão não entra aqui: tem níveis, não
   /// ligado/desligado, e já mora em [exhaustion].
   TextColumn get conditions => text().withDefault(const Constant(''))();
+
+  /// Sucessos nos testes contra a morte (0 a 3).
+  ///
+  /// Contagem, não histórico: a ficha de papel tem três bolinhas de cada lado, e
+  /// é essa a informação que a mesa consulta. Guardar cada rolagem seria outra
+  /// funcionalidade, e exigiria tabela filha.
+  IntColumn get deathSaveSuccesses =>
+      integer().withDefault(const Constant(0))();
+
+  /// Falhas nos testes contra a morte (0 a 3).
+  IntColumn get deathSaveFailures => integer().withDefault(const Constant(0))();
 
   /// Dados de vida já gastos desde o último descanso longo.
   IntColumn get hitDiceUsed => integer().withDefault(const Constant(0))();

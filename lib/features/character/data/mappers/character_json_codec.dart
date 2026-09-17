@@ -11,11 +11,13 @@ import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dar
 import 'package:dnd_ficha_app/features/character/domain/entities/combat_stats.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/currency.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/custom_background.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/death_saves.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/granted_ability_increases.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/alignment.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/magic_item_bonus.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/proficiency_level.dart';
@@ -253,6 +255,14 @@ class CharacterJsonCodec {
           .map((item) => item.id)
           .toList(growable: false),
       'hitDiceUsed': character.hitDiceUsed,
+      // Id do alinhamento, ou nulo para "não definido". Nulo é gravado de
+      // propósito: escolher neutro na exportação inventaria uma decisão que o
+      // jogador não tomou.
+      'alignment': character.alignment?.id,
+      'deathSaves': <String, dynamic>{
+        'successes': character.deathSaves.successes,
+        'failures': character.deathSaves.failures,
+      },
       'currency': <String, dynamic>{
         'copper': character.currency.copper,
         'silver': character.currency.silver,
@@ -321,6 +331,10 @@ class CharacterJsonCodec {
       exhaustion: (_asInt(map['exhaustion']) ?? 0).clamp(0, 6),
       conditions: _parseConditions(map['conditions']),
       hitDiceUsed: (_asInt(map['hitDiceUsed']) ?? 0).clamp(0, 20),
+      // Campo ausente (arquivo anterior a este campo) ou id desconhecido caem
+      // em nulo, que é "não definido" — nunca em neutro.
+      alignment: CharacterAlignment.fromId(_asString(map['alignment'])),
+      deathSaves: _parseDeathSaves(map['deathSaves']),
       currency: _parseCurrency(map['currency']),
       // Importar cria uma ficha nova: a data de criação é a de agora, mas a
       // original fica preservada se estiver no arquivo.
@@ -651,6 +665,20 @@ class CharacterJsonCodec {
     }
 
     return result;
+  }
+
+  /// Marcadores dos testes contra a morte, presos entre 0 e 3.
+  ///
+  /// Arquivo sem o campo devolve zerado: um personagem importado não está no
+  /// meio de uma sequência de testes.
+  static DeathSaves _parseDeathSaves(Object? raw) {
+    final map = _asMap(raw);
+
+    return DeathSaves(
+      successes:
+          (_asInt(map['successes']) ?? 0).clamp(0, DeathSaves.maxMarks),
+      failures: (_asInt(map['failures']) ?? 0).clamp(0, DeathSaves.maxMarks),
+    );
   }
 
   static Currency _parseCurrency(Object? raw) {

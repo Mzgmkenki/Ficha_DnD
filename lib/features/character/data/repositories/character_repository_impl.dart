@@ -128,6 +128,10 @@ class CharacterRepositoryImpl implements CharacterRepository {
               exhaustion: drift.Value(character.exhaustion),
               conditions:
                   drift.Value(domain_condition.Condition.toCsv(character.conditions)),
+              deathSaveSuccesses:
+                  drift.Value(character.deathSaves.successes),
+              deathSaveFailures: drift.Value(character.deathSaves.failures),
+              alignment: drift.Value(character.alignment?.id),
               hitDiceUsed: drift.Value(character.hitDiceUsed),
               copperPieces: drift.Value(character.currency.copper),
               silverPieces: drift.Value(character.currency.silver),
@@ -528,6 +532,9 @@ class CharacterRepositoryImpl implements CharacterRepository {
           exhaustion: drift.Value(character.exhaustion),
           conditions:
               drift.Value(domain_condition.Condition.toCsv(character.conditions)),
+          deathSaveSuccesses: drift.Value(character.deathSaves.successes),
+          deathSaveFailures: drift.Value(character.deathSaves.failures),
+          alignment: drift.Value(character.alignment?.id),
           hitDiceUsed: drift.Value(character.hitDiceUsed),
           copperPieces: drift.Value(character.currency.copper),
           silverPieces: drift.Value(character.currency.silver),

@@ -7,11 +7,14 @@ import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dar
 import 'package:dnd_ficha_app/features/character/domain/entities/combat_stats.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/currency.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/custom_background.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/death_saves.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/granted_ability_increases.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/alignment.dart'
+    as domain_alignment;
 import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/proficiency_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
@@ -131,7 +134,17 @@ class CharacterMapper {
       inspiration: character.inspiration,
       exhaustion: character.exhaustion,
       conditions: Condition.parseCsv(character.conditions),
+      // Clamp na leitura: um valor fora de 0..3 vindo de uma base editada à mão
+      // não pode virar quatro bolinhas marcadas na ficha.
+      deathSaves: DeathSaves(
+        successes: character.deathSaveSuccesses.clamp(0, DeathSaves.maxMarks),
+        failures: character.deathSaveFailures.clamp(0, DeathSaves.maxMarks),
+      ),
       hitDiceUsed: character.hitDiceUsed,
+      // Id desconhecido devolve nulo em vez de lançar, como `_abilityFromDb`:
+      // um dado legado não pode tornar o personagem inacessível.
+      alignment:
+          domain_alignment.CharacterAlignment.fromId(character.alignment),
 
       currency: Currency(
         copper: character.copperPieces,

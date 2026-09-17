@@ -89,12 +89,74 @@ class PdfInspection {
   List<PdfTextRun> textsOnPage(int page) =>
       texts.where((run) => run.page == page).toList(growable: false);
 
-  /// Todo o texto do documento, concatenado. Serve para procurar um trecho sem
-  /// se importar com onde ele está.
-  String get allText => texts.map((run) => run.text).join('\n');
+  /// As linhas de uma página, remontadas.
+  ///
+  /// O `pdf` emite uma operação de texto POR PALAVRA quando há espaçamento de
+  /// caractere, então procurar "Machado da Alvorada" nos trechos crus nunca
+  /// acha nada: eles chegam como "Machado", "da", "Alvorada" separados. Aqui as
+  /// palavras voltam a ser linha, agrupadas pela mesma altura de base e
+  /// ordenadas pela posição horizontal.
+  List<String> linesOnPage(int page) {
+    final runs = textsOnPage(page);
 
-  bool contains(String needle) =>
-      allText.toLowerCase().contains(needle.toLowerCase());
+    // Agrupa por linha de base arredondada: a mesma linha pode ter frações
+    // diferentes por causa da altura da fonte.
+    final byLine = <String, List<PdfTextRun>>{};
+    for (final run in runs) {
+      final key = run.y.toStringAsFixed(1);
+      byLine.putIfAbsent(key, () => []).add(run);
+    }
+
+    final keys = byLine.keys.toList()
+      ..sort((a, b) => double.parse(b).compareTo(double.parse(a)));
+
+    return [
+      for (final key in keys)
+        (byLine[key]!..sort((a, b) => a.x.compareTo(b.x)))
+            .map((run) => run.text)
+            .join(' '),
+    ];
+  }
+
+  /// Todas as linhas do documento, na ordem das páginas.
+  List<String> get lines => [
+        for (var page = 1; page <= pageCount; page++) ...linesOnPage(page),
+      ];
+
+  /// Todo o texto do documento, uma linha por linha desenhada.
+  String get allText => lines.join('\n');
+
+  /// Procura um trecho sem se importar com maiúsculas nem com onde ele está.
+  ///
+  /// Compara com o espaço em branco normalizado: a remontagem junta palavras com
+  /// um espaço, e o texto original pode ter tido dois.
+  bool contains(String needle) {
+    final haystack = _normalize(allText);
+    return haystack.contains(_normalize(needle));
+  }
+
+  /// Procura todas as palavras do trecho, sem exigir que fiquem lado a lado.
+  ///
+  /// Serve para o rótulo que quebra em duas linhas dentro de uma caixa estreita.
+  /// Numa fila de seis caixas, a primeira linha de cada rótulo fica na mesma
+  /// altura, então a remontagem entrega
+  /// `CLASSE DE INICIATIVA DESLOCAMENTO BÔNUS DE` numa linha e
+  /// `ARMADURA PROFICIÊNCIA` na outra — as palavras estão todas lá, mas
+  /// "BÔNUS DE PROFICIÊNCIA" não aparece contíguo em lugar nenhum.
+  ///
+  /// Verifica presença, não adjacência. Para texto corrido, [contains] continua
+  /// sendo a checagem mais forte.
+  bool containsAllWords(String phrase) {
+    final haystack = _normalize(allText);
+
+    return _normalize(phrase)
+        .split(' ')
+        .where((word) => word.isNotEmpty)
+        .every(haystack.contains);
+  }
+
+  static String _normalize(String value) =>
+      value.toLowerCase().replaceAll(RegExp(r'\s+'), ' ').trim();
 
   static PdfInspection parse(Uint8List bytes) {
     // Latin-1 e não UTF-8: o PDF escreve as strings de texto em WinAnsi, que

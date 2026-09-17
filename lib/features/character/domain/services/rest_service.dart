@@ -1,4 +1,5 @@
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/death_save_service.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/hit_points_calculator.dart';
 
 /// Cargas a gravar num item mágico depois do descanso.
@@ -57,11 +58,22 @@ class RestService {
         HitPointsCalculator.hitDiceRecoveredOnLongRest(totalHitDice);
     final remainingUsed = (character.hitDiceUsed - recovered).clamp(0, totalHitDice);
 
+    final restoredHitPoints = character.hitPoints.copyWith(
+      current: character.hitPoints.maximum,
+      temporary: 0,
+    );
+
+    // Voltar a ter PV encerra a sequência de testes contra a morte. Quem estava
+    // morrendo e descansou não continua com falhas penduradas.
+    final clearedSaves = DeathSaveService.onHitPointsChanged(
+      current: character.deathSaves,
+      before: character.hitPoints,
+      after: restoredHitPoints,
+    );
+
     final updated = character.copyWith(
-      hitPoints: character.hitPoints.copyWith(
-        current: character.hitPoints.maximum,
-        temporary: 0,
-      ),
+      hitPoints: restoredHitPoints,
+      deathSaves: clearedSaves,
       hitDiceUsed: remainingUsed,
       exhaustion: (character.exhaustion - 1).clamp(0, 6),
       updatedAt: DateTime.now(),
@@ -73,12 +85,17 @@ class RestService {
         ? ''
         : ', ${recharges.length} item(ns) mágico(s) recarregado(s)';
 
+    // Dito no resumo de propósito: os marcadores desaparecem da ficha, e o
+    // jogador precisa saber que foi a regra, não um apagamento acidental.
+    final savesNote =
+        clearedSaves == null ? '' : ' Testes contra a morte zerados.';
+
     return RestOutcome(
       character: updated,
       clearedSpellSlotLevels: null, // todos
       magicItemRecharges: recharges,
       summary: 'Descanso longo: PV restaurados, espaços de magia renovados'
-          '$itemsNote e $recovered dado(s) de vida recuperado(s).',
+          '$itemsNote e $recovered dado(s) de vida recuperado(s).$savesNote',
     );
   }
 
@@ -177,9 +194,18 @@ class RestService {
 
     final healed = rolled + constitutionModifier;
     final safeHeal = healed < 1 ? 1 : healed;
+    final healedHitPoints = character.hitPoints.heal(safeHeal);
+
+    // Mesma regra do descanso longo: sair de 0 PV encerra os testes.
+    final clearedSaves = DeathSaveService.onHitPointsChanged(
+      current: character.deathSaves,
+      before: character.hitPoints,
+      after: healedHitPoints,
+    );
 
     return character.copyWith(
-      hitPoints: character.hitPoints.heal(safeHeal),
+      hitPoints: healedHitPoints,
+      deathSaves: clearedSaves,
       hitDiceUsed: character.hitDiceUsed + 1,
       updatedAt: DateTime.now(),
     );

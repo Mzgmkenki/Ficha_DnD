@@ -71,6 +71,17 @@ class $CharactersTable extends Characters
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _alignmentMeta = const VerificationMeta(
+    'alignment',
+  );
+  @override
+  late final GeneratedColumn<String> alignment = GeneratedColumn<String>(
+    'alignment',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _customBackgroundNameMeta =
       const VerificationMeta('customBackgroundName');
   @override
@@ -878,6 +889,29 @@ class $CharactersTable extends Characters
     requiredDuringInsert: false,
     defaultValue: const Constant(''),
   );
+  static const VerificationMeta _deathSaveSuccessesMeta =
+      const VerificationMeta('deathSaveSuccesses');
+  @override
+  late final GeneratedColumn<int> deathSaveSuccesses = GeneratedColumn<int>(
+    'death_save_successes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _deathSaveFailuresMeta = const VerificationMeta(
+    'deathSaveFailures',
+  );
+  @override
+  late final GeneratedColumn<int> deathSaveFailures = GeneratedColumn<int>(
+    'death_save_failures',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   static const VerificationMeta _hitDiceUsedMeta = const VerificationMeta(
     'hitDiceUsed',
   );
@@ -980,6 +1014,7 @@ class $CharactersTable extends Characters
     portraitPath,
     speciesId,
     backgroundId,
+    alignment,
     customBackgroundName,
     customBackgroundSkills,
     customBackgroundFeatures,
@@ -1042,6 +1077,8 @@ class $CharactersTable extends Characters
     inspiration,
     exhaustion,
     conditions,
+    deathSaveSuccesses,
+    deathSaveFailures,
     hitDiceUsed,
     copperPieces,
     silverPieces,
@@ -1104,6 +1141,12 @@ class $CharactersTable extends Characters
           data['background_id']!,
           _backgroundIdMeta,
         ),
+      );
+    }
+    if (data.containsKey('alignment')) {
+      context.handle(
+        _alignmentMeta,
+        alignment.isAcceptableOrUnknown(data['alignment']!, _alignmentMeta),
       );
     }
     if (data.containsKey('custom_background_name')) {
@@ -1619,6 +1662,24 @@ class $CharactersTable extends Characters
         conditions.isAcceptableOrUnknown(data['conditions']!, _conditionsMeta),
       );
     }
+    if (data.containsKey('death_save_successes')) {
+      context.handle(
+        _deathSaveSuccessesMeta,
+        deathSaveSuccesses.isAcceptableOrUnknown(
+          data['death_save_successes']!,
+          _deathSaveSuccessesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('death_save_failures')) {
+      context.handle(
+        _deathSaveFailuresMeta,
+        deathSaveFailures.isAcceptableOrUnknown(
+          data['death_save_failures']!,
+          _deathSaveFailuresMeta,
+        ),
+      );
+    }
     if (data.containsKey('hit_dice_used')) {
       context.handle(
         _hitDiceUsedMeta,
@@ -1720,6 +1781,10 @@ class $CharactersTable extends Characters
       backgroundId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}background_id'],
+      ),
+      alignment: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}alignment'],
       ),
       customBackgroundName: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -2029,6 +2094,16 @@ class $CharactersTable extends Characters
             DriftSqlType.string,
             data['${effectivePrefix}conditions'],
           )!,
+      deathSaveSuccesses:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}death_save_successes'],
+          )!,
+      deathSaveFailures:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}death_save_failures'],
+          )!,
       hitDiceUsed:
           attachedDatabase.typeMapping.read(
             DriftSqlType.int,
@@ -2087,6 +2162,13 @@ class Character extends DataClass implements Insertable<Character> {
   final String? portraitPath;
   final String? speciesId;
   final String? backgroundId;
+
+  /// Id do alinhamento (`lawful_good`, `true_neutral`, ...).
+  ///
+  /// Anulável de propósito: nulo é "não definido", que não é a mesma coisa que
+  /// neutro. Personagem criado antes desta coluna existir fica nulo e continua
+  /// abrindo — nenhum alinhamento é atribuído por conta própria.
+  final String? alignment;
   final String? customBackgroundName;
 
   /// Ids das perícias do antecedente customizado, separados por vírgula.
@@ -2171,6 +2253,16 @@ class Character extends DataClass implements Insertable<Character> {
   /// ligado/desligado, e já mora em [exhaustion].
   final String conditions;
 
+  /// Sucessos nos testes contra a morte (0 a 3).
+  ///
+  /// Contagem, não histórico: a ficha de papel tem três bolinhas de cada lado, e
+  /// é essa a informação que a mesa consulta. Guardar cada rolagem seria outra
+  /// funcionalidade, e exigiria tabela filha.
+  final int deathSaveSuccesses;
+
+  /// Falhas nos testes contra a morte (0 a 3).
+  final int deathSaveFailures;
+
   /// Dados de vida já gastos desde o último descanso longo.
   final int hitDiceUsed;
   final int copperPieces;
@@ -2187,6 +2279,7 @@ class Character extends DataClass implements Insertable<Character> {
     this.portraitPath,
     this.speciesId,
     this.backgroundId,
+    this.alignment,
     this.customBackgroundName,
     required this.customBackgroundSkills,
     required this.customBackgroundFeatures,
@@ -2249,6 +2342,8 @@ class Character extends DataClass implements Insertable<Character> {
     required this.inspiration,
     required this.exhaustion,
     required this.conditions,
+    required this.deathSaveSuccesses,
+    required this.deathSaveFailures,
     required this.hitDiceUsed,
     required this.copperPieces,
     required this.silverPieces,
@@ -2274,6 +2369,9 @@ class Character extends DataClass implements Insertable<Character> {
     }
     if (!nullToAbsent || backgroundId != null) {
       map['background_id'] = Variable<String>(backgroundId);
+    }
+    if (!nullToAbsent || alignment != null) {
+      map['alignment'] = Variable<String>(alignment);
     }
     if (!nullToAbsent || customBackgroundName != null) {
       map['custom_background_name'] = Variable<String>(customBackgroundName);
@@ -2343,6 +2441,8 @@ class Character extends DataClass implements Insertable<Character> {
     map['inspiration'] = Variable<bool>(inspiration);
     map['exhaustion'] = Variable<int>(exhaustion);
     map['conditions'] = Variable<String>(conditions);
+    map['death_save_successes'] = Variable<int>(deathSaveSuccesses);
+    map['death_save_failures'] = Variable<int>(deathSaveFailures);
     map['hit_dice_used'] = Variable<int>(hitDiceUsed);
     map['copper_pieces'] = Variable<int>(copperPieces);
     map['silver_pieces'] = Variable<int>(silverPieces);
@@ -2374,6 +2474,10 @@ class Character extends DataClass implements Insertable<Character> {
           backgroundId == null && nullToAbsent
               ? const Value.absent()
               : Value(backgroundId),
+      alignment:
+          alignment == null && nullToAbsent
+              ? const Value.absent()
+              : Value(alignment),
       customBackgroundName:
           customBackgroundName == null && nullToAbsent
               ? const Value.absent()
@@ -2442,6 +2546,8 @@ class Character extends DataClass implements Insertable<Character> {
       inspiration: Value(inspiration),
       exhaustion: Value(exhaustion),
       conditions: Value(conditions),
+      deathSaveSuccesses: Value(deathSaveSuccesses),
+      deathSaveFailures: Value(deathSaveFailures),
       hitDiceUsed: Value(hitDiceUsed),
       copperPieces: Value(copperPieces),
       silverPieces: Value(silverPieces),
@@ -2465,6 +2571,7 @@ class Character extends DataClass implements Insertable<Character> {
       portraitPath: serializer.fromJson<String?>(json['portraitPath']),
       speciesId: serializer.fromJson<String?>(json['speciesId']),
       backgroundId: serializer.fromJson<String?>(json['backgroundId']),
+      alignment: serializer.fromJson<String?>(json['alignment']),
       customBackgroundName: serializer.fromJson<String?>(
         json['customBackgroundName'],
       ),
@@ -2535,6 +2642,8 @@ class Character extends DataClass implements Insertable<Character> {
       inspiration: serializer.fromJson<bool>(json['inspiration']),
       exhaustion: serializer.fromJson<int>(json['exhaustion']),
       conditions: serializer.fromJson<String>(json['conditions']),
+      deathSaveSuccesses: serializer.fromJson<int>(json['deathSaveSuccesses']),
+      deathSaveFailures: serializer.fromJson<int>(json['deathSaveFailures']),
       hitDiceUsed: serializer.fromJson<int>(json['hitDiceUsed']),
       copperPieces: serializer.fromJson<int>(json['copperPieces']),
       silverPieces: serializer.fromJson<int>(json['silverPieces']),
@@ -2555,6 +2664,7 @@ class Character extends DataClass implements Insertable<Character> {
       'portraitPath': serializer.toJson<String?>(portraitPath),
       'speciesId': serializer.toJson<String?>(speciesId),
       'backgroundId': serializer.toJson<String?>(backgroundId),
+      'alignment': serializer.toJson<String?>(alignment),
       'customBackgroundName': serializer.toJson<String?>(customBackgroundName),
       'customBackgroundSkills': serializer.toJson<String>(
         customBackgroundSkills,
@@ -2621,6 +2731,8 @@ class Character extends DataClass implements Insertable<Character> {
       'inspiration': serializer.toJson<bool>(inspiration),
       'exhaustion': serializer.toJson<int>(exhaustion),
       'conditions': serializer.toJson<String>(conditions),
+      'deathSaveSuccesses': serializer.toJson<int>(deathSaveSuccesses),
+      'deathSaveFailures': serializer.toJson<int>(deathSaveFailures),
       'hitDiceUsed': serializer.toJson<int>(hitDiceUsed),
       'copperPieces': serializer.toJson<int>(copperPieces),
       'silverPieces': serializer.toJson<int>(silverPieces),
@@ -2639,6 +2751,7 @@ class Character extends DataClass implements Insertable<Character> {
     Value<String?> portraitPath = const Value.absent(),
     Value<String?> speciesId = const Value.absent(),
     Value<String?> backgroundId = const Value.absent(),
+    Value<String?> alignment = const Value.absent(),
     Value<String?> customBackgroundName = const Value.absent(),
     String? customBackgroundSkills,
     String? customBackgroundFeatures,
@@ -2701,6 +2814,8 @@ class Character extends DataClass implements Insertable<Character> {
     bool? inspiration,
     int? exhaustion,
     String? conditions,
+    int? deathSaveSuccesses,
+    int? deathSaveFailures,
     int? hitDiceUsed,
     int? copperPieces,
     int? silverPieces,
@@ -2716,6 +2831,7 @@ class Character extends DataClass implements Insertable<Character> {
     portraitPath: portraitPath.present ? portraitPath.value : this.portraitPath,
     speciesId: speciesId.present ? speciesId.value : this.speciesId,
     backgroundId: backgroundId.present ? backgroundId.value : this.backgroundId,
+    alignment: alignment.present ? alignment.value : this.alignment,
     customBackgroundName:
         customBackgroundName.present
             ? customBackgroundName.value
@@ -2783,6 +2899,8 @@ class Character extends DataClass implements Insertable<Character> {
     inspiration: inspiration ?? this.inspiration,
     exhaustion: exhaustion ?? this.exhaustion,
     conditions: conditions ?? this.conditions,
+    deathSaveSuccesses: deathSaveSuccesses ?? this.deathSaveSuccesses,
+    deathSaveFailures: deathSaveFailures ?? this.deathSaveFailures,
     hitDiceUsed: hitDiceUsed ?? this.hitDiceUsed,
     copperPieces: copperPieces ?? this.copperPieces,
     silverPieces: silverPieces ?? this.silverPieces,
@@ -2807,6 +2925,7 @@ class Character extends DataClass implements Insertable<Character> {
           data.backgroundId.present
               ? data.backgroundId.value
               : this.backgroundId,
+      alignment: data.alignment.present ? data.alignment.value : this.alignment,
       customBackgroundName:
           data.customBackgroundName.present
               ? data.customBackgroundName.value
@@ -3003,6 +3122,14 @@ class Character extends DataClass implements Insertable<Character> {
           data.exhaustion.present ? data.exhaustion.value : this.exhaustion,
       conditions:
           data.conditions.present ? data.conditions.value : this.conditions,
+      deathSaveSuccesses:
+          data.deathSaveSuccesses.present
+              ? data.deathSaveSuccesses.value
+              : this.deathSaveSuccesses,
+      deathSaveFailures:
+          data.deathSaveFailures.present
+              ? data.deathSaveFailures.value
+              : this.deathSaveFailures,
       hitDiceUsed:
           data.hitDiceUsed.present ? data.hitDiceUsed.value : this.hitDiceUsed,
       copperPieces:
@@ -3037,6 +3164,7 @@ class Character extends DataClass implements Insertable<Character> {
           ..write('portraitPath: $portraitPath, ')
           ..write('speciesId: $speciesId, ')
           ..write('backgroundId: $backgroundId, ')
+          ..write('alignment: $alignment, ')
           ..write('customBackgroundName: $customBackgroundName, ')
           ..write('customBackgroundSkills: $customBackgroundSkills, ')
           ..write('customBackgroundFeatures: $customBackgroundFeatures, ')
@@ -3099,6 +3227,8 @@ class Character extends DataClass implements Insertable<Character> {
           ..write('inspiration: $inspiration, ')
           ..write('exhaustion: $exhaustion, ')
           ..write('conditions: $conditions, ')
+          ..write('deathSaveSuccesses: $deathSaveSuccesses, ')
+          ..write('deathSaveFailures: $deathSaveFailures, ')
           ..write('hitDiceUsed: $hitDiceUsed, ')
           ..write('copperPieces: $copperPieces, ')
           ..write('silverPieces: $silverPieces, ')
@@ -3119,6 +3249,7 @@ class Character extends DataClass implements Insertable<Character> {
     portraitPath,
     speciesId,
     backgroundId,
+    alignment,
     customBackgroundName,
     customBackgroundSkills,
     customBackgroundFeatures,
@@ -3181,6 +3312,8 @@ class Character extends DataClass implements Insertable<Character> {
     inspiration,
     exhaustion,
     conditions,
+    deathSaveSuccesses,
+    deathSaveFailures,
     hitDiceUsed,
     copperPieces,
     silverPieces,
@@ -3200,6 +3333,7 @@ class Character extends DataClass implements Insertable<Character> {
           other.portraitPath == this.portraitPath &&
           other.speciesId == this.speciesId &&
           other.backgroundId == this.backgroundId &&
+          other.alignment == this.alignment &&
           other.customBackgroundName == this.customBackgroundName &&
           other.customBackgroundSkills == this.customBackgroundSkills &&
           other.customBackgroundFeatures == this.customBackgroundFeatures &&
@@ -3262,6 +3396,8 @@ class Character extends DataClass implements Insertable<Character> {
           other.inspiration == this.inspiration &&
           other.exhaustion == this.exhaustion &&
           other.conditions == this.conditions &&
+          other.deathSaveSuccesses == this.deathSaveSuccesses &&
+          other.deathSaveFailures == this.deathSaveFailures &&
           other.hitDiceUsed == this.hitDiceUsed &&
           other.copperPieces == this.copperPieces &&
           other.silverPieces == this.silverPieces &&
@@ -3279,6 +3415,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
   final Value<String?> portraitPath;
   final Value<String?> speciesId;
   final Value<String?> backgroundId;
+  final Value<String?> alignment;
   final Value<String?> customBackgroundName;
   final Value<String> customBackgroundSkills;
   final Value<String> customBackgroundFeatures;
@@ -3341,6 +3478,8 @@ class CharactersCompanion extends UpdateCompanion<Character> {
   final Value<bool> inspiration;
   final Value<int> exhaustion;
   final Value<String> conditions;
+  final Value<int> deathSaveSuccesses;
+  final Value<int> deathSaveFailures;
   final Value<int> hitDiceUsed;
   final Value<int> copperPieces;
   final Value<int> silverPieces;
@@ -3357,6 +3496,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.portraitPath = const Value.absent(),
     this.speciesId = const Value.absent(),
     this.backgroundId = const Value.absent(),
+    this.alignment = const Value.absent(),
     this.customBackgroundName = const Value.absent(),
     this.customBackgroundSkills = const Value.absent(),
     this.customBackgroundFeatures = const Value.absent(),
@@ -3419,6 +3559,8 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.inspiration = const Value.absent(),
     this.exhaustion = const Value.absent(),
     this.conditions = const Value.absent(),
+    this.deathSaveSuccesses = const Value.absent(),
+    this.deathSaveFailures = const Value.absent(),
     this.hitDiceUsed = const Value.absent(),
     this.copperPieces = const Value.absent(),
     this.silverPieces = const Value.absent(),
@@ -3436,6 +3578,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.portraitPath = const Value.absent(),
     this.speciesId = const Value.absent(),
     this.backgroundId = const Value.absent(),
+    this.alignment = const Value.absent(),
     this.customBackgroundName = const Value.absent(),
     this.customBackgroundSkills = const Value.absent(),
     this.customBackgroundFeatures = const Value.absent(),
@@ -3498,6 +3641,8 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.inspiration = const Value.absent(),
     this.exhaustion = const Value.absent(),
     this.conditions = const Value.absent(),
+    this.deathSaveSuccesses = const Value.absent(),
+    this.deathSaveFailures = const Value.absent(),
     this.hitDiceUsed = const Value.absent(),
     this.copperPieces = const Value.absent(),
     this.silverPieces = const Value.absent(),
@@ -3518,6 +3663,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Expression<String>? portraitPath,
     Expression<String>? speciesId,
     Expression<String>? backgroundId,
+    Expression<String>? alignment,
     Expression<String>? customBackgroundName,
     Expression<String>? customBackgroundSkills,
     Expression<String>? customBackgroundFeatures,
@@ -3580,6 +3726,8 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Expression<bool>? inspiration,
     Expression<int>? exhaustion,
     Expression<String>? conditions,
+    Expression<int>? deathSaveSuccesses,
+    Expression<int>? deathSaveFailures,
     Expression<int>? hitDiceUsed,
     Expression<int>? copperPieces,
     Expression<int>? silverPieces,
@@ -3597,6 +3745,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       if (portraitPath != null) 'portrait_path': portraitPath,
       if (speciesId != null) 'species_id': speciesId,
       if (backgroundId != null) 'background_id': backgroundId,
+      if (alignment != null) 'alignment': alignment,
       if (customBackgroundName != null)
         'custom_background_name': customBackgroundName,
       if (customBackgroundSkills != null)
@@ -3665,6 +3814,9 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       if (inspiration != null) 'inspiration': inspiration,
       if (exhaustion != null) 'exhaustion': exhaustion,
       if (conditions != null) 'conditions': conditions,
+      if (deathSaveSuccesses != null)
+        'death_save_successes': deathSaveSuccesses,
+      if (deathSaveFailures != null) 'death_save_failures': deathSaveFailures,
       if (hitDiceUsed != null) 'hit_dice_used': hitDiceUsed,
       if (copperPieces != null) 'copper_pieces': copperPieces,
       if (silverPieces != null) 'silver_pieces': silverPieces,
@@ -3684,6 +3836,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Value<String?>? portraitPath,
     Value<String?>? speciesId,
     Value<String?>? backgroundId,
+    Value<String?>? alignment,
     Value<String?>? customBackgroundName,
     Value<String>? customBackgroundSkills,
     Value<String>? customBackgroundFeatures,
@@ -3746,6 +3899,8 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Value<bool>? inspiration,
     Value<int>? exhaustion,
     Value<String>? conditions,
+    Value<int>? deathSaveSuccesses,
+    Value<int>? deathSaveFailures,
     Value<int>? hitDiceUsed,
     Value<int>? copperPieces,
     Value<int>? silverPieces,
@@ -3763,6 +3918,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       portraitPath: portraitPath ?? this.portraitPath,
       speciesId: speciesId ?? this.speciesId,
       backgroundId: backgroundId ?? this.backgroundId,
+      alignment: alignment ?? this.alignment,
       customBackgroundName: customBackgroundName ?? this.customBackgroundName,
       customBackgroundSkills:
           customBackgroundSkills ?? this.customBackgroundSkills,
@@ -3827,6 +3983,8 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       inspiration: inspiration ?? this.inspiration,
       exhaustion: exhaustion ?? this.exhaustion,
       conditions: conditions ?? this.conditions,
+      deathSaveSuccesses: deathSaveSuccesses ?? this.deathSaveSuccesses,
+      deathSaveFailures: deathSaveFailures ?? this.deathSaveFailures,
       hitDiceUsed: hitDiceUsed ?? this.hitDiceUsed,
       copperPieces: copperPieces ?? this.copperPieces,
       silverPieces: silverPieces ?? this.silverPieces,
@@ -3859,6 +4017,9 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     }
     if (backgroundId.present) {
       map['background_id'] = Variable<String>(backgroundId.value);
+    }
+    if (alignment.present) {
+      map['alignment'] = Variable<String>(alignment.value);
     }
     if (customBackgroundName.present) {
       map['custom_background_name'] = Variable<String>(
@@ -4052,6 +4213,12 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     if (conditions.present) {
       map['conditions'] = Variable<String>(conditions.value);
     }
+    if (deathSaveSuccesses.present) {
+      map['death_save_successes'] = Variable<int>(deathSaveSuccesses.value);
+    }
+    if (deathSaveFailures.present) {
+      map['death_save_failures'] = Variable<int>(deathSaveFailures.value);
+    }
     if (hitDiceUsed.present) {
       map['hit_dice_used'] = Variable<int>(hitDiceUsed.value);
     }
@@ -4091,6 +4258,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
           ..write('portraitPath: $portraitPath, ')
           ..write('speciesId: $speciesId, ')
           ..write('backgroundId: $backgroundId, ')
+          ..write('alignment: $alignment, ')
           ..write('customBackgroundName: $customBackgroundName, ')
           ..write('customBackgroundSkills: $customBackgroundSkills, ')
           ..write('customBackgroundFeatures: $customBackgroundFeatures, ')
@@ -4153,6 +4321,8 @@ class CharactersCompanion extends UpdateCompanion<Character> {
           ..write('inspiration: $inspiration, ')
           ..write('exhaustion: $exhaustion, ')
           ..write('conditions: $conditions, ')
+          ..write('deathSaveSuccesses: $deathSaveSuccesses, ')
+          ..write('deathSaveFailures: $deathSaveFailures, ')
           ..write('hitDiceUsed: $hitDiceUsed, ')
           ..write('copperPieces: $copperPieces, ')
           ..write('silverPieces: $silverPieces, ')
@@ -8909,6 +9079,7 @@ typedef $$CharactersTableCreateCompanionBuilder =
       Value<String?> portraitPath,
       Value<String?> speciesId,
       Value<String?> backgroundId,
+      Value<String?> alignment,
       Value<String?> customBackgroundName,
       Value<String> customBackgroundSkills,
       Value<String> customBackgroundFeatures,
@@ -8971,6 +9142,8 @@ typedef $$CharactersTableCreateCompanionBuilder =
       Value<bool> inspiration,
       Value<int> exhaustion,
       Value<String> conditions,
+      Value<int> deathSaveSuccesses,
+      Value<int> deathSaveFailures,
       Value<int> hitDiceUsed,
       Value<int> copperPieces,
       Value<int> silverPieces,
@@ -8989,6 +9162,7 @@ typedef $$CharactersTableUpdateCompanionBuilder =
       Value<String?> portraitPath,
       Value<String?> speciesId,
       Value<String?> backgroundId,
+      Value<String?> alignment,
       Value<String?> customBackgroundName,
       Value<String> customBackgroundSkills,
       Value<String> customBackgroundFeatures,
@@ -9051,6 +9225,8 @@ typedef $$CharactersTableUpdateCompanionBuilder =
       Value<bool> inspiration,
       Value<int> exhaustion,
       Value<String> conditions,
+      Value<int> deathSaveSuccesses,
+      Value<int> deathSaveFailures,
       Value<int> hitDiceUsed,
       Value<int> copperPieces,
       Value<int> silverPieces,
@@ -9253,6 +9429,11 @@ class $$CharactersTableFilterComposer
 
   ColumnFilters<String> get backgroundId => $composableBuilder(
     column: $table.backgroundId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get alignment => $composableBuilder(
+    column: $table.alignment,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -9566,6 +9747,16 @@ class $$CharactersTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<int> get deathSaveSuccesses => $composableBuilder(
+    column: $table.deathSaveSuccesses,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get deathSaveFailures => $composableBuilder(
+    column: $table.deathSaveFailures,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<int> get hitDiceUsed => $composableBuilder(
     column: $table.hitDiceUsed,
     builder: (column) => ColumnFilters(column),
@@ -9795,6 +9986,11 @@ class $$CharactersTableOrderingComposer
 
   ColumnOrderings<String> get backgroundId => $composableBuilder(
     column: $table.backgroundId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get alignment => $composableBuilder(
+    column: $table.alignment,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -10108,6 +10304,16 @@ class $$CharactersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get deathSaveSuccesses => $composableBuilder(
+    column: $table.deathSaveSuccesses,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get deathSaveFailures => $composableBuilder(
+    column: $table.deathSaveFailures,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get hitDiceUsed => $composableBuilder(
     column: $table.hitDiceUsed,
     builder: (column) => ColumnOrderings(column),
@@ -10181,6 +10387,9 @@ class $$CharactersTableAnnotationComposer
     column: $table.backgroundId,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get alignment =>
+      $composableBuilder(column: $table.alignment, builder: (column) => column);
 
   GeneratedColumn<String> get customBackgroundName => $composableBuilder(
     column: $table.customBackgroundName,
@@ -10476,6 +10685,16 @@ class $$CharactersTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<int> get deathSaveSuccesses => $composableBuilder(
+    column: $table.deathSaveSuccesses,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get deathSaveFailures => $composableBuilder(
+    column: $table.deathSaveFailures,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<int> get hitDiceUsed => $composableBuilder(
     column: $table.hitDiceUsed,
     builder: (column) => column,
@@ -10708,6 +10927,7 @@ class $$CharactersTableTableManager
                 Value<String?> portraitPath = const Value.absent(),
                 Value<String?> speciesId = const Value.absent(),
                 Value<String?> backgroundId = const Value.absent(),
+                Value<String?> alignment = const Value.absent(),
                 Value<String?> customBackgroundName = const Value.absent(),
                 Value<String> customBackgroundSkills = const Value.absent(),
                 Value<String> customBackgroundFeatures = const Value.absent(),
@@ -10770,6 +10990,8 @@ class $$CharactersTableTableManager
                 Value<bool> inspiration = const Value.absent(),
                 Value<int> exhaustion = const Value.absent(),
                 Value<String> conditions = const Value.absent(),
+                Value<int> deathSaveSuccesses = const Value.absent(),
+                Value<int> deathSaveFailures = const Value.absent(),
                 Value<int> hitDiceUsed = const Value.absent(),
                 Value<int> copperPieces = const Value.absent(),
                 Value<int> silverPieces = const Value.absent(),
@@ -10786,6 +11008,7 @@ class $$CharactersTableTableManager
                 portraitPath: portraitPath,
                 speciesId: speciesId,
                 backgroundId: backgroundId,
+                alignment: alignment,
                 customBackgroundName: customBackgroundName,
                 customBackgroundSkills: customBackgroundSkills,
                 customBackgroundFeatures: customBackgroundFeatures,
@@ -10848,6 +11071,8 @@ class $$CharactersTableTableManager
                 inspiration: inspiration,
                 exhaustion: exhaustion,
                 conditions: conditions,
+                deathSaveSuccesses: deathSaveSuccesses,
+                deathSaveFailures: deathSaveFailures,
                 hitDiceUsed: hitDiceUsed,
                 copperPieces: copperPieces,
                 silverPieces: silverPieces,
@@ -10866,6 +11091,7 @@ class $$CharactersTableTableManager
                 Value<String?> portraitPath = const Value.absent(),
                 Value<String?> speciesId = const Value.absent(),
                 Value<String?> backgroundId = const Value.absent(),
+                Value<String?> alignment = const Value.absent(),
                 Value<String?> customBackgroundName = const Value.absent(),
                 Value<String> customBackgroundSkills = const Value.absent(),
                 Value<String> customBackgroundFeatures = const Value.absent(),
@@ -10928,6 +11154,8 @@ class $$CharactersTableTableManager
                 Value<bool> inspiration = const Value.absent(),
                 Value<int> exhaustion = const Value.absent(),
                 Value<String> conditions = const Value.absent(),
+                Value<int> deathSaveSuccesses = const Value.absent(),
+                Value<int> deathSaveFailures = const Value.absent(),
                 Value<int> hitDiceUsed = const Value.absent(),
                 Value<int> copperPieces = const Value.absent(),
                 Value<int> silverPieces = const Value.absent(),
@@ -10944,6 +11172,7 @@ class $$CharactersTableTableManager
                 portraitPath: portraitPath,
                 speciesId: speciesId,
                 backgroundId: backgroundId,
+                alignment: alignment,
                 customBackgroundName: customBackgroundName,
                 customBackgroundSkills: customBackgroundSkills,
                 customBackgroundFeatures: customBackgroundFeatures,
@@ -11006,6 +11235,8 @@ class $$CharactersTableTableManager
                 inspiration: inspiration,
                 exhaustion: exhaustion,
                 conditions: conditions,
+                deathSaveSuccesses: deathSaveSuccesses,
+                deathSaveFailures: deathSaveFailures,
                 hitDiceUsed: hitDiceUsed,
                 copperPieces: copperPieces,
                 silverPieces: silverPieces,

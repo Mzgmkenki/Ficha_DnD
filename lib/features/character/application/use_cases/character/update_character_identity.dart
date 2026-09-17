@@ -1,6 +1,7 @@
 import 'package:dnd_ficha_app/features/character/domain/entities/custom_background.dart';
 import 'package:dnd_ficha_app/features/character/domain/repositories/character_repository.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/granted_skills.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/alignment.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_entry.dart';
 
@@ -22,6 +23,7 @@ class UpdateCharacterIdentity {
     String? backgroundId,
     CustomBackground customBackground = const CustomBackground(),
     List<Skill> grantedSkills = const [],
+    CharacterAlignment? alignment,
   }) async {
     final character = await _repository.findById(characterId);
 
@@ -47,6 +49,9 @@ class UpdateCharacterIdentity {
       customBackground: effectiveCustomBackground,
       notes: notes,
       skillProficiencies: skills,
+      // Passado sem sentinela: a tela sempre manda o valor atual do campo, e
+      // `null` aqui é uma escolha do jogador ("Não definido"), não omissão.
+      alignment: alignment,
       updatedAt: DateTime.now(),
     );
 

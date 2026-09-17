@@ -1,5 +1,6 @@
 import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
+import 'package:dnd_ficha_app/core/utils/dice_roller.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/choose_subclass.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/export_character.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/export_character_pdf.dart';
@@ -17,7 +18,9 @@ import 'package:dnd_ficha_app/features/character/domain/entities/character.dart'
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item_spell.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/death_saves.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/active_effects.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/death_save_service.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/rest_service.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
@@ -424,6 +427,64 @@ final setExhaustionProvider =
         updatedAt: DateTime.now(),
       ),
     );
+  };
+});
+
+/// Grava os marcadores dos testes contra a morte.
+///
+/// Mesmo caminho da exaustão: recebe o personagem inteiro, troca um campo e
+/// grava. O clamp de 0 a 3 mora no próprio `DeathSaves`.
+final setDeathSavesProvider =
+    Provider<Future<void> Function(Character, DeathSaves)>((ref) {
+  final repository = ref.watch(characterRepositoryProvider);
+
+  return (Character character, DeathSaves saves) {
+    return repository.update(
+      character.copyWith(
+        deathSaves: DeathSaves(
+          successes: saves.successes.clamp(0, DeathSaves.maxMarks),
+          failures: saves.failures.clamp(0, DeathSaves.maxMarks),
+        ),
+        updatedAt: DateTime.now(),
+      ),
+    );
+  };
+});
+
+/// Aplica um d20 já rolado às regras do teste contra a morte.
+///
+/// Recebe o resultado em vez de rolar aqui para o teste automatizado poder fixar
+/// o dado, e para o `20` natural conseguir devolver 1 ponto de vida na mesma
+/// gravação — dois `update` seguidos fariam a ficha piscar entre dois estados.
+final rollDeathSaveProvider = Provider<
+    Future<DeathSaveOutcome> Function({
+      required Character character,
+      required DiceRollResult roll,
+    })>((ref) {
+  final repository = ref.watch(characterRepositoryProvider);
+
+  return ({
+    required Character character,
+    required DiceRollResult roll,
+  }) async {
+    final outcome = DeathSaveService.applyRoll(
+      current: character.deathSaves,
+      roll: roll,
+    );
+
+    final hitPoints = outcome.regainsHitPoint && character.hitPoints.current <= 0
+        ? character.hitPoints.copyWith(current: 1)
+        : character.hitPoints;
+
+    await repository.update(
+      character.copyWith(
+        deathSaves: outcome.saves,
+        hitPoints: hitPoints,
+        updatedAt: DateTime.now(),
+      ),
+    );
+
+    return outcome;
   };
 });
 
