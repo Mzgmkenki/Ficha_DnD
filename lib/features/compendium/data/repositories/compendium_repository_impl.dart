@@ -1,3 +1,4 @@
+import 'package:dnd_ficha_app/core/utils/html_text.dart';
 import 'package:dnd_ficha_app/features/compendium/data/sources/srd_asset_source.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/ability_bonus_mode.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_entry.dart';
@@ -5,12 +6,15 @@ import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.da
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_prerequisite.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/initiative_rule.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_choice_group.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_skill_choice.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_slot_progression_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/subclass_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/weapon_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/weapon_proficiencies.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/repositories/compendium_repository.dart';
 
 class CompendiumRepositoryImpl implements CompendiumRepository {
@@ -52,6 +56,12 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
         skillOptions: skillOptionsRaw
             .map((e) => e.toString())
             .toList(growable: false),
+        // Zero quando o asset não declara: a tela não impõe limite nesse caso,
+        // em vez de travar o jogador em zero perícias.
+        skillChoices: _asInt(item['skill_choices']) ?? 0,
+        weaponProficiencies: WeaponProficiencies.tryParse(
+          item['weapon_proficiencies'],
+        ),
         savingThrows: savingThrowsRaw
             .map((e) => e.toString())
             .toList(growable: false),
@@ -111,6 +121,7 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
             })
             .where((e) => e.trim().isNotEmpty)
             .toList(growable: false),
+        initiative: InitiativeRule.tryParse(item['initiative']),
 
         parentRaceId: item['parent_race_id'] as String?,
         isSubrace: _asBool(item['is_subrace']),
@@ -202,6 +213,7 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
         abilityIncreaseOptions: _asList(item['ability_increase_options'])
             .map((e) => e.toString())
             .toList(growable: false),
+        initiative: InitiativeRule.tryParse(item['initiative']),
         source: item['source'] as String? ?? 'phb',
       );
     }).toList(growable: false);
@@ -360,26 +372,32 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
       final spellsFromFile = dados.map((item) {
         final spell = Map<String, dynamic>.from(item as Map);
 
+        // Os assets de magia guardam HTML dentro dos campos de texto (`<br>`,
+        // `<b>`, listas e tabelas, além de `&emsp;`). A limpeza fica aqui, na
+        // leitura, porque a descrição é exibida no compêndio e no painel de
+        // magias da ficha, e o painel mostrava o markup literal.
+        String text(String key) => htmlToPlainText(spell[key] as String? ?? '');
+
         return SpellEntry(
           id: spell['id'] as int,
-          namePt: spell['nome'] as String? ?? '',
+          namePt: text('nome'),
           // O campo no asset chama `original`. Lia-se `nome_original`, que não
           // existe, então o nome em inglês vinha vazio e a busca por ele nunca
           // achava nada.
-          nameOriginal: spell['original'] as String? ?? '',
+          nameOriginal: text('original'),
           level: spell['nivel'] as int? ?? 0,
-          school: spell['escola'] as String? ?? '',
-          castingTime: spell['tempo'] as String? ?? '',
-          range: spell['alcance'] as String? ?? '',
-          components: spell['componentes'] as String? ?? '',
+          school: text('escola'),
+          castingTime: text('tempo'),
+          range: text('alcance'),
+          components: text('componentes'),
           hasCostlyMaterials: spell['materiaispagos'] as bool? ?? false,
-          duration: spell['duracao'] as String? ?? '',
+          duration: text('duracao'),
           concentration: spell['concentracao'] as bool? ?? false,
           ritual: spell['ritual'] as bool? ?? false,
           classes: _parseClasses(spell['classes'] as String?),
           subclasses: _splitCommaList(spell['subclasses'] as String?),
-          description: spell['descricao'] as String? ?? '',
-          upcast: spell['upcast'] as String?,
+          description: text('descricao'),
+          upcast: htmlToPlainTextOrNull(spell['upcast'] as String?),
           source: spell['fonte'] as String? ?? '',
           page: spell['pagina'] as String? ?? '',
           isSrd: spell['srd'] as bool? ?? false,
@@ -390,6 +408,57 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
     }
 
     return allSpells;
+  }
+
+  @override
+  Future<List<WeaponEntry>> loadWeapons() async {
+    final items = await _source.loadJsonList('assets/data/srd/weapons.json');
+
+    return items
+        .map(_parseWeapon)
+        .whereType<WeaponEntry>()
+        .toList(growable: false);
+  }
+
+  /// Lê uma arma. Devolve nulo quando falta o que define a arma.
+  ///
+  /// Tolerante como o resto do compêndio: uma entrada quebrada some da lista em
+  /// vez de derrubar a leitura das outras 36. O teste de asset é quem garante
+  /// que nenhuma sumiu.
+  WeaponEntry? _parseWeapon(Map<String, dynamic> item) {
+    final id = item['id'] as String?;
+    final name = item['name'] as String?;
+    final category = WeaponCategory.fromId(item['category'] as String?);
+    final rangeType = WeaponRangeType.fromId(item['range_type'] as String?);
+
+    if (id == null || name == null || category == null || rangeType == null) {
+      return null;
+    }
+
+    final damage = (item['damage'] as String?)?.trim();
+    final special = (item['special'] as String?)?.trim();
+    final versatile = (item['versatile_damage'] as String?)?.trim();
+
+    return WeaponEntry(
+      id: id,
+      name: name,
+      nameOriginal: item['name_original'] as String?,
+      category: category,
+      rangeType: rangeType,
+      damage: damage == null || damage.isEmpty ? null : damage,
+      damageType: WeaponDamageType.fromId(item['damage_type'] as String?) ??
+          WeaponDamageType.none,
+      properties: [
+        for (final raw in _asList(item['properties']))
+          if (WeaponProperty.fromId(raw.toString()) case final property?)
+            property,
+      ],
+      range: WeaponRange.tryParse(item['range']),
+      thrownRange: WeaponRange.tryParse(item['thrown_range']),
+      versatileDamage: versatile == null || versatile.isEmpty ? null : versatile,
+      special: special == null || special.isEmpty ? null : special,
+      source: item['source'] as String? ?? 'phb',
+    );
   }
 
   SubclassSpellGrant _parseSubclassSpellGrant(Map<String, dynamic> item) {
@@ -407,6 +476,7 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
       name: item['name'] as String? ?? '',
       description: item['description'] as String? ?? '',
       action: FeatureAction.tryParse(item['action']),
+      initiative: InitiativeRule.tryParse(item['initiative']),
     );
   }
 

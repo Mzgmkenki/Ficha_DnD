@@ -82,7 +82,8 @@
     "features": [
       {
         "name": "Instinto Feral",
-        "description": "Vantagem em testes de iniciativa. Se estiver Surpreendido no começo do combate e não estiver Incapacitado, você ainda pode agir normalmente no primeiro turno, desde que entre em Fúria antes de fazer qualquer outra coisa."
+        "description": "Vantagem em testes de iniciativa. Se estiver Surpreendido no começo do combate e não estiver Incapacitado, você ainda pode agir normalmente no primeiro turno, desde que entre em Fúria antes de fazer qualquer outra coisa.",
+        "initiative": { "advantage": true }
       }
     ],
     "source": "phb"
@@ -237,7 +238,8 @@
     "features": [
       {
         "name": "Pau para Toda Obra",
-        "description": "Some metade do seu bônus de proficiência, arredondado para baixo, a qualquer teste de atributo que ainda não inclua o bônus de proficiência. Vale também para a iniciativa."
+        "description": "Some metade do seu bônus de proficiência, arredondado para baixo, a qualquer teste de atributo que ainda não inclua o bônus de proficiência. Vale também para a iniciativa.",
+        "initiative": { "proficiency": "half" }
       },
       {
         "name": "Canção de Descanso (d6)",

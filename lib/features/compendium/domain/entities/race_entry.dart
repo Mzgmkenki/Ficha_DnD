@@ -1,4 +1,5 @@
 import 'package:dnd_ficha_app/features/compendium/domain/entities/ability_bonus_mode.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/initiative_rule.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_choice_group.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_skill_choice.dart';
 
@@ -17,6 +18,7 @@ class RaceEntry {
     this.grantsFeat = false,
     this.skillChoice,
     this.traits = const [],
+    this.initiative,
     this.parentRaceId,
     this.isSubrace = false,
     this.description,
@@ -69,6 +71,14 @@ class RaceEntry {
 
   final List<String> traits;
 
+  /// O que a raça faz com a iniciativa, quando faz algo.
+  ///
+  /// Fica no nível da raça, e não dentro de [traits], porque os traços são
+  /// texto puro: dar estrutura a um deles obrigaria a mudar o formato dos
+  /// outros trezentos. Por isso a regra traz um `note` com o nome do traço —
+  /// hoje só o Gatilho de Lebre do harengon.
+  final InitiativeRule? initiative;
+
   final String? parentRaceId;
   final bool isSubrace;
 
@@ -105,6 +115,7 @@ class RaceEntry {
     bool? grantsFeat,
     RaceSkillChoice? skillChoice,
     List<String>? traits,
+    InitiativeRule? initiative,
     String? parentRaceId,
     bool? isSubrace,
     String? description,
@@ -129,6 +140,7 @@ class RaceEntry {
       grantsFeat: grantsFeat ?? this.grantsFeat,
       skillChoice: skillChoice ?? this.skillChoice,
       traits: traits ?? this.traits,
+      initiative: initiative ?? this.initiative,
       parentRaceId: parentRaceId ?? this.parentRaceId,
       isSubrace: isSubrace ?? this.isSubrace,
       description: description ?? this.description,

@@ -14,6 +14,7 @@
     "name_original": "Alert",
     "description": "+5 em iniciativa. Consciente, não pode ser Surpreendido. Criaturas não ganham vantagem contra você só por estarem ocultas de você.",
     "prerequisite": "Nenhum",
+    "initiative": { "bonus": 5 },
     "source": "phb"
   },
   {

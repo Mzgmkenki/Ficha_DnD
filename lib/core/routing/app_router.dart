@@ -11,6 +11,7 @@ import 'package:dnd_ficha_app/features/character/presentation/pages/edit_identit
 import 'package:dnd_ficha_app/features/character/presentation/pages/edit_proficiencies_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/manage_character_magic_items_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/manage_character_spells_page.dart';
+import 'package:dnd_ficha_app/features/character/presentation/pages/manage_character_weapons_page.dart';
 import 'package:dnd_ficha_app/features/compendium/presentation/pages/spell_compendium_page.dart';
 import 'package:dnd_ficha_app/features/compendium/presentation/pages/spell_detail_page.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,7 @@ class AppRoutes {
   static const String editProficiencies = '/character/proficiencies';
   static const String manageSpells = '/character/spells';
   static const String manageMagicItems = '/character/magic-items';
+  static const String manageWeapons = '/character/weapons';
 
   static const String spellCompendium = '/compendium/spells';
   static const String spellDetail = '/compendium/spells/detail';
@@ -129,6 +131,12 @@ class AppRouter {
           settings,
           (args) =>
               ManageCharacterMagicItemsPage(characterId: args.characterId),
+        );
+
+      case AppRoutes.manageWeapons:
+        return _withArgs<CharacterIdArgs>(
+          settings,
+          (args) => ManageCharacterWeaponsPage(characterId: args.characterId),
         );
 
       case AppRoutes.spellDetail:

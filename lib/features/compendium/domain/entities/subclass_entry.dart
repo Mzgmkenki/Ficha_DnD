@@ -1,4 +1,5 @@
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/initiative_rule.dart';
 
 /// Magias que a subclasse concede num nível de classe.
 ///
@@ -22,6 +23,7 @@ class SubclassFeature {
     required this.name,
     required this.description,
     this.action,
+    this.initiative,
   });
 
   /// Nível de classe em que a característica é liberada.
@@ -33,6 +35,12 @@ class SubclassFeature {
   /// O que custa na economia do turno, no mesmo formato das características de
   /// classe. Nulo é o caso normal: a maioria é passiva.
   final FeatureAction? action;
+
+  /// O que a característica faz com a iniciativa, quando faz algo.
+  ///
+  /// É por aqui que Emboscador Terrível soma Sabedoria à iniciativa, em vez de
+  /// a interface checar o id da subclasse.
+  final InitiativeRule? initiative;
 }
 
 /// Subclasse de uma classe: Campeão do Guerreiro, Domínio da Vida do Clérigo.

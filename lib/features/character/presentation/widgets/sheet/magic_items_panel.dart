@@ -56,6 +56,17 @@ class MagicItemsPanel extends ConsumerWidget {
                                 const SizedBox(height: 4),
                                 Text(item.description),
                               ],
+                              // Os bônus que o item declara, separados por
+                              // efeito: é o que evita um `+1` de arma acabar
+                              // aumentando a CD das magias.
+                              if (item.hasBonuses) ...[
+                                const SizedBox(height: 6),
+                                Text(
+                                  'Bônus: ${_bonusesLabel(item)}',
+                                  style:
+                                      Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ],
                               if (item.maxCharges != null) ...[
                                 const SizedBox(height: 8),
                                 Row(
@@ -216,6 +227,24 @@ class MagicItemsPanel extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  /// `+1 no ataque com arma, +1 no dano com arma`.
+  static String _bonusesLabel(CharacterMagicItem item) {
+    String signed(int value) => value >= 0 ? '+$value' : '$value';
+
+    final parts = <String>[
+      if (item.weaponAttackBonus != 0)
+        '${signed(item.weaponAttackBonus)} no ataque com arma',
+      if (item.weaponDamageBonus != 0)
+        '${signed(item.weaponDamageBonus)} no dano com arma',
+      if (item.spellAttackBonus != 0)
+        '${signed(item.spellAttackBonus)} no ataque mágico',
+      if (item.spellSaveDcBonus != 0)
+        '${signed(item.spellSaveDcBonus)} na CD de magia',
+    ];
+
+    return parts.join(', ');
   }
 }
 

@@ -1094,6 +1094,7 @@
       "Passos Afortunados: ao falhar em salvaguarda de Destreza, use reação para rolar 1d4 e somar ao resultado, podendo convertê-lo em sucesso. Não funciona se estiver caído ou com deslocamento 0.",
       "Salto de Coelho: ação bônus para saltar 1,5 m × bônus de proficiência sem provocar ataques de oportunidade. Exige deslocamento superior a 0. Usos iguais ao bônus de proficiência por descanso longo."
     ],
+    "initiative": { "proficiency": "full", "note": "Gatilho de Lebre" },
     "choice_groups": [],
     "tags": ["motm", "feérico"]
   },

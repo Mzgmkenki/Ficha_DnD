@@ -12,6 +12,7 @@ part 'app_database.g.dart';
     Characters,
     CharacterClassLevels,
     CharacterSpells,
+    CharacterWeapons,
     CharacterMagicItems,
     CharacterMagicItemSpells,
     CharacterSpellSlotsUsage,
@@ -30,7 +31,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   /// Sem este override o drift usa a estratégia padrão, cujo `onUpgrade`
   /// lança exceção — qualquer base criada numa versão anterior deixaria o

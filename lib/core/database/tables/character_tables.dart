@@ -167,6 +167,56 @@ class CharacterSpells extends Table {
   TextColumn get notes => text().withDefault(const Constant(''))();
 }
 
+/// Armas que o personagem carrega.
+///
+/// Guarda só o que é decisão do jogador. Dado de dano, tipo de dano e
+/// propriedades ficam no compêndio (`assets/data/srd/weapons.json`) e são
+/// resolvidos por [weaponId] na leitura: repetir aqui deixaria a ficha
+/// desatualizada se a tabela do livro fosse corrigida.
+class CharacterWeapons extends Table {
+  IntColumn get localId => integer().autoIncrement()();
+  TextColumn get characterId => text().references(Characters, #id)();
+
+  /// Id da arma no compêndio (`WeaponEntry.id`).
+  TextColumn get weaponId => text()();
+
+  /// Apelido da arma. Nulo usa o nome do compêndio.
+  ///
+  /// Serve para a arma mágica com nome próprio continuar sendo mecanicamente
+  /// uma espada longa.
+  TextColumn get name => text().nullable()();
+
+  /// Bônus mágico da arma: o `+1`, `+2` ou `+3`.
+  ///
+  /// Soma nas jogadas de ataque E nas de dano daquela arma, que é o que a
+  /// descrição de arma mágica diz. Não mexe em ataque de magia nem em CD: isso
+  /// só acontece se o item declarar, e quem cuida disso é o item mágico.
+  IntColumn get magicBonus => integer().withDefault(const Constant(0))();
+
+  /// Atributo escolhido nas armas com Acuidade, pelo nome do enum `Ability`.
+  ///
+  /// Nulo deixa o cálculo pegar o melhor entre Força e Destreza, que é a
+  /// escolha certa em praticamente todo caso.
+  TextColumn get chosenAbility => text().nullable()();
+
+  /// Se está empunhada com as duas mãos.
+  ///
+  /// Só muda algo nas armas Versáteis, que trocam o dado (1d8 vira 1d10 na
+  /// espada longa).
+  BoolColumn get twoHanded => boolean().withDefault(const Constant(false))();
+
+  /// Proficiência marcada à mão.
+  ///
+  /// Nulo é o normal: a proficiência vem da classe. O campo existe porque
+  /// raça, antecedente e talento também concedem proficiência com arma, e
+  /// nenhum dos três está cadastrado de forma estruturada — sem o override, um
+  /// elfo com arco longo apareceria sem proficiência e não haveria como
+  /// corrigir.
+  BoolColumn get proficiencyOverride => boolean().nullable()();
+
+  TextColumn get notes => text().withDefault(const Constant(''))();
+}
+
 class CharacterMagicItems extends Table {
   IntColumn get localId => integer().autoIncrement()();
   TextColumn get characterId => text().references(Characters, #id)();
@@ -176,8 +226,38 @@ class CharacterMagicItems extends Table {
   IntColumn get maxCharges => integer().nullable()();
   TextColumn get rechargeRule => text().nullable()();
   TextColumn get castingAbility => text().nullable()();
+
+  /// CD fixa do item, quando ele define a própria.
+  ///
+  /// Valor ABSOLUTO, não bônus: é o "CD 15" impresso na descrição de varinhas
+  /// e cajados, que não depende dos atributos de quem usa. Para o item que
+  /// SOMA à CD do conjurador existe [spellSaveDcBonus].
   IntColumn get saveDc => integer().nullable()();
+
+  /// Bônus de ataque fixo do item, quando ele define o próprio.
+  ///
+  /// Também absoluto, pelo mesmo motivo de [saveDc].
   IntColumn get attackBonus => integer().nullable()();
+
+  // ------------------------------------------------------- bônus estruturados
+  //
+  // Separados dos dois campos acima porque respondem outra pergunta: aqui é
+  // quanto o item SOMA ao que o personagem já tem. Cada efeito tem coluna
+  // própria de propósito — um item `+1` afeta ataque e dano da arma, e só
+  // afeta ataque mágico ou CD se a descrição dele disser isso. Com um único
+  // campo "bônus" não haveria como distinguir os dois casos.
+
+  /// Soma nas jogadas de ataque com arma.
+  IntColumn get weaponAttackBonus => integer().withDefault(const Constant(0))();
+
+  /// Soma nas jogadas de dano com arma.
+  IntColumn get weaponDamageBonus => integer().withDefault(const Constant(0))();
+
+  /// Soma no bônus de ataque com magia.
+  IntColumn get spellAttackBonus => integer().withDefault(const Constant(0))();
+
+  /// Soma na CD de resistência das magias do personagem.
+  IntColumn get spellSaveDcBonus => integer().withDefault(const Constant(0))();
 }
 
 class CharacterMagicItemSpells extends Table {

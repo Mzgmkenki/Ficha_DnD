@@ -2,6 +2,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.
 import 'package:dnd_ficha_app/features/character/domain/entities/character_feat.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_weapon.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/combat_stats.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/currency.dart';
@@ -34,6 +35,7 @@ class Character {
     this.savingThrowProficiencies = const SavingThrowProficiencies(),
     this.skillProficiencies = const SkillProficiencies(),
     this.spells = const [],
+    this.weapons = const [],
     this.magicItems = const [],
     this.feats = const [],
     this.inspiration = false,
@@ -70,6 +72,10 @@ class Character {
   final SavingThrowProficiencies savingThrowProficiencies;
   final SkillProficiencies skillProficiencies;
   final List<CharacterSpell> spells;
+
+  /// Armas que o personagem carrega.
+  final List<CharacterWeapon> weapons;
+
   final List<CharacterMagicItem> magicItems;
 
   /// Talentos escolhidos nos níveis em que a classe permite.
@@ -128,6 +134,7 @@ class Character {
     SavingThrowProficiencies? savingThrowProficiencies,
     SkillProficiencies? skillProficiencies,
     List<CharacterSpell>? spells,
+    List<CharacterWeapon>? weapons,
     List<CharacterMagicItem>? magicItems,
     List<CharacterFeat>? feats,
     bool? inspiration,
@@ -165,6 +172,7 @@ class Character {
           savingThrowProficiencies ?? this.savingThrowProficiencies,
       skillProficiencies: skillProficiencies ?? this.skillProficiencies,
       spells: spells ?? this.spells,
+      weapons: weapons ?? this.weapons,
       magicItems: magicItems ?? this.magicItems,
       feats: feats ?? this.feats,
       inspiration: inspiration ?? this.inspiration,

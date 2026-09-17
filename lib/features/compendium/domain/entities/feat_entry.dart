@@ -1,6 +1,7 @@
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_prerequisite.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/initiative_rule.dart';
 
 /// Perícias que o talento deixa o jogador escolher.
 ///
@@ -79,6 +80,7 @@ class FeatEntry {
     this.skillChoice,
     this.abilityIncreases = const {},
     this.abilityIncreaseOptions = const [],
+    this.initiative,
     this.source = 'phb',
   });
 
@@ -114,6 +116,11 @@ class FeatEntry {
   /// `ManageCharacterFeats.addFeat`: o aumento que de fato entrou fica gravado
   /// no talento do personagem, para a remoção devolver exatamente aquilo.
   final List<String> abilityIncreaseOptions;
+
+  /// O que o talento faz com a iniciativa, quando faz algo.
+  ///
+  /// Hoje só o Alerta declara, com `{"bonus": 5}`.
+  final InitiativeRule? initiative;
 
   final String source;
 

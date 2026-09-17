@@ -1,3 +1,5 @@
+import 'package:dnd_ficha_app/features/compendium/domain/entities/weapon_proficiencies.dart';
+
 class ClassEntry {
   const ClassEntry({
     required this.id,
@@ -6,6 +8,8 @@ class ClassEntry {
     required this.source,
     required this.skillOptions,
     required this.savingThrows,
+    this.skillChoices = 0,
+    this.weaponProficiencies = const WeaponProficiencies(),
     this.primaryAbility,
     this.spellcastingType,
     this.spellcastingAbility,
@@ -75,8 +79,34 @@ class ClassEntry {
   final String? spellcastingAbility;
 
   final String source;
+
+  /// Perícias entre as quais o jogador escolhe na criação.
   final List<String> skillOptions;
+
+  /// Quantas perícias o jogador escolhe dentro de [skillOptions].
+  ///
+  /// Varia por classe: quase todas dão 2, bardo e patrulheiro dão 3 e o ladino
+  /// dá 4. Sem este campo a criação listava as opções e aceitava marcar
+  /// quantas o jogador quisesse.
+  ///
+  /// Zero significa "não declarado no asset", e nesse caso a tela não impõe
+  /// limite — é melhor deixar escolher que travar em zero se o dado faltar.
+  final int skillChoices;
+
   final List<String> savingThrows;
+
+  /// Com quais armas a classe dá proficiência.
+  ///
+  /// É a classe que decide isso, não a arma: uma espada longa é a mesma arma
+  /// para todo mundo, e o que muda é quem sabe usá-la.
+  final WeaponProficiencies weaponProficiencies;
+
+  /// Se a classe declara quantas perícias concede.
+  bool get hasSkillChoices => skillChoices > 0;
+
+  /// Como a contagem aparece na tela: `1 de 2 selecionadas`.
+  String skillChoiceLabel(int selected) =>
+      '$selected de $skillChoices selecionadas';
 
   /// Id da classe de que esta é uma variante, quando for o caso.
   ///

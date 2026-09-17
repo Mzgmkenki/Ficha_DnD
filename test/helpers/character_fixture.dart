@@ -52,6 +52,7 @@ Character characterFixture({
     ClassLevel(classId: 'fighter', level: 1),
   ],
   HitPoints hitPoints = const HitPoints(current: 10, maximum: 10),
+  CombatStats? combatStats,
   SkillProficiencies skillProficiencies = const SkillProficiencies(),
   List<CharacterSpell> spells = const [],
   List<CharacterFeat> feats = const [],
@@ -70,11 +71,12 @@ Character characterFixture({
     abilityScores: abilityScores ?? flatScores,
     classLevels: classLevels,
     hitPoints: hitPoints,
-    combatStats: const CombatStats(
-      armorClass: 10,
-      initiativeBonus: 0,
-      speedInMeters: 9,
-    ),
+    combatStats: combatStats ??
+        const CombatStats(
+          armorClass: 10,
+          initiativeBonus: 0,
+          speedInMeters: 9,
+        ),
     skillProficiencies: skillProficiencies,
     spells: spells,
     feats: feats,

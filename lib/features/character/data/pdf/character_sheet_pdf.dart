@@ -6,6 +6,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/character.dart'
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/active_effects.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/hit_points_calculator.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/initiative_calculator.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/skill_calculator.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/spell_slot_calculator.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/spellcasting_service.dart';
@@ -14,6 +15,7 @@ import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_slot_progression_entry.dart';
@@ -34,6 +36,7 @@ class CharacterSheetPdfData {
     this.races = const [],
     this.backgrounds = const [],
     this.classFeatures = const [],
+    this.feats = const [],
     this.spells = const [],
     this.spellSlots = const [],
     this.logoBytes,
@@ -47,6 +50,11 @@ class CharacterSheetPdfData {
   final List<RaceEntry> races;
   final List<BackgroundEntry> backgrounds;
   final List<ClassFeatureEntry> classFeatures;
+
+  /// Compêndio de talentos, para a iniciativa impressa bater com a da tela: o
+  /// Alerta soma +5 e sem esta lista o PDF não saberia disso.
+  final List<FeatEntry> feats;
+
   final List<SpellEntry> spells;
   final List<SpellSlotProgressionEntry> spellSlots;
 
@@ -337,15 +345,24 @@ class CharacterSheetPdf {
         ? '${hp.current} / ${hp.maximum} (+${hp.temporary} temp.)'
         : '${hp.current} / ${hp.maximum}';
 
+    // Mesmo serviço da ficha: a Destreza entra sempre e as regras especiais
+    // vêm do compêndio. Antes o PDF repetia a soma à mão.
+    final initiative = InitiativeCalculator.calculate(
+      character: character,
+      classFeatures: data.classFeatures,
+      subclasses: data.subclasses,
+      feats: data.feats,
+      races: data.races,
+    );
+
     return [
       _chipRow([
         _chip('CA', '${stats.armorClass}'),
         _chip(
           'Iniciativa',
-          _signed(
-            character.abilityScores.dexterity.abilityModifier +
-                stats.initiativeBonus,
-          ),
+          initiative.hasAdvantage
+              ? '${initiative.formattedTotal} (vantagem)'
+              : initiative.formattedTotal,
         ),
         _chip('Deslocamento', formatMeters(stats.speedInMeters)),
         _chip('Pontos de vida', hpLabel),
@@ -358,6 +375,15 @@ class CharacterSheetPdf {
         ),
         if (character.inspiration) _chip('Inspiração', 'Sim'),
       ]),
+      // A composição impressa deixa o jogador conferir a conta na mesa, sem o
+      // app aberto. Só aparece quando há algo além da Destreza.
+      if (initiative.modifiers.length > 1)
+        _plain('Iniciativa: ${initiative.explanation}'),
+      if (initiative.hasAdvantage)
+        _plain(
+          'Vantagem na iniciativa: '
+          '${initiative.advantageSources.join(', ')}.',
+        ),
     ];
   }
 
@@ -548,6 +574,11 @@ class CharacterSheetPdf {
     // CD e ataque por classe conjuradora, que é o número mais consultado em
     // mesa depois do ataque.
     final casterChips = <pw.Widget>[];
+
+    // Mesmo serviço da ficha: só entra o bônus que o item declarou em campo
+    // próprio, nunca um `+1` deduzido do nome.
+    final itemBonus = SpellcastingService.itemBonuses(character.magicItems);
+
     for (final classLevel in character.classLevels) {
       final entry = _classEntry(data, classLevel.classId);
       if (entry == null || !entry.isSpellcaster) continue;
@@ -563,10 +594,12 @@ class CharacterSheetPdf {
             proficiencyBonus: character.proficiencyBonus,
             castingAbility: ability,
             scores: character.abilityScores,
+            itemBonus: itemBonus.saveDc,
           )}  |  Ataque ${_signed(SpellcastingService.spellAttackBonus(
             proficiencyBonus: character.proficiencyBonus,
             castingAbility: ability,
             scores: character.abilityScores,
+            itemBonus: itemBonus.attack,
           ))}',
         ),
       );

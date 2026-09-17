@@ -6,6 +6,7 @@ import 'package:dnd_ficha_app/features/character/domain/repositories/character_r
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_slot_progression_entry.dart';
@@ -44,6 +45,7 @@ class ExportCharacterPdf {
     required List<ClassFeatureEntry> classFeatures,
     required List<SpellEntry> spells,
     required List<SpellSlotProgressionEntry> spellSlots,
+    List<FeatEntry> feats = const [],
   }) async {
     final character = await _repository.findById(characterId);
 
@@ -59,6 +61,7 @@ class ExportCharacterPdf {
         races: races,
         backgrounds: backgrounds,
         classFeatures: classFeatures,
+        feats: feats,
         spells: spells,
         spellSlots: spellSlots,
         logoBytes: await AppBranding.loadLogoBytes(),

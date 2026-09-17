@@ -6,6 +6,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/character_feat.
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item_spell.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_weapon.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/combat_stats.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/currency.dart';
@@ -170,6 +171,18 @@ class CharacterJsonCodec {
             'notes': spell.notes,
           },
       ],
+      'weapons': [
+        for (final weapon in character.weapons)
+          <String, dynamic>{
+            'weaponId': weapon.weaponId,
+            'name': weapon.name,
+            'magicBonus': weapon.magicBonus,
+            'chosenAbility': weapon.chosenAbility?.name,
+            'twoHanded': weapon.twoHanded,
+            'proficiencyOverride': weapon.proficiencyOverride,
+            'notes': weapon.notes,
+          },
+      ],
       'magicItems': [
         for (final item in character.magicItems)
           <String, dynamic>{
@@ -181,6 +194,10 @@ class CharacterJsonCodec {
             'castingAbility': item.castingAbility,
             'saveDc': item.saveDc,
             'attackBonus': item.attackBonus,
+            'weaponAttackBonus': item.weaponAttackBonus,
+            'weaponDamageBonus': item.weaponDamageBonus,
+            'spellAttackBonus': item.spellAttackBonus,
+            'spellSaveDcBonus': item.spellSaveDcBonus,
             'spells': [
               for (final spell in item.spells)
                 <String, dynamic>{
@@ -278,6 +295,7 @@ class CharacterJsonCodec {
       savingThrowProficiencies: _parseSavingThrows(map['savingThrows']),
       skillProficiencies: _parseSkills(map['skills']),
       spells: _parseSpells(map['spells']),
+      weapons: _parseWeapons(map['weapons']),
       magicItems: _parseMagicItems(map['magicItems']),
       feats: _parseFeats(map['feats']),
       inspiration: _asBool(map['inspiration']),
@@ -480,6 +498,36 @@ class CharacterJsonCodec {
     return result;
   }
 
+  static List<CharacterWeapon> _parseWeapons(Object? raw) {
+    final result = <CharacterWeapon>[];
+
+    for (final item in _asList(raw)) {
+      final map = _asMap(item);
+      final weaponId = _asString(map['weaponId']);
+
+      // Sem id não há como resolver a arma no compêndio, então a linha não
+      // serve para nada e é descartada.
+      if (weaponId == null || weaponId.isEmpty) continue;
+
+      result.add(
+        CharacterWeapon(
+          localId: null,
+          weaponId: weaponId,
+          name: _asString(map['name']),
+          magicBonus: _asInt(map['magicBonus']) ?? 0,
+          chosenAbility: Ability.fromName(_asString(map['chosenAbility'])),
+          twoHanded: _asBool(map['twoHanded']),
+          proficiencyOverride: map['proficiencyOverride'] is bool
+              ? map['proficiencyOverride'] as bool
+              : null,
+          notes: _asString(map['notes']) ?? '',
+        ),
+      );
+    }
+
+    return result;
+  }
+
   static List<CharacterMagicItem> _parseMagicItems(Object? raw) {
     final result = <CharacterMagicItem>[];
 
@@ -518,6 +566,13 @@ class CharacterJsonCodec {
           castingAbility: _asString(map['castingAbility']),
           saveDc: _asInt(map['saveDc']),
           attackBonus: _asInt(map['attackBonus']),
+          // Ficha exportada antes dos bônus estruturados não tem os campos, e
+          // zero é o valor certo: o app não sabe se aquele `+1` no nome do item
+          // valia para arma, para magia ou para os dois.
+          weaponAttackBonus: _asInt(map['weaponAttackBonus']) ?? 0,
+          weaponDamageBonus: _asInt(map['weaponDamageBonus']) ?? 0,
+          spellAttackBonus: _asInt(map['spellAttackBonus']) ?? 0,
+          spellSaveDcBonus: _asInt(map['spellSaveDcBonus']) ?? 0,
           spells: spells,
         ),
       );

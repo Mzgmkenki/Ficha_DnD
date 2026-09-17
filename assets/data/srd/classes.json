@@ -16,6 +16,8 @@
       "perception",
       "survival"
     ],
+    "skill_choices": 2,
+    "weapon_proficiencies": { "categories": ["simple", "martial"] },
     "source": "srd"
   },
   {
@@ -48,6 +50,11 @@
       "stealth",
       "survival"
     ],
+    "skill_choices": 3,
+    "weapon_proficiencies": {
+      "categories": ["simple"],
+      "weapons": ["hand_crossbow", "longsword", "rapier", "shortsword"]
+    },
     "source": "srd"
   },
   {
@@ -67,6 +74,8 @@
       "persuasion",
       "religion"
     ],
+    "skill_choices": 2,
+    "weapon_proficiencies": { "categories": ["simple"] },
     "source": "srd"
   },
   {
@@ -89,6 +98,21 @@
       "religion",
       "survival"
     ],
+    "skill_choices": 2,
+    "weapon_proficiencies": {
+      "weapons": [
+        "club",
+        "dagger",
+        "dart",
+        "javelin",
+        "mace",
+        "quarterstaff",
+        "scimitar",
+        "sickle",
+        "sling",
+        "spear"
+      ]
+    },
     "source": "srd"
   },
   {
@@ -111,6 +135,8 @@
       "perception",
       "survival"
     ],
+    "skill_choices": 2,
+    "weapon_proficiencies": { "categories": ["simple", "martial"] },
     "source": "srd"
   },
   {
@@ -130,6 +156,11 @@
       "religion",
       "stealth"
     ],
+    "skill_choices": 2,
+    "weapon_proficiencies": {
+      "categories": ["simple"],
+      "weapons": ["shortsword"]
+    },
     "source": "srd"
   },
   {
@@ -150,6 +181,8 @@
       "persuasion",
       "religion"
     ],
+    "skill_choices": 2,
+    "weapon_proficiencies": { "categories": ["simple", "martial"] },
     "source": "srd"
   },
   {
@@ -172,6 +205,8 @@
       "stealth",
       "survival"
     ],
+    "skill_choices": 3,
+    "weapon_proficiencies": { "categories": ["simple", "martial"] },
     "source": "srd"
   },
   {
@@ -195,6 +230,8 @@
       "stealth",
       "survival"
     ],
+    "skill_choices": 3,
+    "weapon_proficiencies": { "categories": ["simple", "martial"] },
     "source": "tcoe"
   },
   {
@@ -220,6 +257,11 @@
       "sleightOfHand",
       "stealth"
     ],
+    "skill_choices": 4,
+    "weapon_proficiencies": {
+      "categories": ["simple"],
+      "weapons": ["hand_crossbow", "longsword", "rapier", "shortsword"]
+    },
     "source": "srd"
   },
   {
@@ -240,6 +282,10 @@
       "persuasion",
       "religion"
     ],
+    "skill_choices": 2,
+    "weapon_proficiencies": {
+      "weapons": ["dagger", "dart", "light_crossbow", "quarterstaff", "sling"]
+    },
     "source": "srd"
   },
   {
@@ -261,6 +307,8 @@
       "nature",
       "religion"
     ],
+    "skill_choices": 2,
+    "weapon_proficiencies": { "categories": ["simple"] },
     "source": "srd"
   },
   {
@@ -281,6 +329,10 @@
       "medicine",
       "religion"
     ],
+    "skill_choices": 2,
+    "weapon_proficiencies": {
+      "weapons": ["dagger", "dart", "light_crossbow", "quarterstaff", "sling"]
+    },
     "source": "srd"
   },
   {
@@ -302,6 +354,8 @@
       "perception",
       "sleightOfHand"
     ],
+    "skill_choices": 2,
+    "weapon_proficiencies": { "categories": ["simple"] },
     "source": "tcoe"
   }
 ]

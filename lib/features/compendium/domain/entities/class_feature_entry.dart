@@ -1,4 +1,5 @@
 import 'package:dnd_ficha_app/features/character/domain/value_objects/combat_action_type.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/initiative_rule.dart';
 
 /// O que uma característica custa na economia do turno.
 ///
@@ -105,13 +106,24 @@ class FeatureAction {
 /// A descrição é opcional porque o compêndio pode ser preenchido por partes: um
 /// nome sem texto continua aparecendo na ficha, só sem a explicação.
 class ClassFeature {
-  const ClassFeature({required this.name, this.description, this.action});
+  const ClassFeature({
+    required this.name,
+    this.description,
+    this.action,
+    this.initiative,
+  });
 
   final String name;
   final String? description;
 
   /// O custo na economia do turno, quando a característica tem um.
   final FeatureAction? action;
+
+  /// O que a característica faz com a iniciativa, quando faz algo.
+  ///
+  /// Só duas características de classe declaram: Instinto Feral do bárbaro
+  /// (vantagem) e Pau para Toda Obra do bardo (metade da proficiência).
+  final InitiativeRule? initiative;
 
   bool get hasDescription {
     final text = description;
@@ -141,6 +153,7 @@ class ClassFeature {
             ? null
             : description,
         action: FeatureAction.tryParse(raw['action']),
+        initiative: InitiativeRule.tryParse(raw['initiative']),
       );
     }
 

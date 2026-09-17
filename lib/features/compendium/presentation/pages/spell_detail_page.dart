@@ -75,7 +75,7 @@ class SpellDetailPage extends StatelessWidget {
           _InfoCard(
             title: 'Descrição',
             children: [
-              Text(_cleanHtml(spell.description)),
+              Text(spell.description),
             ],
           ),
           if (spell.upcast != null && spell.upcast!.trim().isNotEmpty) ...[
@@ -83,7 +83,7 @@ class SpellDetailPage extends StatelessWidget {
             _InfoCard(
               title: 'Em círculos superiores',
               children: [
-                Text(_cleanHtml(spell.upcast!)),
+                Text(spell.upcast!),
               ],
             ),
           ],
@@ -103,18 +103,6 @@ class SpellDetailPage extends StatelessWidget {
   String _levelLabel(int level) {
     if (level == 0) return 'Truque';
     return '$levelº círculo';
-    }
-
-  String _cleanHtml(String input) {
-    return input
-        .replaceAll('<br>', '\n')
-        .replaceAll('<br/>', '\n')
-        .replaceAll('<br />', '\n')
-        .replaceAll('&emsp;', '  ')
-        .replaceAll('&nbsp;', ' ')
-        .replaceAll(RegExp(r'<[^>]*>'), '')
-        .replaceAll(RegExp(r'\n{3,}'), '\n\n')
-        .trim();
   }
 }
 

@@ -31,6 +31,14 @@ class _ManageCharacterMagicItemsPageState
   final _maxChargesController = TextEditingController();
   final _rechargeRuleController = TextEditingController();
 
+  // Bônus estruturados: cada efeito tem campo próprio porque um item `+1` não
+  // afeta necessariamente todos eles. Sem essa separação, um Escudo +1 acabaria
+  // aumentando a CD das magias do personagem.
+  final _weaponAttackBonusController = TextEditingController();
+  final _weaponDamageBonusController = TextEditingController();
+  final _spellAttackBonusController = TextEditingController();
+  final _spellSaveDcBonusController = TextEditingController();
+
   bool _saving = false;
 
   @override
@@ -40,6 +48,10 @@ class _ManageCharacterMagicItemsPageState
     _chargesController.dispose();
     _maxChargesController.dispose();
     _rechargeRuleController.dispose();
+    _weaponAttackBonusController.dispose();
+    _weaponDamageBonusController.dispose();
+    _spellAttackBonusController.dispose();
+    _spellSaveDcBonusController.dispose();
     super.dispose();
   }
 
@@ -188,6 +200,38 @@ class _ManageCharacterMagicItemsPageState
                 ),
               ),
               const SizedBox(height: 20),
+              Text(
+                'Bônus do item',
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Marque só o que a descrição do item disser. Um item +1 '
+                'normalmente afeta o ataque e o dano da arma, e não aumenta '
+                'ataque mágico nem CD a não ser que o texto mande.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 12),
+              _BonusField(
+                controller: _weaponAttackBonusController,
+                label: 'Ataque com arma',
+              ),
+              const SizedBox(height: 12),
+              _BonusField(
+                controller: _weaponDamageBonusController,
+                label: 'Dano com arma',
+              ),
+              const SizedBox(height: 12),
+              _BonusField(
+                controller: _spellAttackBonusController,
+                label: 'Ataque mágico',
+              ),
+              const SizedBox(height: 12),
+              _BonusField(
+                controller: _spellSaveDcBonusController,
+                label: 'CD de magia',
+              ),
+              const SizedBox(height: 20),
               FilledButton.icon(
                 onPressed: _saving ? null : () => _saveItem(character),
                 icon: _saving
@@ -243,10 +287,18 @@ class _ManageCharacterMagicItemsPageState
           charges: currentCharges,
           maxCharges: maxCharges,
           rechargeRule: _emptyToNull(_rechargeRuleController.text),
+          weaponAttackBonus: _parseBonus(_weaponAttackBonusController.text),
+          weaponDamageBonus: _parseBonus(_weaponDamageBonusController.text),
+          spellAttackBonus: _parseBonus(_spellAttackBonusController.text),
+          spellSaveDcBonus: _parseBonus(_spellSaveDcBonusController.text),
           spells: const [],
         ),
       );
 
+      _weaponAttackBonusController.clear();
+      _weaponDamageBonusController.clear();
+      _spellAttackBonusController.clear();
+      _spellSaveDcBonusController.clear();
       _nameController.clear();
       _descriptionController.clear();
       _chargesController.clear();
@@ -284,6 +336,43 @@ class _ManageCharacterMagicItemsPageState
   String? _emptyToNull(String value) {
     final trimmed = value.trim();
     return trimmed.isEmpty ? null : trimmed;
+  }
+
+  /// Campo de bônus em branco vale zero, não nulo.
+  ///
+  /// Zero é o valor certo para "o item não declara este efeito", e é o que
+  /// impede um `+1` genérico de vazar para ataque mágico e CD.
+  int _parseBonus(String value) {
+    final trimmed = value.trim().replaceFirst('+', '');
+    if (trimmed.isEmpty) return 0;
+    return int.tryParse(trimmed) ?? 0;
+  }
+}
+
+/// Campo de bônus do item, aceitando positivo e negativo.
+class _BonusField extends StatelessWidget {
+  const _BonusField({required this.controller, required this.label});
+
+  final TextEditingController controller;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: TextInputType.numberWithOptions(signed: true),
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: '0',
+        border: const OutlineInputBorder(),
+      ),
+      validator: (value) {
+        final trimmed = value?.trim().replaceFirst('+', '') ?? '';
+        if (trimmed.isEmpty) return null;
+        if (int.tryParse(trimmed) == null) return 'Informe um número inteiro.';
+        return null;
+      },
+    );
   }
 }
 

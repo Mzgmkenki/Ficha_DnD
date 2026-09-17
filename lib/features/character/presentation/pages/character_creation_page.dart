@@ -417,9 +417,16 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                           .toList(),
                       onChanged: (value) {
                         setState(() {
+                          final previous = selectedClass;
                           _selectedClassId = value;
                           // A subclasse pertence à classe anterior.
                           _selectedSubclassId = null;
+                          // As perícias marcadas dentro da lista da classe
+                          // anterior também: manter faria um Ladino nascer com
+                          // as quatro escolhas de um Bardo já gastas.
+                          _selectedSkills.removeAll(
+                            _classSkillPicks(previous).toList(growable: false),
+                          );
                         });
                       },
                       validator: (value) {
@@ -435,45 +442,8 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                       'Perícias',
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Perícias destacadas pertencem à classe selecionada.\n'
-                      'Você pode escolher livremente por enquanto.',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                    const SizedBox(height: 12),
-                    ...Skill.sortedByLabel.map((skill) {
-                      final isClassSkill =
-                          selectedClass.skillOptions.contains(skill.id);
-
-                      return Card(
-                        color: isClassSkill
-                            ? Theme.of(context)
-                                .colorScheme
-                                .primaryContainer
-                                .withValues(alpha: 0.35)
-                            : null,
-                        child: CheckboxListTile(
-                          value: _selectedSkills.contains(skill.id),
-                          onChanged: (value) {
-                            setState(() {
-                              if (value == true) {
-                                _selectedSkills.add(skill.id);
-                              } else {
-                                _selectedSkills.remove(skill.id);
-                              }
-                            });
-                          },
-                          title: Text(
-                            '${skill.label} (${skill.abbreviation})',
-                          ),
-                          subtitle: isClassSkill
-                              ? const Text('Perícia oferecida pela classe')
-                              : null,
-                          controlAffinity: ListTileControlAffinity.leading,
-                        ),
-                      );
-                    }),
+                    ..._buildClassSkillSection(selectedClass),
+                    ..._buildExtraSkillSection(selectedClass),
                     const SizedBox(height: 24),
                     FilledButton.icon(
                       onPressed: _saving
@@ -638,12 +608,23 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
         ? 0
         : _raceSkillPicks.where(raceChoice.options.contains).length;
 
+    final selectedClass = classes.firstWhere(
+      (item) => item.id == effectiveClassId,
+    );
+
+    final classSkillsPicked = _classSkillPicks(selectedClass).length;
+
     final missing = <String>[
       if (_nameController.text.trim().isEmpty) 'o nome do personagem',
       if (_isCustomBackground &&
           (_customBackgroundSkillOne == null ||
               _customBackgroundSkillTwo == null))
         'as duas perícias do antecedente',
+      // A tela já impede passar do limite; o que falta checar é ficar abaixo
+      // dele, porque a seção sai da viewport e o Form não a valida mais.
+      if (selectedClass.hasSkillChoices &&
+          classSkillsPicked < selectedClass.skillChoices)
+        'as ${selectedClass.skillChoices} perícias da classe',
       if (raceChoice != null && raceSkillsPicked < raceChoice.choose)
         raceChoice.choose == 1
             ? 'a perícia da raça'
@@ -656,10 +637,6 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
       );
       return;
     }
-
-    final selectedClass = classes.firstWhere(
-      (item) => item.id == effectiveClassId,
-    );
 
     final background = _findBackground(backgrounds);
 
@@ -958,6 +935,128 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
         ),
       ],
       if (slots.isNotEmpty) const SizedBox(height: 4),
+    ];
+  }
+
+  /// Perícias que o jogador já marcou dentro das opções da classe.
+  Iterable<String> _classSkillPicks(ClassEntry entry) {
+    return _selectedSkills.where(entry.skillOptions.contains);
+  }
+
+  /// Perícias da classe, limitadas ao que ela concede.
+  ///
+  /// A classe dá uma quantidade fixa: quase todas 2, bardo e patrulheiro 3,
+  /// ladino 4. Antes a tela listava as opções e aceitava marcar quantas o
+  /// jogador quisesse, o que virava uma ficha fora das regras logo na criação.
+  List<Widget> _buildClassSkillSection(ClassEntry entry) {
+    final options = entry.skillOptions
+        .map(Skill.fromId)
+        .whereType<Skill>()
+        .toList(growable: false);
+
+    if (options.isEmpty) return const [];
+
+    final picked = _classSkillPicks(entry).length;
+    final limit = entry.skillChoices;
+    // Sem quantidade declarada no asset a tela não trava nada: melhor deixar
+    // escolher que impedir por falta de dado.
+    final atLimit = entry.hasSkillChoices && picked >= limit;
+
+    return [
+      const SizedBox(height: 8),
+      Text(
+        'Perícias da classe',
+        style: Theme.of(context).textTheme.titleSmall,
+      ),
+      const SizedBox(height: 4),
+      if (entry.hasSkillChoices)
+        Text(
+          'Perícias da classe: ${entry.skillChoiceLabel(picked)}',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: picked == limit
+                ? AppColors.onDarkVariant
+                : AppColors.error,
+          ),
+        )
+      else
+        Text(
+          '${entry.name} não declara quantas perícias concede.',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      const SizedBox(height: 4),
+      ...options.map((skill) {
+        final selected = _selectedSkills.contains(skill.id);
+
+        return CheckboxListTile(
+          // A seção seguinte repete rótulos; a key separa os dois grupos.
+          key: ValueKey('class-skill-${skill.id}'),
+          value: selected,
+          // Desabilitar no limite deixa claro que acabou, em vez de aceitar a
+          // marcação e reclamar só ao salvar.
+          onChanged: atLimit && !selected
+              ? null
+              : (value) {
+                  setState(() {
+                    if (value == true) {
+                      _selectedSkills.add(skill.id);
+                    } else {
+                      _selectedSkills.remove(skill.id);
+                    }
+                  });
+                },
+          title: Text('${skill.label} (${skill.abbreviation})'),
+          dense: true,
+          controlAffinity: ListTileControlAffinity.leading,
+          contentPadding: EdgeInsets.zero,
+        );
+      }),
+    ];
+  }
+
+  /// Perícias fora da lista da classe.
+  ///
+  /// Continuam disponíveis porque antecedente, raça, talento e concessão do
+  /// mestre também dão perícia, e a criação não modela todas essas origens.
+  /// Ficam separadas para não parecerem parte da cota da classe.
+  List<Widget> _buildExtraSkillSection(ClassEntry entry) {
+    final extras = Skill.sortedByLabel
+        .where((skill) => !entry.skillOptions.contains(skill.id))
+        .toList(growable: false);
+
+    if (extras.isEmpty) return const [];
+
+    return [
+      const SizedBox(height: 12),
+      Text(
+        'Outras perícias',
+        style: Theme.of(context).textTheme.titleSmall,
+      ),
+      const SizedBox(height: 4),
+      Text(
+        'Fora da lista de ${entry.name}. Não contam na cota da classe: '
+        'marque só o que vier de outra origem.',
+        style: Theme.of(context).textTheme.bodySmall,
+      ),
+      const SizedBox(height: 4),
+      ...extras.map((skill) {
+        return CheckboxListTile(
+          key: ValueKey('extra-skill-${skill.id}'),
+          value: _selectedSkills.contains(skill.id),
+          onChanged: (value) {
+            setState(() {
+              if (value == true) {
+                _selectedSkills.add(skill.id);
+              } else {
+                _selectedSkills.remove(skill.id);
+              }
+            });
+          },
+          title: Text('${skill.label} (${skill.abbreviation})'),
+          dense: true,
+          controlAffinity: ListTileControlAffinity.leading,
+          contentPadding: EdgeInsets.zero,
+        );
+      }),
     ];
   }
 

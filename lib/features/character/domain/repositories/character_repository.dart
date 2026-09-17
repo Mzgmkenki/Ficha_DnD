@@ -2,6 +2,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/character.dart'
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item_spell.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_weapon.dart';
 
 abstract class CharacterRepository {
   Stream<List<Character>> watchAll();
@@ -29,8 +30,30 @@ abstract class CharacterRepository {
     required String sourceId,
   });
 
+  Future<void> addWeapon({
+    required String characterId,
+    required CharacterWeapon weapon,
+  });
+
+  /// Grava a arma inteira. Exige [CharacterWeapon.localId] preenchido.
+  Future<void> updateWeapon({
+    required CharacterWeapon weapon,
+  });
+
+  Future<void> deleteWeapon({
+    required int weaponLocalId,
+  });
+
   Future<void> addMagicItem({
     required String characterId,
+    required CharacterMagicItem item,
+  });
+
+  /// Grava o item inteiro, inclusive os bônus estruturados.
+  ///
+  /// Existe separado de [updateMagicItemCharges] porque aquele é o caminho
+  /// rápido da ficha (gastar uma carga) e não pode arrastar o resto do item.
+  Future<void> updateMagicItem({
     required CharacterMagicItem item,
   });
 

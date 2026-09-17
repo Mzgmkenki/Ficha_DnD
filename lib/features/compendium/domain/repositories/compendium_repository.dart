@@ -6,6 +6,7 @@ import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dar
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_slot_progression_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/subclass_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/weapon_entry.dart';
 
 abstract class CompendiumRepository {
   Future<List<ClassEntry>> loadClasses();
@@ -16,4 +17,5 @@ abstract class CompendiumRepository {
   Future<List<SubclassEntry>> loadSubclasses();
   Future<List<SpellSlotProgressionEntry>> loadSpellSlotProgressions();
   Future<List<SpellEntry>> loadSpells();
+  Future<List<WeaponEntry>> loadWeapons();
 }

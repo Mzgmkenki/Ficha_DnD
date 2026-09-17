@@ -8,7 +8,10 @@ import 'package:dnd_ficha_app/features/character/domain/entities/character_magic
     as domain_item_spells;
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart'
     as domain_spells;
+import 'package:dnd_ficha_app/features/character/domain/entities/character_weapon.dart'
+    as domain_weapons;
 import 'package:dnd_ficha_app/features/character/domain/repositories/character_repository.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart'
     as domain_condition;
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart'
@@ -183,6 +186,21 @@ class CharacterRepositoryImpl implements CharacterRepository {
             );
       }
 
+      for (final weapon in character.weapons) {
+        await _database.into(_database.characterWeapons).insert(
+              db.CharacterWeaponsCompanion.insert(
+                characterId: character.id,
+                weaponId: weapon.weaponId,
+                name: drift.Value(weapon.name),
+                magicBonus: drift.Value(weapon.magicBonus),
+                chosenAbility: drift.Value(weapon.chosenAbility?.name),
+                twoHanded: drift.Value(weapon.twoHanded),
+                proficiencyOverride: drift.Value(weapon.proficiencyOverride),
+                notes: drift.Value(weapon.notes),
+              ),
+            );
+      }
+
       // Antes os itens mágicos eram descartados silenciosamente aqui.
       for (final item in character.magicItems) {
         final insertedId =
@@ -197,6 +215,10 @@ class CharacterRepositoryImpl implements CharacterRepository {
                     castingAbility: drift.Value(item.castingAbility),
                     saveDc: drift.Value(item.saveDc),
                     attackBonus: drift.Value(item.attackBonus),
+                    weaponAttackBonus: drift.Value(item.weaponAttackBonus),
+                    weaponDamageBonus: drift.Value(item.weaponDamageBonus),
+                    spellAttackBonus: drift.Value(item.spellAttackBonus),
+                    spellSaveDcBonus: drift.Value(item.spellSaveDcBonus),
                   ),
                 );
 
@@ -240,6 +262,10 @@ class CharacterRepositoryImpl implements CharacterRepository {
             ..where((tbl) => tbl.characterId.equals(id)))
           .go();
 
+      await (_database.delete(_database.characterWeapons)
+            ..where((tbl) => tbl.characterId.equals(id)))
+          .go();
+
       await (_database.delete(_database.characterSpellSlotsUsage)
             ..where((tbl) => tbl.characterId.equals(id)))
           .go();
@@ -275,6 +301,10 @@ class CharacterRepositoryImpl implements CharacterRepository {
           ..where((tbl) => tbl.characterId.equals(id)))
         .get();
 
+    final weaponRows = await (_database.select(_database.characterWeapons)
+          ..where((tbl) => tbl.characterId.equals(id)))
+        .get();
+
     final itemRows = await (_database.select(_database.characterMagicItems)
           ..where((tbl) => tbl.characterId.equals(id)))
         .get();
@@ -301,6 +331,10 @@ class CharacterRepositoryImpl implements CharacterRepository {
           castingAbility: itemRow.castingAbility,
           saveDc: itemRow.saveDc,
           attackBonus: itemRow.attackBonus,
+          weaponAttackBonus: itemRow.weaponAttackBonus,
+          weaponDamageBonus: itemRow.weaponDamageBonus,
+          spellAttackBonus: itemRow.spellAttackBonus,
+          spellSaveDcBonus: itemRow.spellSaveDcBonus,
           spells: itemSpellRows
               .map(
                 (row) => domain_item_spells.CharacterMagicItemSpell(
@@ -337,7 +371,26 @@ class CharacterRepositoryImpl implements CharacterRepository {
             ),
           )
           .toList(growable: false),
+      weapons: weaponRows.map(_weaponFromRow).toList(growable: false),
       magicItems: magicItems,
+    );
+  }
+
+  /// Converte a linha da tabela na arma de domínio.
+  ///
+  /// O atributo escolhido é guardado pelo nome do enum. Nome inválido no banco
+  /// vira nulo, e aí o cálculo volta a escolher o melhor entre Força e
+  /// Destreza — degradar assim é melhor que estourar ao abrir a ficha.
+  domain_weapons.CharacterWeapon _weaponFromRow(db.CharacterWeapon row) {
+    return domain_weapons.CharacterWeapon(
+      localId: row.localId,
+      weaponId: row.weaponId,
+      name: row.name,
+      magicBonus: row.magicBonus,
+      chosenAbility: Ability.fromName(row.chosenAbility),
+      twoHanded: row.twoHanded,
+      proficiencyOverride: row.proficiencyOverride,
+      notes: row.notes,
     );
   }
 
@@ -381,6 +434,7 @@ class CharacterRepositoryImpl implements CharacterRepository {
       _database.characters,
       _database.characterClassLevels,
       _database.characterSpells,
+      _database.characterWeapons,
       _database.characterMagicItems,
       _database.characterMagicItemSpells,
       _database.characterFeats,
@@ -615,6 +669,80 @@ class CharacterRepositoryImpl implements CharacterRepository {
   }
 
   @override
+  Future<void> addWeapon({
+    required String characterId,
+    required domain_weapons.CharacterWeapon weapon,
+  }) async {
+    await _database.into(_database.characterWeapons).insert(
+          db.CharacterWeaponsCompanion.insert(
+            characterId: characterId,
+            weaponId: weapon.weaponId,
+            name: drift.Value(weapon.name),
+            magicBonus: drift.Value(weapon.magicBonus),
+            chosenAbility: drift.Value(weapon.chosenAbility?.name),
+            twoHanded: drift.Value(weapon.twoHanded),
+            proficiencyOverride: drift.Value(weapon.proficiencyOverride),
+            notes: drift.Value(weapon.notes),
+          ),
+        );
+  }
+
+  @override
+  Future<void> updateWeapon({
+    required domain_weapons.CharacterWeapon weapon,
+  }) async {
+    final localId = weapon.localId;
+    if (localId == null) {
+      throw ArgumentError('Arma sem localId não pode ser atualizada.');
+    }
+
+    await (_database.update(_database.characterWeapons)
+          ..where((tbl) => tbl.localId.equals(localId)))
+        .write(
+      db.CharacterWeaponsCompanion(
+        weaponId: drift.Value(weapon.weaponId),
+        name: drift.Value(weapon.name),
+        magicBonus: drift.Value(weapon.magicBonus),
+        chosenAbility: drift.Value(weapon.chosenAbility?.name),
+        twoHanded: drift.Value(weapon.twoHanded),
+        proficiencyOverride: drift.Value(weapon.proficiencyOverride),
+        notes: drift.Value(weapon.notes),
+      ),
+    );
+  }
+
+  @override
+  Future<void> deleteWeapon({required int weaponLocalId}) async {
+    await (_database.delete(_database.characterWeapons)
+          ..where((tbl) => tbl.localId.equals(weaponLocalId)))
+        .go();
+  }
+
+  @override
+  Future<void> updateMagicItem({
+    required domain_items.CharacterMagicItem item,
+  }) async {
+    await (_database.update(_database.characterMagicItems)
+          ..where((tbl) => tbl.localId.equals(item.localId)))
+        .write(
+      db.CharacterMagicItemsCompanion(
+        name: drift.Value(item.name),
+        description: drift.Value(item.description),
+        charges: drift.Value(item.charges),
+        maxCharges: drift.Value(item.maxCharges),
+        rechargeRule: drift.Value(item.rechargeRule),
+        castingAbility: drift.Value(item.castingAbility),
+        saveDc: drift.Value(item.saveDc),
+        attackBonus: drift.Value(item.attackBonus),
+        weaponAttackBonus: drift.Value(item.weaponAttackBonus),
+        weaponDamageBonus: drift.Value(item.weaponDamageBonus),
+        spellAttackBonus: drift.Value(item.spellAttackBonus),
+        spellSaveDcBonus: drift.Value(item.spellSaveDcBonus),
+      ),
+    );
+  }
+
+  @override
   Future<void> addMagicItem({
     required String characterId,
     required domain_items.CharacterMagicItem item,
@@ -631,6 +759,10 @@ class CharacterRepositoryImpl implements CharacterRepository {
                 castingAbility: drift.Value(item.castingAbility),
                 saveDc: drift.Value(item.saveDc),
                 attackBonus: drift.Value(item.attackBonus),
+                weaponAttackBonus: drift.Value(item.weaponAttackBonus),
+                weaponDamageBonus: drift.Value(item.weaponDamageBonus),
+                spellAttackBonus: drift.Value(item.spellAttackBonus),
+                spellSaveDcBonus: drift.Value(item.spellSaveDcBonus),
               ),
             );
 

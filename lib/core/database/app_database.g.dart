@@ -5293,6 +5293,623 @@ class CharacterSpellsCompanion extends UpdateCompanion<CharacterSpell> {
   }
 }
 
+class $CharacterWeaponsTable extends CharacterWeapons
+    with TableInfo<$CharacterWeaponsTable, CharacterWeapon> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CharacterWeaponsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _localIdMeta = const VerificationMeta(
+    'localId',
+  );
+  @override
+  late final GeneratedColumn<int> localId = GeneratedColumn<int>(
+    'local_id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _characterIdMeta = const VerificationMeta(
+    'characterId',
+  );
+  @override
+  late final GeneratedColumn<String> characterId = GeneratedColumn<String>(
+    'character_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES characters (id)',
+    ),
+  );
+  static const VerificationMeta _weaponIdMeta = const VerificationMeta(
+    'weaponId',
+  );
+  @override
+  late final GeneratedColumn<String> weaponId = GeneratedColumn<String>(
+    'weapon_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _magicBonusMeta = const VerificationMeta(
+    'magicBonus',
+  );
+  @override
+  late final GeneratedColumn<int> magicBonus = GeneratedColumn<int>(
+    'magic_bonus',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _chosenAbilityMeta = const VerificationMeta(
+    'chosenAbility',
+  );
+  @override
+  late final GeneratedColumn<String> chosenAbility = GeneratedColumn<String>(
+    'chosen_ability',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _twoHandedMeta = const VerificationMeta(
+    'twoHanded',
+  );
+  @override
+  late final GeneratedColumn<bool> twoHanded = GeneratedColumn<bool>(
+    'two_handed',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("two_handed" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _proficiencyOverrideMeta =
+      const VerificationMeta('proficiencyOverride');
+  @override
+  late final GeneratedColumn<bool> proficiencyOverride = GeneratedColumn<bool>(
+    'proficiency_override',
+    aliasedName,
+    true,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("proficiency_override" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    localId,
+    characterId,
+    weaponId,
+    name,
+    magicBonus,
+    chosenAbility,
+    twoHanded,
+    proficiencyOverride,
+    notes,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'character_weapons';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CharacterWeapon> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('local_id')) {
+      context.handle(
+        _localIdMeta,
+        localId.isAcceptableOrUnknown(data['local_id']!, _localIdMeta),
+      );
+    }
+    if (data.containsKey('character_id')) {
+      context.handle(
+        _characterIdMeta,
+        characterId.isAcceptableOrUnknown(
+          data['character_id']!,
+          _characterIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_characterIdMeta);
+    }
+    if (data.containsKey('weapon_id')) {
+      context.handle(
+        _weaponIdMeta,
+        weaponId.isAcceptableOrUnknown(data['weapon_id']!, _weaponIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_weaponIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    }
+    if (data.containsKey('magic_bonus')) {
+      context.handle(
+        _magicBonusMeta,
+        magicBonus.isAcceptableOrUnknown(data['magic_bonus']!, _magicBonusMeta),
+      );
+    }
+    if (data.containsKey('chosen_ability')) {
+      context.handle(
+        _chosenAbilityMeta,
+        chosenAbility.isAcceptableOrUnknown(
+          data['chosen_ability']!,
+          _chosenAbilityMeta,
+        ),
+      );
+    }
+    if (data.containsKey('two_handed')) {
+      context.handle(
+        _twoHandedMeta,
+        twoHanded.isAcceptableOrUnknown(data['two_handed']!, _twoHandedMeta),
+      );
+    }
+    if (data.containsKey('proficiency_override')) {
+      context.handle(
+        _proficiencyOverrideMeta,
+        proficiencyOverride.isAcceptableOrUnknown(
+          data['proficiency_override']!,
+          _proficiencyOverrideMeta,
+        ),
+      );
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {localId};
+  @override
+  CharacterWeapon map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CharacterWeapon(
+      localId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}local_id'],
+          )!,
+      characterId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}character_id'],
+          )!,
+      weaponId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}weapon_id'],
+          )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      ),
+      magicBonus:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}magic_bonus'],
+          )!,
+      chosenAbility: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}chosen_ability'],
+      ),
+      twoHanded:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.bool,
+            data['${effectivePrefix}two_handed'],
+          )!,
+      proficiencyOverride: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}proficiency_override'],
+      ),
+      notes:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}notes'],
+          )!,
+    );
+  }
+
+  @override
+  $CharacterWeaponsTable createAlias(String alias) {
+    return $CharacterWeaponsTable(attachedDatabase, alias);
+  }
+}
+
+class CharacterWeapon extends DataClass implements Insertable<CharacterWeapon> {
+  final int localId;
+  final String characterId;
+
+  /// Id da arma no compêndio (`WeaponEntry.id`).
+  final String weaponId;
+
+  /// Apelido da arma. Nulo usa o nome do compêndio.
+  ///
+  /// Serve para a arma mágica com nome próprio continuar sendo mecanicamente
+  /// uma espada longa.
+  final String? name;
+
+  /// Bônus mágico da arma: o `+1`, `+2` ou `+3`.
+  ///
+  /// Soma nas jogadas de ataque E nas de dano daquela arma, que é o que a
+  /// descrição de arma mágica diz. Não mexe em ataque de magia nem em CD: isso
+  /// só acontece se o item declarar, e quem cuida disso é o item mágico.
+  final int magicBonus;
+
+  /// Atributo escolhido nas armas com Acuidade, pelo nome do enum `Ability`.
+  ///
+  /// Nulo deixa o cálculo pegar o melhor entre Força e Destreza, que é a
+  /// escolha certa em praticamente todo caso.
+  final String? chosenAbility;
+
+  /// Se está empunhada com as duas mãos.
+  ///
+  /// Só muda algo nas armas Versáteis, que trocam o dado (1d8 vira 1d10 na
+  /// espada longa).
+  final bool twoHanded;
+
+  /// Proficiência marcada à mão.
+  ///
+  /// Nulo é o normal: a proficiência vem da classe. O campo existe porque
+  /// raça, antecedente e talento também concedem proficiência com arma, e
+  /// nenhum dos três está cadastrado de forma estruturada — sem o override, um
+  /// elfo com arco longo apareceria sem proficiência e não haveria como
+  /// corrigir.
+  final bool? proficiencyOverride;
+  final String notes;
+  const CharacterWeapon({
+    required this.localId,
+    required this.characterId,
+    required this.weaponId,
+    this.name,
+    required this.magicBonus,
+    this.chosenAbility,
+    required this.twoHanded,
+    this.proficiencyOverride,
+    required this.notes,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['local_id'] = Variable<int>(localId);
+    map['character_id'] = Variable<String>(characterId);
+    map['weapon_id'] = Variable<String>(weaponId);
+    if (!nullToAbsent || name != null) {
+      map['name'] = Variable<String>(name);
+    }
+    map['magic_bonus'] = Variable<int>(magicBonus);
+    if (!nullToAbsent || chosenAbility != null) {
+      map['chosen_ability'] = Variable<String>(chosenAbility);
+    }
+    map['two_handed'] = Variable<bool>(twoHanded);
+    if (!nullToAbsent || proficiencyOverride != null) {
+      map['proficiency_override'] = Variable<bool>(proficiencyOverride);
+    }
+    map['notes'] = Variable<String>(notes);
+    return map;
+  }
+
+  CharacterWeaponsCompanion toCompanion(bool nullToAbsent) {
+    return CharacterWeaponsCompanion(
+      localId: Value(localId),
+      characterId: Value(characterId),
+      weaponId: Value(weaponId),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      magicBonus: Value(magicBonus),
+      chosenAbility:
+          chosenAbility == null && nullToAbsent
+              ? const Value.absent()
+              : Value(chosenAbility),
+      twoHanded: Value(twoHanded),
+      proficiencyOverride:
+          proficiencyOverride == null && nullToAbsent
+              ? const Value.absent()
+              : Value(proficiencyOverride),
+      notes: Value(notes),
+    );
+  }
+
+  factory CharacterWeapon.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CharacterWeapon(
+      localId: serializer.fromJson<int>(json['localId']),
+      characterId: serializer.fromJson<String>(json['characterId']),
+      weaponId: serializer.fromJson<String>(json['weaponId']),
+      name: serializer.fromJson<String?>(json['name']),
+      magicBonus: serializer.fromJson<int>(json['magicBonus']),
+      chosenAbility: serializer.fromJson<String?>(json['chosenAbility']),
+      twoHanded: serializer.fromJson<bool>(json['twoHanded']),
+      proficiencyOverride: serializer.fromJson<bool?>(
+        json['proficiencyOverride'],
+      ),
+      notes: serializer.fromJson<String>(json['notes']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'localId': serializer.toJson<int>(localId),
+      'characterId': serializer.toJson<String>(characterId),
+      'weaponId': serializer.toJson<String>(weaponId),
+      'name': serializer.toJson<String?>(name),
+      'magicBonus': serializer.toJson<int>(magicBonus),
+      'chosenAbility': serializer.toJson<String?>(chosenAbility),
+      'twoHanded': serializer.toJson<bool>(twoHanded),
+      'proficiencyOverride': serializer.toJson<bool?>(proficiencyOverride),
+      'notes': serializer.toJson<String>(notes),
+    };
+  }
+
+  CharacterWeapon copyWith({
+    int? localId,
+    String? characterId,
+    String? weaponId,
+    Value<String?> name = const Value.absent(),
+    int? magicBonus,
+    Value<String?> chosenAbility = const Value.absent(),
+    bool? twoHanded,
+    Value<bool?> proficiencyOverride = const Value.absent(),
+    String? notes,
+  }) => CharacterWeapon(
+    localId: localId ?? this.localId,
+    characterId: characterId ?? this.characterId,
+    weaponId: weaponId ?? this.weaponId,
+    name: name.present ? name.value : this.name,
+    magicBonus: magicBonus ?? this.magicBonus,
+    chosenAbility:
+        chosenAbility.present ? chosenAbility.value : this.chosenAbility,
+    twoHanded: twoHanded ?? this.twoHanded,
+    proficiencyOverride:
+        proficiencyOverride.present
+            ? proficiencyOverride.value
+            : this.proficiencyOverride,
+    notes: notes ?? this.notes,
+  );
+  CharacterWeapon copyWithCompanion(CharacterWeaponsCompanion data) {
+    return CharacterWeapon(
+      localId: data.localId.present ? data.localId.value : this.localId,
+      characterId:
+          data.characterId.present ? data.characterId.value : this.characterId,
+      weaponId: data.weaponId.present ? data.weaponId.value : this.weaponId,
+      name: data.name.present ? data.name.value : this.name,
+      magicBonus:
+          data.magicBonus.present ? data.magicBonus.value : this.magicBonus,
+      chosenAbility:
+          data.chosenAbility.present
+              ? data.chosenAbility.value
+              : this.chosenAbility,
+      twoHanded: data.twoHanded.present ? data.twoHanded.value : this.twoHanded,
+      proficiencyOverride:
+          data.proficiencyOverride.present
+              ? data.proficiencyOverride.value
+              : this.proficiencyOverride,
+      notes: data.notes.present ? data.notes.value : this.notes,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CharacterWeapon(')
+          ..write('localId: $localId, ')
+          ..write('characterId: $characterId, ')
+          ..write('weaponId: $weaponId, ')
+          ..write('name: $name, ')
+          ..write('magicBonus: $magicBonus, ')
+          ..write('chosenAbility: $chosenAbility, ')
+          ..write('twoHanded: $twoHanded, ')
+          ..write('proficiencyOverride: $proficiencyOverride, ')
+          ..write('notes: $notes')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    localId,
+    characterId,
+    weaponId,
+    name,
+    magicBonus,
+    chosenAbility,
+    twoHanded,
+    proficiencyOverride,
+    notes,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CharacterWeapon &&
+          other.localId == this.localId &&
+          other.characterId == this.characterId &&
+          other.weaponId == this.weaponId &&
+          other.name == this.name &&
+          other.magicBonus == this.magicBonus &&
+          other.chosenAbility == this.chosenAbility &&
+          other.twoHanded == this.twoHanded &&
+          other.proficiencyOverride == this.proficiencyOverride &&
+          other.notes == this.notes);
+}
+
+class CharacterWeaponsCompanion extends UpdateCompanion<CharacterWeapon> {
+  final Value<int> localId;
+  final Value<String> characterId;
+  final Value<String> weaponId;
+  final Value<String?> name;
+  final Value<int> magicBonus;
+  final Value<String?> chosenAbility;
+  final Value<bool> twoHanded;
+  final Value<bool?> proficiencyOverride;
+  final Value<String> notes;
+  const CharacterWeaponsCompanion({
+    this.localId = const Value.absent(),
+    this.characterId = const Value.absent(),
+    this.weaponId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.magicBonus = const Value.absent(),
+    this.chosenAbility = const Value.absent(),
+    this.twoHanded = const Value.absent(),
+    this.proficiencyOverride = const Value.absent(),
+    this.notes = const Value.absent(),
+  });
+  CharacterWeaponsCompanion.insert({
+    this.localId = const Value.absent(),
+    required String characterId,
+    required String weaponId,
+    this.name = const Value.absent(),
+    this.magicBonus = const Value.absent(),
+    this.chosenAbility = const Value.absent(),
+    this.twoHanded = const Value.absent(),
+    this.proficiencyOverride = const Value.absent(),
+    this.notes = const Value.absent(),
+  }) : characterId = Value(characterId),
+       weaponId = Value(weaponId);
+  static Insertable<CharacterWeapon> custom({
+    Expression<int>? localId,
+    Expression<String>? characterId,
+    Expression<String>? weaponId,
+    Expression<String>? name,
+    Expression<int>? magicBonus,
+    Expression<String>? chosenAbility,
+    Expression<bool>? twoHanded,
+    Expression<bool>? proficiencyOverride,
+    Expression<String>? notes,
+  }) {
+    return RawValuesInsertable({
+      if (localId != null) 'local_id': localId,
+      if (characterId != null) 'character_id': characterId,
+      if (weaponId != null) 'weapon_id': weaponId,
+      if (name != null) 'name': name,
+      if (magicBonus != null) 'magic_bonus': magicBonus,
+      if (chosenAbility != null) 'chosen_ability': chosenAbility,
+      if (twoHanded != null) 'two_handed': twoHanded,
+      if (proficiencyOverride != null)
+        'proficiency_override': proficiencyOverride,
+      if (notes != null) 'notes': notes,
+    });
+  }
+
+  CharacterWeaponsCompanion copyWith({
+    Value<int>? localId,
+    Value<String>? characterId,
+    Value<String>? weaponId,
+    Value<String?>? name,
+    Value<int>? magicBonus,
+    Value<String?>? chosenAbility,
+    Value<bool>? twoHanded,
+    Value<bool?>? proficiencyOverride,
+    Value<String>? notes,
+  }) {
+    return CharacterWeaponsCompanion(
+      localId: localId ?? this.localId,
+      characterId: characterId ?? this.characterId,
+      weaponId: weaponId ?? this.weaponId,
+      name: name ?? this.name,
+      magicBonus: magicBonus ?? this.magicBonus,
+      chosenAbility: chosenAbility ?? this.chosenAbility,
+      twoHanded: twoHanded ?? this.twoHanded,
+      proficiencyOverride: proficiencyOverride ?? this.proficiencyOverride,
+      notes: notes ?? this.notes,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (localId.present) {
+      map['local_id'] = Variable<int>(localId.value);
+    }
+    if (characterId.present) {
+      map['character_id'] = Variable<String>(characterId.value);
+    }
+    if (weaponId.present) {
+      map['weapon_id'] = Variable<String>(weaponId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (magicBonus.present) {
+      map['magic_bonus'] = Variable<int>(magicBonus.value);
+    }
+    if (chosenAbility.present) {
+      map['chosen_ability'] = Variable<String>(chosenAbility.value);
+    }
+    if (twoHanded.present) {
+      map['two_handed'] = Variable<bool>(twoHanded.value);
+    }
+    if (proficiencyOverride.present) {
+      map['proficiency_override'] = Variable<bool>(proficiencyOverride.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CharacterWeaponsCompanion(')
+          ..write('localId: $localId, ')
+          ..write('characterId: $characterId, ')
+          ..write('weaponId: $weaponId, ')
+          ..write('name: $name, ')
+          ..write('magicBonus: $magicBonus, ')
+          ..write('chosenAbility: $chosenAbility, ')
+          ..write('twoHanded: $twoHanded, ')
+          ..write('proficiencyOverride: $proficiencyOverride, ')
+          ..write('notes: $notes')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $CharacterMagicItemsTable extends CharacterMagicItems
     with TableInfo<$CharacterMagicItemsTable, CharacterMagicItem> {
   @override
@@ -5413,6 +6030,54 @@ class $CharacterMagicItemsTable extends CharacterMagicItems
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _weaponAttackBonusMeta = const VerificationMeta(
+    'weaponAttackBonus',
+  );
+  @override
+  late final GeneratedColumn<int> weaponAttackBonus = GeneratedColumn<int>(
+    'weapon_attack_bonus',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _weaponDamageBonusMeta = const VerificationMeta(
+    'weaponDamageBonus',
+  );
+  @override
+  late final GeneratedColumn<int> weaponDamageBonus = GeneratedColumn<int>(
+    'weapon_damage_bonus',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _spellAttackBonusMeta = const VerificationMeta(
+    'spellAttackBonus',
+  );
+  @override
+  late final GeneratedColumn<int> spellAttackBonus = GeneratedColumn<int>(
+    'spell_attack_bonus',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _spellSaveDcBonusMeta = const VerificationMeta(
+    'spellSaveDcBonus',
+  );
+  @override
+  late final GeneratedColumn<int> spellSaveDcBonus = GeneratedColumn<int>(
+    'spell_save_dc_bonus',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     localId,
@@ -5425,6 +6090,10 @@ class $CharacterMagicItemsTable extends CharacterMagicItems
     castingAbility,
     saveDc,
     attackBonus,
+    weaponAttackBonus,
+    weaponDamageBonus,
+    spellAttackBonus,
+    spellSaveDcBonus,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -5517,6 +6186,42 @@ class $CharacterMagicItemsTable extends CharacterMagicItems
         ),
       );
     }
+    if (data.containsKey('weapon_attack_bonus')) {
+      context.handle(
+        _weaponAttackBonusMeta,
+        weaponAttackBonus.isAcceptableOrUnknown(
+          data['weapon_attack_bonus']!,
+          _weaponAttackBonusMeta,
+        ),
+      );
+    }
+    if (data.containsKey('weapon_damage_bonus')) {
+      context.handle(
+        _weaponDamageBonusMeta,
+        weaponDamageBonus.isAcceptableOrUnknown(
+          data['weapon_damage_bonus']!,
+          _weaponDamageBonusMeta,
+        ),
+      );
+    }
+    if (data.containsKey('spell_attack_bonus')) {
+      context.handle(
+        _spellAttackBonusMeta,
+        spellAttackBonus.isAcceptableOrUnknown(
+          data['spell_attack_bonus']!,
+          _spellAttackBonusMeta,
+        ),
+      );
+    }
+    if (data.containsKey('spell_save_dc_bonus')) {
+      context.handle(
+        _spellSaveDcBonusMeta,
+        spellSaveDcBonus.isAcceptableOrUnknown(
+          data['spell_save_dc_bonus']!,
+          _spellSaveDcBonusMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -5570,6 +6275,26 @@ class $CharacterMagicItemsTable extends CharacterMagicItems
         DriftSqlType.int,
         data['${effectivePrefix}attack_bonus'],
       ),
+      weaponAttackBonus:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}weapon_attack_bonus'],
+          )!,
+      weaponDamageBonus:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}weapon_damage_bonus'],
+          )!,
+      spellAttackBonus:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}spell_attack_bonus'],
+          )!,
+      spellSaveDcBonus:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}spell_save_dc_bonus'],
+          )!,
     );
   }
 
@@ -5589,8 +6314,30 @@ class CharacterMagicItem extends DataClass
   final int? maxCharges;
   final String? rechargeRule;
   final String? castingAbility;
+
+  /// CD fixa do item, quando ele define a própria.
+  ///
+  /// Valor ABSOLUTO, não bônus: é o "CD 15" impresso na descrição de varinhas
+  /// e cajados, que não depende dos atributos de quem usa. Para o item que
+  /// SOMA à CD do conjurador existe [spellSaveDcBonus].
   final int? saveDc;
+
+  /// Bônus de ataque fixo do item, quando ele define o próprio.
+  ///
+  /// Também absoluto, pelo mesmo motivo de [saveDc].
   final int? attackBonus;
+
+  /// Soma nas jogadas de ataque com arma.
+  final int weaponAttackBonus;
+
+  /// Soma nas jogadas de dano com arma.
+  final int weaponDamageBonus;
+
+  /// Soma no bônus de ataque com magia.
+  final int spellAttackBonus;
+
+  /// Soma na CD de resistência das magias do personagem.
+  final int spellSaveDcBonus;
   const CharacterMagicItem({
     required this.localId,
     required this.characterId,
@@ -5602,6 +6349,10 @@ class CharacterMagicItem extends DataClass
     this.castingAbility,
     this.saveDc,
     this.attackBonus,
+    required this.weaponAttackBonus,
+    required this.weaponDamageBonus,
+    required this.spellAttackBonus,
+    required this.spellSaveDcBonus,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -5628,6 +6379,10 @@ class CharacterMagicItem extends DataClass
     if (!nullToAbsent || attackBonus != null) {
       map['attack_bonus'] = Variable<int>(attackBonus);
     }
+    map['weapon_attack_bonus'] = Variable<int>(weaponAttackBonus);
+    map['weapon_damage_bonus'] = Variable<int>(weaponDamageBonus);
+    map['spell_attack_bonus'] = Variable<int>(spellAttackBonus);
+    map['spell_save_dc_bonus'] = Variable<int>(spellSaveDcBonus);
     return map;
   }
 
@@ -5659,6 +6414,10 @@ class CharacterMagicItem extends DataClass
           attackBonus == null && nullToAbsent
               ? const Value.absent()
               : Value(attackBonus),
+      weaponAttackBonus: Value(weaponAttackBonus),
+      weaponDamageBonus: Value(weaponDamageBonus),
+      spellAttackBonus: Value(spellAttackBonus),
+      spellSaveDcBonus: Value(spellSaveDcBonus),
     );
   }
 
@@ -5678,6 +6437,10 @@ class CharacterMagicItem extends DataClass
       castingAbility: serializer.fromJson<String?>(json['castingAbility']),
       saveDc: serializer.fromJson<int?>(json['saveDc']),
       attackBonus: serializer.fromJson<int?>(json['attackBonus']),
+      weaponAttackBonus: serializer.fromJson<int>(json['weaponAttackBonus']),
+      weaponDamageBonus: serializer.fromJson<int>(json['weaponDamageBonus']),
+      spellAttackBonus: serializer.fromJson<int>(json['spellAttackBonus']),
+      spellSaveDcBonus: serializer.fromJson<int>(json['spellSaveDcBonus']),
     );
   }
   @override
@@ -5694,6 +6457,10 @@ class CharacterMagicItem extends DataClass
       'castingAbility': serializer.toJson<String?>(castingAbility),
       'saveDc': serializer.toJson<int?>(saveDc),
       'attackBonus': serializer.toJson<int?>(attackBonus),
+      'weaponAttackBonus': serializer.toJson<int>(weaponAttackBonus),
+      'weaponDamageBonus': serializer.toJson<int>(weaponDamageBonus),
+      'spellAttackBonus': serializer.toJson<int>(spellAttackBonus),
+      'spellSaveDcBonus': serializer.toJson<int>(spellSaveDcBonus),
     };
   }
 
@@ -5708,6 +6475,10 @@ class CharacterMagicItem extends DataClass
     Value<String?> castingAbility = const Value.absent(),
     Value<int?> saveDc = const Value.absent(),
     Value<int?> attackBonus = const Value.absent(),
+    int? weaponAttackBonus,
+    int? weaponDamageBonus,
+    int? spellAttackBonus,
+    int? spellSaveDcBonus,
   }) => CharacterMagicItem(
     localId: localId ?? this.localId,
     characterId: characterId ?? this.characterId,
@@ -5720,6 +6491,10 @@ class CharacterMagicItem extends DataClass
         castingAbility.present ? castingAbility.value : this.castingAbility,
     saveDc: saveDc.present ? saveDc.value : this.saveDc,
     attackBonus: attackBonus.present ? attackBonus.value : this.attackBonus,
+    weaponAttackBonus: weaponAttackBonus ?? this.weaponAttackBonus,
+    weaponDamageBonus: weaponDamageBonus ?? this.weaponDamageBonus,
+    spellAttackBonus: spellAttackBonus ?? this.spellAttackBonus,
+    spellSaveDcBonus: spellSaveDcBonus ?? this.spellSaveDcBonus,
   );
   CharacterMagicItem copyWithCompanion(CharacterMagicItemsCompanion data) {
     return CharacterMagicItem(
@@ -5743,6 +6518,22 @@ class CharacterMagicItem extends DataClass
       saveDc: data.saveDc.present ? data.saveDc.value : this.saveDc,
       attackBonus:
           data.attackBonus.present ? data.attackBonus.value : this.attackBonus,
+      weaponAttackBonus:
+          data.weaponAttackBonus.present
+              ? data.weaponAttackBonus.value
+              : this.weaponAttackBonus,
+      weaponDamageBonus:
+          data.weaponDamageBonus.present
+              ? data.weaponDamageBonus.value
+              : this.weaponDamageBonus,
+      spellAttackBonus:
+          data.spellAttackBonus.present
+              ? data.spellAttackBonus.value
+              : this.spellAttackBonus,
+      spellSaveDcBonus:
+          data.spellSaveDcBonus.present
+              ? data.spellSaveDcBonus.value
+              : this.spellSaveDcBonus,
     );
   }
 
@@ -5758,7 +6549,11 @@ class CharacterMagicItem extends DataClass
           ..write('rechargeRule: $rechargeRule, ')
           ..write('castingAbility: $castingAbility, ')
           ..write('saveDc: $saveDc, ')
-          ..write('attackBonus: $attackBonus')
+          ..write('attackBonus: $attackBonus, ')
+          ..write('weaponAttackBonus: $weaponAttackBonus, ')
+          ..write('weaponDamageBonus: $weaponDamageBonus, ')
+          ..write('spellAttackBonus: $spellAttackBonus, ')
+          ..write('spellSaveDcBonus: $spellSaveDcBonus')
           ..write(')'))
         .toString();
   }
@@ -5775,6 +6570,10 @@ class CharacterMagicItem extends DataClass
     castingAbility,
     saveDc,
     attackBonus,
+    weaponAttackBonus,
+    weaponDamageBonus,
+    spellAttackBonus,
+    spellSaveDcBonus,
   );
   @override
   bool operator ==(Object other) =>
@@ -5789,7 +6588,11 @@ class CharacterMagicItem extends DataClass
           other.rechargeRule == this.rechargeRule &&
           other.castingAbility == this.castingAbility &&
           other.saveDc == this.saveDc &&
-          other.attackBonus == this.attackBonus);
+          other.attackBonus == this.attackBonus &&
+          other.weaponAttackBonus == this.weaponAttackBonus &&
+          other.weaponDamageBonus == this.weaponDamageBonus &&
+          other.spellAttackBonus == this.spellAttackBonus &&
+          other.spellSaveDcBonus == this.spellSaveDcBonus);
 }
 
 class CharacterMagicItemsCompanion extends UpdateCompanion<CharacterMagicItem> {
@@ -5803,6 +6606,10 @@ class CharacterMagicItemsCompanion extends UpdateCompanion<CharacterMagicItem> {
   final Value<String?> castingAbility;
   final Value<int?> saveDc;
   final Value<int?> attackBonus;
+  final Value<int> weaponAttackBonus;
+  final Value<int> weaponDamageBonus;
+  final Value<int> spellAttackBonus;
+  final Value<int> spellSaveDcBonus;
   const CharacterMagicItemsCompanion({
     this.localId = const Value.absent(),
     this.characterId = const Value.absent(),
@@ -5814,6 +6621,10 @@ class CharacterMagicItemsCompanion extends UpdateCompanion<CharacterMagicItem> {
     this.castingAbility = const Value.absent(),
     this.saveDc = const Value.absent(),
     this.attackBonus = const Value.absent(),
+    this.weaponAttackBonus = const Value.absent(),
+    this.weaponDamageBonus = const Value.absent(),
+    this.spellAttackBonus = const Value.absent(),
+    this.spellSaveDcBonus = const Value.absent(),
   });
   CharacterMagicItemsCompanion.insert({
     this.localId = const Value.absent(),
@@ -5826,6 +6637,10 @@ class CharacterMagicItemsCompanion extends UpdateCompanion<CharacterMagicItem> {
     this.castingAbility = const Value.absent(),
     this.saveDc = const Value.absent(),
     this.attackBonus = const Value.absent(),
+    this.weaponAttackBonus = const Value.absent(),
+    this.weaponDamageBonus = const Value.absent(),
+    this.spellAttackBonus = const Value.absent(),
+    this.spellSaveDcBonus = const Value.absent(),
   }) : characterId = Value(characterId),
        name = Value(name);
   static Insertable<CharacterMagicItem> custom({
@@ -5839,6 +6654,10 @@ class CharacterMagicItemsCompanion extends UpdateCompanion<CharacterMagicItem> {
     Expression<String>? castingAbility,
     Expression<int>? saveDc,
     Expression<int>? attackBonus,
+    Expression<int>? weaponAttackBonus,
+    Expression<int>? weaponDamageBonus,
+    Expression<int>? spellAttackBonus,
+    Expression<int>? spellSaveDcBonus,
   }) {
     return RawValuesInsertable({
       if (localId != null) 'local_id': localId,
@@ -5851,6 +6670,10 @@ class CharacterMagicItemsCompanion extends UpdateCompanion<CharacterMagicItem> {
       if (castingAbility != null) 'casting_ability': castingAbility,
       if (saveDc != null) 'save_dc': saveDc,
       if (attackBonus != null) 'attack_bonus': attackBonus,
+      if (weaponAttackBonus != null) 'weapon_attack_bonus': weaponAttackBonus,
+      if (weaponDamageBonus != null) 'weapon_damage_bonus': weaponDamageBonus,
+      if (spellAttackBonus != null) 'spell_attack_bonus': spellAttackBonus,
+      if (spellSaveDcBonus != null) 'spell_save_dc_bonus': spellSaveDcBonus,
     });
   }
 
@@ -5865,6 +6688,10 @@ class CharacterMagicItemsCompanion extends UpdateCompanion<CharacterMagicItem> {
     Value<String?>? castingAbility,
     Value<int?>? saveDc,
     Value<int?>? attackBonus,
+    Value<int>? weaponAttackBonus,
+    Value<int>? weaponDamageBonus,
+    Value<int>? spellAttackBonus,
+    Value<int>? spellSaveDcBonus,
   }) {
     return CharacterMagicItemsCompanion(
       localId: localId ?? this.localId,
@@ -5877,6 +6704,10 @@ class CharacterMagicItemsCompanion extends UpdateCompanion<CharacterMagicItem> {
       castingAbility: castingAbility ?? this.castingAbility,
       saveDc: saveDc ?? this.saveDc,
       attackBonus: attackBonus ?? this.attackBonus,
+      weaponAttackBonus: weaponAttackBonus ?? this.weaponAttackBonus,
+      weaponDamageBonus: weaponDamageBonus ?? this.weaponDamageBonus,
+      spellAttackBonus: spellAttackBonus ?? this.spellAttackBonus,
+      spellSaveDcBonus: spellSaveDcBonus ?? this.spellSaveDcBonus,
     );
   }
 
@@ -5913,6 +6744,18 @@ class CharacterMagicItemsCompanion extends UpdateCompanion<CharacterMagicItem> {
     if (attackBonus.present) {
       map['attack_bonus'] = Variable<int>(attackBonus.value);
     }
+    if (weaponAttackBonus.present) {
+      map['weapon_attack_bonus'] = Variable<int>(weaponAttackBonus.value);
+    }
+    if (weaponDamageBonus.present) {
+      map['weapon_damage_bonus'] = Variable<int>(weaponDamageBonus.value);
+    }
+    if (spellAttackBonus.present) {
+      map['spell_attack_bonus'] = Variable<int>(spellAttackBonus.value);
+    }
+    if (spellSaveDcBonus.present) {
+      map['spell_save_dc_bonus'] = Variable<int>(spellSaveDcBonus.value);
+    }
     return map;
   }
 
@@ -5928,7 +6771,11 @@ class CharacterMagicItemsCompanion extends UpdateCompanion<CharacterMagicItem> {
           ..write('rechargeRule: $rechargeRule, ')
           ..write('castingAbility: $castingAbility, ')
           ..write('saveDc: $saveDc, ')
-          ..write('attackBonus: $attackBonus')
+          ..write('attackBonus: $attackBonus, ')
+          ..write('weaponAttackBonus: $weaponAttackBonus, ')
+          ..write('weaponDamageBonus: $weaponDamageBonus, ')
+          ..write('spellAttackBonus: $spellAttackBonus, ')
+          ..write('spellSaveDcBonus: $spellSaveDcBonus')
           ..write(')'))
         .toString();
   }
@@ -7741,6 +8588,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $CharacterSpellsTable characterSpells = $CharacterSpellsTable(
     this,
   );
+  late final $CharacterWeaponsTable characterWeapons = $CharacterWeaponsTable(
+    this,
+  );
   late final $CharacterMagicItemsTable characterMagicItems =
       $CharacterMagicItemsTable(this);
   late final $CharacterMagicItemSpellsTable characterMagicItemSpells =
@@ -7757,6 +8607,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     characters,
     characterClassLevels,
     characterSpells,
+    characterWeapons,
     characterMagicItems,
     characterMagicItemSpells,
     characterSpellSlotsUsage,
@@ -7975,6 +8826,29 @@ final class $$CharactersTableReferences
 
     final cache = $_typedResult.readTableOrNull(
       _characterSpellsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$CharacterWeaponsTable, List<CharacterWeapon>>
+  _characterWeaponsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.characterWeapons,
+    aliasName: $_aliasNameGenerator(
+      db.characters.id,
+      db.characterWeapons.characterId,
+    ),
+  );
+
+  $$CharacterWeaponsTableProcessedTableManager get characterWeaponsRefs {
+    final manager = $$CharacterWeaponsTableTableManager(
+      $_db,
+      $_db.characterWeapons,
+    ).filter((f) => f.characterId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _characterWeaponsRefsTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -8488,6 +9362,31 @@ class $$CharactersTableFilterComposer
           }) => $$CharacterSpellsTableFilterComposer(
             $db: $db,
             $table: $db.characterSpells,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> characterWeaponsRefs(
+    Expression<bool> Function($$CharacterWeaponsTableFilterComposer f) f,
+  ) {
+    final $$CharacterWeaponsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.characterWeapons,
+      getReferencedColumn: (t) => t.characterId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharacterWeaponsTableFilterComposer(
+            $db: $db,
+            $table: $db.characterWeapons,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -9379,6 +10278,31 @@ class $$CharactersTableAnnotationComposer
     return f(composer);
   }
 
+  Expression<T> characterWeaponsRefs<T extends Object>(
+    Expression<T> Function($$CharacterWeaponsTableAnnotationComposer a) f,
+  ) {
+    final $$CharacterWeaponsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.characterWeapons,
+      getReferencedColumn: (t) => t.characterId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharacterWeaponsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.characterWeapons,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> characterMagicItemsRefs<T extends Object>(
     Expression<T> Function($$CharacterMagicItemsTableAnnotationComposer a) f,
   ) {
@@ -9474,6 +10398,7 @@ class $$CharactersTableTableManager
           PrefetchHooks Function({
             bool characterClassLevelsRefs,
             bool characterSpellsRefs,
+            bool characterWeaponsRefs,
             bool characterMagicItemsRefs,
             bool characterSpellSlotsUsageRefs,
             bool characterFeatsRefs,
@@ -9819,6 +10744,7 @@ class $$CharactersTableTableManager
           prefetchHooksCallback: ({
             characterClassLevelsRefs = false,
             characterSpellsRefs = false,
+            characterWeaponsRefs = false,
             characterMagicItemsRefs = false,
             characterSpellSlotsUsageRefs = false,
             characterFeatsRefs = false,
@@ -9828,6 +10754,7 @@ class $$CharactersTableTableManager
               explicitlyWatchedTables: [
                 if (characterClassLevelsRefs) db.characterClassLevels,
                 if (characterSpellsRefs) db.characterSpells,
+                if (characterWeaponsRefs) db.characterWeapons,
                 if (characterMagicItemsRefs) db.characterMagicItems,
                 if (characterSpellSlotsUsageRefs) db.characterSpellSlotsUsage,
                 if (characterFeatsRefs) db.characterFeats,
@@ -9873,6 +10800,28 @@ class $$CharactersTableTableManager
                                 table,
                                 p0,
                               ).characterSpellsRefs,
+                      referencedItemsForCurrentItem:
+                          (item, referencedItems) => referencedItems.where(
+                            (e) => e.characterId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
+                  if (characterWeaponsRefs)
+                    await $_getPrefetchedData<
+                      Character,
+                      $CharactersTable,
+                      CharacterWeapon
+                    >(
+                      currentTable: table,
+                      referencedTable: $$CharactersTableReferences
+                          ._characterWeaponsRefsTable(db),
+                      managerFromTypedResult:
+                          (p0) =>
+                              $$CharactersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).characterWeaponsRefs,
                       referencedItemsForCurrentItem:
                           (item, referencedItems) => referencedItems.where(
                             (e) => e.characterId == item.id,
@@ -9968,6 +10917,7 @@ typedef $$CharactersTableProcessedTableManager =
       PrefetchHooks Function({
         bool characterClassLevelsRefs,
         bool characterSpellsRefs,
+        bool characterWeaponsRefs,
         bool characterMagicItemsRefs,
         bool characterSpellSlotsUsageRefs,
         bool characterFeatsRefs,
@@ -10788,6 +11738,417 @@ typedef $$CharacterSpellsTableProcessedTableManager =
       CharacterSpell,
       PrefetchHooks Function({bool characterId})
     >;
+typedef $$CharacterWeaponsTableCreateCompanionBuilder =
+    CharacterWeaponsCompanion Function({
+      Value<int> localId,
+      required String characterId,
+      required String weaponId,
+      Value<String?> name,
+      Value<int> magicBonus,
+      Value<String?> chosenAbility,
+      Value<bool> twoHanded,
+      Value<bool?> proficiencyOverride,
+      Value<String> notes,
+    });
+typedef $$CharacterWeaponsTableUpdateCompanionBuilder =
+    CharacterWeaponsCompanion Function({
+      Value<int> localId,
+      Value<String> characterId,
+      Value<String> weaponId,
+      Value<String?> name,
+      Value<int> magicBonus,
+      Value<String?> chosenAbility,
+      Value<bool> twoHanded,
+      Value<bool?> proficiencyOverride,
+      Value<String> notes,
+    });
+
+final class $$CharacterWeaponsTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $CharacterWeaponsTable, CharacterWeapon> {
+  $$CharacterWeaponsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $CharactersTable _characterIdTable(_$AppDatabase db) =>
+      db.characters.createAlias(
+        $_aliasNameGenerator(db.characterWeapons.characterId, db.characters.id),
+      );
+
+  $$CharactersTableProcessedTableManager get characterId {
+    final $_column = $_itemColumn<String>('character_id')!;
+
+    final manager = $$CharactersTableTableManager(
+      $_db,
+      $_db.characters,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_characterIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$CharacterWeaponsTableFilterComposer
+    extends Composer<_$AppDatabase, $CharacterWeaponsTable> {
+  $$CharacterWeaponsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get weaponId => $composableBuilder(
+    column: $table.weaponId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get magicBonus => $composableBuilder(
+    column: $table.magicBonus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get chosenAbility => $composableBuilder(
+    column: $table.chosenAbility,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get twoHanded => $composableBuilder(
+    column: $table.twoHanded,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get proficiencyOverride => $composableBuilder(
+    column: $table.proficiencyOverride,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CharactersTableFilterComposer get characterId {
+    final $$CharactersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableFilterComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterWeaponsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CharacterWeaponsTable> {
+  $$CharacterWeaponsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get weaponId => $composableBuilder(
+    column: $table.weaponId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get magicBonus => $composableBuilder(
+    column: $table.magicBonus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get chosenAbility => $composableBuilder(
+    column: $table.chosenAbility,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get twoHanded => $composableBuilder(
+    column: $table.twoHanded,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get proficiencyOverride => $composableBuilder(
+    column: $table.proficiencyOverride,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CharactersTableOrderingComposer get characterId {
+    final $$CharactersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableOrderingComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterWeaponsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CharacterWeaponsTable> {
+  $$CharacterWeaponsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get localId =>
+      $composableBuilder(column: $table.localId, builder: (column) => column);
+
+  GeneratedColumn<String> get weaponId =>
+      $composableBuilder(column: $table.weaponId, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<int> get magicBonus => $composableBuilder(
+    column: $table.magicBonus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get chosenAbility => $composableBuilder(
+    column: $table.chosenAbility,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get twoHanded =>
+      $composableBuilder(column: $table.twoHanded, builder: (column) => column);
+
+  GeneratedColumn<bool> get proficiencyOverride => $composableBuilder(
+    column: $table.proficiencyOverride,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  $$CharactersTableAnnotationComposer get characterId {
+    final $$CharactersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterWeaponsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CharacterWeaponsTable,
+          CharacterWeapon,
+          $$CharacterWeaponsTableFilterComposer,
+          $$CharacterWeaponsTableOrderingComposer,
+          $$CharacterWeaponsTableAnnotationComposer,
+          $$CharacterWeaponsTableCreateCompanionBuilder,
+          $$CharacterWeaponsTableUpdateCompanionBuilder,
+          (CharacterWeapon, $$CharacterWeaponsTableReferences),
+          CharacterWeapon,
+          PrefetchHooks Function({bool characterId})
+        > {
+  $$CharacterWeaponsTableTableManager(
+    _$AppDatabase db,
+    $CharacterWeaponsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer:
+              () =>
+                  $$CharacterWeaponsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer:
+              () => $$CharacterWeaponsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer:
+              () => $$CharacterWeaponsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> localId = const Value.absent(),
+                Value<String> characterId = const Value.absent(),
+                Value<String> weaponId = const Value.absent(),
+                Value<String?> name = const Value.absent(),
+                Value<int> magicBonus = const Value.absent(),
+                Value<String?> chosenAbility = const Value.absent(),
+                Value<bool> twoHanded = const Value.absent(),
+                Value<bool?> proficiencyOverride = const Value.absent(),
+                Value<String> notes = const Value.absent(),
+              }) => CharacterWeaponsCompanion(
+                localId: localId,
+                characterId: characterId,
+                weaponId: weaponId,
+                name: name,
+                magicBonus: magicBonus,
+                chosenAbility: chosenAbility,
+                twoHanded: twoHanded,
+                proficiencyOverride: proficiencyOverride,
+                notes: notes,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> localId = const Value.absent(),
+                required String characterId,
+                required String weaponId,
+                Value<String?> name = const Value.absent(),
+                Value<int> magicBonus = const Value.absent(),
+                Value<String?> chosenAbility = const Value.absent(),
+                Value<bool> twoHanded = const Value.absent(),
+                Value<bool?> proficiencyOverride = const Value.absent(),
+                Value<String> notes = const Value.absent(),
+              }) => CharacterWeaponsCompanion.insert(
+                localId: localId,
+                characterId: characterId,
+                weaponId: weaponId,
+                name: name,
+                magicBonus: magicBonus,
+                chosenAbility: chosenAbility,
+                twoHanded: twoHanded,
+                proficiencyOverride: proficiencyOverride,
+                notes: notes,
+              ),
+          withReferenceMapper:
+              (p0) =>
+                  p0
+                      .map(
+                        (e) => (
+                          e.readTable(table),
+                          $$CharacterWeaponsTableReferences(db, table, e),
+                        ),
+                      )
+                      .toList(),
+          prefetchHooksCallback: ({characterId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                T extends TableManagerState<
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic
+                >
+              >(state) {
+                if (characterId) {
+                  state =
+                      state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.characterId,
+                            referencedTable: $$CharacterWeaponsTableReferences
+                                ._characterIdTable(db),
+                            referencedColumn:
+                                $$CharacterWeaponsTableReferences
+                                    ._characterIdTable(db)
+                                    .id,
+                          )
+                          as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$CharacterWeaponsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CharacterWeaponsTable,
+      CharacterWeapon,
+      $$CharacterWeaponsTableFilterComposer,
+      $$CharacterWeaponsTableOrderingComposer,
+      $$CharacterWeaponsTableAnnotationComposer,
+      $$CharacterWeaponsTableCreateCompanionBuilder,
+      $$CharacterWeaponsTableUpdateCompanionBuilder,
+      (CharacterWeapon, $$CharacterWeaponsTableReferences),
+      CharacterWeapon,
+      PrefetchHooks Function({bool characterId})
+    >;
 typedef $$CharacterMagicItemsTableCreateCompanionBuilder =
     CharacterMagicItemsCompanion Function({
       Value<int> localId,
@@ -10800,6 +12161,10 @@ typedef $$CharacterMagicItemsTableCreateCompanionBuilder =
       Value<String?> castingAbility,
       Value<int?> saveDc,
       Value<int?> attackBonus,
+      Value<int> weaponAttackBonus,
+      Value<int> weaponDamageBonus,
+      Value<int> spellAttackBonus,
+      Value<int> spellSaveDcBonus,
     });
 typedef $$CharacterMagicItemsTableUpdateCompanionBuilder =
     CharacterMagicItemsCompanion Function({
@@ -10813,6 +12178,10 @@ typedef $$CharacterMagicItemsTableUpdateCompanionBuilder =
       Value<String?> castingAbility,
       Value<int?> saveDc,
       Value<int?> attackBonus,
+      Value<int> weaponAttackBonus,
+      Value<int> weaponDamageBonus,
+      Value<int> spellAttackBonus,
+      Value<int> spellSaveDcBonus,
     });
 
 final class $$CharacterMagicItemsTableReferences
@@ -10935,6 +12304,26 @@ class $$CharacterMagicItemsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<int> get weaponAttackBonus => $composableBuilder(
+    column: $table.weaponAttackBonus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get weaponDamageBonus => $composableBuilder(
+    column: $table.weaponDamageBonus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get spellAttackBonus => $composableBuilder(
+    column: $table.spellAttackBonus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get spellSaveDcBonus => $composableBuilder(
+    column: $table.spellSaveDcBonus,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$CharactersTableFilterComposer get characterId {
     final $$CharactersTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -11040,6 +12429,26 @@ class $$CharacterMagicItemsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get weaponAttackBonus => $composableBuilder(
+    column: $table.weaponAttackBonus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get weaponDamageBonus => $composableBuilder(
+    column: $table.weaponDamageBonus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get spellAttackBonus => $composableBuilder(
+    column: $table.spellAttackBonus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get spellSaveDcBonus => $composableBuilder(
+    column: $table.spellSaveDcBonus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$CharactersTableOrderingComposer get characterId {
     final $$CharactersTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -11107,6 +12516,26 @@ class $$CharacterMagicItemsTableAnnotationComposer
 
   GeneratedColumn<int> get attackBonus => $composableBuilder(
     column: $table.attackBonus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get weaponAttackBonus => $composableBuilder(
+    column: $table.weaponAttackBonus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get weaponDamageBonus => $composableBuilder(
+    column: $table.weaponDamageBonus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get spellAttackBonus => $composableBuilder(
+    column: $table.spellAttackBonus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get spellSaveDcBonus => $composableBuilder(
+    column: $table.spellSaveDcBonus,
     builder: (column) => column,
   );
 
@@ -11213,6 +12642,10 @@ class $$CharacterMagicItemsTableTableManager
                 Value<String?> castingAbility = const Value.absent(),
                 Value<int?> saveDc = const Value.absent(),
                 Value<int?> attackBonus = const Value.absent(),
+                Value<int> weaponAttackBonus = const Value.absent(),
+                Value<int> weaponDamageBonus = const Value.absent(),
+                Value<int> spellAttackBonus = const Value.absent(),
+                Value<int> spellSaveDcBonus = const Value.absent(),
               }) => CharacterMagicItemsCompanion(
                 localId: localId,
                 characterId: characterId,
@@ -11224,6 +12657,10 @@ class $$CharacterMagicItemsTableTableManager
                 castingAbility: castingAbility,
                 saveDc: saveDc,
                 attackBonus: attackBonus,
+                weaponAttackBonus: weaponAttackBonus,
+                weaponDamageBonus: weaponDamageBonus,
+                spellAttackBonus: spellAttackBonus,
+                spellSaveDcBonus: spellSaveDcBonus,
               ),
           createCompanionCallback:
               ({
@@ -11237,6 +12674,10 @@ class $$CharacterMagicItemsTableTableManager
                 Value<String?> castingAbility = const Value.absent(),
                 Value<int?> saveDc = const Value.absent(),
                 Value<int?> attackBonus = const Value.absent(),
+                Value<int> weaponAttackBonus = const Value.absent(),
+                Value<int> weaponDamageBonus = const Value.absent(),
+                Value<int> spellAttackBonus = const Value.absent(),
+                Value<int> spellSaveDcBonus = const Value.absent(),
               }) => CharacterMagicItemsCompanion.insert(
                 localId: localId,
                 characterId: characterId,
@@ -11248,6 +12689,10 @@ class $$CharacterMagicItemsTableTableManager
                 castingAbility: castingAbility,
                 saveDc: saveDc,
                 attackBonus: attackBonus,
+                weaponAttackBonus: weaponAttackBonus,
+                weaponDamageBonus: weaponDamageBonus,
+                spellAttackBonus: spellAttackBonus,
+                spellSaveDcBonus: spellSaveDcBonus,
               ),
           withReferenceMapper:
               (p0) =>
@@ -12695,6 +14140,8 @@ class $AppDatabaseManager {
       $$CharacterClassLevelsTableTableManager(_db, _db.characterClassLevels);
   $$CharacterSpellsTableTableManager get characterSpells =>
       $$CharacterSpellsTableTableManager(_db, _db.characterSpells);
+  $$CharacterWeaponsTableTableManager get characterWeapons =>
+      $$CharacterWeaponsTableTableManager(_db, _db.characterWeapons);
   $$CharacterMagicItemsTableTableManager get characterMagicItems =>
       $$CharacterMagicItemsTableTableManager(_db, _db.characterMagicItems);
   $$CharacterMagicItemSpellsTableTableManager get characterMagicItemSpells =>

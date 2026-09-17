@@ -25,6 +25,7 @@ import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/shee
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/skills_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/spell_slots_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/spellcasting_summary_panel.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/weapons_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/subclass_choice_dialog.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
@@ -260,6 +261,25 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                   ),
                   const SizedBox(height: 8),
                   CombatSummaryCard(character: character),
+
+                  const SizedBox(height: 16),
+                  CollapsibleSection(
+                    id: 'weapons',
+                    title: 'Armas',
+                    summary: character.weapons.isEmpty
+                        ? 'Nenhuma arma cadastrada'
+                        : '${character.weapons.length} '
+                            '${character.weapons.length == 1 ? 'arma' : 'armas'}',
+                    isExpanded: _isOpen('weapons'),
+                    onExpansionChanged: (value) => _setOpen('weapons', value),
+                    child: WeaponsPanel(
+                      character: character,
+                      onManage: () => AppNavigator.toManageWeapons(
+                        context,
+                        characterId: character.id,
+                      ),
+                    ),
+                  ),
 
                   const SizedBox(height: 16),
                   CollapsibleSection(

@@ -217,6 +217,51 @@ MigrationStrategy buildMigrationStrategy(AppDatabase db) {
           'WHERE applied_ability_increases IS NULL',
         );
       }
+
+      if (from < 13) {
+        // Armas do personagem.
+        await _tryCreateTable(m, db.characterWeapons);
+
+        // Bônus estruturados do item mágico. As colunas `save_dc` e
+        // `attack_bonus` continuam existindo e continuam significando valor
+        // absoluto: quem tinha um item com CD fixa não perde nada.
+        await _tryAddColumn(
+          m,
+          db.characterMagicItems,
+          db.characterMagicItems.weaponAttackBonus,
+        );
+        await _tryAddColumn(
+          m,
+          db.characterMagicItems,
+          db.characterMagicItems.weaponDamageBonus,
+        );
+        await _tryAddColumn(
+          m,
+          db.characterMagicItems,
+          db.characterMagicItems.spellAttackBonus,
+        );
+        await _tryAddColumn(
+          m,
+          db.characterMagicItems,
+          db.characterMagicItems.spellSaveDcBonus,
+        );
+
+        // Item cadastrado antes desta versão não declarava nenhum bônus, então
+        // fica em zero. Deduzir um `+1` do nome seria adivinhar: o app não sabe
+        // se a descrição manda somar em ataque mágico ou só na arma.
+        for (final column in const [
+          'weapon_attack_bonus',
+          'weapon_damage_bonus',
+          'spell_attack_bonus',
+          'spell_save_dc_bonus',
+        ]) {
+          await _tryQuery(
+            db,
+            'UPDATE character_magic_items SET $column = 0 '
+            'WHERE $column IS NULL',
+          );
+        }
+      }
     },
     beforeOpen: (details) async {
       // Roda fora da transação de migração, então aqui é seguro usar `db`.

@@ -135,6 +135,16 @@ class AppNavigator {
     );
   }
 
+  static Future<void> toManageWeapons(
+    BuildContext context, {
+    required String characterId,
+  }) {
+    return Navigator.of(context).pushNamed(
+      AppRoutes.manageWeapons,
+      arguments: CharacterIdArgs(characterId),
+    );
+  }
+
   static Future<void> toSpellCompendium(BuildContext context) {
     return Navigator.of(context).pushNamed(AppRoutes.spellCompendium);
   }

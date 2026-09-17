@@ -2740,7 +2740,8 @@
       {
         "level": 7,
         "name": "Aura da Sentinela",
-        "description": "Você e criaturas aliadas a até 3 m somam o seu bônus de proficiência às jogadas de iniciativa. O raio aumenta para 9 m no 18º nível."
+        "description": "Você e criaturas aliadas a até 3 m somam o seu bônus de proficiência às jogadas de iniciativa. O raio aumenta para 9 m no 18º nível.",
+        "initiative": { "proficiency": "full" }
       },
       {
         "level": 15,
@@ -2834,7 +2835,8 @@
       {
         "level": 3,
         "name": "Emboscador Terrível",
-        "description": "Soma o modificador de Sabedoria à iniciativa. No primeiro turno de cada combate, seu deslocamento aumenta 3 m e você faz um ataque com arma adicional, que causa 1d8 de dano extra se acertar."
+        "description": "Soma o modificador de Sabedoria à iniciativa. No primeiro turno de cada combate, seu deslocamento aumenta 3 m e você faz um ataque com arma adicional, que causa 1d8 de dano extra se acertar.",
+        "initiative": { "ability": "wisdom" }
       },
       {
         "level": 3,
@@ -3223,7 +3225,8 @@
       {
         "level": 3,
         "name": "Audácia Insolente",
-        "description": "Soma o modificador de Carisma à iniciativa. Além disso, não precisa de vantagem para usar Ataque Furtivo se nenhuma criatura além do alvo estiver a até 1,5 m de você, desde que não tenha desvantagem no ataque."
+        "description": "Soma o modificador de Carisma à iniciativa. Além disso, não precisa de vantagem para usar Ataque Furtivo se nenhuma criatura além do alvo estiver a até 1,5 m de você, desde que não tenha desvantagem no ataque.",
+        "initiative": { "ability": "charisma" }
       },
       {
         "level": 9,
@@ -3310,7 +3313,8 @@
       {
         "level": 13,
         "name": "Mestre da Emboscada",
-        "description": "Vantagem nas jogadas de iniciativa. Além disso, a primeira criatura que você acerta na primeira rodada de combate fica vulnerável: os ataques contra ela têm vantagem até o início do seu próximo turno."
+        "description": "Vantagem nas jogadas de iniciativa. Além disso, a primeira criatura que você acerta na primeira rodada de combate fica vulnerável: os ataques contra ela têm vantagem até o início do seu próximo turno.",
+        "initiative": { "advantage": true }
       },
       {
         "level": 17,
@@ -4415,7 +4419,8 @@
       {
         "level": 2,
         "name": "Sagacidade Tática",
-        "description": "Soma o modificador de Inteligência às jogadas de iniciativa."
+        "description": "Soma o modificador de Inteligência às jogadas de iniciativa.",
+        "initiative": { "ability": "intelligence" }
       },
       {
         "level": 6,
@@ -4451,7 +4456,8 @@
       {
         "level": 2,
         "name": "Consciência Temporal",
-        "description": "Soma o modificador de Inteligência às jogadas de iniciativa."
+        "description": "Soma o modificador de Inteligência às jogadas de iniciativa.",
+        "initiative": { "ability": "intelligence" }
       },
       {
         "level": 6,

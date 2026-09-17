@@ -46,6 +46,12 @@ class SpellcastingSummaryPanel extends StatelessWidget {
                         'Atributo: ${row.abilityLabel}',
                         'CD de magia: ${row.saveDc}',
                         'Ataque mágico: ${_signed(row.attackBonus)}',
+                        // Só aparece quando algum item declarou o bônus, para
+                        // o jogador saber que o número já inclui isso.
+                        if (!row.itemBonus.isEmpty)
+                          'Inclui de item mágico: '
+                              '${_bonusLabel(row.itemBonus)} '
+                              '(${row.itemBonus.sources.join(', ')})',
                       ],
                     ),
                   ),
@@ -84,6 +90,10 @@ class SpellcastingSummaryPanel extends StatelessWidget {
   List<_ClassSpellcastingRow> _buildClassRows() {
     final rows = <_ClassSpellcastingRow>[];
 
+    // Bônus que os itens mágicos declaram para conjuração. Um item só entra
+    // aqui se tiver campo próprio preenchido: um `+1` no nome não basta.
+    final itemBonus = SpellcastingService.itemBonuses(character.magicItems);
+
     for (final classLevel in character.classLevels) {
       final classEntry = _findClassEntry(classLevel.classId);
 
@@ -113,12 +123,15 @@ class SpellcastingSummaryPanel extends StatelessWidget {
             proficiencyBonus: character.proficiencyBonus,
             castingAbility: ability,
             scores: character.abilityScores,
+            itemBonus: itemBonus.saveDc,
           ),
           attackBonus: SpellcastingService.spellAttackBonus(
             proficiencyBonus: character.proficiencyBonus,
             castingAbility: ability,
             scores: character.abilityScores,
+            itemBonus: itemBonus.attack,
           ),
+          itemBonus: itemBonus,
         ),
       );
     }
@@ -230,6 +243,16 @@ class SpellcastingSummaryPanel extends StatelessWidget {
 
   String? _castingAbilityLabel(String? raw) => _parseAbility(raw)?.label;
 
+  /// `+1 na CD e +1 no ataque`, citando só o que o item realmente afeta.
+  String _bonusLabel(SpellcastingItemBonus bonus) {
+    final parts = <String>[
+      if (bonus.saveDc != 0) '${_signed(bonus.saveDc)} na CD',
+      if (bonus.attack != 0) '${_signed(bonus.attack)} no ataque',
+    ];
+
+    return parts.join(' e ');
+  }
+
   String _signed(int value) {
     return value >= 0 ? '+$value' : '$value';
   }
@@ -283,12 +306,16 @@ class _ClassSpellcastingRow {
     required this.abilityLabel,
     required this.saveDc,
     required this.attackBonus,
+    this.itemBonus = const SpellcastingItemBonus(),
   });
 
   final String title;
   final String abilityLabel;
   final int saveDc;
   final int attackBonus;
+
+  /// Quanto dos números acima veio de item mágico.
+  final SpellcastingItemBonus itemBonus;
 }
 
 class _ItemSpellcastingRow {

@@ -93,6 +93,7 @@ final exportCharacterPdfProvider =
       races: await ref.read(raceEntriesProvider.future),
       backgrounds: await ref.read(backgroundEntriesProvider.future),
       classFeatures: await ref.read(classFeaturesProvider.future),
+      feats: await ref.read(featEntriesProvider.future),
       spells: await ref.read(spellEntriesProvider.future),
       spellSlots: await ref.read(spellSlotProgressionsProvider.future),
     );
