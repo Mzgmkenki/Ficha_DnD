@@ -118,7 +118,7 @@ void main() {
       expect(comProficiencia.total, 4);
     });
 
-    test('o campo "outros" da ficha entra na soma e fica no fim', () {
+    test('o ajuste manual entra na soma e fica no fim', () {
       final result = InitiativeCalculator.calculate(
         character: characterFixture(
           abilityScores: scoresWith(dexterity: 14),
@@ -132,15 +132,127 @@ void main() {
 
       expect(result.total, 4);
       expect(result.modifiers.last.source, InitiativeSource.manual);
-      expect(result.modifiers.last.label, 'outros');
+      expect(
+        result.modifiers.last.label,
+        InitiativeCalculator.manualAdjustmentLabel,
+      );
     });
 
-    test('"outros" em zero não aparece na composição', () {
+    test('ajuste manual em zero não aparece na composição', () {
       final result = InitiativeCalculator.calculate(
         character: characterFixture(),
       );
 
       expect(result.modifiers.length, 1);
+    });
+  });
+
+  group('ajuste manual', () {
+    InitiativeResult withAdjustment(int adjustment, {int dexterity = 16}) {
+      return InitiativeCalculator.calculate(
+        character: characterFixture(
+          abilityScores: scoresWith(dexterity: dexterity),
+          combatStats: CombatStats(
+            armorClass: 10,
+            initiativeBonus: adjustment,
+            speedInMeters: 9,
+          ),
+        ),
+      );
+    }
+
+    test('total é a calculada mais o ajuste', () {
+      // O exemplo do enunciado: calculada +4, ajuste +2, total +6.
+      final result = InitiativeCalculator.calculate(
+        character: characterFixture(
+          abilityScores: scoresWith(dexterity: 18),
+          combatStats: const CombatStats(
+            armorClass: 10,
+            initiativeBonus: 2,
+            speedInMeters: 9,
+          ),
+        ),
+      );
+
+      expect(result.calculatedTotal, 4);
+      expect(result.manualAdjustment, 2);
+      expect(result.total, 6);
+      expect(result.formattedTotal, '+6');
+      expect(result.formattedCalculatedTotal, '+4');
+      expect(result.formattedManualAdjustment, '+2');
+    });
+
+    test('ajuste negativo diminui o total sem apagar o cálculo', () {
+      final result = withAdjustment(-2);
+
+      expect(result.calculatedTotal, 3);
+      expect(result.manualAdjustment, -2);
+      expect(result.total, 1);
+      expect(result.formattedManualAdjustment, '-2');
+      // O importante: a parcela de Destreza continua na composição.
+      expect(result.calculatedModifiers.first.value, 3);
+    });
+
+    test('sem ajuste, total e calculada são o mesmo número', () {
+      final result = withAdjustment(0);
+
+      expect(result.hasManualAdjustment, isFalse);
+      expect(result.manualAdjustment, 0);
+      expect(result.total, result.calculatedTotal);
+    });
+
+    test('remover o ajuste volta ao valor calculado', () {
+      final adjusted = withAdjustment(3);
+      expect(adjusted.total, 6);
+
+      final cleared = withAdjustment(0);
+      expect(cleared.total, 3);
+      expect(cleared.hasManualAdjustment, isFalse);
+    });
+
+    test('a calculada não conta o ajuste, mesmo com regras somando', () {
+      final result = InitiativeCalculator.calculate(
+        character: characterFixture(
+          abilityScores: scoresWith(dexterity: 16, wisdom: 14),
+          classLevels: const [
+            ClassLevel(
+              classId: 'ranger',
+              level: 3,
+              subclassId: 'ranger_gloom_stalker',
+            ),
+          ],
+          combatStats: const CombatStats(
+            armorClass: 10,
+            initiativeBonus: -1,
+            speedInMeters: 9,
+          ),
+        ),
+        subclasses: const [gloomStalker],
+      );
+
+      // +3 de Destreza, +2 de Sabedoria pela subclasse, -1 de ajuste.
+      expect(result.calculatedTotal, 5);
+      expect(result.manualAdjustment, -1);
+      expect(result.total, 4);
+      expect(result.calculatedModifiers.length, 2);
+      expect(
+        result.calculatedModifiers.every(
+          (item) => item.source != InitiativeSource.manual,
+        ),
+        isTrue,
+      );
+    });
+
+    test('trocar de atributo muda a calculada e mantém o ajuste', () {
+      // A iniciativa continua automática: o ajuste não congela o número.
+      final antes = withAdjustment(2, dexterity: 14);
+      final depois = withAdjustment(2, dexterity: 18);
+
+      expect(antes.calculatedTotal, 2);
+      expect(depois.calculatedTotal, 4);
+      expect(antes.manualAdjustment, depois.manualAdjustment);
+      expect(antes.total, 4);
+      expect(depois.total, 6);
     });
   });
 
@@ -541,7 +653,7 @@ void main() {
       expect(
         result.explanation,
         '+6 = +3 de Destreza +2 de Sabedoria (Emboscador Terrível) '
-        '+1 de outros',
+        '+1 de ajuste manual',
       );
     });
 

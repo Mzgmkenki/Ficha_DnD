@@ -262,6 +262,79 @@ MigrationStrategy buildMigrationStrategy(AppDatabase db) {
           );
         }
       }
+
+      if (from < 14) {
+        // Bônus controlado do item mágico: um degrau (0, +1, +2, +3) mais as
+        // estatísticas que ele afeta, em vez de quatro números livres.
+        await _tryAddColumn(
+          m,
+          db.characterMagicItems,
+          db.characterMagicItems.magicBonus,
+        );
+        await _tryAddColumn(
+          m,
+          db.characterMagicItems,
+          db.characterMagicItems.bonusTargets,
+        );
+
+        // Estado de uso. Sem isso todo item somava sempre, inclusive o que
+        // está na mochila e o que exige sintonia sem estar sintonizado.
+        await _tryAddColumn(
+          m,
+          db.characterMagicItems,
+          db.characterMagicItems.isEquipped,
+        );
+        await _tryAddColumn(
+          m,
+          db.characterMagicItems,
+          db.characterMagicItems.requiresAttunement,
+        );
+        await _tryAddColumn(
+          m,
+          db.characterMagicItems,
+          db.characterMagicItems.isAttuned,
+        );
+
+        // Item que já existia continua valendo o que valia: equipado, sem
+        // exigência de sintonia. Marcar `requires_attunement` por conta
+        // própria desligaria bônus que o jogador já usava em mesa.
+        await _tryQuery(
+          db,
+          'UPDATE character_magic_items SET is_equipped = 1 '
+          'WHERE is_equipped IS NULL',
+        );
+        await _tryQuery(
+          db,
+          'UPDATE character_magic_items SET requires_attunement = 0 '
+          'WHERE requires_attunement IS NULL',
+        );
+        await _tryQuery(
+          db,
+          'UPDATE character_magic_items SET is_attuned = 0 '
+          'WHERE is_attuned IS NULL',
+        );
+        await _tryQuery(
+          db,
+          'UPDATE character_magic_items SET magic_bonus = 0 '
+          'WHERE magic_bonus IS NULL',
+        );
+        await _tryQuery(
+          db,
+          "UPDATE character_magic_items SET bonus_targets = '' "
+          'WHERE bonus_targets IS NULL',
+        );
+
+        // A conversão dos quatro campos livres para o degrau + estatísticas
+        // NÃO acontece aqui de propósito. Ela depende de comparar os quatro
+        // valores entre si, e fazer isso exigiria ler as linhas dentro da
+        // transação de migração — o que trava a abertura do banco (ver o
+        // comentário no topo deste arquivo). Em vez disso a leitura no
+        // repositório reconhece a linha antiga (`bonus_targets` vazio e
+        // `magic_bonus` zero com algum dos quatro diferente de zero) e chama
+        // `convertLegacyMagicItemBonuses`, que é puro e testável. O efeito é o
+        // mesmo e nada é perdido: o item só passa a gravar no formato novo
+        // quando o jogador o edita.
+      }
     },
     beforeOpen: (details) async {
       // Roda fora da transação de migração, então aqui é seguro usar `db`.

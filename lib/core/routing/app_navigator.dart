@@ -87,6 +87,16 @@ class AppNavigator {
     );
   }
 
+  static Future<void> toEditInitiative(
+    BuildContext context, {
+    required Character character,
+  }) {
+    return Navigator.of(context).pushNamed(
+      AppRoutes.editInitiative,
+      arguments: EditInitiativeArgs(character: character),
+    );
+  }
+
   static Future<void> toEditClassLevels(
     BuildContext context, {
     required Character character,

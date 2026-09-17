@@ -246,6 +246,16 @@ class CharacterMagicItems extends Table {
   // própria de propósito — um item `+1` afeta ataque e dano da arma, e só
   // afeta ataque mágico ou CD se a descrição dele disser isso. Com um único
   // campo "bônus" não haveria como distinguir os dois casos.
+  //
+  // As quatro colunas guardam o valor DECLARADO por estatística, não o que
+  // está valendo: quem decide se o bônus entra na conta é `is_equipped` mais
+  // `requires_attunement`/`is_attuned`, e apagar o número ao desequipar
+  // perderia a configuração do item.
+  //
+  // Desde a migração 14 elas são um espelho de `magic_bonus` +
+  // `bonus_targets`, mantido porque é o que uma build antiga e um arquivo
+  // exportado antigo sabem ler. A exceção é o item marcado para revisão, em
+  // que elas continuam sendo a fonte de verdade (ver `magic_bonus`).
 
   /// Soma nas jogadas de ataque com arma.
   IntColumn get weaponAttackBonus => integer().withDefault(const Constant(0))();
@@ -258,6 +268,42 @@ class CharacterMagicItems extends Table {
 
   /// Soma na CD de resistência das magias do personagem.
   IntColumn get spellSaveDcBonus => integer().withDefault(const Constant(0))();
+
+  // ------------------------------------------------------- bônus controlado
+
+  /// O degrau de bônus do item: 0, 1, 2 ou 3.
+  ///
+  /// Substitui os quatro campos livres como entrada do jogador. Zero com
+  /// [bonusTargets] vazio é o item que não concede bônus nenhum.
+  ///
+  /// Item cujos valores antigos não cabem neste formato (negativo, acima de 3,
+  /// ou diferentes entre estatísticas) fica com zero aqui e é reconhecido na
+  /// leitura como "para revisar", caso em que as quatro colunas acima seguem
+  /// valendo. A conversão mora no domínio
+  /// (`convertLegacyMagicItemBonuses`) em vez de num UPDATE da migração,
+  /// porque dentro de `onUpgrade` não é seguro ler o banco.
+  IntColumn get magicBonus => integer().withDefault(const Constant(0))();
+
+  /// Estatísticas afetadas pelo [magicBonus], como CSV de ids.
+  ///
+  /// CSV pelo mesmo motivo da coluna `conditions`: vocabulário pequeno e fixo,
+  /// sempre lido e escrito inteiro.
+  TextColumn get bonusTargets => text().withDefault(const Constant(''))();
+
+  /// Se o item está equipado ou em uso.
+  ///
+  /// Item guardado não soma. Padrão `true` para a ficha que já existia não
+  /// mudar de número ao migrar.
+  BoolColumn get isEquipped => boolean().withDefault(const Constant(true))();
+
+  /// Se a descrição do item exige sintonia.
+  BoolColumn get requiresAttunement =>
+      boolean().withDefault(const Constant(false))();
+
+  /// Se o personagem está sintonizado com o item.
+  ///
+  /// Só tem efeito quando [requiresAttunement] é verdadeiro.
+  BoolColumn get isAttuned => boolean().withDefault(const Constant(false))();
 }
 
 class CharacterMagicItemSpells extends Table {

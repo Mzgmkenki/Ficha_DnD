@@ -63,6 +63,7 @@ class InitiativeResult {
     this.advantageSources = const [],
   });
 
+  /// A iniciativa final: o que as regras concedem mais o ajuste manual.
   final int total;
 
   /// As parcelas na ordem de exibição, começando pela Destreza.
@@ -74,7 +75,37 @@ class InitiativeResult {
 
   bool get hasAdvantage => advantageSources.isNotEmpty;
 
-  String get formattedTotal => total >= 0 ? '+$total' : '$total';
+  /// O ajuste que o jogador informou à mão. Zero quando não há.
+  int get manualAdjustment {
+    return modifiers
+        .where((item) => item.source == InitiativeSource.manual)
+        .fold(0, (sum, item) => sum + item.value);
+  }
+
+  /// A iniciativa que as regras calculam, sem o ajuste manual.
+  ///
+  /// É o número que a tela mostra como "calculada". O jogador precisa ver que o
+  /// cálculo automático continua existindo e quanto do total veio do ajuste —
+  /// substituir um pelo outro em silêncio é o que esta separação evita.
+  int get calculatedTotal => total - manualAdjustment;
+
+  bool get hasManualAdjustment => manualAdjustment != 0;
+
+  /// As parcelas que vêm das regras, sem o ajuste manual.
+  List<InitiativeModifier> get calculatedModifiers {
+    return List.unmodifiable(
+      modifiers.where((item) => item.source != InitiativeSource.manual),
+    );
+  }
+
+  String get formattedTotal => formatSigned(total);
+
+  String get formattedCalculatedTotal => formatSigned(calculatedTotal);
+
+  String get formattedManualAdjustment => formatSigned(manualAdjustment);
+
+  /// `+3`, `-1` ou `+0`: o formato em que a ficha mostra qualquer parcela.
+  static String formatSigned(int value) => value >= 0 ? '+$value' : '$value';
 
   /// `+7 = +3 de Destreza +2 de Sabedoria (Emboscador Terrível) +2 de outros`.
   ///
@@ -102,6 +133,13 @@ class InitiativeResult {
 /// presentes.
 class InitiativeCalculator {
   const InitiativeCalculator._();
+
+  /// Como o ajuste manual aparece na composição.
+  ///
+  /// Antes era `outros`, que não dizia de onde vinha nem que o jogador podia
+  /// mexer. Fica numa constante para a tela de edição e o texto da composição
+  /// não divergirem.
+  static const String manualAdjustmentLabel = 'ajuste manual';
 
   static InitiativeResult calculate({
     required Character character,
@@ -138,13 +176,15 @@ class InitiativeCalculator {
       );
     }
 
-    // O campo "outros" da ficha fecha a lista: é ajuste manual do jogador e
-    // fica depois do que as regras concedem.
+    // O ajuste manual fecha a lista: é o que o jogador informou à mão e fica
+    // depois do que as regras concedem. Some ao cálculo em vez de substituí-lo,
+    // e por isso a ficha consegue mostrar "calculada", "ajuste" e "total"
+    // separados.
     final manual = character.combatStats.initiativeBonus;
     if (manual != 0) {
       modifiers.add(
         InitiativeModifier(
-          label: 'outros',
+          label: manualAdjustmentLabel,
           value: manual,
           source: InitiativeSource.manual,
         ),

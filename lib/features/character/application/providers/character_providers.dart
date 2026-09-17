@@ -22,6 +22,7 @@ import 'package:dnd_ficha_app/features/character/domain/services/rest_service.da
 import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/spell_providers.dart';
+import 'package:dnd_ficha_app/features/compendium/application/providers/weapon_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/services/spell_name_index.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -78,7 +79,7 @@ final updateCharacterPortraitProvider =
 /// Gera o PDF da ficha, já com o compêndio carregado.
 ///
 /// Devolve uma função em vez do caso de uso porque a tela não deveria precisar
-/// saber quais sete listas do compêndio o PDF consome.
+/// saber quais listas do compêndio o PDF consome.
 final exportCharacterPdfProvider =
     Provider<Future<CharacterPdf> Function(String)>((ref) {
   final repository = ref.watch(characterRepositoryProvider);
@@ -96,6 +97,9 @@ final exportCharacterPdfProvider =
       feats: await ref.read(featEntriesProvider.future),
       spells: await ref.read(spellEntriesProvider.future),
       spellSlots: await ref.read(spellSlotProgressionsProvider.future),
+      // Sem esta lista a seção de ataques sai vazia: `CharacterWeapon` guarda
+      // só o id, e dado de dano e propriedades vivem no compêndio.
+      weapons: await ref.read(weaponEntriesProvider.future),
     );
   };
 });
@@ -209,6 +213,22 @@ final addCharacterMagicItemProvider = Provider<
       characterId: characterId,
       item: item,
     );
+  };
+});
+
+/// Atualiza o item mágico inteiro: nome, descrição, cargas, bônus e uso.
+///
+/// Separado do provider de cargas de propósito. Gastar uma carga em mesa é o
+/// caminho rápido e não pode arrastar o resto do item; editar a configuração do
+/// item é o caminho completo e precisa gravar tudo.
+final updateCharacterMagicItemProvider = Provider<
+    Future<void> Function({
+      required CharacterMagicItem item,
+    })>((ref) {
+  final repository = ref.watch(characterRepositoryProvider);
+
+  return ({required CharacterMagicItem item}) {
+    return repository.updateMagicItem(item: item);
   };
 });
 

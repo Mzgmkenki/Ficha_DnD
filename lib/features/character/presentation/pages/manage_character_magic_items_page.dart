@@ -3,6 +3,8 @@ import 'package:dnd_ficha_app/features/character/application/providers/character
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item_spell.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/magic_item_bonus.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/magic_item_bonus_editor.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/character_spells_panel.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/spell_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_entry.dart';
@@ -31,13 +33,15 @@ class _ManageCharacterMagicItemsPageState
   final _maxChargesController = TextEditingController();
   final _rechargeRuleController = TextEditingController();
 
-  // Bônus estruturados: cada efeito tem campo próprio porque um item `+1` não
-  // afeta necessariamente todos eles. Sem essa separação, um Escudo +1 acabaria
-  // aumentando a CD das magias do personagem.
-  final _weaponAttackBonusController = TextEditingController();
-  final _weaponDamageBonusController = TextEditingController();
-  final _spellAttackBonusController = TextEditingController();
-  final _spellSaveDcBonusController = TextEditingController();
+  // Bônus controlado: um degrau fechado mais as estatísticas que ele afeta.
+  // Antes eram quatro campos numéricos livres, que aceitavam `+7` e deixavam
+  // fácil marcar ataque mágico num escudo por distração.
+  MagicItemBonus _bonus = MagicItemBonus.none;
+  final Set<MagicItemBonusTarget> _bonusTargets = <MagicItemBonusTarget>{};
+
+  bool _isEquipped = true;
+  bool _requiresAttunement = false;
+  bool _isAttuned = false;
 
   bool _saving = false;
 
@@ -48,10 +52,6 @@ class _ManageCharacterMagicItemsPageState
     _chargesController.dispose();
     _maxChargesController.dispose();
     _rechargeRuleController.dispose();
-    _weaponAttackBonusController.dispose();
-    _weaponDamageBonusController.dispose();
-    _spellAttackBonusController.dispose();
-    _spellSaveDcBonusController.dispose();
     super.dispose();
   }
 
@@ -200,36 +200,25 @@ class _ManageCharacterMagicItemsPageState
                 ),
               ),
               const SizedBox(height: 20),
-              Text(
-                'Bônus do item',
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Marque só o que a descrição do item disser. Um item +1 '
-                'normalmente afeta o ataque e o dano da arma, e não aumenta '
-                'ataque mágico nem CD a não ser que o texto mande.',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              const SizedBox(height: 12),
-              _BonusField(
-                controller: _weaponAttackBonusController,
-                label: 'Ataque com arma',
-              ),
-              const SizedBox(height: 12),
-              _BonusField(
-                controller: _weaponDamageBonusController,
-                label: 'Dano com arma',
-              ),
-              const SizedBox(height: 12),
-              _BonusField(
-                controller: _spellAttackBonusController,
-                label: 'Ataque mágico',
-              ),
-              const SizedBox(height: 12),
-              _BonusField(
-                controller: _spellSaveDcBonusController,
-                label: 'CD de magia',
+              MagicItemBonusEditor(
+                bonus: _bonus,
+                targets: _bonusTargets,
+                isEquipped: _isEquipped,
+                requiresAttunement: _requiresAttunement,
+                isAttuned: _isAttuned,
+                onBonusChanged: (value) => setState(() => _bonus = value),
+                onTargetToggled: (target, selected) => setState(() {
+                  if (selected) {
+                    _bonusTargets.add(target);
+                  } else {
+                    _bonusTargets.remove(target);
+                  }
+                }),
+                onEquippedChanged: (value) =>
+                    setState(() => _isEquipped = value),
+                onRequiresAttunementChanged: (value) =>
+                    setState(() => _requiresAttunement = value),
+                onAttunedChanged: (value) => setState(() => _isAttuned = value),
               ),
               const SizedBox(height: 20),
               FilledButton.icon(
@@ -287,18 +276,26 @@ class _ManageCharacterMagicItemsPageState
           charges: currentCharges,
           maxCharges: maxCharges,
           rechargeRule: _emptyToNull(_rechargeRuleController.text),
-          weaponAttackBonus: _parseBonus(_weaponAttackBonusController.text),
-          weaponDamageBonus: _parseBonus(_weaponDamageBonusController.text),
-          spellAttackBonus: _parseBonus(_spellAttackBonusController.text),
-          spellSaveDcBonus: _parseBonus(_spellSaveDcBonusController.text),
+          bonus: _bonus,
+          // Cópia: o conjunto do formulário continua sendo editado depois de
+          // salvar, e compartilhar a instância faria o item guardado mudar
+          // junto.
+          bonusTargets: {..._bonusTargets},
+          isEquipped: _isEquipped,
+          requiresAttunement: _requiresAttunement,
+          isAttuned: _isAttuned,
           spells: const [],
         ),
       );
 
-      _weaponAttackBonusController.clear();
-      _weaponDamageBonusController.clear();
-      _spellAttackBonusController.clear();
-      _spellSaveDcBonusController.clear();
+      setState(() {
+        _bonus = MagicItemBonus.none;
+        _bonusTargets.clear();
+        _isEquipped = true;
+        _requiresAttunement = false;
+        _isAttuned = false;
+      });
+
       _nameController.clear();
       _descriptionController.clear();
       _chargesController.clear();
@@ -336,43 +333,6 @@ class _ManageCharacterMagicItemsPageState
   String? _emptyToNull(String value) {
     final trimmed = value.trim();
     return trimmed.isEmpty ? null : trimmed;
-  }
-
-  /// Campo de bônus em branco vale zero, não nulo.
-  ///
-  /// Zero é o valor certo para "o item não declara este efeito", e é o que
-  /// impede um `+1` genérico de vazar para ataque mágico e CD.
-  int _parseBonus(String value) {
-    final trimmed = value.trim().replaceFirst('+', '');
-    if (trimmed.isEmpty) return 0;
-    return int.tryParse(trimmed) ?? 0;
-  }
-}
-
-/// Campo de bônus do item, aceitando positivo e negativo.
-class _BonusField extends StatelessWidget {
-  const _BonusField({required this.controller, required this.label});
-
-  final TextEditingController controller;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: TextInputType.numberWithOptions(signed: true),
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: '0',
-        border: const OutlineInputBorder(),
-      ),
-      validator: (value) {
-        final trimmed = value?.trim().replaceFirst('+', '') ?? '';
-        if (trimmed.isEmpty) return null;
-        if (int.tryParse(trimmed) == null) return 'Informe um número inteiro.';
-        return null;
-      },
-    );
   }
 }
 
@@ -438,6 +398,8 @@ class _CurrentItemsCard extends ConsumerWidget {
                                     const SizedBox(height: 4),
                                     Text(item.description),
                                   ],
+                                  const SizedBox(height: 8),
+                                  _ItemConfigSummary(item: item),
                                   const SizedBox(height: 8),
                                   if (item.maxCharges != null) ...[
                                     Text(
@@ -533,18 +495,34 @@ class _CurrentItemsCard extends ConsumerWidget {
                                     spellEntries: spellEntries,
                                   ),
                                   const SizedBox(height: 8),
-                                  TextButton.icon(
-                                    onPressed: () async {
-                                      final deleteItem = ref.read(
-                                        deleteCharacterMagicItemProvider,
-                                      );
+                                  Wrap(
+                                    spacing: 8,
+                                    children: [
+                                      TextButton.icon(
+                                        onPressed: () =>
+                                            showMagicItemBonusSheet(
+                                          context: context,
+                                          ref: ref,
+                                          item: item,
+                                        ),
+                                        icon: const Icon(Icons.tune, size: 18),
+                                        label: const Text('Editar bônus'),
+                                      ),
+                                      TextButton.icon(
+                                        onPressed: () async {
+                                          final deleteItem = ref.read(
+                                            deleteCharacterMagicItemProvider,
+                                          );
 
-                                      await deleteItem(
-                                        magicItemId: item.localId,
-                                      );
-                                    },
-                                    icon: const Icon(Icons.delete_outline),
-                                    label: const Text('Excluir item'),
+                                          await deleteItem(
+                                            magicItemId: item.localId,
+                                          );
+                                        },
+                                        icon:
+                                            const Icon(Icons.delete_outline),
+                                        label: const Text('Excluir item'),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -845,5 +823,179 @@ class _CompactSwitchRow extends StatelessWidget {
       value: value,
       onChanged: onChanged,
     );
+  }
+}
+
+/// Resumo da configuração do item na lista de itens atuais.
+class _ItemConfigSummary extends StatelessWidget {
+  const _ItemConfigSummary({required this.item});
+
+  final CharacterMagicItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    return MagicItemConfigSummary(
+      bonusDescription: item.describeDeclaredBonuses(),
+      isEquipped: item.isEquipped,
+      requiresAttunement: item.requiresAttunement,
+      isAttuned: item.isAttuned,
+      isActive: item.isActive,
+      needsReview: item.needsBonusReview,
+    );
+  }
+}
+
+/// Abre a folha de edição do bônus de um item já cadastrado.
+///
+/// Existe porque antes o bônus só podia ser definido na criação: depois de
+/// salvo, o único caminho para corrigir era excluir o item e cadastrar de novo,
+/// perdendo as magias vinculadas e as cargas.
+Future<void> showMagicItemBonusSheet({
+  required BuildContext context,
+  required WidgetRef ref,
+  required CharacterMagicItem item,
+}) {
+  return showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    builder: (sheetContext) => _MagicItemBonusSheet(item: item),
+  );
+}
+
+class _MagicItemBonusSheet extends ConsumerStatefulWidget {
+  const _MagicItemBonusSheet({required this.item});
+
+  final CharacterMagicItem item;
+
+  @override
+  ConsumerState<_MagicItemBonusSheet> createState() =>
+      _MagicItemBonusSheetState();
+}
+
+class _MagicItemBonusSheetState extends ConsumerState<_MagicItemBonusSheet> {
+  late MagicItemBonus _bonus;
+  late Set<MagicItemBonusTarget> _targets;
+  late bool _isEquipped;
+  late bool _requiresAttunement;
+  late bool _isAttuned;
+
+  /// Valores antigos ainda por revisar.
+  ///
+  /// Começa com o que veio do item e vira nulo quando o jogador confirma a
+  /// escolha nova. Enquanto não for nulo, o número original é o que vale.
+  late LegacyMagicItemBonuses? _legacy;
+
+  bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final item = widget.item;
+
+    // Item para revisar entra com as estatísticas que ele afetava já marcadas,
+    // e o degrau em "sem bônus": as estatísticas são a parte que dá para
+    // aproveitar, o número é justamente o que não cabe nas opções.
+    _bonus = item.bonus;
+    _targets = {...item.needsBonusReview ? item.declaredTargets : item.bonusTargets};
+    _isEquipped = item.isEquipped;
+    _requiresAttunement = item.requiresAttunement;
+    _isAttuned = item.isAttuned;
+    _legacy = item.legacyBonuses;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 16,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.item.name,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 16),
+            MagicItemBonusEditor(
+              bonus: _bonus,
+              targets: _targets,
+              isEquipped: _isEquipped,
+              requiresAttunement: _requiresAttunement,
+              isAttuned: _isAttuned,
+              legacyBonuses: _legacy,
+              onClearLegacy: () => setState(() => _legacy = null),
+              onBonusChanged: (value) => setState(() => _bonus = value),
+              onTargetToggled: (target, selected) => setState(() {
+                if (selected) {
+                  _targets.add(target);
+                } else {
+                  _targets.remove(target);
+                }
+              }),
+              onEquippedChanged: (value) => setState(() => _isEquipped = value),
+              onRequiresAttunementChanged: (value) =>
+                  setState(() => _requiresAttunement = value),
+              onAttunedChanged: (value) => setState(() => _isAttuned = value),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: _saving
+                      ? null
+                      : () => Navigator.of(context).pop(),
+                  child: const Text('Cancelar'),
+                ),
+                const SizedBox(width: 8),
+                FilledButton.icon(
+                  onPressed: _saving ? null : _save,
+                  icon: _saving
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.check),
+                  label: Text(_saving ? 'Salvando...' : 'Salvar'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _save() async {
+    setState(() => _saving = true);
+
+    try {
+      await ref.read(updateCharacterMagicItemProvider)(
+        item: widget.item.copyWith(
+          bonus: _bonus,
+          bonusTargets: {..._targets},
+          isEquipped: _isEquipped,
+          requiresAttunement: _requiresAttunement,
+          isAttuned: _isAttuned,
+          legacyBonuses: _legacy,
+        ),
+      );
+
+      if (!mounted) return;
+      Navigator.of(context).pop();
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _saving = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao salvar o item: $error')),
+      );
+    }
   }
 }

@@ -6078,6 +6078,74 @@ class $CharacterMagicItemsTable extends CharacterMagicItems
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _magicBonusMeta = const VerificationMeta(
+    'magicBonus',
+  );
+  @override
+  late final GeneratedColumn<int> magicBonus = GeneratedColumn<int>(
+    'magic_bonus',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _bonusTargetsMeta = const VerificationMeta(
+    'bonusTargets',
+  );
+  @override
+  late final GeneratedColumn<String> bonusTargets = GeneratedColumn<String>(
+    'bonus_targets',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _isEquippedMeta = const VerificationMeta(
+    'isEquipped',
+  );
+  @override
+  late final GeneratedColumn<bool> isEquipped = GeneratedColumn<bool>(
+    'is_equipped',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_equipped" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _requiresAttunementMeta =
+      const VerificationMeta('requiresAttunement');
+  @override
+  late final GeneratedColumn<bool> requiresAttunement = GeneratedColumn<bool>(
+    'requires_attunement',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("requires_attunement" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _isAttunedMeta = const VerificationMeta(
+    'isAttuned',
+  );
+  @override
+  late final GeneratedColumn<bool> isAttuned = GeneratedColumn<bool>(
+    'is_attuned',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_attuned" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     localId,
@@ -6094,6 +6162,11 @@ class $CharacterMagicItemsTable extends CharacterMagicItems
     weaponDamageBonus,
     spellAttackBonus,
     spellSaveDcBonus,
+    magicBonus,
+    bonusTargets,
+    isEquipped,
+    requiresAttunement,
+    isAttuned,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -6222,6 +6295,42 @@ class $CharacterMagicItemsTable extends CharacterMagicItems
         ),
       );
     }
+    if (data.containsKey('magic_bonus')) {
+      context.handle(
+        _magicBonusMeta,
+        magicBonus.isAcceptableOrUnknown(data['magic_bonus']!, _magicBonusMeta),
+      );
+    }
+    if (data.containsKey('bonus_targets')) {
+      context.handle(
+        _bonusTargetsMeta,
+        bonusTargets.isAcceptableOrUnknown(
+          data['bonus_targets']!,
+          _bonusTargetsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_equipped')) {
+      context.handle(
+        _isEquippedMeta,
+        isEquipped.isAcceptableOrUnknown(data['is_equipped']!, _isEquippedMeta),
+      );
+    }
+    if (data.containsKey('requires_attunement')) {
+      context.handle(
+        _requiresAttunementMeta,
+        requiresAttunement.isAcceptableOrUnknown(
+          data['requires_attunement']!,
+          _requiresAttunementMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_attuned')) {
+      context.handle(
+        _isAttunedMeta,
+        isAttuned.isAcceptableOrUnknown(data['is_attuned']!, _isAttunedMeta),
+      );
+    }
     return context;
   }
 
@@ -6295,6 +6404,31 @@ class $CharacterMagicItemsTable extends CharacterMagicItems
             DriftSqlType.int,
             data['${effectivePrefix}spell_save_dc_bonus'],
           )!,
+      magicBonus:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}magic_bonus'],
+          )!,
+      bonusTargets:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}bonus_targets'],
+          )!,
+      isEquipped:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.bool,
+            data['${effectivePrefix}is_equipped'],
+          )!,
+      requiresAttunement:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.bool,
+            data['${effectivePrefix}requires_attunement'],
+          )!,
+      isAttuned:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.bool,
+            data['${effectivePrefix}is_attuned'],
+          )!,
     );
   }
 
@@ -6338,6 +6472,39 @@ class CharacterMagicItem extends DataClass
 
   /// Soma na CD de resistência das magias do personagem.
   final int spellSaveDcBonus;
+
+  /// O degrau de bônus do item: 0, 1, 2 ou 3.
+  ///
+  /// Substitui os quatro campos livres como entrada do jogador. Zero com
+  /// [bonusTargets] vazio é o item que não concede bônus nenhum.
+  ///
+  /// Item cujos valores antigos não cabem neste formato (negativo, acima de 3,
+  /// ou diferentes entre estatísticas) fica com zero aqui e é reconhecido na
+  /// leitura como "para revisar", caso em que as quatro colunas acima seguem
+  /// valendo. A conversão mora no domínio
+  /// (`convertLegacyMagicItemBonuses`) em vez de num UPDATE da migração,
+  /// porque dentro de `onUpgrade` não é seguro ler o banco.
+  final int magicBonus;
+
+  /// Estatísticas afetadas pelo [magicBonus], como CSV de ids.
+  ///
+  /// CSV pelo mesmo motivo da coluna `conditions`: vocabulário pequeno e fixo,
+  /// sempre lido e escrito inteiro.
+  final String bonusTargets;
+
+  /// Se o item está equipado ou em uso.
+  ///
+  /// Item guardado não soma. Padrão `true` para a ficha que já existia não
+  /// mudar de número ao migrar.
+  final bool isEquipped;
+
+  /// Se a descrição do item exige sintonia.
+  final bool requiresAttunement;
+
+  /// Se o personagem está sintonizado com o item.
+  ///
+  /// Só tem efeito quando [requiresAttunement] é verdadeiro.
+  final bool isAttuned;
   const CharacterMagicItem({
     required this.localId,
     required this.characterId,
@@ -6353,6 +6520,11 @@ class CharacterMagicItem extends DataClass
     required this.weaponDamageBonus,
     required this.spellAttackBonus,
     required this.spellSaveDcBonus,
+    required this.magicBonus,
+    required this.bonusTargets,
+    required this.isEquipped,
+    required this.requiresAttunement,
+    required this.isAttuned,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -6383,6 +6555,11 @@ class CharacterMagicItem extends DataClass
     map['weapon_damage_bonus'] = Variable<int>(weaponDamageBonus);
     map['spell_attack_bonus'] = Variable<int>(spellAttackBonus);
     map['spell_save_dc_bonus'] = Variable<int>(spellSaveDcBonus);
+    map['magic_bonus'] = Variable<int>(magicBonus);
+    map['bonus_targets'] = Variable<String>(bonusTargets);
+    map['is_equipped'] = Variable<bool>(isEquipped);
+    map['requires_attunement'] = Variable<bool>(requiresAttunement);
+    map['is_attuned'] = Variable<bool>(isAttuned);
     return map;
   }
 
@@ -6418,6 +6595,11 @@ class CharacterMagicItem extends DataClass
       weaponDamageBonus: Value(weaponDamageBonus),
       spellAttackBonus: Value(spellAttackBonus),
       spellSaveDcBonus: Value(spellSaveDcBonus),
+      magicBonus: Value(magicBonus),
+      bonusTargets: Value(bonusTargets),
+      isEquipped: Value(isEquipped),
+      requiresAttunement: Value(requiresAttunement),
+      isAttuned: Value(isAttuned),
     );
   }
 
@@ -6441,6 +6623,11 @@ class CharacterMagicItem extends DataClass
       weaponDamageBonus: serializer.fromJson<int>(json['weaponDamageBonus']),
       spellAttackBonus: serializer.fromJson<int>(json['spellAttackBonus']),
       spellSaveDcBonus: serializer.fromJson<int>(json['spellSaveDcBonus']),
+      magicBonus: serializer.fromJson<int>(json['magicBonus']),
+      bonusTargets: serializer.fromJson<String>(json['bonusTargets']),
+      isEquipped: serializer.fromJson<bool>(json['isEquipped']),
+      requiresAttunement: serializer.fromJson<bool>(json['requiresAttunement']),
+      isAttuned: serializer.fromJson<bool>(json['isAttuned']),
     );
   }
   @override
@@ -6461,6 +6648,11 @@ class CharacterMagicItem extends DataClass
       'weaponDamageBonus': serializer.toJson<int>(weaponDamageBonus),
       'spellAttackBonus': serializer.toJson<int>(spellAttackBonus),
       'spellSaveDcBonus': serializer.toJson<int>(spellSaveDcBonus),
+      'magicBonus': serializer.toJson<int>(magicBonus),
+      'bonusTargets': serializer.toJson<String>(bonusTargets),
+      'isEquipped': serializer.toJson<bool>(isEquipped),
+      'requiresAttunement': serializer.toJson<bool>(requiresAttunement),
+      'isAttuned': serializer.toJson<bool>(isAttuned),
     };
   }
 
@@ -6479,6 +6671,11 @@ class CharacterMagicItem extends DataClass
     int? weaponDamageBonus,
     int? spellAttackBonus,
     int? spellSaveDcBonus,
+    int? magicBonus,
+    String? bonusTargets,
+    bool? isEquipped,
+    bool? requiresAttunement,
+    bool? isAttuned,
   }) => CharacterMagicItem(
     localId: localId ?? this.localId,
     characterId: characterId ?? this.characterId,
@@ -6495,6 +6692,11 @@ class CharacterMagicItem extends DataClass
     weaponDamageBonus: weaponDamageBonus ?? this.weaponDamageBonus,
     spellAttackBonus: spellAttackBonus ?? this.spellAttackBonus,
     spellSaveDcBonus: spellSaveDcBonus ?? this.spellSaveDcBonus,
+    magicBonus: magicBonus ?? this.magicBonus,
+    bonusTargets: bonusTargets ?? this.bonusTargets,
+    isEquipped: isEquipped ?? this.isEquipped,
+    requiresAttunement: requiresAttunement ?? this.requiresAttunement,
+    isAttuned: isAttuned ?? this.isAttuned,
   );
   CharacterMagicItem copyWithCompanion(CharacterMagicItemsCompanion data) {
     return CharacterMagicItem(
@@ -6534,6 +6736,19 @@ class CharacterMagicItem extends DataClass
           data.spellSaveDcBonus.present
               ? data.spellSaveDcBonus.value
               : this.spellSaveDcBonus,
+      magicBonus:
+          data.magicBonus.present ? data.magicBonus.value : this.magicBonus,
+      bonusTargets:
+          data.bonusTargets.present
+              ? data.bonusTargets.value
+              : this.bonusTargets,
+      isEquipped:
+          data.isEquipped.present ? data.isEquipped.value : this.isEquipped,
+      requiresAttunement:
+          data.requiresAttunement.present
+              ? data.requiresAttunement.value
+              : this.requiresAttunement,
+      isAttuned: data.isAttuned.present ? data.isAttuned.value : this.isAttuned,
     );
   }
 
@@ -6553,7 +6768,12 @@ class CharacterMagicItem extends DataClass
           ..write('weaponAttackBonus: $weaponAttackBonus, ')
           ..write('weaponDamageBonus: $weaponDamageBonus, ')
           ..write('spellAttackBonus: $spellAttackBonus, ')
-          ..write('spellSaveDcBonus: $spellSaveDcBonus')
+          ..write('spellSaveDcBonus: $spellSaveDcBonus, ')
+          ..write('magicBonus: $magicBonus, ')
+          ..write('bonusTargets: $bonusTargets, ')
+          ..write('isEquipped: $isEquipped, ')
+          ..write('requiresAttunement: $requiresAttunement, ')
+          ..write('isAttuned: $isAttuned')
           ..write(')'))
         .toString();
   }
@@ -6574,6 +6794,11 @@ class CharacterMagicItem extends DataClass
     weaponDamageBonus,
     spellAttackBonus,
     spellSaveDcBonus,
+    magicBonus,
+    bonusTargets,
+    isEquipped,
+    requiresAttunement,
+    isAttuned,
   );
   @override
   bool operator ==(Object other) =>
@@ -6592,7 +6817,12 @@ class CharacterMagicItem extends DataClass
           other.weaponAttackBonus == this.weaponAttackBonus &&
           other.weaponDamageBonus == this.weaponDamageBonus &&
           other.spellAttackBonus == this.spellAttackBonus &&
-          other.spellSaveDcBonus == this.spellSaveDcBonus);
+          other.spellSaveDcBonus == this.spellSaveDcBonus &&
+          other.magicBonus == this.magicBonus &&
+          other.bonusTargets == this.bonusTargets &&
+          other.isEquipped == this.isEquipped &&
+          other.requiresAttunement == this.requiresAttunement &&
+          other.isAttuned == this.isAttuned);
 }
 
 class CharacterMagicItemsCompanion extends UpdateCompanion<CharacterMagicItem> {
@@ -6610,6 +6840,11 @@ class CharacterMagicItemsCompanion extends UpdateCompanion<CharacterMagicItem> {
   final Value<int> weaponDamageBonus;
   final Value<int> spellAttackBonus;
   final Value<int> spellSaveDcBonus;
+  final Value<int> magicBonus;
+  final Value<String> bonusTargets;
+  final Value<bool> isEquipped;
+  final Value<bool> requiresAttunement;
+  final Value<bool> isAttuned;
   const CharacterMagicItemsCompanion({
     this.localId = const Value.absent(),
     this.characterId = const Value.absent(),
@@ -6625,6 +6860,11 @@ class CharacterMagicItemsCompanion extends UpdateCompanion<CharacterMagicItem> {
     this.weaponDamageBonus = const Value.absent(),
     this.spellAttackBonus = const Value.absent(),
     this.spellSaveDcBonus = const Value.absent(),
+    this.magicBonus = const Value.absent(),
+    this.bonusTargets = const Value.absent(),
+    this.isEquipped = const Value.absent(),
+    this.requiresAttunement = const Value.absent(),
+    this.isAttuned = const Value.absent(),
   });
   CharacterMagicItemsCompanion.insert({
     this.localId = const Value.absent(),
@@ -6641,6 +6881,11 @@ class CharacterMagicItemsCompanion extends UpdateCompanion<CharacterMagicItem> {
     this.weaponDamageBonus = const Value.absent(),
     this.spellAttackBonus = const Value.absent(),
     this.spellSaveDcBonus = const Value.absent(),
+    this.magicBonus = const Value.absent(),
+    this.bonusTargets = const Value.absent(),
+    this.isEquipped = const Value.absent(),
+    this.requiresAttunement = const Value.absent(),
+    this.isAttuned = const Value.absent(),
   }) : characterId = Value(characterId),
        name = Value(name);
   static Insertable<CharacterMagicItem> custom({
@@ -6658,6 +6903,11 @@ class CharacterMagicItemsCompanion extends UpdateCompanion<CharacterMagicItem> {
     Expression<int>? weaponDamageBonus,
     Expression<int>? spellAttackBonus,
     Expression<int>? spellSaveDcBonus,
+    Expression<int>? magicBonus,
+    Expression<String>? bonusTargets,
+    Expression<bool>? isEquipped,
+    Expression<bool>? requiresAttunement,
+    Expression<bool>? isAttuned,
   }) {
     return RawValuesInsertable({
       if (localId != null) 'local_id': localId,
@@ -6674,6 +6924,11 @@ class CharacterMagicItemsCompanion extends UpdateCompanion<CharacterMagicItem> {
       if (weaponDamageBonus != null) 'weapon_damage_bonus': weaponDamageBonus,
       if (spellAttackBonus != null) 'spell_attack_bonus': spellAttackBonus,
       if (spellSaveDcBonus != null) 'spell_save_dc_bonus': spellSaveDcBonus,
+      if (magicBonus != null) 'magic_bonus': magicBonus,
+      if (bonusTargets != null) 'bonus_targets': bonusTargets,
+      if (isEquipped != null) 'is_equipped': isEquipped,
+      if (requiresAttunement != null) 'requires_attunement': requiresAttunement,
+      if (isAttuned != null) 'is_attuned': isAttuned,
     });
   }
 
@@ -6692,6 +6947,11 @@ class CharacterMagicItemsCompanion extends UpdateCompanion<CharacterMagicItem> {
     Value<int>? weaponDamageBonus,
     Value<int>? spellAttackBonus,
     Value<int>? spellSaveDcBonus,
+    Value<int>? magicBonus,
+    Value<String>? bonusTargets,
+    Value<bool>? isEquipped,
+    Value<bool>? requiresAttunement,
+    Value<bool>? isAttuned,
   }) {
     return CharacterMagicItemsCompanion(
       localId: localId ?? this.localId,
@@ -6708,6 +6968,11 @@ class CharacterMagicItemsCompanion extends UpdateCompanion<CharacterMagicItem> {
       weaponDamageBonus: weaponDamageBonus ?? this.weaponDamageBonus,
       spellAttackBonus: spellAttackBonus ?? this.spellAttackBonus,
       spellSaveDcBonus: spellSaveDcBonus ?? this.spellSaveDcBonus,
+      magicBonus: magicBonus ?? this.magicBonus,
+      bonusTargets: bonusTargets ?? this.bonusTargets,
+      isEquipped: isEquipped ?? this.isEquipped,
+      requiresAttunement: requiresAttunement ?? this.requiresAttunement,
+      isAttuned: isAttuned ?? this.isAttuned,
     );
   }
 
@@ -6756,6 +7021,21 @@ class CharacterMagicItemsCompanion extends UpdateCompanion<CharacterMagicItem> {
     if (spellSaveDcBonus.present) {
       map['spell_save_dc_bonus'] = Variable<int>(spellSaveDcBonus.value);
     }
+    if (magicBonus.present) {
+      map['magic_bonus'] = Variable<int>(magicBonus.value);
+    }
+    if (bonusTargets.present) {
+      map['bonus_targets'] = Variable<String>(bonusTargets.value);
+    }
+    if (isEquipped.present) {
+      map['is_equipped'] = Variable<bool>(isEquipped.value);
+    }
+    if (requiresAttunement.present) {
+      map['requires_attunement'] = Variable<bool>(requiresAttunement.value);
+    }
+    if (isAttuned.present) {
+      map['is_attuned'] = Variable<bool>(isAttuned.value);
+    }
     return map;
   }
 
@@ -6775,7 +7055,12 @@ class CharacterMagicItemsCompanion extends UpdateCompanion<CharacterMagicItem> {
           ..write('weaponAttackBonus: $weaponAttackBonus, ')
           ..write('weaponDamageBonus: $weaponDamageBonus, ')
           ..write('spellAttackBonus: $spellAttackBonus, ')
-          ..write('spellSaveDcBonus: $spellSaveDcBonus')
+          ..write('spellSaveDcBonus: $spellSaveDcBonus, ')
+          ..write('magicBonus: $magicBonus, ')
+          ..write('bonusTargets: $bonusTargets, ')
+          ..write('isEquipped: $isEquipped, ')
+          ..write('requiresAttunement: $requiresAttunement, ')
+          ..write('isAttuned: $isAttuned')
           ..write(')'))
         .toString();
   }
@@ -12165,6 +12450,11 @@ typedef $$CharacterMagicItemsTableCreateCompanionBuilder =
       Value<int> weaponDamageBonus,
       Value<int> spellAttackBonus,
       Value<int> spellSaveDcBonus,
+      Value<int> magicBonus,
+      Value<String> bonusTargets,
+      Value<bool> isEquipped,
+      Value<bool> requiresAttunement,
+      Value<bool> isAttuned,
     });
 typedef $$CharacterMagicItemsTableUpdateCompanionBuilder =
     CharacterMagicItemsCompanion Function({
@@ -12182,6 +12472,11 @@ typedef $$CharacterMagicItemsTableUpdateCompanionBuilder =
       Value<int> weaponDamageBonus,
       Value<int> spellAttackBonus,
       Value<int> spellSaveDcBonus,
+      Value<int> magicBonus,
+      Value<String> bonusTargets,
+      Value<bool> isEquipped,
+      Value<bool> requiresAttunement,
+      Value<bool> isAttuned,
     });
 
 final class $$CharacterMagicItemsTableReferences
@@ -12324,6 +12619,31 @@ class $$CharacterMagicItemsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<int> get magicBonus => $composableBuilder(
+    column: $table.magicBonus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get bonusTargets => $composableBuilder(
+    column: $table.bonusTargets,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isEquipped => $composableBuilder(
+    column: $table.isEquipped,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get requiresAttunement => $composableBuilder(
+    column: $table.requiresAttunement,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isAttuned => $composableBuilder(
+    column: $table.isAttuned,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$CharactersTableFilterComposer get characterId {
     final $$CharactersTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -12449,6 +12769,31 @@ class $$CharacterMagicItemsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get magicBonus => $composableBuilder(
+    column: $table.magicBonus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get bonusTargets => $composableBuilder(
+    column: $table.bonusTargets,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isEquipped => $composableBuilder(
+    column: $table.isEquipped,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get requiresAttunement => $composableBuilder(
+    column: $table.requiresAttunement,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isAttuned => $composableBuilder(
+    column: $table.isAttuned,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$CharactersTableOrderingComposer get characterId {
     final $$CharactersTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -12538,6 +12883,29 @@ class $$CharacterMagicItemsTableAnnotationComposer
     column: $table.spellSaveDcBonus,
     builder: (column) => column,
   );
+
+  GeneratedColumn<int> get magicBonus => $composableBuilder(
+    column: $table.magicBonus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get bonusTargets => $composableBuilder(
+    column: $table.bonusTargets,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isEquipped => $composableBuilder(
+    column: $table.isEquipped,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get requiresAttunement => $composableBuilder(
+    column: $table.requiresAttunement,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isAttuned =>
+      $composableBuilder(column: $table.isAttuned, builder: (column) => column);
 
   $$CharactersTableAnnotationComposer get characterId {
     final $$CharactersTableAnnotationComposer composer = $composerBuilder(
@@ -12646,6 +13014,11 @@ class $$CharacterMagicItemsTableTableManager
                 Value<int> weaponDamageBonus = const Value.absent(),
                 Value<int> spellAttackBonus = const Value.absent(),
                 Value<int> spellSaveDcBonus = const Value.absent(),
+                Value<int> magicBonus = const Value.absent(),
+                Value<String> bonusTargets = const Value.absent(),
+                Value<bool> isEquipped = const Value.absent(),
+                Value<bool> requiresAttunement = const Value.absent(),
+                Value<bool> isAttuned = const Value.absent(),
               }) => CharacterMagicItemsCompanion(
                 localId: localId,
                 characterId: characterId,
@@ -12661,6 +13034,11 @@ class $$CharacterMagicItemsTableTableManager
                 weaponDamageBonus: weaponDamageBonus,
                 spellAttackBonus: spellAttackBonus,
                 spellSaveDcBonus: spellSaveDcBonus,
+                magicBonus: magicBonus,
+                bonusTargets: bonusTargets,
+                isEquipped: isEquipped,
+                requiresAttunement: requiresAttunement,
+                isAttuned: isAttuned,
               ),
           createCompanionCallback:
               ({
@@ -12678,6 +13056,11 @@ class $$CharacterMagicItemsTableTableManager
                 Value<int> weaponDamageBonus = const Value.absent(),
                 Value<int> spellAttackBonus = const Value.absent(),
                 Value<int> spellSaveDcBonus = const Value.absent(),
+                Value<int> magicBonus = const Value.absent(),
+                Value<String> bonusTargets = const Value.absent(),
+                Value<bool> isEquipped = const Value.absent(),
+                Value<bool> requiresAttunement = const Value.absent(),
+                Value<bool> isAttuned = const Value.absent(),
               }) => CharacterMagicItemsCompanion.insert(
                 localId: localId,
                 characterId: characterId,
@@ -12693,6 +13076,11 @@ class $$CharacterMagicItemsTableTableManager
                 weaponDamageBonus: weaponDamageBonus,
                 spellAttackBonus: spellAttackBonus,
                 spellSaveDcBonus: spellSaveDcBonus,
+                magicBonus: magicBonus,
+                bonusTargets: bonusTargets,
+                isEquipped: isEquipped,
+                requiresAttunement: requiresAttunement,
+                isAttuned: isAttuned,
               ),
           withReferenceMapper:
               (p0) =>

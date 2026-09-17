@@ -2,6 +2,7 @@
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item_spell.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/magic_item_bonus_editor.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/character_spells_panel.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/spell_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_entry.dart';
@@ -56,17 +57,13 @@ class MagicItemsPanel extends ConsumerWidget {
                                 const SizedBox(height: 4),
                                 Text(item.description),
                               ],
-                              // Os bônus que o item declara, separados por
-                              // efeito: é o que evita um `+1` de arma acabar
-                              // aumentando a CD das magias.
-                              if (item.hasBonuses) ...[
-                                const SizedBox(height: 6),
-                                Text(
-                                  'Bônus: ${_bonusesLabel(item)}',
-                                  style:
-                                      Theme.of(context).textTheme.bodySmall,
-                                ),
-                              ],
+                              // Bônus declarado, estatísticas afetadas e
+                              // estado de uso na mesma linha de leitura: é o
+                              // que evita um `+1` de arma acabar aumentando a
+                              // CD das magias, e o que explica por que um item
+                              // guardado não aparece nas contas.
+                              const SizedBox(height: 6),
+                              _ItemBonusSummary(item: item),
                               if (item.maxCharges != null) ...[
                                 const SizedBox(height: 8),
                                 Row(
@@ -229,22 +226,29 @@ class MagicItemsPanel extends ConsumerWidget {
     );
   }
 
-  /// `+1 no ataque com arma, +1 no dano com arma`.
-  static String _bonusesLabel(CharacterMagicItem item) {
-    String signed(int value) => value >= 0 ? '+$value' : '$value';
+}
 
-    final parts = <String>[
-      if (item.weaponAttackBonus != 0)
-        '${signed(item.weaponAttackBonus)} no ataque com arma',
-      if (item.weaponDamageBonus != 0)
-        '${signed(item.weaponDamageBonus)} no dano com arma',
-      if (item.spellAttackBonus != 0)
-        '${signed(item.spellAttackBonus)} no ataque mágico',
-      if (item.spellSaveDcBonus != 0)
-        '${signed(item.spellSaveDcBonus)} na CD de magia',
-    ];
+/// Bônus declarado, estado de uso e origem dos modificadores do item.
+///
+/// Mostra o que o item concede e se aquilo está valendo agora. As duas coisas
+/// juntas porque a pergunta em mesa é "esse `+1` está entrando na minha
+/// jogada?", e só o número não responde: item guardado ou sem sintonia declara
+/// o bônus e não soma nada.
+class _ItemBonusSummary extends StatelessWidget {
+  const _ItemBonusSummary({required this.item});
 
-    return parts.join(', ');
+  final CharacterMagicItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    return MagicItemConfigSummary(
+      bonusDescription: item.describeDeclaredBonuses(),
+      isEquipped: item.isEquipped,
+      requiresAttunement: item.requiresAttunement,
+      isAttuned: item.isAttuned,
+      isActive: item.isActive,
+      needsReview: item.needsBonusReview,
+    );
   }
 }
 

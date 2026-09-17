@@ -17,6 +17,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficien
 import 'package:dnd_ficha_app/features/character/domain/services/granted_ability_increases.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/magic_item_bonus.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/proficiency_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/spellcasting_type.dart';
@@ -194,10 +195,28 @@ class CharacterJsonCodec {
             'castingAbility': item.castingAbility,
             'saveDc': item.saveDc,
             'attackBonus': item.attackBonus,
-            'weaponAttackBonus': item.weaponAttackBonus,
-            'weaponDamageBonus': item.weaponDamageBonus,
-            'spellAttackBonus': item.spellAttackBonus,
-            'spellSaveDcBonus': item.spellSaveDcBonus,
+            // Formato controlado: o degrau e as estatísticas que ele afeta.
+            'magicBonus': item.bonus.value,
+            'bonusTargets': [
+              for (final target in MagicItemBonusTarget.ordered)
+                if (item.bonusTargets.contains(target)) target.id,
+            ],
+            'isEquipped': item.isEquipped,
+            'requiresAttunement': item.requiresAttunement,
+            'isAttuned': item.isAttuned,
+            // Os quatro campos antigos continuam saindo, com o valor
+            // DECLARADO: é o que uma build anterior sabe ler, e é o que
+            // preserva o item marcado para revisão (bônus negativo, acima de
+            // `+3` ou diferente entre estatísticas), que não tem como ser
+            // representado nos campos acima.
+            'weaponAttackBonus':
+                item.declaredBonusFor(MagicItemBonusTarget.weaponAttack),
+            'weaponDamageBonus':
+                item.declaredBonusFor(MagicItemBonusTarget.weaponDamage),
+            'spellAttackBonus':
+                item.declaredBonusFor(MagicItemBonusTarget.spellAttack),
+            'spellSaveDcBonus':
+                item.declaredBonusFor(MagicItemBonusTarget.spellSaveDc),
             'spells': [
               for (final spell in item.spells)
                 <String, dynamic>{
@@ -554,9 +573,62 @@ class CharacterJsonCodec {
         );
       }
 
+      // Estado de uso. Sem os campos (arquivo anterior à mudança) o item entra
+      // equipado e sem exigir sintonia, que é como ele se comportava antes:
+      // importar não pode desligar um bônus que o jogador já usava.
+      final isEquipped = _asBool(map['isEquipped'], fallback: true);
+      final requiresAttunement = _asBool(map['requiresAttunement']);
+      final isAttuned = _asBool(map['isAttuned']);
+
+      final targetsRaw = map['bonusTargets'];
+      final hasControlledBonus =
+          map.containsKey('magicBonus') || targetsRaw != null;
+
+      if (hasControlledBonus) {
+        final targets = <MagicItemBonusTarget>{};
+        for (final entry in _asList(targetsRaw)) {
+          final target = MagicItemBonusTarget.fromId(_asString(entry)?.trim());
+          if (target != null) targets.add(target);
+        }
+
+        // Degrau fora de 0..3 num arquivo editado à mão não vira um `+7`: cai
+        // para o caminho de conversão abaixo, que preserva o número original
+        // e marca o item para revisão.
+        final declared = _asInt(map['magicBonus']);
+        final bonus = MagicItemBonus.tryFromValue(declared);
+
+        if (bonus != null) {
+          result.add(
+            CharacterMagicItem(
+              // O localId é do banco: quem grava é o repositório.
+              localId: 0,
+              name: name,
+              description: _asString(map['description']) ?? '',
+              charges: _asInt(map['charges']),
+              maxCharges: _asInt(map['maxCharges']),
+              rechargeRule: _asString(map['rechargeRule']),
+              castingAbility: _asString(map['castingAbility']),
+              saveDc: _asInt(map['saveDc']),
+              attackBonus: _asInt(map['attackBonus']),
+              bonus: bonus,
+              bonusTargets: targets,
+              isEquipped: isEquipped,
+              requiresAttunement: requiresAttunement,
+              isAttuned: isAttuned,
+              spells: spells,
+            ),
+          );
+          continue;
+        }
+      }
+
+      // Arquivo exportado antes do bônus controlado, ou com degrau inválido.
+      // A conversão aproveita só o que é representável e guarda o resto para
+      // revisão. Campo ausente vale zero: o app não deduz um `+1` do nome do
+      // item, porque não sabe se ele valia para arma, para magia ou para os
+      // dois.
       result.add(
-        CharacterMagicItem(
-          // O localId é do banco: quem grava é o repositório.
+        CharacterMagicItem.fromLegacyBonuses(
           localId: 0,
           name: name,
           description: _asString(map['description']) ?? '',
@@ -566,13 +638,13 @@ class CharacterJsonCodec {
           castingAbility: _asString(map['castingAbility']),
           saveDc: _asInt(map['saveDc']),
           attackBonus: _asInt(map['attackBonus']),
-          // Ficha exportada antes dos bônus estruturados não tem os campos, e
-          // zero é o valor certo: o app não sabe se aquele `+1` no nome do item
-          // valia para arma, para magia ou para os dois.
           weaponAttackBonus: _asInt(map['weaponAttackBonus']) ?? 0,
           weaponDamageBonus: _asInt(map['weaponDamageBonus']) ?? 0,
           spellAttackBonus: _asInt(map['spellAttackBonus']) ?? 0,
           spellSaveDcBonus: _asInt(map['spellSaveDcBonus']) ?? 0,
+          isEquipped: isEquipped,
+          requiresAttunement: requiresAttunement,
+          isAttuned: isAttuned,
           spells: spells,
         ),
       );

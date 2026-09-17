@@ -34,10 +34,20 @@ class AppBranding {
   /// de novo, e a tentativa que falha não é barata: o `rootBundle` percorre o
   /// manifest antes de lançar.
   static Future<Uint8List?>? _logoBytes;
+  static Future<Uint8List?>? _iconBytes;
 
   /// Bytes da logo, ou nulo se ela ainda não foi adicionada ao projeto.
   static Future<Uint8List?> loadLogoBytes() {
     return _logoBytes ??= _read(logoAsset);
+  }
+
+  /// Bytes da marca sem o wordmark, ou nulo se ela não existir.
+  ///
+  /// É o que o PDF usa como marca d'água e como selo do cabeçalho: reduzida, a
+  /// logo completa transforma o nome num borrão, e no fundo da página o wordmark
+  /// repetido atrás do texto atrapalha a leitura.
+  static Future<Uint8List?> loadIconBytes() {
+    return _iconBytes ??= _read(iconAsset);
   }
 
   /// Esquece o que foi memorizado. Existe para os testes não vazarem estado
@@ -45,6 +55,7 @@ class AppBranding {
   @visibleForTesting
   static void resetCache() {
     _logoBytes = null;
+    _iconBytes = null;
   }
 
   static Future<Uint8List?> _read(String asset) async {

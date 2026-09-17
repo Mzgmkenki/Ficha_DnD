@@ -1,5 +1,6 @@
 import 'package:dnd_ficha_app/core/database/app_database.dart' as db;
 import 'package:dnd_ficha_app/features/character/data/mappers/character_mapper.dart';
+import 'package:dnd_ficha_app/features/character/data/mappers/magic_item_mapper.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart'
     as domain;
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart'
@@ -205,20 +206,9 @@ class CharacterRepositoryImpl implements CharacterRepository {
       for (final item in character.magicItems) {
         final insertedId =
             await _database.into(_database.characterMagicItems).insert(
-                  db.CharacterMagicItemsCompanion.insert(
+                  MagicItemMapper.toInsert(
                     characterId: character.id,
-                    name: item.name,
-                    description: drift.Value(item.description),
-                    charges: drift.Value(item.charges),
-                    maxCharges: drift.Value(item.maxCharges),
-                    rechargeRule: drift.Value(item.rechargeRule),
-                    castingAbility: drift.Value(item.castingAbility),
-                    saveDc: drift.Value(item.saveDc),
-                    attackBonus: drift.Value(item.attackBonus),
-                    weaponAttackBonus: drift.Value(item.weaponAttackBonus),
-                    weaponDamageBonus: drift.Value(item.weaponDamageBonus),
-                    spellAttackBonus: drift.Value(item.spellAttackBonus),
-                    spellSaveDcBonus: drift.Value(item.spellSaveDcBonus),
+                    item: item,
                   ),
                 );
 
@@ -321,20 +311,8 @@ class CharacterRepositoryImpl implements CharacterRepository {
               .get();
 
       magicItems.add(
-        domain_items.CharacterMagicItem(
-          localId: itemRow.localId,
-          name: itemRow.name,
-          description: itemRow.description,
-          charges: itemRow.charges,
-          maxCharges: itemRow.maxCharges,
-          rechargeRule: itemRow.rechargeRule,
-          castingAbility: itemRow.castingAbility,
-          saveDc: itemRow.saveDc,
-          attackBonus: itemRow.attackBonus,
-          weaponAttackBonus: itemRow.weaponAttackBonus,
-          weaponDamageBonus: itemRow.weaponDamageBonus,
-          spellAttackBonus: itemRow.spellAttackBonus,
-          spellSaveDcBonus: itemRow.spellSaveDcBonus,
+        MagicItemMapper.fromDatabase(
+          row: itemRow,
           spells: itemSpellRows
               .map(
                 (row) => domain_item_spells.CharacterMagicItemSpell(
@@ -724,22 +702,7 @@ class CharacterRepositoryImpl implements CharacterRepository {
   }) async {
     await (_database.update(_database.characterMagicItems)
           ..where((tbl) => tbl.localId.equals(item.localId)))
-        .write(
-      db.CharacterMagicItemsCompanion(
-        name: drift.Value(item.name),
-        description: drift.Value(item.description),
-        charges: drift.Value(item.charges),
-        maxCharges: drift.Value(item.maxCharges),
-        rechargeRule: drift.Value(item.rechargeRule),
-        castingAbility: drift.Value(item.castingAbility),
-        saveDc: drift.Value(item.saveDc),
-        attackBonus: drift.Value(item.attackBonus),
-        weaponAttackBonus: drift.Value(item.weaponAttackBonus),
-        weaponDamageBonus: drift.Value(item.weaponDamageBonus),
-        spellAttackBonus: drift.Value(item.spellAttackBonus),
-        spellSaveDcBonus: drift.Value(item.spellSaveDcBonus),
-      ),
-    );
+        .write(MagicItemMapper.toUpdate(item));
   }
 
   @override
@@ -749,21 +712,7 @@ class CharacterRepositoryImpl implements CharacterRepository {
   }) async {
     final insertedId =
         await _database.into(_database.characterMagicItems).insert(
-              db.CharacterMagicItemsCompanion.insert(
-                characterId: characterId,
-                name: item.name,
-                description: drift.Value(item.description),
-                charges: drift.Value(item.charges),
-                maxCharges: drift.Value(item.maxCharges),
-                rechargeRule: drift.Value(item.rechargeRule),
-                castingAbility: drift.Value(item.castingAbility),
-                saveDc: drift.Value(item.saveDc),
-                attackBonus: drift.Value(item.attackBonus),
-                weaponAttackBonus: drift.Value(item.weaponAttackBonus),
-                weaponDamageBonus: drift.Value(item.weaponDamageBonus),
-                spellAttackBonus: drift.Value(item.spellAttackBonus),
-                spellSaveDcBonus: drift.Value(item.spellSaveDcBonus),
-              ),
+              MagicItemMapper.toInsert(characterId: characterId, item: item),
             );
 
     for (final spell in item.spells) {

@@ -1,3 +1,4 @@
+import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
 import 'package:dnd_ficha_app/core/theme/app_typography.dart';
 import 'package:dnd_ficha_app/core/utils/distance_format.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/initiative_providers.dart';
@@ -39,7 +40,17 @@ class CombatSummaryCard extends ConsumerWidget {
                 _CombatValue(
                   label: 'Iniciativa',
                   value: result.formattedTotal,
-                  badge: result.hasAdvantage ? 'vantagem' : null,
+                  // Duas etiquetas possíveis, e a de ajuste tem prioridade:
+                  // saber que o número tem parcela manual importa mais na hora
+                  // de conferir a conta do que a vantagem, que a composição
+                  // logo abaixo repete.
+                  badge: result.hasManualAdjustment
+                      ? 'ajustada'
+                      : (result.hasAdvantage ? 'vantagem' : null),
+                  onTap: () => AppNavigator.toEditInitiative(
+                    context,
+                    character: character,
+                  ),
                 ),
                 _CombatValue(
                   label: 'Desloc.',
@@ -108,6 +119,7 @@ class _CombatValue extends StatelessWidget {
     required this.label,
     required this.value,
     this.badge,
+    this.onTap,
   });
 
   final String label;
@@ -116,11 +128,14 @@ class _CombatValue extends StatelessWidget {
   /// Etiqueta curta abaixo do número, como a vantagem na iniciativa.
   final String? badge;
 
+  /// Abre a tela que edita este valor, quando existe uma.
+  final VoidCallback? onTap;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Column(
+    final content = Column(
       children: [
         Text(label, style: theme.textTheme.labelMedium),
         const SizedBox(height: 8),
@@ -133,6 +148,23 @@ class _CombatValue extends StatelessWidget {
             ),
           ),
       ],
+    );
+
+    if (onTap == null) return content;
+
+    // `InkWell` com rótulo de acessibilidade: quem usa leitor de tela precisa
+    // saber que este número abre uma tela, e o valor sozinho não diz isso.
+    return Semantics(
+      button: true,
+      label: 'Ajustar $label',
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          child: content,
+        ),
+      ),
     );
   }
 }

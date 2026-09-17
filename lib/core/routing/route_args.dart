@@ -75,6 +75,12 @@ class EditArmorClassArgs {
   final Character character;
 }
 
+class EditInitiativeArgs {
+  const EditInitiativeArgs({required this.character});
+
+  final Character character;
+}
+
 class SpellDetailArgs {
   const SpellDetailArgs({required this.spell});
 

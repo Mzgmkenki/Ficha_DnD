@@ -11,6 +11,7 @@ import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dar
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_slot_progression_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/subclass_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/weapon_entry.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -46,6 +47,7 @@ class ExportCharacterPdf {
     required List<SpellEntry> spells,
     required List<SpellSlotProgressionEntry> spellSlots,
     List<FeatEntry> feats = const [],
+    List<WeaponEntry> weapons = const [],
   }) async {
     final character = await _repository.findById(characterId);
 
@@ -64,7 +66,9 @@ class ExportCharacterPdf {
         feats: feats,
         spells: spells,
         spellSlots: spellSlots,
+        weapons: weapons,
         logoBytes: await AppBranding.loadLogoBytes(),
+        iconBytes: await AppBranding.loadIconBytes(),
         portraitBytes: await _readPortrait(character.portraitPath),
         titleFontBytes: await _readFont(),
       ),
