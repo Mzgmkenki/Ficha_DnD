@@ -211,6 +211,41 @@ void main() {
     expect(find.textContaining('seis atributos'), findsWidgets);
   });
 
+  testWidgets('troca diretamente valores do conjunto padrão entre atributos', (
+    tester,
+  ) async {
+    await _pumpCreationPage(tester, const [_dwarf]);
+
+    final strengthFinder = find.byWidgetPredicate(
+      (widget) =>
+          widget is DropdownButtonFormField<int> &&
+          widget.key.toString().contains('standard-strength'),
+    );
+    final strength = tester.widget<DropdownButtonFormField<int>>(
+      strengthFinder,
+    );
+
+    strength.onChanged!(14);
+    await tester.pumpAndSettle();
+
+    final dexterity = tester.widget<DropdownButtonFormField<int>>(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is DropdownButtonFormField<int> &&
+            widget.key.toString().contains('standard-dexterity'),
+      ),
+    );
+
+    expect(
+      tester
+          .widget<DropdownButtonFormField<int>>(strengthFinder)
+          .initialValue,
+      14,
+    );
+    expect(dexterity.initialValue, 15);
+    expect(find.text('Valores disponíveis: nenhum'), findsOneWidget);
+  });
+
   testWidgets(
     'raça com bônus fixo aplica o bônus e o deslocamento com fração',
     (tester) async {
