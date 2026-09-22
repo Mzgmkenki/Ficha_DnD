@@ -11,6 +11,8 @@ import 'package:dnd_ficha_app/features/character/domain/entities/currency.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/custom_background.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiency_grant.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/standard_array.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/proficiency_level.dart';
@@ -119,6 +121,54 @@ Character _fullCharacter() {
 
 void main() {
   group('round-trip', () {
+    test('preserva base, bônus de origem e origem das perícias', () {
+      const base = <Ability, int>{
+        Ability.strength: 15,
+        Ability.dexterity: 14,
+        Ability.constitution: 13,
+        Ability.intelligence: 12,
+        Ability.wisdom: 10,
+        Ability.charisma: 8,
+      };
+      final allocation = AbilityScoreAllocation(
+        baseScores: StandardArray.toAbilityScores(base),
+        originBonuses: const {Ability.strength: 2},
+      );
+      final original = characterFixture(
+        abilityScores: allocation.totals(),
+        skillProficiencies: skillsWith({
+          Skill.perception: ProficiencyLevel.proficient,
+        }),
+      ).copyWith(
+        abilityScoreAllocation: allocation,
+        skillProficiencyGrants: const [
+          SkillProficiencyGrant(
+            skill: Skill.perception,
+            source: SkillGrantSource.backgroundAutomatic,
+            sourceId: 'sailor',
+            sourceLabel: 'antecedente Marinheiro',
+            automatic: true,
+          ),
+        ],
+      );
+
+      final restored = CharacterJsonCodec.decode(
+        CharacterJsonCodec.encode(original),
+      );
+
+      expect(restored.abilityScoreAllocation!.baseScores.strength, 15);
+      expect(
+        restored.abilityScoreAllocation!.originBonusFor(Ability.strength),
+        2,
+      );
+      expect(restored.abilityScores.strength, 17);
+      expect(restored.skillProficiencyGrants.single.skill, Skill.perception);
+      expect(
+        restored.skillProficiencyGrants.single.sourceLabel,
+        contains('Marinheiro'),
+      );
+    });
+
     test('preserva os dados de identidade e antecedente', () {
       final original = _fullCharacter();
       final restored = CharacterJsonCodec.decode(
@@ -132,10 +182,7 @@ void main() {
       expect(restored.backgroundId, 'custom');
       expect(restored.customBackground.name, 'Caçador de Recompensas');
       expect(restored.customBackground.skillIds, ['stealth', 'survival']);
-      expect(
-        restored.customBackground.features,
-        'Mandado sempre em aberto.',
-      );
+      expect(restored.customBackground.features, 'Mandado sempre em aberto.');
       expect(restored.notes, 'Devo um favor à guilda.');
     });
 
@@ -170,10 +217,7 @@ void main() {
       expect(restored.classLevels.first.classId, 'ranger');
       expect(restored.classLevels.first.level, 5);
       expect(restored.classLevels.first.subclassId, 'hunter');
-      expect(
-        restored.classLevels.first.spellcastingAbility,
-        Ability.wisdom,
-      );
+      expect(restored.classLevels.first.spellcastingAbility, Ability.wisdom);
       expect(
         restored.classLevels.first.spellcastingType,
         SpellcastingType.half,
@@ -254,8 +298,9 @@ void main() {
 
   group('formato do arquivo', () {
     test('declara formato e versão', () {
-      final json = jsonDecode(CharacterJsonCodec.encode(_fullCharacter()))
-          as Map<String, dynamic>;
+      final json =
+          jsonDecode(CharacterJsonCodec.encode(_fullCharacter()))
+              as Map<String, dynamic>;
 
       expect(json['format'], 'dnd_ficha_app/character');
       expect(json['version'], CharacterJsonCodec.formatVersion);
@@ -263,8 +308,9 @@ void main() {
     });
 
     test('não grava as perícias sem proficiência', () {
-      final json = jsonDecode(CharacterJsonCodec.encode(_fullCharacter()))
-          as Map<String, dynamic>;
+      final json =
+          jsonDecode(CharacterJsonCodec.encode(_fullCharacter()))
+              as Map<String, dynamic>;
       final skills =
           (json['character'] as Map<String, dynamic>)['skills'] as Map;
 
@@ -522,10 +568,7 @@ void main() {
         'skills': {'stealth': 2, 'dancing': 3},
       });
 
-      expect(
-        restored.skillProficiencies.activeLevels.keys,
-        [Skill.stealth],
-      );
+      expect(restored.skillProficiencies.activeLevels.keys, [Skill.stealth]);
     });
 
     test('item mágico sem nome é descartado', () {

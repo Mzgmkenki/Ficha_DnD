@@ -1,4 +1,4 @@
-﻿import 'package:dnd_ficha_app/core/di/providers.dart';
+import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
 import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
@@ -13,8 +13,8 @@ import 'package:dnd_ficha_app/features/character/domain/entities/combat_stats.da
 import 'package:dnd_ficha_app/features/character/domain/entities/custom_background.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
-import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
-import 'package:dnd_ficha_app/features/character/domain/services/granted_skills.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiency_grant.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/standard_array.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/alignment.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
@@ -63,6 +63,10 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
   String? _customBackgroundSkillOne;
   String? _customBackgroundSkillTwo;
 
+  /// Substituições explícitas quando uma perícia fixa do antecedente já foi
+  /// adquirida em outra etapa. A chave é a perícia original do antecedente.
+  final Map<String, String> _backgroundSkillReplacements = {};
+
   /// Imagem escolhida para a aparência, ainda não copiada para o app.
   ///
   /// A cópia só acontece no [_save], porque o nome do arquivo usa o id do
@@ -70,10 +74,24 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
   /// evita deixar arquivo órfão se o jogador desistir da criação.
   PickedImage? _pickedPortrait;
 
-  final Set<String> _selectedSkills = {};
+  /// Escolhas manuais separadas por fonte. A separação é necessária para uma
+  /// perícia não ser contabilizada duas vezes e para a tela explicar a origem.
+  final Set<String> _classSkillIds = {};
+  final Set<String> _additionalSkillIds = {};
 
   /// Perícias escolhidas dentro das opções que a raça oferece.
   final Set<String> _raceSkillPicks = {};
+
+  /// Valores base do conjunto padrão. Começa vazio: a criação só conclui
+  /// depois que cada valor 15, 14, 13, 12, 10 e 8 for usado uma vez.
+  final Map<Ability, int> _baseAbilityValues = {
+    Ability.strength: 15,
+    Ability.dexterity: 14,
+    Ability.constitution: 13,
+    Ability.intelligence: 12,
+    Ability.wisdom: 10,
+    Ability.charisma: 8,
+  };
 
   /// Atributo escolhido para cada bônus que o jogador distribui, por posição.
   ///
@@ -125,9 +143,9 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
       setState(() => _pickedPortrait = picked);
     } on PortraitException catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.message)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error.message)));
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -146,7 +164,9 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
     if (picked == null) return null;
 
     try {
-      return await ref.read(portraitStorageProvider).save(
+      return await ref
+          .read(portraitStorageProvider)
+          .save(
             characterId: characterId,
             sourcePath: picked.path,
             extension: picked.extension,
@@ -177,13 +197,13 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
     // antecedente simplesmente não aparece.
     final backgrounds =
         ref.watch(compendium_providers.backgroundEntriesProvider).value ??
-            const <BackgroundEntry>[];
+        const <BackgroundEntry>[];
 
     // Mesma tolerância: enquanto as subclasses carregam, o seletor não aparece
     // e o resto do formulário segue utilizável.
     final subclasses =
         ref.watch(compendium_providers.subclassEntriesProvider).value ??
-            const <SubclassEntry>[];
+        const <SubclassEntry>[];
 
     // Busca tolerante: enquanto os antecedentes carregam (ou se o id salvo
     // sumir da lista) o formulário continua funcionando.
@@ -233,9 +253,12 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                   .toList(growable: false);
 
               final effectiveSubraceId = _resolveSelectedSubraceId(subraces);
-              final selectedSubrace = effectiveSubraceId == null
-                  ? null
-                  : subraces.firstWhere((item) => item.id == effectiveSubraceId);
+              final selectedSubrace =
+                  effectiveSubraceId == null
+                      ? null
+                      : subraces.firstWhere(
+                        (item) => item.id == effectiveSubraceId,
+                      );
 
               final combinedRace = _combineRaceAndSubrace(
                 selectedRace,
@@ -249,9 +272,16 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
               // O dropdown auto-seleciona a primeira opção, então o id que vai
               // para o personagem tem que ser o resolvido, não o que está no
               // estado (que fica nulo até o jogador tocar no campo).
-              final effectiveSubclassId = selectedClass.subclassUnlockedAt(1)
-                  ? _resolveSelectedSubclassId(classSubclasses)
-                  : null;
+              final effectiveSubclassId =
+                  selectedClass.subclassUnlockedAt(1)
+                      ? _resolveSelectedSubclassId(classSubclasses)
+                      : null;
+
+              final creationSkills = _buildCreationSkillSelection(
+                selectedClass,
+                combinedRace,
+                selectedBackground,
+              );
 
               if (!combinedRace.allowsCustomOrigin && _useCustomOrigin) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -292,8 +322,8 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                     const SizedBox(height: 12),
                     AlignmentField(
                       value: _selectedAlignment,
-                      onChanged: (value) =>
-                          setState(() => _selectedAlignment = value),
+                      onChanged:
+                          (value) => setState(() => _selectedAlignment = value),
                     ),
                     const SizedBox(height: 16),
                     _PortraitField(
@@ -304,17 +334,16 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                     const SizedBox(height: 12),
                     DropdownButtonFormField<String>(
                       initialValue: effectiveRaceId,
-                      decoration: const InputDecoration(
-                        labelText: 'Raça base',
-                      ),
-                      items: baseRaces
-                          .map(
-                            (item) => DropdownMenuItem<String>(
-                              value: item.id,
-                              child: Text(item.name),
-                            ),
-                          )
-                          .toList(),
+                      decoration: const InputDecoration(labelText: 'Raça base'),
+                      items:
+                          baseRaces
+                              .map(
+                                (item) => DropdownMenuItem<String>(
+                                  value: item.id,
+                                  child: Text(item.name),
+                                ),
+                              )
+                              .toList(),
                       onChanged: (value) {
                         setState(() {
                           _selectedRaceId = value;
@@ -322,7 +351,6 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                           // Bônus e perícias são da raça anterior: manter faria
                           // o Anão herdar a escolha feita para o Elfo.
                           _bonusPicks.clear();
-                          _raceSkillPicks.clear();
                         });
                       },
                       validator: (value) {
@@ -339,19 +367,19 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                         decoration: const InputDecoration(
                           labelText: 'Sub-raça / linhagem',
                         ),
-                        items: subraces
-                            .map(
-                              (item) => DropdownMenuItem<String>(
-                                value: item.id,
-                                child: Text(item.name),
-                              ),
-                            )
-                            .toList(),
+                        items:
+                            subraces
+                                .map(
+                                  (item) => DropdownMenuItem<String>(
+                                    value: item.id,
+                                    child: Text(item.name),
+                                  ),
+                                )
+                                .toList(),
                         onChanged: (value) {
                           setState(() {
                             _selectedSubraceId = value;
                             _bonusPicks.clear();
-                            _raceSkillPicks.clear();
                           });
                         },
                         validator: (value) {
@@ -370,16 +398,20 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                         decoration: const InputDecoration(
                           labelText: 'Antecedente',
                         ),
-                        items: backgrounds
-                            .map(
-                              (item) => DropdownMenuItem<String>(
-                                value: item.id,
-                                child: Text(item.name),
-                              ),
-                            )
-                            .toList(),
+                        items:
+                            backgrounds
+                                .map(
+                                  (item) => DropdownMenuItem<String>(
+                                    value: item.id,
+                                    child: Text(item.name),
+                                  ),
+                                )
+                                .toList(),
                         onChanged: (value) {
-                          setState(() => _selectedBackgroundId = value);
+                          setState(() {
+                            _selectedBackgroundId = value;
+                            _backgroundSkillReplacements.clear();
+                          });
                         },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -389,8 +421,13 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                         },
                       ),
                       if (selectedBackground != null &&
-                          !selectedBackground.isCustom)
+                          !selectedBackground.isCustom) ...[
                         _BackgroundSummary(background: selectedBackground),
+                        ..._buildBackgroundReplacementSection(
+                          selectedBackground,
+                          creationSkills,
+                        ),
+                      ],
                       if (_isCustomBackground)
                         CustomBackgroundForm(
                           nameController: _customBackgroundNameController,
@@ -404,6 +441,10 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                               _customBackgroundSkillTwo = two;
                             });
                           },
+                          blockedSkillReasons: _blockedSkillReasons(
+                            creationSkills,
+                            excluding: SkillGrantSource.backgroundChoice,
+                          ),
                         ),
                     ],
                     const SizedBox(height: 12),
@@ -413,19 +454,21 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                     ),
                     const SizedBox(height: 12),
                     ..._buildAbilityBonusSection(combinedRace),
-                    ..._buildRaceSkillSection(combinedRace),
+                    ..._buildStandardArraySection(combinedRace),
+                    ..._buildRaceSkillSection(combinedRace, creationSkills),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<String>(
                       initialValue: effectiveClassId,
                       decoration: const InputDecoration(labelText: 'Classe'),
-                      items: classes
-                          .map(
-                            (item) => DropdownMenuItem<String>(
-                              value: item.id,
-                              child: Text('${item.name} (${item.hitDie})'),
-                            ),
-                          )
-                          .toList(),
+                      items:
+                          classes
+                              .map(
+                                (item) => DropdownMenuItem<String>(
+                                  value: item.id,
+                                  child: Text('${item.name} (${item.hitDie})'),
+                                ),
+                              )
+                              .toList(),
                       onChanged: (value) {
                         setState(() {
                           final previous = selectedClass;
@@ -435,8 +478,12 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                           // As perícias marcadas dentro da lista da classe
                           // anterior também: manter faria um Ladino nascer com
                           // as quatro escolhas de um Bardo já gastas.
-                          _selectedSkills.removeAll(
-                            _classSkillPicks(previous).toList(growable: false),
+                          final next = classes.firstWhere(
+                            (item) => item.id == value,
+                            orElse: () => previous,
+                          );
+                          _classSkillIds.retainWhere(
+                            next.skillOptions.contains,
                           );
                         });
                       },
@@ -453,26 +500,30 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                       'Perícias',
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
-                    ..._buildClassSkillSection(selectedClass),
-                    ..._buildExtraSkillSection(selectedClass),
+                    ..._buildClassSkillSection(selectedClass, creationSkills),
+                    ..._buildExtraSkillSection(selectedClass, creationSkills),
                     const SizedBox(height: 24),
                     FilledButton.icon(
-                      onPressed: _saving
-                          ? null
-                          : () => _save(
+                      onPressed:
+                          _saving
+                              ? null
+                              : () => _save(
                                 classes,
                                 combinedRace,
                                 effectiveClassId,
                                 backgrounds,
                                 effectiveSubclassId,
                               ),
-                      icon: _saving
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.save),
+                      icon:
+                          _saving
+                              ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                              : const Icon(Icons.save),
                       label: Text(
                         _saving ? 'Criando personagem...' : 'Criar personagem',
                       ),
@@ -556,24 +607,25 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
       if (subrace != null) ...subrace.languages,
     }.toList(growable: false);
 
-    final name = subrace == null
-        ? baseRace.name
-        : '${baseRace.name} — ${subrace.name}';
+    final name =
+        subrace == null ? baseRace.name : '${baseRace.name} — ${subrace.name}';
 
-    final description = subrace?.description?.trim().isNotEmpty == true
-        ? '${baseRace.description ?? ''}\n\n${subrace!.description}'
-        : baseRace.description;
+    final description =
+        subrace?.description?.trim().isNotEmpty == true
+            ? '${baseRace.description ?? ''}\n\n${subrace!.description}'
+            : baseRace.description;
 
     // O modo mais aberto ganha: o Shifter usa padrão flexível na raça base e
     // as naturezas bestiais não mexem em atributo, então a combinação tem que
     // continuar flexível.
-    final mode = baseRace.abilityBonusMode == AbilityBonusMode.flexible ||
-            subrace?.abilityBonusMode == AbilityBonusMode.flexible
-        ? AbilityBonusMode.flexible
-        : baseRace.abilityBonusMode == AbilityBonusMode.choice ||
-              subrace?.abilityBonusMode == AbilityBonusMode.choice
-        ? AbilityBonusMode.choice
-        : AbilityBonusMode.fixed;
+    final mode =
+        baseRace.abilityBonusMode == AbilityBonusMode.flexible ||
+                subrace?.abilityBonusMode == AbilityBonusMode.flexible
+            ? AbilityBonusMode.flexible
+            : baseRace.abilityBonusMode == AbilityBonusMode.choice ||
+                subrace?.abilityBonusMode == AbilityBonusMode.choice
+            ? AbilityBonusMode.choice
+            : AbilityBonusMode.fixed;
 
     return _CombinedRaceData(
       idToSave: subrace?.id ?? baseRace.id,
@@ -610,20 +662,29 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
   ) async {
     if (!_formKey.currentState!.validate()) return;
 
+    final allocationError = StandardArray.validationError(_baseAbilityValues);
+    if (allocationError != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(allocationError)));
+      return;
+    }
+
     // O formulário é um ListView: os campos que saem da viewport são
     // desmontados e se desregistram do Form, então `validate()` não enxerga
     // mais os validators deles. As regras que não podem escapar são checadas
     // aqui de novo, contra o estado, e não contra a árvore de widgets.
     final raceChoice = selectedRace.skillChoice;
-    final raceSkillsPicked = raceChoice == null
-        ? 0
-        : _raceSkillPicks.where(raceChoice.options.contains).length;
+    final raceSkillsPicked =
+        raceChoice == null
+            ? 0
+            : _raceSkillPicks.where(raceChoice.options.contains).length;
 
     final selectedClass = classes.firstWhere(
       (item) => item.id == effectiveClassId,
     );
 
-    final classSkillsPicked = _classSkillPicks(selectedClass).length;
+    final classSkillsPicked = _classPicksFor(selectedClass).length;
 
     final missing = <String>[
       if (_nameController.text.trim().isEmpty) 'o nome do personagem',
@@ -634,7 +695,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
       // A tela já impede passar do limite; o que falta checar é ficar abaixo
       // dele, porque a seção sai da viewport e o Form não a valida mais.
       if (selectedClass.hasSkillChoices &&
-          classSkillsPicked < selectedClass.skillChoices)
+          classSkillsPicked != selectedClass.skillChoices)
         'as ${selectedClass.skillChoices} perícias da classe',
       if (raceChoice != null && raceSkillsPicked < raceChoice.choose)
         raceChoice.choose == 1
@@ -653,19 +714,28 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
 
     // No antecedente customizável as perícias e as características vêm do
     // formulário, não do compêndio.
-    final customBackground = _isCustomBackground
-        ? _buildCustomBackground()
-        : const CustomBackground();
-    final backgroundSkills = _isCustomBackground
-        ? customBackground.skills
-        : (background?.skills ?? const <Skill>[]);
+    final customBackground =
+        _isCustomBackground
+            ? _buildCustomBackground()
+            : const CustomBackground();
+    final skillSelection = _buildCreationSkillSelection(
+      selectedClass,
+      selectedRace,
+      background,
+    );
+    final skillError = skillSelection.validationError;
+    if (skillError != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(skillError)));
+      return;
+    }
 
     setState(() {
       _saving = true;
     });
 
     try {
-      final repository = ref.read(characterRepositoryProvider);
       final now = DateTime.now();
       final id = now.microsecondsSinceEpoch.toString();
 
@@ -676,7 +746,8 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
       final spellcastingType = _spellcastingTypeForClass(
         selectedClass.spellcastingType,
       );
-      final finalScores = _buildFinalAbilityScores(selectedRace);
+      final abilityAllocation = _buildAbilityScoreAllocation(selectedRace);
+      final finalScores = abilityAllocation.totals();
       final maxHp = _startingHitPointsForClass(selectedClass, finalScores);
 
       final portraitPath = await _storePortrait(id);
@@ -685,14 +756,16 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
         id: id,
         name: _nameController.text.trim(),
         portraitPath: portraitPath,
-        playerName: _playerController.text.trim().isEmpty
-            ? null
-            : _playerController.text.trim(),
+        playerName:
+            _playerController.text.trim().isEmpty
+                ? null
+                : _playerController.text.trim(),
         speciesId: selectedRace.idToSave,
         backgroundId: _selectedBackgroundId,
         alignment: _selectedAlignment,
         customBackground: customBackground,
         abilityScores: finalScores,
+        abilityScoreAllocation: abilityAllocation,
         classLevels: [
           ClassLevel(
             classId: selectedClass.id,
@@ -710,15 +783,13 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
           speedInMeters: selectedRace.speed ?? 9,
         ),
         savingThrowProficiencies: _savingThrowsForClass(selectedClass),
-        skillProficiencies: _buildSkillProficienciesFromSelection(
-          backgroundSkills,
-          selectedRace,
-        ),
+        skillProficiencies: skillSelection.toProficiencies(),
+        skillProficiencyGrants: skillSelection.grants,
         createdAt: now,
         updatedAt: now,
       );
 
-      await repository.create(character);
+      await ref.read(createCharacterProvider)(character);
 
       // Clérigo, Feiticeiro e Bruxo escolhem a subclasse já no 1º nível, então
       // as magias dela precisam entrar no livro assim que o personagem nasce.
@@ -820,9 +891,9 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
         const SizedBox(height: 8),
         Text(
           '$label: nenhuma opção cadastrada no compêndio ainda.',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: AppColors.onDarkVariant,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: AppColors.onDarkVariant),
         ),
       ];
     }
@@ -835,14 +906,15 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
       DropdownButtonFormField<String>(
         initialValue: effectiveId,
         decoration: InputDecoration(labelText: label),
-        items: options
-            .map(
-              (item) => DropdownMenuItem<String>(
-                value: item.id,
-                child: Text(item.name),
-              ),
-            )
-            .toList(),
+        items:
+            options
+                .map(
+                  (item) => DropdownMenuItem<String>(
+                    value: item.id,
+                    child: Text(item.name),
+                  ),
+                )
+                .toList(),
         onChanged: (value) {
           setState(() {
             _selectedSubclassId = value;
@@ -922,22 +994,23 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
           decoration: InputDecoration(
             labelText: 'Atributo que recebe +${slots[index]}',
           ),
-          items: _abilityKeys
-              // Não deixa repetir atributo nem cair em cima de um bônus que a
-              // raça já concede: a regra não permite somar dois no mesmo.
-              .where(
-                (ability) =>
-                    ability == abilities[index] ||
-                    (!fixed.containsKey(ability) &&
-                        !abilities.contains(ability)),
-              )
-              .map(
-                (ability) => DropdownMenuItem<String>(
-                  value: ability,
-                  child: Text(_abilityLabels[ability]!),
-                ),
-              )
-              .toList(),
+          items:
+              _abilityKeys
+                  // Não deixa repetir atributo nem cair em cima de um bônus que a
+                  // raça já concede: a regra não permite somar dois no mesmo.
+                  .where(
+                    (ability) =>
+                        ability == abilities[index] ||
+                        (!fixed.containsKey(ability) &&
+                            !abilities.contains(ability)),
+                  )
+                  .map(
+                    (ability) => DropdownMenuItem<String>(
+                      value: ability,
+                      child: Text(_abilityLabels[ability]!),
+                    ),
+                  )
+                  .toList(),
           onChanged: (value) {
             if (value == null) return;
             setState(() {
@@ -951,8 +1024,8 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
   }
 
   /// Perícias que o jogador já marcou dentro das opções da classe.
-  Iterable<String> _classSkillPicks(ClassEntry entry) {
-    return _selectedSkills.where(entry.skillOptions.contains);
+  Iterable<String> _classPicksFor(ClassEntry entry) {
+    return _classSkillIds.where(entry.skillOptions.contains);
   }
 
   /// Perícias da classe, limitadas ao que ela concede.
@@ -960,7 +1033,10 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
   /// A classe dá uma quantidade fixa: quase todas 2, bardo e patrulheiro 3,
   /// ladino 4. Antes a tela listava as opções e aceitava marcar quantas o
   /// jogador quisesse, o que virava uma ficha fora das regras logo na criação.
-  List<Widget> _buildClassSkillSection(ClassEntry entry) {
+  List<Widget> _buildClassSkillSection(
+    ClassEntry entry,
+    CreationSkillSelection selection,
+  ) {
     final options = entry.skillOptions
         .map(Skill.fromId)
         .whereType<Skill>()
@@ -968,7 +1044,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
 
     if (options.isEmpty) return const [];
 
-    final picked = _classSkillPicks(entry).length;
+    final picked = _classPicksFor(entry).length;
     final limit = entry.skillChoices;
     // Sem quantidade declarada no asset a tela não trava nada: melhor deixar
     // escolher que impedir por falta de dado.
@@ -976,18 +1052,13 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
 
     return [
       const SizedBox(height: 8),
-      Text(
-        'Perícias da classe',
-        style: Theme.of(context).textTheme.titleSmall,
-      ),
+      Text('Perícias da classe', style: Theme.of(context).textTheme.titleSmall),
       const SizedBox(height: 4),
       if (entry.hasSkillChoices)
         Text(
           'Perícias da classe: ${entry.skillChoiceLabel(picked)}',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: picked == limit
-                ? AppColors.onDarkVariant
-                : AppColors.error,
+            color: picked == limit ? AppColors.onDarkVariant : AppColors.error,
           ),
         )
       else
@@ -997,7 +1068,11 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
         ),
       const SizedBox(height: 4),
       ...options.map((skill) {
-        final selected = _selectedSkills.contains(skill.id);
+        final selected = _classSkillIds.contains(skill.id);
+        final blocked = selection.acquiredFrom(
+          skill,
+          excluding: SkillGrantSource.characterClass,
+        );
 
         return CheckboxListTile(
           // A seção seguinte repete rótulos; a key separa os dois grupos.
@@ -1005,18 +1080,23 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
           value: selected,
           // Desabilitar no limite deixa claro que acabou, em vez de aceitar a
           // marcação e reclamar só ao salvar.
-          onChanged: atLimit && !selected
-              ? null
-              : (value) {
-                  setState(() {
-                    if (value == true) {
-                      _selectedSkills.add(skill.id);
-                    } else {
-                      _selectedSkills.remove(skill.id);
-                    }
-                  });
-                },
+          onChanged:
+              (atLimit || blocked != null) && !selected
+                  ? null
+                  : (value) {
+                    setState(() {
+                      if (value == true) {
+                        _classSkillIds.add(skill.id);
+                      } else {
+                        _classSkillIds.remove(skill.id);
+                      }
+                    });
+                  },
           title: Text('${skill.label} (${skill.abbreviation})'),
+          subtitle:
+              blocked == null
+                  ? null
+                  : Text('Já adquirida por ${blocked.sourceLabel}'),
           dense: true,
           controlAffinity: ListTileControlAffinity.leading,
           contentPadding: EdgeInsets.zero,
@@ -1030,7 +1110,10 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
   /// Continuam disponíveis porque antecedente, raça, talento e concessão do
   /// mestre também dão perícia, e a criação não modela todas essas origens.
   /// Ficam separadas para não parecerem parte da cota da classe.
-  List<Widget> _buildExtraSkillSection(ClassEntry entry) {
+  List<Widget> _buildExtraSkillSection(
+    ClassEntry entry,
+    CreationSkillSelection selection,
+  ) {
     final extras = Skill.sortedByLabel
         .where((skill) => !entry.skillOptions.contains(skill.id))
         .toList(growable: false);
@@ -1039,10 +1122,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
 
     return [
       const SizedBox(height: 12),
-      Text(
-        'Outras perícias',
-        style: Theme.of(context).textTheme.titleSmall,
-      ),
+      Text('Outras perícias', style: Theme.of(context).textTheme.titleSmall),
       const SizedBox(height: 4),
       Text(
         'Fora da lista de ${entry.name}. Não contam na cota da classe: '
@@ -1051,19 +1131,31 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
       ),
       const SizedBox(height: 4),
       ...extras.map((skill) {
+        final selected = _additionalSkillIds.contains(skill.id);
+        final blocked = selection.acquiredFrom(
+          skill,
+          excluding: SkillGrantSource.additionalChoice,
+        );
         return CheckboxListTile(
           key: ValueKey('extra-skill-${skill.id}'),
-          value: _selectedSkills.contains(skill.id),
-          onChanged: (value) {
-            setState(() {
-              if (value == true) {
-                _selectedSkills.add(skill.id);
-              } else {
-                _selectedSkills.remove(skill.id);
-              }
-            });
-          },
+          value: selected,
+          onChanged:
+              blocked != null && !selected
+                  ? null
+                  : (value) {
+                    setState(() {
+                      if (value == true) {
+                        _additionalSkillIds.add(skill.id);
+                      } else {
+                        _additionalSkillIds.remove(skill.id);
+                      }
+                    });
+                  },
           title: Text('${skill.label} (${skill.abbreviation})'),
+          subtitle:
+              blocked == null
+                  ? null
+                  : Text('Já adquirida por ${blocked.sourceLabel}'),
           dense: true,
           controlAffinity: ListTileControlAffinity.leading,
           contentPadding: EdgeInsets.zero,
@@ -1073,7 +1165,10 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
   }
 
   /// Perícias que vêm da raça: as concedidas direto e as que o jogador escolhe.
-  List<Widget> _buildRaceSkillSection(_CombinedRaceData race) {
+  List<Widget> _buildRaceSkillSection(
+    _CombinedRaceData race,
+    CreationSkillSelection selection,
+  ) {
     final choice = race.skillChoice;
     if (race.grantedSkills.isEmpty && choice == null) return const [];
 
@@ -1082,16 +1177,13 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
         .whereType<Skill>()
         .toList(growable: false);
 
-    final picks = _raceSkillPicks.where(
-      (id) => choice?.options.contains(id) ?? false,
-    );
+    final picks = _raceSkillPicks
+        .where((id) => choice?.options.contains(id) ?? false)
+        .toList(growable: false);
 
     return [
       const SizedBox(height: 12),
-      Text(
-        'Perícias da raça',
-        style: Theme.of(context).textTheme.titleSmall,
-      ),
+      Text('Perícias da raça', style: Theme.of(context).textTheme.titleSmall),
       if (granted.isNotEmpty) ...[
         const SizedBox(height: 4),
         Text(
@@ -1105,14 +1197,20 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
           'Escolha ${choice.choose} '
           '(${picks.length} de ${choice.choose} marcadas).',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: picks.length == choice.choose
-                ? AppColors.onDarkVariant
-                : AppColors.error,
+            color:
+                picks.length == choice.choose
+                    ? AppColors.onDarkVariant
+                    : AppColors.error,
           ),
         ),
         const SizedBox(height: 4),
         ...choice.options.map(Skill.fromId).whereType<Skill>().map((skill) {
           final selected = _raceSkillPicks.contains(skill.id);
+          final blocked = selection.acquiredFrom(
+            skill,
+            excluding: SkillGrantSource.raceChoice,
+          );
+          final atLimit = picks.length >= choice.choose;
 
           return CheckboxListTile(
             // A lista geral de perícias tem itens com o mesmo rótulo; a key
@@ -1120,17 +1218,23 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
             key: ValueKey('race-skill-${skill.id}'),
             value: selected,
             // Impede marcar além do limite, em vez de avisar depois.
-            onChanged: (value) {
-              setState(() {
-                if (value == true) {
-                  if (picks.length >= choice.choose) return;
-                  _raceSkillPicks.add(skill.id);
-                } else {
-                  _raceSkillPicks.remove(skill.id);
-                }
-              });
-            },
+            onChanged:
+                (blocked != null || atLimit) && !selected
+                    ? null
+                    : (value) {
+                      setState(() {
+                        if (value == true) {
+                          _raceSkillPicks.add(skill.id);
+                        } else {
+                          _raceSkillPicks.remove(skill.id);
+                        }
+                      });
+                    },
             title: Text('${skill.label} (${skill.abbreviation})'),
+            subtitle:
+                blocked == null
+                    ? null
+                    : Text('Já adquirida por ${blocked.sourceLabel}'),
             dense: true,
             controlAffinity: ListTileControlAffinity.leading,
             contentPadding: EdgeInsets.zero,
@@ -1144,6 +1248,133 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
   ///
   /// Vazio quando a raça define tudo e o jogador não pediu origem
   /// personalizada.
+  List<Widget> _buildStandardArraySection(_CombinedRaceData race) {
+    final available = StandardArray.available(_baseAbilityValues);
+    final bonuses = _allBonusesOf(race);
+    final error = StandardArray.validationError(_baseAbilityValues);
+
+    String availableLabel() {
+      if (available.isEmpty) return 'nenhum';
+      if (available.length == 1) return '${available.single}';
+      return '${available.take(available.length - 1).join(', ')} e '
+          '${available.last}';
+    }
+
+    return [
+      const SizedBox(height: 20),
+      Text(
+        'Atributos — conjunto padrão',
+        style: Theme.of(context).textTheme.titleLarge,
+      ),
+      const SizedBox(height: 4),
+      Text(
+        'Distribua 15, 14, 13, 12, 10 e 8. Cada valor só pode ser usado uma vez.',
+        style: Theme.of(context).textTheme.bodySmall,
+      ),
+      const SizedBox(height: 8),
+      Card(
+        margin: EdgeInsets.zero,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            children: [
+              for (final ability in Ability.values) ...[
+                Builder(
+                  builder: (context) {
+                    final current = _baseAbilityValues[ability];
+                    final choices = <int>[
+                      if (current != null) current,
+                      ...available.where((value) => value != current),
+                    ];
+                    final originBonus = bonuses[ability.name] ?? 0;
+                    final total =
+                        current == null ? null : current + originBonus;
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: DropdownButtonFormField<int>(
+                                key: ValueKey(
+                                  'standard-${ability.name}-$current-'
+                                  '${available.join('-')}',
+                                ),
+                                initialValue: current,
+                                decoration: InputDecoration(
+                                  labelText: ability.label,
+                                  helperText:
+                                      total == null
+                                          ? 'Escolha o valor base'
+                                          : '$current base + $originBonus de origem '
+                                              '= $total '
+                                              '(${total.abilityModifier >= 0 ? '+' : ''}'
+                                              '${total.abilityModifier})',
+                                ),
+                                items: choices
+                                    .map(
+                                      (value) => DropdownMenuItem<int>(
+                                        value: value,
+                                        child: Text('$value'),
+                                      ),
+                                    )
+                                    .toList(growable: false),
+                                onChanged: (value) {
+                                  setState(() {
+                                    if (value == null) {
+                                      _baseAbilityValues.remove(ability);
+                                    } else {
+                                      _baseAbilityValues[ability] = value;
+                                    }
+                                  });
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            IconButton(
+                              tooltip: 'Remover valor de ${ability.label}',
+                              onPressed:
+                                  current == null
+                                      ? null
+                                      : () => setState(
+                                        () =>
+                                            _baseAbilityValues.remove(ability),
+                                      ),
+                              icon: const Icon(Icons.clear),
+                            ),
+                          ],
+                        ),
+                        if (ability != Ability.values.last)
+                          const SizedBox(height: 8),
+                      ],
+                    );
+                  },
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+      const SizedBox(height: 8),
+      Text(
+        'Valores disponíveis: ${availableLabel()}',
+        key: const ValueKey('standard-array-available'),
+        style: Theme.of(context).textTheme.bodySmall,
+      ),
+      if (error != null) ...[
+        const SizedBox(height: 4),
+        Text(
+          error,
+          key: const ValueKey('standard-array-error'),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: AppColors.error),
+        ),
+      ],
+    ];
+  }
+
   List<int> _bonusSlots(_CombinedRaceData race) {
     switch (race.abilityBonusMode) {
       case AbilityBonusMode.flexible:
@@ -1212,18 +1443,19 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
     return bonuses;
   }
 
-  AbilityScores _buildFinalAbilityScores(_CombinedRaceData race) {
+  AbilityScoreAllocation _buildAbilityScoreAllocation(_CombinedRaceData race) {
     final bonuses = _allBonusesOf(race);
+    final originBonuses = <Ability, int>{};
+    for (final entry in bonuses.entries) {
+      final ability = Ability.fromName(entry.key);
+      if (ability != null && entry.value > 0) {
+        originBonuses[ability] = entry.value;
+      }
+    }
 
-    int bonusFor(String key) => bonuses[key] ?? 0;
-
-    return AbilityScores(
-      strength: 10 + bonusFor('strength'),
-      dexterity: 10 + bonusFor('dexterity'),
-      constitution: 10 + bonusFor('constitution'),
-      intelligence: 10 + bonusFor('intelligence'),
-      wisdom: 10 + bonusFor('wisdom'),
-      charisma: 10 + bonusFor('charisma'),
+    return AbilityScoreAllocation(
+      baseScores: StandardArray.toAbilityScores(_baseAbilityValues),
+      originBonuses: originBonuses,
     );
   }
 
@@ -1267,25 +1499,207 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
     );
   }
 
-  /// Junta tudo que dá proficiência em perícia no nível 1: o que o jogador
-  /// marcou, o que o antecedente concede e o que vem da raça — concedido ou
-  /// escolhido dentro das opções dela.
-  SkillProficiencies _buildSkillProficienciesFromSelection(
-    List<Skill> backgroundSkills,
-    _CombinedRaceData race,
-  ) {
-    // A escolha da raça é filtrada contra as opções dela: sem isso, uma opção
-    // desmarcada depois de trocar de raça entraria de carona.
-    final raceOptions = race.skillChoice?.options ?? const <String>[];
-    final racePicks = _raceSkillPicks.where(raceOptions.contains);
+  /// Aplica as substituições explícitas pedidas quando uma perícia automática
+  /// do antecedente já foi concedida por outra origem.
+  List<String> _effectiveBackgroundSkillIds(BackgroundEntry background) {
+    return [
+      for (final id in background.skillIds)
+        _backgroundSkillReplacements[id] ?? id,
+    ];
+  }
 
-    return GrantedSkills.apply(const SkillProficiencies(), [
-      // Perícias de classe marcadas pelo jogador.
-      ...GrantedSkills.fromIds(_selectedSkills),
-      ...backgroundSkills,
-      ...GrantedSkills.fromIds(race.grantedSkills),
-      ...GrantedSkills.fromIds(racePicks),
-    ]);
+  List<Widget> _buildBackgroundReplacementSection(
+    BackgroundEntry background,
+    CreationSkillSelection selection,
+  ) {
+    final rows = <Widget>[];
+    final effective = _effectiveBackgroundSkillIds(background);
+
+    for (final originalId in background.skillIds) {
+      final original = Skill.fromId(originalId);
+      if (original == null) continue;
+      final replacementId = _backgroundSkillReplacements[originalId];
+      final blocking = selection.acquiredFrom(
+        original,
+        excluding: SkillGrantSource.backgroundAutomatic,
+      );
+      if (replacementId == null && blocking == null) continue;
+
+      rows.add(
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: DropdownButtonFormField<String>(
+            key: ValueKey('background-replacement-$originalId-$replacementId'),
+            initialValue: replacementId,
+            decoration: InputDecoration(
+              labelText: 'Substituir ${original.label}',
+              helperText:
+                  blocking == null
+                      ? 'A substituição pode ser revista.'
+                      : 'Já adquirida por ${blocking.sourceLabel}.',
+            ),
+            items: Skill.sortedByLabel
+                .where(
+                  (skill) =>
+                      skill.id == replacementId ||
+                      !effective.contains(skill.id) ||
+                      skill.id == originalId,
+                )
+                .map((skill) {
+                  final usedBy = selection.acquiredFrom(
+                    skill,
+                    excluding: SkillGrantSource.backgroundAutomatic,
+                  );
+                  final enabled = skill.id == replacementId || usedBy == null;
+                  return DropdownMenuItem<String>(
+                    value: skill.id,
+                    enabled: enabled,
+                    child: Text(
+                      usedBy == null
+                          ? skill.label
+                          : '${skill.label} — já adquirida por '
+                              '${usedBy.sourceLabel}',
+                    ),
+                  );
+                })
+                .toList(growable: false),
+            onChanged: (value) {
+              if (value == null) return;
+              setState(() {
+                if (value == originalId) {
+                  _backgroundSkillReplacements.remove(originalId);
+                } else {
+                  _backgroundSkillReplacements[originalId] = value;
+                }
+              });
+            },
+          ),
+        ),
+      );
+    }
+
+    if (rows.isEmpty) return const [];
+    return [
+      Card(
+        margin: const EdgeInsets.only(top: 8),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Perícia repetida',
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Escolha outra perícia para o antecedente; nenhuma '
+                'proficiência será removida automaticamente.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              ...rows,
+            ],
+          ),
+        ),
+      ),
+    ];
+  }
+
+  CreationSkillSelection _buildCreationSkillSelection(
+    ClassEntry classEntry,
+    _CombinedRaceData race,
+    BackgroundEntry? background,
+  ) {
+    final grants = <SkillProficiencyGrant>[];
+
+    void addIds({
+      required Iterable<String> ids,
+      required SkillGrantSource source,
+      required String sourceId,
+      required String sourceLabel,
+      required bool automatic,
+    }) {
+      for (final id in ids) {
+        final skill = Skill.fromId(id);
+        if (skill == null) continue;
+        grants.add(
+          SkillProficiencyGrant(
+            skill: skill,
+            source: source,
+            sourceId: sourceId,
+            sourceLabel: sourceLabel,
+            automatic: automatic,
+          ),
+        );
+      }
+    }
+
+    addIds(
+      ids: _classPicksFor(classEntry),
+      source: SkillGrantSource.characterClass,
+      sourceId: classEntry.id,
+      sourceLabel: 'classe ${classEntry.name}',
+      automatic: false,
+    );
+    addIds(
+      ids: race.grantedSkills,
+      source: SkillGrantSource.raceAutomatic,
+      sourceId: race.idToSave,
+      sourceLabel: 'raça ${race.name}',
+      automatic: true,
+    );
+
+    final raceOptions = race.skillChoice?.options ?? const <String>[];
+    addIds(
+      ids: _raceSkillPicks.where(raceOptions.contains),
+      source: SkillGrantSource.raceChoice,
+      sourceId: race.idToSave,
+      sourceLabel: 'escolha da raça ${race.name}',
+      automatic: false,
+    );
+
+    if (_isCustomBackground) {
+      addIds(
+        ids: [
+          if (_customBackgroundSkillOne != null) _customBackgroundSkillOne!,
+          if (_customBackgroundSkillTwo != null) _customBackgroundSkillTwo!,
+        ],
+        source: SkillGrantSource.backgroundChoice,
+        sourceId: BackgroundEntry.customId,
+        sourceLabel: 'antecedente personalizado',
+        automatic: false,
+      );
+    } else if (background != null) {
+      addIds(
+        ids: _effectiveBackgroundSkillIds(background),
+        source: SkillGrantSource.backgroundAutomatic,
+        sourceId: background.id,
+        sourceLabel: 'antecedente ${background.name}',
+        automatic: true,
+      );
+    }
+
+    addIds(
+      ids: _additionalSkillIds,
+      source: SkillGrantSource.additionalChoice,
+      sourceId: 'additional',
+      sourceLabel: 'escolha adicional',
+      automatic: false,
+    );
+
+    return CreationSkillSelection(grants);
+  }
+
+  Map<String, String> _blockedSkillReasons(
+    CreationSkillSelection selection, {
+    required SkillGrantSource excluding,
+  }) {
+    final result = <String, String>{};
+    for (final skill in Skill.values) {
+      final grant = selection.acquiredFrom(skill, excluding: excluding);
+      if (grant != null) result[skill.id] = grant.sourceLabel;
+    }
+    return result;
   }
 
   Ability? _abilityFromString(String? value) {
@@ -1380,8 +1794,7 @@ class _BackgroundSummary extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (background.description != null)
-              Text(background.description!),
+            if (background.description != null) Text(background.description!),
             if (skillLabels.isNotEmpty) ...[
               const SizedBox(height: 8),
               Text(
@@ -1432,7 +1845,6 @@ class _RaceSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -1478,13 +1890,14 @@ class _RaceSummaryCard extends StatelessWidget {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: bonuses.entries.map((entry) {
-                  return Chip(
-                    label: Text(
-                      '${_abilityShortLabel(entry.key)} +${entry.value}',
-                    ),
-                  );
-                }).toList(),
+                children:
+                    bonuses.entries.map((entry) {
+                      return Chip(
+                        label: Text(
+                          '${_abilityShortLabel(entry.key)} +${entry.value}',
+                        ),
+                      );
+                    }).toList(),
               ),
             if (race.traits.isNotEmpty) ...[
               const SizedBox(height: 12),
@@ -1493,7 +1906,9 @@ class _RaceSummaryCard extends StatelessWidget {
                 style: Theme.of(context).textTheme.labelLarge,
               ),
               const SizedBox(height: 6),
-              ...race.traits.take(8).map(
+              ...race.traits
+                  .take(8)
+                  .map(
                     (trait) => Padding(
                       padding: const EdgeInsets.only(bottom: 4),
                       child: Text('• $trait'),
@@ -1557,7 +1972,6 @@ class _RaceSummaryCard extends StatelessWidget {
   }
 }
 
-
 /// Campo de aparência do personagem na criação.
 ///
 /// Mostra a imagem escolhida direto do caminho de origem: a cópia para o
@@ -1581,20 +1995,13 @@ class _PortraitField extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        PortraitAvatar(
-          path: picked?.path,
-          size: 78,
-          emptyLabel: 'imagem',
-        ),
+        PortraitAvatar(path: picked?.path, size: 78, emptyLabel: 'imagem'),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Aparência',
-                style: Theme.of(context).textTheme.labelLarge,
-              ),
+              Text('Aparência', style: Theme.of(context).textTheme.labelLarge),
               const SizedBox(height: 2),
               Text(
                 has

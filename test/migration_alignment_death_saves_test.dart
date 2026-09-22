@@ -4,7 +4,7 @@ import 'package:dnd_ficha_app/core/database/app_database.dart';
 import 'package:dnd_ficha_app/features/character/data/mappers/character_mapper.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/death_saves.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/alignment.dart';
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' hide isNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -24,7 +24,9 @@ void main() {
     final agora = DateTime.now();
     final antigo = AppDatabase.forTesting(NativeDatabase(arquivo));
 
-    await antigo.into(antigo.characters).insert(
+    await antigo
+        .into(antigo.characters)
+        .insert(
           CharactersCompanion.insert(
             id: 'velho',
             name: 'Bruenor',
@@ -37,11 +39,13 @@ void main() {
         );
 
     // A classe é obrigatória para o mapper montar o personagem.
-    await antigo.into(antigo.characterClassLevels).insert(
+    await antigo
+        .into(antigo.characterClassLevels)
+        .insert(
           CharacterClassLevelsCompanion.insert(
             characterId: 'velho',
             classId: 'fighter',
-            level: const Value(3),
+            level: 3,
           ),
         );
 
@@ -135,7 +139,9 @@ void main() {
     addTearDown(db.close);
 
     final agora = DateTime.now();
-    await db.into(db.characters).insert(
+    await db
+        .into(db.characters)
+        .insert(
           CharactersCompanion.insert(
             id: 'novo',
             name: 'Drizzt',
@@ -146,9 +152,9 @@ void main() {
           ),
         );
 
-    final novo = await (db.select(db.characters)
-          ..where((t) => t.id.equals('novo')))
-        .getSingle();
+    final novo =
+        await (db.select(db.characters)
+          ..where((t) => t.id.equals('novo'))).getSingle();
 
     expect(
       CharacterAlignment.fromId(novo.alignment),

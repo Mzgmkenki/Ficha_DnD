@@ -311,6 +311,7 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
     );
 
     if (confirmed != true) return;
+    if (!context.mounted) return;
 
     final missingForNewClass = _missingPrerequisitesForClass(selectedClass.id);
     if (missingForNewClass != null) {

@@ -783,7 +783,7 @@ class _ItemSpellsSectionState extends ConsumerState<_ItemSpellsSection> {
                             ),
                           );
 
-                          if (!mounted) return;
+                          if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content:

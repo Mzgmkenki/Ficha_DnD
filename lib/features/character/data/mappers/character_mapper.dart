@@ -1,6 +1,8 @@
 import 'package:dnd_ficha_app/core/database/app_database.dart';
+import 'package:dnd_ficha_app/features/character/data/mappers/character_creation_metadata_codec.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
-import 'package:dnd_ficha_app/features/character/domain/entities/character.dart' as domain;
+import 'package:dnd_ficha_app/features/character/domain/entities/character.dart'
+    as domain;
 import 'package:dnd_ficha_app/features/character/domain/entities/character_feat.dart'
     as domain_feats;
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
@@ -50,14 +52,25 @@ class CharacterMapper {
         wisdom: character.wisdom,
         charisma: character.charisma,
       ),
+      abilityScoreAllocation: CharacterCreationMetadataCodec.decodeAllocation(
+        character.baseAbilityScores,
+        character.originAbilityBonuses,
+      ),
 
-      classLevels: classLevels.map((item) => ClassLevel(
-        classId: item.classId,
-        subclassId: item.subclassId,
-        level: item.level,
-        spellcastingAbility: _abilityFromDb(item.spellcastingAbility),
-        spellcastingType: _spellcastingTypeFromDb(item.spellcastingType),
-      )).toList(),
+      classLevels:
+          classLevels
+              .map(
+                (item) => ClassLevel(
+                  classId: item.classId,
+                  subclassId: item.subclassId,
+                  level: item.level,
+                  spellcastingAbility: _abilityFromDb(item.spellcastingAbility),
+                  spellcastingType: _spellcastingTypeFromDb(
+                    item.spellcastingType,
+                  ),
+                ),
+              )
+              .toList(),
 
       hitPoints: HitPoints(
         current: character.currentHitPoints,
@@ -86,28 +99,35 @@ class CharacterMapper {
       skillProficiencies: SkillProficiencies(
         levels: {
           Skill.acrobatics: ProficiencyLevel.fromDb(character.lvlAcrobatics),
-          Skill.animalHandling:
-              ProficiencyLevel.fromDb(character.lvlAnimalHandling),
+          Skill.animalHandling: ProficiencyLevel.fromDb(
+            character.lvlAnimalHandling,
+          ),
           Skill.arcana: ProficiencyLevel.fromDb(character.lvlArcana),
           Skill.athletics: ProficiencyLevel.fromDb(character.lvlAthletics),
           Skill.deception: ProficiencyLevel.fromDb(character.lvlDeception),
           Skill.history: ProficiencyLevel.fromDb(character.lvlHistory),
           Skill.insight: ProficiencyLevel.fromDb(character.lvlInsight),
-          Skill.intimidation:
-              ProficiencyLevel.fromDb(character.lvlIntimidation),
-          Skill.investigation:
-              ProficiencyLevel.fromDb(character.lvlInvestigation),
+          Skill.intimidation: ProficiencyLevel.fromDb(
+            character.lvlIntimidation,
+          ),
+          Skill.investigation: ProficiencyLevel.fromDb(
+            character.lvlInvestigation,
+          ),
           Skill.medicine: ProficiencyLevel.fromDb(character.lvlMedicine),
           Skill.nature: ProficiencyLevel.fromDb(character.lvlNature),
           Skill.perception: ProficiencyLevel.fromDb(character.lvlPerception),
           Skill.performance: ProficiencyLevel.fromDb(character.lvlPerformance),
           Skill.persuasion: ProficiencyLevel.fromDb(character.lvlPersuasion),
           Skill.religion: ProficiencyLevel.fromDb(character.lvlReligion),
-          Skill.sleightOfHand:
-              ProficiencyLevel.fromDb(character.lvlSleightOfHand),
+          Skill.sleightOfHand: ProficiencyLevel.fromDb(
+            character.lvlSleightOfHand,
+          ),
           Skill.stealth: ProficiencyLevel.fromDb(character.lvlStealth),
           Skill.survival: ProficiencyLevel.fromDb(character.lvlSurvival),
         },
+      ),
+      skillProficiencyGrants: CharacterCreationMetadataCodec.decodeSkillGrants(
+        character.skillProficiencyGrants,
       ),
 
       feats: feats
@@ -143,8 +163,9 @@ class CharacterMapper {
       hitDiceUsed: character.hitDiceUsed,
       // Id desconhecido devolve nulo em vez de lançar, como `_abilityFromDb`:
       // um dado legado não pode tornar o personagem inacessível.
-      alignment:
-          domain_alignment.CharacterAlignment.fromId(character.alignment),
+      alignment: domain_alignment.CharacterAlignment.fromId(
+        character.alignment,
+      ),
 
       currency: Currency(
         copper: character.copperPieces,

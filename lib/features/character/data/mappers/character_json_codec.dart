@@ -15,7 +15,9 @@ import 'package:dnd_ficha_app/features/character/domain/entities/death_saves.dar
 import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiency_grant.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/granted_ability_increases.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/standard_array.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/alignment.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart';
@@ -128,6 +130,19 @@ class CharacterJsonCodec {
         for (final ability in Ability.values)
           ability.name: character.abilityScores.valueFor(ability),
       },
+      if (character.abilityScoreAllocation != null)
+        'abilityAllocation': <String, dynamic>{
+          'base': <String, dynamic>{
+            for (final ability in Ability.values)
+              ability.name: character.abilityScoreAllocation!.baseScores
+                  .valueFor(ability),
+          },
+          'originBonuses': <String, dynamic>{
+            for (final entry
+                in character.abilityScoreAllocation!.originBonuses.entries)
+              entry.key.name: entry.value,
+          },
+        },
       'classLevels': [
         for (final level in character.classLevels)
           <String, dynamic>{
@@ -161,6 +176,16 @@ class CharacterJsonCodec {
         for (final entry in character.skillProficiencies.activeLevels.entries)
           entry.key.id: entry.value.dbValue,
       },
+      'skillGrants': [
+        for (final grant in character.skillProficiencyGrants)
+          <String, dynamic>{
+            'skill': grant.skill.id,
+            'source': grant.source.name,
+            'sourceId': grant.sourceId,
+            'sourceLabel': grant.sourceLabel,
+            'automatic': grant.automatic,
+          },
+      ],
       'spells': [
         for (final spell in character.spells)
           <String, dynamic>{
@@ -211,14 +236,18 @@ class CharacterJsonCodec {
             // preserva o item marcado para revisão (bônus negativo, acima de
             // `+3` ou diferente entre estatísticas), que não tem como ser
             // representado nos campos acima.
-            'weaponAttackBonus':
-                item.declaredBonusFor(MagicItemBonusTarget.weaponAttack),
-            'weaponDamageBonus':
-                item.declaredBonusFor(MagicItemBonusTarget.weaponDamage),
-            'spellAttackBonus':
-                item.declaredBonusFor(MagicItemBonusTarget.spellAttack),
-            'spellSaveDcBonus':
-                item.declaredBonusFor(MagicItemBonusTarget.spellSaveDc),
+            'weaponAttackBonus': item.declaredBonusFor(
+              MagicItemBonusTarget.weaponAttack,
+            ),
+            'weaponDamageBonus': item.declaredBonusFor(
+              MagicItemBonusTarget.weaponDamage,
+            ),
+            'spellAttackBonus': item.declaredBonusFor(
+              MagicItemBonusTarget.spellAttack,
+            ),
+            'spellSaveDcBonus': item.declaredBonusFor(
+              MagicItemBonusTarget.spellSaveDc,
+            ),
             'spells': [
               for (final spell in item.spells)
                 <String, dynamic>{
@@ -313,16 +342,20 @@ class CharacterJsonCodec {
       ),
       notes: _asString(map['notes']) ?? '',
       abilityScores: _parseAbilityScores(map['abilityScores']),
+      abilityScoreAllocation: _parseAbilityAllocation(map['abilityAllocation']),
       classLevels: classLevels,
       hitPoints: HitPoints(
         current: current.clamp(0, safeMaximum),
         maximum: safeMaximum,
-        temporary: (_asInt(_asMap(map['hitPoints'])['temporary']) ?? 0)
-            .clamp(0, 9999),
+        temporary: (_asInt(_asMap(map['hitPoints'])['temporary']) ?? 0).clamp(
+          0,
+          9999,
+        ),
       ),
       combatStats: _parseCombatStats(map['combatStats']),
       savingThrowProficiencies: _parseSavingThrows(map['savingThrows']),
       skillProficiencies: _parseSkills(map['skills']),
+      skillProficiencyGrants: _parseSkillGrants(map['skillGrants']),
       spells: _parseSpells(map['spells']),
       weapons: _parseWeapons(map['weapons']),
       magicItems: _parseMagicItems(map['magicItems']),
@@ -338,9 +371,7 @@ class CharacterJsonCodec {
       currency: _parseCurrency(map['currency']),
       // Importar cria uma ficha nova: a data de criação é a de agora, mas a
       // original fica preservada se estiver no arquivo.
-      createdAt: newId == null
-          ? (_parseDate(map['createdAt']) ?? now)
-          : now,
+      createdAt: newId == null ? (_parseDate(map['createdAt']) ?? now) : now,
       updatedAt: now,
     );
   }
@@ -361,6 +392,65 @@ class CharacterJsonCodec {
       wisdom: score(Ability.wisdom),
       charisma: score(Ability.charisma),
     );
+  }
+
+  static AbilityScoreAllocation? _parseAbilityAllocation(Object? raw) {
+    final map = _asMap(raw);
+    if (map.isEmpty) return null;
+
+    final baseMap = _asMap(map['base']);
+    final assignments = <Ability, int>{};
+    for (final ability in Ability.values) {
+      final value = _asInt(baseMap[ability.name]);
+      if (value != null) assignments[ability] = value;
+    }
+    if (!StandardArray.isValid(assignments)) return null;
+
+    final originMap = _asMap(map['originBonuses']);
+    final origin = <Ability, int>{};
+    for (final ability in Ability.values) {
+      final value = _asInt(originMap[ability.name]);
+      if (value != null && value > 0) origin[ability] = value;
+    }
+
+    return AbilityScoreAllocation(
+      baseScores: StandardArray.toAbilityScores(assignments),
+      originBonuses: origin,
+    );
+  }
+
+  static List<SkillProficiencyGrant> _parseSkillGrants(Object? raw) {
+    final result = <SkillProficiencyGrant>[];
+    for (final item in _asList(raw)) {
+      final map = _asMap(item);
+      final skill = Skill.fromId(_asString(map['skill']));
+      final source = _skillGrantSourceFromName(_asString(map['source']));
+      final sourceId = _asString(map['sourceId']);
+      final sourceLabel = _asString(map['sourceLabel']);
+      if (skill == null ||
+          source == null ||
+          sourceId == null ||
+          sourceLabel == null) {
+        continue;
+      }
+      result.add(
+        SkillProficiencyGrant(
+          skill: skill,
+          source: source,
+          sourceId: sourceId,
+          sourceLabel: sourceLabel,
+          automatic: _asBool(map['automatic']),
+        ),
+      );
+    }
+    return result;
+  }
+
+  static SkillGrantSource? _skillGrantSourceFromName(String? value) {
+    for (final source in SkillGrantSource.values) {
+      if (source.name == value) return source;
+    }
+    return null;
   }
 
   static List<ClassLevel> _parseClassLevels(Object? raw) {
@@ -550,9 +640,10 @@ class CharacterJsonCodec {
           magicBonus: _asInt(map['magicBonus']) ?? 0,
           chosenAbility: Ability.fromName(_asString(map['chosenAbility'])),
           twoHanded: _asBool(map['twoHanded']),
-          proficiencyOverride: map['proficiencyOverride'] is bool
-              ? map['proficiencyOverride'] as bool
-              : null,
+          proficiencyOverride:
+              map['proficiencyOverride'] is bool
+                  ? map['proficiencyOverride'] as bool
+                  : null,
           notes: _asString(map['notes']) ?? '',
         ),
       );
@@ -581,8 +672,10 @@ class CharacterJsonCodec {
             usesCharges: _asBool(spellMap['usesCharges']),
             chargeCost: _asInt(spellMap['chargeCost']) ?? 1,
             isAtWill: _asBool(spellMap['isAtWill']),
-            isAlwaysAvailable:
-                _asBool(spellMap['isAlwaysAvailable'], fallback: true),
+            isAlwaysAvailable: _asBool(
+              spellMap['isAlwaysAvailable'],
+              fallback: true,
+            ),
           ),
         );
       }
@@ -675,8 +768,7 @@ class CharacterJsonCodec {
     final map = _asMap(raw);
 
     return DeathSaves(
-      successes:
-          (_asInt(map['successes']) ?? 0).clamp(0, DeathSaves.maxMarks),
+      successes: (_asInt(map['successes']) ?? 0).clamp(0, DeathSaves.maxMarks),
       failures: (_asInt(map['failures']) ?? 0).clamp(0, DeathSaves.maxMarks),
     );
   }

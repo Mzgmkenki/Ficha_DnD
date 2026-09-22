@@ -28,7 +28,11 @@ MigrationStrategy buildMigrationStrategy(AppDatabase db) {
 
         // Perícias (booleanos legados)
         await _tryAddColumn(m, db.characters, db.characters.skillAcrobatics);
-        await _tryAddColumn(m, db.characters, db.characters.skillAnimalHandling);
+        await _tryAddColumn(
+          m,
+          db.characters,
+          db.characters.skillAnimalHandling,
+        );
         await _tryAddColumn(m, db.characters, db.characters.skillArcana);
         await _tryAddColumn(m, db.characters, db.characters.skillAthletics);
         await _tryAddColumn(m, db.characters, db.characters.skillDeception);
@@ -343,16 +347,8 @@ MigrationStrategy buildMigrationStrategy(AppDatabase db) {
         await _tryAddColumn(m, db.characters, db.characters.alignment);
 
         // Testes contra a morte: um contador para cada lado.
-        await _tryAddColumn(
-          m,
-          db.characters,
-          db.characters.deathSaveSuccesses,
-        );
-        await _tryAddColumn(
-          m,
-          db.characters,
-          db.characters.deathSaveFailures,
-        );
+        await _tryAddColumn(m, db.characters, db.characters.deathSaveSuccesses);
+        await _tryAddColumn(m, db.characters, db.characters.deathSaveFailures);
 
         // Personagem que já existia não estava no meio de uma sequência de
         // testes, então começa zerado nos dois lados.
@@ -365,6 +361,29 @@ MigrationStrategy buildMigrationStrategy(AppDatabase db) {
             'UPDATE characters SET $column = 0 WHERE $column IS NULL',
           );
         }
+      }
+
+      if (from < 16) {
+        // Metadados de criação. As duas primeiras colunas ficam nulas em
+        // personagens antigos: inferir a base a partir do total perderia a
+        // distinção entre bônus de origem, talento e edição manual.
+        await _tryAddColumn(m, db.characters, db.characters.baseAbilityScores);
+        await _tryAddColumn(
+          m,
+          db.characters,
+          db.characters.originAbilityBonuses,
+        );
+        await _tryAddColumn(
+          m,
+          db.characters,
+          db.characters.skillProficiencyGrants,
+        );
+
+        await _tryQuery(
+          db,
+          "UPDATE characters SET skill_proficiency_grants = '[]' "
+          'WHERE skill_proficiency_grants IS NULL',
+        );
       }
     },
     beforeOpen: (details) async {

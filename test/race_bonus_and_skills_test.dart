@@ -87,16 +87,26 @@ const _centaur = RaceEntry(
   traits: ['Investida.'],
 );
 
+const _overlappingSkillsRace = RaceEntry(
+  id: 'overlap',
+  name: 'Raça de teste',
+  source: 'test',
+  abilityBonusMode: AbilityBonusMode.flexible,
+  allowsCustomOrigin: false,
+  skillChoice: RaceSkillChoice(choose: 1, options: ['athletics', 'survival']),
+);
+
 Future<_FakeCharacterRepository> _pumpCreationPage(
   WidgetTester tester,
-  List<RaceEntry> races,
-) async {
+  List<RaceEntry> races, {
+  Size surfaceSize = const Size(1200, 4200),
+}) async {
   final repository = _FakeCharacterRepository();
 
   // Tela alta o bastante para o formulário inteiro caber: o ListView constrói
   // sob demanda e, com a tela padrão, rolar até cada checkbox deixava o teste
   // brigando com o scroll em vez de testar a regra.
-  tester.view.physicalSize = const Size(1200, 4200);
+  tester.view.physicalSize = surfaceSize;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
 
@@ -110,12 +120,12 @@ Future<_FakeCharacterRepository> _pumpCreationPage(
       ],
       child: MaterialApp(
         home: const CharacterCreationPage(),
-        onGenerateRoute: (_) => MaterialPageRoute<void>(
-          builder: (_) => const Text('FICHA'),
-        ),
+        onGenerateRoute:
+            (_) => MaterialPageRoute<void>(builder: (_) => const Text('FICHA')),
       ),
     ),
   );
+
   await tester.pump();
 
   return repository;
@@ -157,22 +167,68 @@ Future<void> _selectBackground(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('raça com bônus fixo aplica o bônus e o deslocamento com fração', (
+  testWidgets('fluxo permanece rolável sem overflow em tela pequena', (
+    tester,
+  ) async {
+    await _pumpCreationPage(tester, const [
+      _dwarf,
+    ], surfaceSize: const Size(360, 640));
+
+    final scrollable = find.byType(Scrollable).first;
+    await tester.drag(scrollable, const Offset(0, -520));
+    await tester.pumpAndSettle();
+    await tester.drag(scrollable, const Offset(0, -520));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.byType(CharacterCreationPage), findsOneWidget);
+  });
+
+  testWidgets('conjunto padrão mostra e devolve um valor removido', (
     tester,
   ) async {
     final repository = await _pumpCreationPage(tester, const [_dwarf]);
 
+    expect(find.text('Valores disponíveis: nenhum'), findsOneWidget);
+
+    final strength = tester.widget<DropdownButtonFormField<int>>(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is DropdownButtonFormField<int> &&
+            widget.key.toString().contains('standard-strength'),
+      ),
+    );
+    expect(strength.initialValue, 15);
+
+    await tester.tap(find.byTooltip('Remover valor de Força'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Valores disponíveis: 15'), findsOneWidget);
     await _fillName(tester);
     await _selectBackground(tester);
     await _tapSave(tester);
-
-    final created = repository.created;
-    expect(created, isNotNull);
-    expect(created!.abilityScores.constitution, 12);
-    expect(created.abilityScores.strength, 10);
-    // 7,5 m não caberia no campo inteiro que existia antes.
-    expect(created.combatStats.speedInMeters, 7.5);
+    expect(repository.created, isNull);
+    expect(find.textContaining('seis atributos'), findsWidgets);
   });
+
+  testWidgets(
+    'raça com bônus fixo aplica o bônus e o deslocamento com fração',
+    (tester) async {
+      final repository = await _pumpCreationPage(tester, const [_dwarf]);
+
+      await _fillName(tester);
+      await _selectBackground(tester);
+      await _tapSave(tester);
+
+      final created = repository.created;
+      expect(created, isNotNull);
+      expect(created!.abilityScores.constitution, 15);
+      expect(created.abilityScores.strength, 15);
+      expect(created.abilityScoreAllocation!.baseScores.constitution, 13);
+      // 7,5 m não caberia no campo inteiro que existia antes.
+      expect(created.combatStats.speedInMeters, 7.5);
+    },
+  );
 
   testWidgets('padrão flexível distribui +2 e +1 sem repetir atributo', (
     tester,
@@ -183,15 +239,9 @@ void main() {
     await _selectBackground(tester);
     await _tapSave(tester);
 
-    final scores = repository.created!.abilityScores;
-    final bonuses = [
-      scores.strength - 10,
-      scores.dexterity - 10,
-      scores.constitution - 10,
-      scores.intelligence - 10,
-      scores.wisdom - 10,
-      scores.charisma - 10,
-    ];
+    final bonuses =
+        repository.created!.abilityScoreAllocation!.originBonuses.values
+            .toList();
 
     expect(bonuses.where((value) => value == 2).length, 1);
     expect(bonuses.where((value) => value == 1).length, 1);
@@ -213,15 +263,9 @@ void main() {
 
     await _tapSave(tester);
 
-    final scores = repository.created!.abilityScores;
-    final bonuses = [
-      scores.strength - 10,
-      scores.dexterity - 10,
-      scores.constitution - 10,
-      scores.intelligence - 10,
-      scores.wisdom - 10,
-      scores.charisma - 10,
-    ];
+    final bonuses =
+        repository.created!.abilityScoreAllocation!.originBonuses.values
+            .toList();
 
     expect(bonuses.where((value) => value == 1).length, 3);
     expect(bonuses.where((value) => value == 2), isEmpty);
@@ -297,5 +341,45 @@ void main() {
 
     // O centauro escolhe uma: as outras duas não podem entrar de carona.
     expect(fromRace.length, 1);
+  });
+
+  testWidgets('perícia da classe fica bloqueada na raça e volta ao desmarcar', (
+    tester,
+  ) async {
+    await _pumpCreationPage(tester, const [_overlappingSkillsRace]);
+
+    final classTile = find.byKey(const ValueKey('class-skill-athletics'));
+    await _reveal(tester, classTile);
+    await tester.tap(classTile);
+    await tester.pumpAndSettle();
+
+    var raceTile = tester.widget<CheckboxListTile>(
+      find.byKey(const ValueKey('race-skill-athletics')),
+    );
+    expect(raceTile.onChanged, isNull);
+    expect(
+      find.textContaining('Já adquirida por classe Guerreiro'),
+      findsWidgets,
+    );
+
+    await tester.tap(classTile);
+    await tester.pumpAndSettle();
+
+    raceTile = tester.widget<CheckboxListTile>(
+      find.byKey(const ValueKey('race-skill-athletics')),
+    );
+    expect(raceTile.onChanged, isNotNull);
+  });
+
+  testWidgets('perícia automática da raça bloqueia escolha adicional', (
+    tester,
+  ) async {
+    await _pumpCreationPage(tester, const [_bugbear]);
+
+    final extra = tester.widget<CheckboxListTile>(
+      find.byKey(const ValueKey('extra-skill-stealth')),
+    );
+    expect(extra.onChanged, isNull);
+    expect(find.textContaining('Já adquirida por raça Bugbear'), findsWidgets);
   });
 }

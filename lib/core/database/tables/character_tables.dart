@@ -40,6 +40,18 @@ class Characters extends Table {
   IntColumn get wisdom => integer().withDefault(const Constant(10))();
   IntColumn get charisma => integer().withDefault(const Constant(10))();
 
+  /// Distribuição base do conjunto padrão, serializada como
+  /// `strength:15,dexterity:14,...`. Nula para personagens antigos, cujos
+  /// totais acima continuam sendo a única fonte de verdade.
+  TextColumn get baseAbilityScores => text().nullable()();
+
+  /// Bônus de origem aplicados na criação, separados dos valores base.
+  TextColumn get originAbilityBonuses => text().nullable()();
+
+  /// Origem das proficiências adquiridas durante a criação, em JSON.
+  TextColumn get skillProficiencyGrants =>
+      text().withDefault(const Constant('[]'))();
+
   IntColumn get armorClass => integer().withDefault(const Constant(10))();
   IntColumn get initiativeBonus => integer().withDefault(const Constant(0))();
 
@@ -53,10 +65,12 @@ class Characters extends Table {
 
   IntColumn get maxHitPoints => integer().withDefault(const Constant(1))();
   IntColumn get currentHitPoints => integer().withDefault(const Constant(1))();
-  IntColumn get temporaryHitPoints => integer().withDefault(const Constant(0))();
+  IntColumn get temporaryHitPoints =>
+      integer().withDefault(const Constant(0))();
 
   BoolColumn get saveStrength => boolean().withDefault(const Constant(false))();
-  BoolColumn get saveDexterity => boolean().withDefault(const Constant(false))();
+  BoolColumn get saveDexterity =>
+      boolean().withDefault(const Constant(false))();
   BoolColumn get saveConstitution =>
       boolean().withDefault(const Constant(false))();
   BoolColumn get saveIntelligence =>

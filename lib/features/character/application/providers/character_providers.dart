@@ -2,6 +2,7 @@ import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/core/utils/dice_roller.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/choose_subclass.dart';
+import 'package:dnd_ficha_app/features/character/application/use_cases/character/create_character.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/export_character.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/export_character_pdf.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/import_character.dart';
@@ -32,6 +33,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final charactersProvider = StreamProvider<List<Character>>((ref) {
   final repository = ref.watch(characterRepositoryProvider);
   return repository.watchAll();
+});
+
+final createCharacterProvider = Provider<CreateCharacter>((ref) {
+  return CreateCharacter(ref.watch(characterRepositoryProvider));
 });
 
 /// Stream reativo: qualquer escrita no banco reflete na ficha sozinha.

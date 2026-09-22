@@ -1,4 +1,5 @@
 import 'package:dnd_ficha_app/core/database/app_database.dart' as db;
+import 'package:dnd_ficha_app/features/character/data/mappers/character_creation_metadata_codec.dart';
 import 'package:dnd_ficha_app/features/character/data/mappers/character_mapper.dart';
 import 'package:dnd_ficha_app/features/character/data/mappers/magic_item_mapper.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart'
@@ -53,6 +54,21 @@ class CharacterRepositoryImpl implements CharacterRepository {
               intelligence: drift.Value(character.abilityScores.intelligence),
               wisdom: drift.Value(character.abilityScores.wisdom),
               charisma: drift.Value(character.abilityScores.charisma),
+              baseAbilityScores: drift.Value(
+                CharacterCreationMetadataCodec.encodeBaseScores(
+                  character.abilityScoreAllocation,
+                ),
+              ),
+              originAbilityBonuses: drift.Value(
+                CharacterCreationMetadataCodec.encodeOriginBonuses(
+                  character.abilityScoreAllocation,
+                ),
+              ),
+              skillProficiencyGrants: drift.Value(
+                CharacterCreationMetadataCodec.encodeSkillGrants(
+                  character.skillProficiencyGrants,
+                ),
+              ),
               armorClass: drift.Value(character.combatStats.armorClass),
               initiativeBonus:
                   drift.Value(character.combatStats.initiativeBonus),
@@ -458,6 +474,21 @@ class CharacterRepositoryImpl implements CharacterRepository {
           intelligence: drift.Value(character.abilityScores.intelligence),
           wisdom: drift.Value(character.abilityScores.wisdom),
           charisma: drift.Value(character.abilityScores.charisma),
+          baseAbilityScores: drift.Value(
+            CharacterCreationMetadataCodec.encodeBaseScores(
+              character.abilityScoreAllocation,
+            ),
+          ),
+          originAbilityBonuses: drift.Value(
+            CharacterCreationMetadataCodec.encodeOriginBonuses(
+              character.abilityScoreAllocation,
+            ),
+          ),
+          skillProficiencyGrants: drift.Value(
+            CharacterCreationMetadataCodec.encodeSkillGrants(
+              character.skillProficiencyGrants,
+            ),
+          ),
           armorClass: drift.Value(character.combatStats.armorClass),
           initiativeBonus:
               drift.Value(character.combatStats.initiativeBonus),

@@ -242,7 +242,7 @@ class _ManageCharacterSpellsPageState
                                       sourceId: characterSpell.sourceId,
                                     );
 
-                                    if (!mounted) return;
+                                    if (!context.mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content:
@@ -250,7 +250,7 @@ class _ManageCharacterSpellsPageState
                                       ),
                                     );
                                   } catch (error) {
-                                    if (!mounted) return;
+                                    if (!context.mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text(
@@ -780,7 +780,7 @@ class _ManageCharacterSpellsPageState
                                             ),
                                           );
 
-                                          if (!mounted) return;
+                                          if (!context.mounted) return;
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
                                             SnackBar(
@@ -790,7 +790,7 @@ class _ManageCharacterSpellsPageState
                                             ),
                                           );
                                         } catch (error) {
-                                          if (!mounted) return;
+                                          if (!context.mounted) return;
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
                                             SnackBar(

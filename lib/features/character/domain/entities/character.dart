@@ -11,6 +11,9 @@ import 'package:dnd_ficha_app/features/character/domain/entities/death_saves.dar
 import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiency_grant.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/standard_array.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/alignment.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart';
 
@@ -47,6 +50,8 @@ class Character {
     this.hitDiceUsed = 0,
     this.currency = const Currency(),
     this.alignment,
+    this.abilityScoreAllocation,
+    this.skillProficiencyGrants = const [],
   });
 
   final String id;
@@ -69,12 +74,22 @@ class Character {
   final CustomBackground customBackground;
 
   final AbilityScores abilityScores;
+
+  /// Valores base e bônus de origem usados na criação.
+  ///
+  /// É nulo em personagens anteriores ao schema 16. Nesses casos
+  /// [abilityScores] continua sendo a fonte de verdade e nada é recalculado.
+  final AbilityScoreAllocation? abilityScoreAllocation;
   final List<ClassLevel> classLevels;
   final HitPoints hitPoints;
   final CombatStats combatStats;
   final String notes;
   final SavingThrowProficiencies savingThrowProficiencies;
   final SkillProficiencies skillProficiencies;
+
+  /// Origem das proficiências escolhidas ou concedidas na criação.
+  /// Personagens antigos mantêm a lista vazia por compatibilidade.
+  final List<SkillProficiencyGrant> skillProficiencyGrants;
   final List<CharacterSpell> spells;
 
   /// Armas que o personagem carrega.
@@ -135,6 +150,20 @@ class Character {
     return 2;
   }
 
+  /// Bônus permanentes posteriores à criação. Hoje são os aumentos realmente
+  /// aplicados pelos talentos, que já ficam persistidos junto a cada talento.
+  Map<Ability, int> get otherPermanentAbilityBonuses {
+    final result = <Ability, int>{};
+    for (final feat in feats) {
+      for (final entry in feat.appliedAbilityIncreases.entries) {
+        final ability = Ability.fromName(entry.key);
+        if (ability == null) continue;
+        result[ability] = (result[ability] ?? 0) + entry.value;
+      }
+    }
+    return result;
+  }
+
   Character copyWith({
     String? id,
     String? name,
@@ -144,12 +173,14 @@ class Character {
     Object? backgroundId = _sentinel,
     CustomBackground? customBackground,
     AbilityScores? abilityScores,
+    Object? abilityScoreAllocation = _sentinel,
     List<ClassLevel>? classLevels,
     HitPoints? hitPoints,
     CombatStats? combatStats,
     String? notes,
     SavingThrowProficiencies? savingThrowProficiencies,
     SkillProficiencies? skillProficiencies,
+    List<SkillProficiencyGrant>? skillProficiencyGrants,
     List<CharacterSpell>? spells,
     List<CharacterWeapon>? weapons,
     List<CharacterMagicItem>? magicItems,
@@ -173,16 +204,21 @@ class Character {
           playerName == _sentinel ? this.playerName : playerName as String?,
       // Sentinela é obrigatória aqui: remover o retrato é setar null, e com
       // `?? this.portraitPath` isso seria impossível.
-      portraitPath: portraitPath == _sentinel
-          ? this.portraitPath
-          : portraitPath as String?,
-      speciesId:
-          speciesId == _sentinel ? this.speciesId : speciesId as String?,
-      backgroundId: backgroundId == _sentinel
-          ? this.backgroundId
-          : backgroundId as String?,
+      portraitPath:
+          portraitPath == _sentinel
+              ? this.portraitPath
+              : portraitPath as String?,
+      speciesId: speciesId == _sentinel ? this.speciesId : speciesId as String?,
+      backgroundId:
+          backgroundId == _sentinel
+              ? this.backgroundId
+              : backgroundId as String?,
       customBackground: customBackground ?? this.customBackground,
       abilityScores: abilityScores ?? this.abilityScores,
+      abilityScoreAllocation:
+          abilityScoreAllocation == _sentinel
+              ? this.abilityScoreAllocation
+              : abilityScoreAllocation as AbilityScoreAllocation?,
       classLevels: classLevels ?? this.classLevels,
       hitPoints: hitPoints ?? this.hitPoints,
       combatStats: combatStats ?? this.combatStats,
@@ -190,6 +226,8 @@ class Character {
       savingThrowProficiencies:
           savingThrowProficiencies ?? this.savingThrowProficiencies,
       skillProficiencies: skillProficiencies ?? this.skillProficiencies,
+      skillProficiencyGrants:
+          skillProficiencyGrants ?? this.skillProficiencyGrants,
       spells: spells ?? this.spells,
       weapons: weapons ?? this.weapons,
       magicItems: magicItems ?? this.magicItems,
@@ -206,9 +244,10 @@ class Character {
       currency: currency ?? this.currency,
       // Sentinela é obrigatória: voltar o alinhamento para "não definido" é
       // setar null, e com `?? this.alignment` isso seria impossível.
-      alignment: alignment == _sentinel
-          ? this.alignment
-          : alignment as CharacterAlignment?,
+      alignment:
+          alignment == _sentinel
+              ? this.alignment
+              : alignment as CharacterAlignment?,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

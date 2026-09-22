@@ -16,6 +16,7 @@ class CustomBackgroundForm extends StatelessWidget {
     required this.onSkillsChanged,
     this.margin = const EdgeInsets.only(top: 8),
     this.footnote,
+    this.blockedSkillReasons = const {},
     super.key,
   });
 
@@ -32,16 +33,24 @@ class CustomBackgroundForm extends StatelessWidget {
   /// Texto extra no fim do card, para avisos específicos de cada tela.
   final String? footnote;
 
+  /// Perícias já adquiridas em outra etapa, com a origem que as bloqueia.
+  final Map<String, String> blockedSkillReasons;
+
   List<DropdownMenuItem<String>> _itemsExcept(String? excludedId) {
-    return Skill.sortedByLabel
-        .where((skill) => skill.id != excludedId)
-        .map(
-          (skill) => DropdownMenuItem<String>(
-            value: skill.id,
-            child: Text('${skill.label} (${skill.abbreviation})'),
-          ),
-        )
-        .toList();
+    return Skill.sortedByLabel.where((skill) => skill.id != excludedId).map((
+      skill,
+    ) {
+      final reason = blockedSkillReasons[skill.id];
+      return DropdownMenuItem<String>(
+        value: skill.id,
+        enabled: reason == null,
+        child: Text(
+          reason == null
+              ? '${skill.label} (${skill.abbreviation})'
+              : '${skill.label} — já adquirida por $reason',
+        ),
+      );
+    }).toList();
   }
 
   @override
@@ -74,9 +83,7 @@ class CustomBackgroundForm extends StatelessWidget {
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
               initialValue: skillOneId,
-              decoration: const InputDecoration(
-                labelText: 'Primeira perícia',
-              ),
+              decoration: const InputDecoration(labelText: 'Primeira perícia'),
               items: _itemsExcept(null),
               onChanged: (value) {
                 // Evita as duas perícias iguais: troca com a anterior em vez
@@ -95,9 +102,7 @@ class CustomBackgroundForm extends StatelessWidget {
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
               initialValue: skillTwoId,
-              decoration: const InputDecoration(
-                labelText: 'Segunda perícia',
-              ),
+              decoration: const InputDecoration(labelText: 'Segunda perícia'),
               items: _itemsExcept(skillOneId),
               onChanged: (value) => onSkillsChanged(skillOneId, value),
               validator: (value) {
@@ -112,7 +117,8 @@ class CustomBackgroundForm extends StatelessWidget {
               controller: featuresController,
               decoration: const InputDecoration(
                 labelText: 'Características do antecedente',
-                hintText: 'Descreva o que o antecedente concede, sua história, '
+                hintText:
+                    'Descreva o que o antecedente concede, sua história, '
                     'contatos, ferramentas...',
                 alignLabelWithHint: true,
               ),
@@ -123,10 +129,7 @@ class CustomBackgroundForm extends StatelessWidget {
             ),
             if (footnote != null) ...[
               const SizedBox(height: 12),
-              Text(
-                footnote!,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
+              Text(footnote!, style: Theme.of(context).textTheme.bodySmall),
             ],
           ],
         ),

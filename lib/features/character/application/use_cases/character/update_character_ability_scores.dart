@@ -26,6 +26,10 @@ class UpdateCharacterAbilityScores {
 
     var updatedCharacter = character.copyWith(
       abilityScores: abilityScores,
+      // Uma edição livre dos totais não permite reconstruir com segurança
+      // a distribuição original. Remover os metadados evita persistir uma
+      // decomposição base/origem que já não corresponde aos valores atuais.
+      abilityScoreAllocation: null,
       updatedAt: DateTime.now(),
     );
 
@@ -40,9 +44,10 @@ class UpdateCharacterAbilityScores {
 
       // Ganhar Constituição aumenta o PV atual junto; perder apenas limita
       // ao novo máximo, sem "curar" o personagem.
-      final newCurrent = delta > 0
-          ? character.hitPoints.current + delta
-          : character.hitPoints.current;
+      final newCurrent =
+          delta > 0
+              ? character.hitPoints.current + delta
+              : character.hitPoints.current;
 
       updatedCharacter = updatedCharacter.copyWith(
         hitPoints: character.hitPoints.copyWith(
