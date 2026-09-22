@@ -84,14 +84,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
 
   /// Valores base do conjunto padrão. Começa vazio: a criação só conclui
   /// depois que cada valor 15, 14, 13, 12, 10 e 8 for usado uma vez.
-  final Map<Ability, int> _baseAbilityValues = {
-    Ability.strength: 15,
-    Ability.dexterity: 14,
-    Ability.constitution: 13,
-    Ability.intelligence: 12,
-    Ability.wisdom: 10,
-    Ability.charisma: 8,
-  };
+  final Map<Ability, int> _baseAbilityValues = {};
 
   /// Atributo escolhido para cada bônus que o jogador distribui, por posição.
   ///

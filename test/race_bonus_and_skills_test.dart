@@ -100,6 +100,7 @@ Future<_FakeCharacterRepository> _pumpCreationPage(
   WidgetTester tester,
   List<RaceEntry> races, {
   Size surfaceSize = const Size(1200, 4200),
+  bool fillAbilityScores = true,
 }) async {
   final repository = _FakeCharacterRepository();
 
@@ -127,6 +128,29 @@ Future<_FakeCharacterRepository> _pumpCreationPage(
   );
 
   await tester.pump();
+
+  if (fillAbilityScores) {
+    const valuesByAbility = {
+      'strength': 15,
+      'dexterity': 14,
+      'constitution': 13,
+      'intelligence': 12,
+      'wisdom': 10,
+      'charisma': 8,
+    };
+
+    for (final entry in valuesByAbility.entries) {
+      final field = tester.widget<DropdownButtonFormField<int>>(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is DropdownButtonFormField<int> &&
+              widget.key.toString().contains('standard-${entry.key}-'),
+        ),
+      );
+      field.onChanged!(entry.value);
+      await tester.pump();
+    }
+  }
 
   return repository;
 }
@@ -170,9 +194,12 @@ void main() {
   testWidgets('fluxo permanece rolável sem overflow em tela pequena', (
     tester,
   ) async {
-    await _pumpCreationPage(tester, const [
-      _dwarf,
-    ], surfaceSize: const Size(360, 640));
+    await _pumpCreationPage(
+      tester,
+      const [_dwarf],
+      surfaceSize: const Size(360, 640),
+      fillAbilityScores: false,
+    );
 
     final scrollable = find.byType(Scrollable).first;
     await tester.drag(scrollable, const Offset(0, -520));
@@ -187,9 +214,14 @@ void main() {
   testWidgets('conjunto padrão mostra e devolve um valor removido', (
     tester,
   ) async {
-    final repository = await _pumpCreationPage(tester, const [_dwarf]);
+    final repository = await _pumpCreationPage(tester, const [
+      _dwarf,
+    ], fillAbilityScores: false);
 
-    expect(find.text('Valores disponíveis: nenhum'), findsOneWidget);
+    expect(
+      find.text('Valores disponíveis: 15, 14, 13, 12, 10 e 8'),
+      findsOneWidget,
+    );
 
     final strength = tester.widget<DropdownButtonFormField<int>>(
       find.byWidgetPredicate(
@@ -198,12 +230,23 @@ void main() {
             widget.key.toString().contains('standard-strength'),
       ),
     );
-    expect(strength.initialValue, 15);
+    expect(strength.initialValue, isNull);
+
+    strength.onChanged!(15);
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Valores disponíveis: 14, 13, 12, 10 e 8'),
+      findsOneWidget,
+    );
 
     await tester.tap(find.byTooltip('Remover valor de Força'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Valores disponíveis: 15'), findsOneWidget);
+    expect(
+      find.text('Valores disponíveis: 15, 14, 13, 12, 10 e 8'),
+      findsOneWidget,
+    );
     await _fillName(tester);
     await _selectBackground(tester);
     await _tapSave(tester);
