@@ -235,6 +235,19 @@ void main() {
     strength.onChanged!(15);
     await tester.pumpAndSettle();
 
+    final dexterityFinder = find.byWidgetPredicate(
+      (widget) =>
+          widget is DropdownButtonFormField<int> &&
+          widget.key.toString().contains('standard-dexterity'),
+    );
+    await tester.tap(dexterityFinder);
+    await tester.pumpAndSettle();
+    // O único 15 é o valor que continua visível em Força. Se ele
+    // aparecesse também no menu de Destreza, haveria dois widgets.
+    expect(find.widgetWithText(DropdownMenuItem<int>, '15'), findsOneWidget);
+    await tester.tapAt(Offset.zero);
+    await tester.pumpAndSettle();
+
     expect(
       find.text('Valores disponíveis: 14, 13, 12, 10 e 8'),
       findsOneWidget,
@@ -247,46 +260,23 @@ void main() {
       find.text('Valores disponíveis: 15, 14, 13, 12, 10 e 8'),
       findsOneWidget,
     );
+
+    final refreshedDexterityFinder = find.byWidgetPredicate(
+      (widget) =>
+          widget is DropdownButtonFormField<int> &&
+          widget.key.toString().contains('standard-dexterity'),
+    );
+    await tester.tap(refreshedDexterityFinder);
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(DropdownMenuItem<int>, '15'), findsOneWidget);
+    await tester.tapAt(Offset.zero);
+    await tester.pumpAndSettle();
+
     await _fillName(tester);
     await _selectBackground(tester);
     await _tapSave(tester);
     expect(repository.created, isNull);
     expect(find.textContaining('seis atributos'), findsWidgets);
-  });
-
-  testWidgets('troca diretamente valores do conjunto padrão entre atributos', (
-    tester,
-  ) async {
-    await _pumpCreationPage(tester, const [_dwarf]);
-
-    final strengthFinder = find.byWidgetPredicate(
-      (widget) =>
-          widget is DropdownButtonFormField<int> &&
-          widget.key.toString().contains('standard-strength'),
-    );
-    final strength = tester.widget<DropdownButtonFormField<int>>(
-      strengthFinder,
-    );
-
-    strength.onChanged!(14);
-    await tester.pumpAndSettle();
-
-    final dexterity = tester.widget<DropdownButtonFormField<int>>(
-      find.byWidgetPredicate(
-        (widget) =>
-            widget is DropdownButtonFormField<int> &&
-            widget.key.toString().contains('standard-dexterity'),
-      ),
-    );
-
-    expect(
-      tester
-          .widget<DropdownButtonFormField<int>>(strengthFinder)
-          .initialValue,
-      14,
-    );
-    expect(dexterity.initialValue, 15);
-    expect(find.text('Valores disponíveis: nenhum'), findsOneWidget);
   });
 
   testWidgets(

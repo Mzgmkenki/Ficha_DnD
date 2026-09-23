@@ -1275,6 +1275,10 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                 Builder(
                   builder: (context) {
                     final current = _baseAbilityValues[ability];
+                    final choices = <int>[
+                      if (current != null) current,
+                      ...available.where((value) => value != current),
+                    ];
                     final originBonus = bonuses[ability.name] ?? 0;
                     final total =
                         current == null ? null : current + originBonus;
@@ -1301,7 +1305,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                                               '(${total.abilityModifier >= 0 ? '+' : ''}'
                                               '${total.abilityModifier})',
                                 ),
-                                items: StandardArray.values
+                                items: choices
                                     .map(
                                       (value) => DropdownMenuItem<int>(
                                         value: value,
@@ -1314,20 +1318,6 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                                     if (value == null) {
                                       _baseAbilityValues.remove(ability);
                                       return;
-                                    }
-
-                                    final previousOwner = _baseAbilityValues
-                                        .entries
-                                        .where(
-                                          (entry) =>
-                                              entry.key != ability &&
-                                              entry.value == value,
-                                        )
-                                        .map((entry) => entry.key)
-                                        .firstOrNull;
-
-                                    if (previousOwner != null && current != null) {
-                                      _baseAbilityValues[previousOwner] = current;
                                     }
                                     _baseAbilityValues[ability] = value;
                                   });
