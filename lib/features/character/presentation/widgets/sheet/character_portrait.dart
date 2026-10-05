@@ -1,6 +1,7 @@
 import 'package:dnd_ficha_app/core/storage/portrait_storage.dart';
 import 'package:dnd_ficha_app/core/theme/app_colors.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
+import 'package:dnd_ficha_app/features/character/presentation/pages/portrait_crop_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/portrait_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,22 +37,25 @@ class _CharacterPortraitState extends ConsumerState<CharacterPortrait> {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: _hasPortrait
-          ? 'Imagem do personagem. Toque para trocar ou remover.'
-          : 'Sem imagem do personagem. Toque para escolher uma.',
+      label:
+          _hasPortrait
+              ? 'Imagem do personagem. Toque para trocar ou remover.'
+              : 'Sem imagem do personagem. Toque para escolher uma.',
       button: true,
       child: Tooltip(
         message: _hasPortrait ? 'Trocar imagem' : 'Adicionar imagem',
         child: InkWell(
           onTap: _busy ? null : _openOptions,
           borderRadius: BorderRadius.circular(12),
-          child: _busy
-              ? _Loading(size: widget.size)
-              : PortraitAvatar(
-                  path: widget.portraitPath,
-                  size: widget.size,
-                  emptyLabel: 'imagem',
-                ),
+          child:
+              _busy
+                  ? _Loading(size: widget.size)
+                  : PortraitAvatar(
+                    path: widget.portraitPath,
+                    size: widget.size,
+                    aspectRatio: PortraitCropPage.aspectRatio,
+                    emptyLabel: 'imagem',
+                  ),
         ),
       ),
     );
@@ -68,12 +72,10 @@ class _CharacterPortraitState extends ConsumerState<CharacterPortrait> {
             children: [
               ListTile(
                 leading: const Icon(Icons.folder_open, color: AppColors.red),
-                title: Text(
-                  _hasPortrait ? 'Trocar imagem' : 'Escolher imagem',
-                ),
+                title: Text(_hasPortrait ? 'Trocar imagem' : 'Escolher imagem'),
                 subtitle: const Text('Abre o gerenciador de arquivos'),
-                onTap: () =>
-                    Navigator.of(sheetContext).pop(_PortraitAction.pick),
+                onTap:
+                    () => Navigator.of(sheetContext).pop(_PortraitAction.pick),
               ),
               if (_hasPortrait)
                 ListTile(
@@ -82,8 +84,10 @@ class _CharacterPortraitState extends ConsumerState<CharacterPortrait> {
                     color: AppColors.red,
                   ),
                   title: const Text('Remover imagem'),
-                  onTap: () =>
-                      Navigator.of(sheetContext).pop(_PortraitAction.remove),
+                  onTap:
+                      () => Navigator.of(
+                        sheetContext,
+                      ).pop(_PortraitAction.remove),
                 ),
               const SizedBox(height: 8),
             ],
@@ -106,10 +110,28 @@ class _CharacterPortraitState extends ConsumerState<CharacterPortrait> {
     setState(() => _busy = true);
 
     try {
-      final useCase = ref.read(updateCharacterPortraitProvider);
-      final saved = await useCase.pick(characterId: widget.characterId);
+      final storage = ref.read(portraitStorageProvider);
+      final picked = await storage.pick();
+      if (picked == null || !mounted) return;
 
-      if (!mounted || !saved) return;
+      final prepared = await storage.prepareForCropping(picked);
+      if (!mounted) return;
+
+      // Cancelar o editor ou a prévia não chega ao caso de uso e, portanto,
+      // nunca substitui nem apaga a imagem atual.
+      final cropped = await PortraitCropPage.open(
+        context,
+        imageBytes: prepared,
+      );
+      if (cropped == null || !mounted) return;
+
+      final useCase = ref.read(updateCharacterPortraitProvider);
+      await useCase.replace(
+        characterId: widget.characterId,
+        croppedBytes: cropped,
+      );
+
+      if (!mounted) return;
       _notify('Imagem atualizada.');
     } on PortraitException catch (error) {
       if (!mounted) return;
@@ -140,9 +162,9 @@ class _CharacterPortraitState extends ConsumerState<CharacterPortrait> {
   }
 
   void _notify(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }
 
@@ -155,7 +177,7 @@ class _Loading extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: size,
-      height: size,
+      height: size / PortraitCropPage.aspectRatio,
       decoration: BoxDecoration(
         color: AppColors.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(12),

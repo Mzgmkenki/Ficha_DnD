@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:dnd_ficha_app/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -12,14 +13,18 @@ import 'package:flutter/material.dart';
 class PortraitAvatar extends StatelessWidget {
   const PortraitAvatar({
     required this.path,
+    this.bytes,
     this.size = 78,
+    this.aspectRatio = 1,
     this.emptyLabel,
     this.highlightWhenFilled = true,
     super.key,
   });
 
   final String? path;
+  final Uint8List? bytes;
   final double size;
+  final double aspectRatio;
 
   /// Legenda sob o ícone quando não há imagem. Em miniatura fica `null`,
   /// porque não sobra espaço para texto legível.
@@ -30,12 +35,13 @@ class PortraitAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final filled = _hasPortrait(path) && highlightWhenFilled;
+    final filled = _hasPortrait(path, bytes) && highlightWhenFilled;
 
     return _PortraitFrame(
       path: path,
+      bytes: bytes,
       width: size,
-      height: size,
+      height: size / aspectRatio,
       emptyLabel: emptyLabel,
       radius: BorderRadius.circular(size >= 64 ? 12 : 8),
       borderColor: filled ? AppColors.red : AppColors.outline,
@@ -78,14 +84,12 @@ class PortraitBanner extends StatelessWidget {
       builder: (context, constraints) {
         // Largura infinita acontece em Row/ListView horizontal sem limite;
         // aí não há o que preencher e um valor fixo evita crash de layout.
-        final width = constraints.maxWidth.isFinite
-            ? constraints.maxWidth
-            : 240.0;
+        final width =
+            constraints.maxWidth.isFinite ? constraints.maxWidth : 240.0;
 
         final empty = emptyHeight;
-        final height = !_hasPortrait(path) && empty != null
-            ? empty
-            : width / aspectRatio;
+        final height =
+            !_hasPortrait(path) && empty != null ? empty : width / aspectRatio;
 
         return _PortraitFrame(
           path: path,
@@ -102,7 +106,8 @@ class PortraitBanner extends StatelessWidget {
   }
 }
 
-bool _hasPortrait(String? path) => path != null && path.isNotEmpty;
+bool _hasPortrait(String? path, [Uint8List? bytes]) =>
+    (bytes != null && bytes.isNotEmpty) || (path != null && path.isNotEmpty);
 
 /// Caixa que desenha a imagem ou o placeholder.
 ///
@@ -111,6 +116,7 @@ bool _hasPortrait(String? path) => path != null && path.isNotEmpty;
 class _PortraitFrame extends StatelessWidget {
   const _PortraitFrame({
     required this.path,
+    this.bytes,
     required this.width,
     required this.height,
     required this.radius,
@@ -120,6 +126,7 @@ class _PortraitFrame extends StatelessWidget {
   });
 
   final String? path;
+  final Uint8List? bytes;
   final double width;
   final double height;
   final BorderRadius radius;
@@ -141,14 +148,16 @@ class _PortraitFrame extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surfaceContainerHigh,
         borderRadius: radius,
-        border: border == null
-            ? null
-            : Border.all(color: border, width: borderWidth),
+        border:
+            border == null
+                ? null
+                : Border.all(color: border, width: borderWidth),
       ),
       clipBehavior: radius == BorderRadius.zero ? Clip.none : Clip.antiAlias,
-      child: _hasPortrait(path)
-          ? _image(context)
-          : _placeholder(context, false),
+      child:
+          _hasPortrait(path, bytes)
+              ? _image(context)
+              : _placeholder(context, false),
     );
   }
 
@@ -158,8 +167,11 @@ class _PortraitFrame extends StatelessWidget {
     // só para desenhar o retrato — e numa lista isso multiplica.
     final pixels = (width * MediaQuery.devicePixelRatioOf(context)).round();
 
-    return Image.file(
-      File(path!),
+    final image =
+        bytes != null ? Image.memory(bytes!) : Image.file(File(path!));
+
+    return Image(
+      image: image.image,
       fit: BoxFit.cover,
       // Retrato de personagem é quase sempre uma imagem vertical, e `cover`
       // centralizado cortava justamente a cabeça, deixando o meio do corpo.
@@ -181,9 +193,10 @@ class _PortraitFrame extends StatelessWidget {
     final icon = Icon(
       broken ? Icons.broken_image_outlined : Icons.person_outline,
       color: AppColors.onDarkVariant,
-      size: shortest >= 140
-          ? 44
-          : shortest >= 64
+      size:
+          shortest >= 140
+              ? 44
+              : shortest >= 64
               ? 26
               : 22,
     );

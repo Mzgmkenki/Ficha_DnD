@@ -30,8 +30,25 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Analyze project
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Generate PDF validation samples
+        run: DRAGONSHEET_PDF_OUT=output/pdf flutter test test/character_sheet_pdf_layout_test.dart
+
       - name: Build release APK
         run: flutter build apk --release
+
+      - name: Upload PDF validation samples
+        uses: actions/upload-artifact@v4
+        with:
+          name: DragonSheet-PDF-Samples
+          path: output/pdf/*.pdf
+          if-no-files-found: error
+          retention-days: 30
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

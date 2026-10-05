@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
 import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
@@ -19,6 +21,7 @@ import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.da
 import 'package:dnd_ficha_app/features/character/domain/value_objects/alignment.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/spellcasting_type.dart';
+import 'package:dnd_ficha_app/features/character/presentation/pages/portrait_crop_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/alignment_field.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/custom_background_form.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/portrait_avatar.dart';
@@ -67,12 +70,12 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
   /// adquirida em outra etapa. A chave é a perícia original do antecedente.
   final Map<String, String> _backgroundSkillReplacements = {};
 
-  /// Imagem escolhida para a aparência, ainda não copiada para o app.
+  /// Recorte confirmado, ainda não copiado para o diretório do app.
   ///
   /// A cópia só acontece no [_save], porque o nome do arquivo usa o id do
   /// personagem — que só existe depois. Guardar só a escolha aqui também
   /// evita deixar arquivo órfão se o jogador desistir da criação.
-  PickedImage? _pickedPortrait;
+  Uint8List? _portraitBytes;
 
   /// Escolhas manuais separadas por fonte. A separação é necessária para uma
   /// perícia não ser contabilizada duas vezes e para a tela explicar a origem.
@@ -131,9 +134,20 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
 
   Future<void> _pickPortrait() async {
     try {
-      final picked = await ref.read(portraitStorageProvider).pick();
+      final storage = ref.read(portraitStorageProvider);
+      final picked = await storage.pick();
       if (picked == null || !mounted) return;
-      setState(() => _pickedPortrait = picked);
+
+      final prepared = await storage.prepareForCropping(picked);
+      if (!mounted) return;
+
+      final cropped = await PortraitCropPage.open(
+        context,
+        imageBytes: prepared,
+      );
+      if (cropped == null || !mounted) return;
+
+      setState(() => _portraitBytes = cropped);
     } on PortraitException catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -153,17 +167,13 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
   /// personagem por causa da imagem seria um péssimo negócio, e o retrato
   /// pode ser posto depois pela ficha.
   Future<String?> _storePortrait(String characterId) async {
-    final picked = _pickedPortrait;
-    if (picked == null) return null;
+    final cropped = _portraitBytes;
+    if (cropped == null) return null;
 
     try {
-      return await ref
-          .read(portraitStorageProvider)
-          .save(
-            characterId: characterId,
-            sourcePath: picked.path,
-            extension: picked.extension,
-          );
+      final storage = ref.read(portraitStorageProvider);
+      final optimized = await storage.optimizeCropped(cropped);
+      return storage.saveCropped(characterId: characterId, bytes: optimized);
     } catch (error) {
       debugPrint('Falha ao salvar o retrato na criacao: $error');
 
@@ -320,9 +330,9 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                     ),
                     const SizedBox(height: 16),
                     _PortraitField(
-                      picked: _pickedPortrait,
+                      imageBytes: _portraitBytes,
                       onPick: _pickPortrait,
-                      onClear: () => setState(() => _pickedPortrait = null),
+                      onClear: () => setState(() => _portraitBytes = null),
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<String>(
@@ -1972,23 +1982,29 @@ class _RaceSummaryCard extends StatelessWidget {
 /// arquivo temporário do gerenciador de arquivos.
 class _PortraitField extends StatelessWidget {
   const _PortraitField({
-    required this.picked,
+    required this.imageBytes,
     required this.onPick,
     required this.onClear,
   });
 
-  final PickedImage? picked;
+  final Uint8List? imageBytes;
   final Future<void> Function() onPick;
   final VoidCallback onClear;
 
   @override
   Widget build(BuildContext context) {
-    final has = picked != null;
+    final has = imageBytes != null;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        PortraitAvatar(path: picked?.path, size: 78, emptyLabel: 'imagem'),
+        PortraitAvatar(
+          path: null,
+          bytes: imageBytes,
+          size: 78,
+          aspectRatio: PortraitCropPage.aspectRatio,
+          emptyLabel: 'imagem',
+        ),
         const SizedBox(width: 12),
         Expanded(
           child: Column(

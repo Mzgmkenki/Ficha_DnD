@@ -133,7 +133,7 @@ class CharacterSheetPdf {
   /// (`PortraitBanner`). Antes era um quadrado, e num retrato vertical o
   /// quadrado só cabia mostrando o corpo inteiro em miniatura.
   @visibleForTesting
-  static const double portraitWidth = 84;
+  static const double portraitWidth = 168;
 
   @visibleForTesting
   static const double portraitHeight = portraitWidth / (4 / 3);
@@ -149,7 +149,12 @@ class CharacterSheetPdf {
   /// Margens da página. Seguras para impressora doméstica, que costuma perder
   /// os 10 mm da borda.
   @visibleForTesting
-  static const pw.EdgeInsets pageMargin = pw.EdgeInsets.fromLTRB(30, 26, 30, 24);
+  static const pw.EdgeInsets pageMargin = pw.EdgeInsets.fromLTRB(
+    30,
+    26,
+    30,
+    24,
+  );
 
   /// Nome sugerido do arquivo, já sem caracteres que atrapalham no sistema.
   static String fileName(Character character) {
@@ -206,9 +211,11 @@ class CharacterSheetPdf {
         // Nada de `pw.Checkbox` no cabeçalho ou no rodapé: eles são construídos
         // uma vez por página, e um campo de formulário com o mesmo nome
         // repetido faz o leitor tratar as caixas como uma só.
-        header: (context) => context.pageNumber == 1
-            ? pw.SizedBox()
-            : _runningHeader(data, titleFont, mark, context),
+        header:
+            (context) =>
+                context.pageNumber == 1
+                    ? pw.SizedBox()
+                    : _runningHeader(data, titleFont, mark, context),
         footer: (context) => _footer(mark, context),
         build: (context) => _body(data, titleFont, portrait, mark),
       ),
@@ -253,10 +260,7 @@ class CharacterSheetPdf {
     if (mark == null) return pw.SizedBox();
 
     return pw.Center(
-      child: pw.Opacity(
-        opacity: 0.04,
-        child: pw.Image(mark, width: 300),
-      ),
+      child: pw.Opacity(opacity: 0.04, child: pw.Image(mark, width: 300)),
     );
   }
 
@@ -318,16 +322,15 @@ class CharacterSheetPdf {
         crossAxisAlignment: pw.CrossAxisAlignment.center,
         children: [
           if (mark != null) ...[
-            pw.Opacity(opacity: 0.55, child: pw.Image(mark, width: 9, height: 9)),
+            pw.Opacity(
+              opacity: 0.55,
+              child: pw.Image(mark, width: 9, height: 9),
+            ),
             pw.SizedBox(width: 4),
           ],
           pw.Text(
             AppBranding.appName,
-            style: pw.TextStyle(
-              fontSize: 7,
-              color: _muted,
-              letterSpacing: 0.5,
-            ),
+            style: pw.TextStyle(fontSize: 7, color: _muted, letterSpacing: 0.5),
           ),
           pw.Expanded(child: pw.SizedBox()),
           pw.Text(
@@ -368,7 +371,11 @@ class CharacterSheetPdf {
       ..._section('Ataques e armas', titleFont, _attacks(data)),
       ..._section('Conjuração', titleFont, _spellcasting(data)),
       ..._section('Magias', titleFont, _spellList(data)),
-      ..._section('Características e proficiências', titleFont, _features(data)),
+      ..._section(
+        'Características e proficiências',
+        titleFont,
+        _features(data),
+      ),
       ..._section('Equipamento', titleFont, _equipment(data)),
       ..._section('Condições', titleFont, _conditions(data)),
       ..._section('Anotações', titleFont, _notes(character)),
@@ -409,11 +416,7 @@ class CharacterSheetPdf {
             pw.Expanded(child: pw.SizedBox()),
             pw.Text(
               'FICHA DE PERSONAGEM - D&D 5E',
-              style: pw.TextStyle(
-                fontSize: 7,
-                color: _muted,
-                letterSpacing: 1,
-              ),
+              style: pw.TextStyle(fontSize: 7, color: _muted, letterSpacing: 1),
             ),
           ],
         ),
@@ -423,10 +426,8 @@ class CharacterSheetPdf {
         pw.Row(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            if (portrait != null) ...[
-              _portraitFrame(portrait),
-              pw.SizedBox(width: 11),
-            ],
+            _portraitFrame(portrait),
+            pw.SizedBox(width: 11),
             pw.Expanded(child: _identity(data, titleFont)),
           ],
         ),
@@ -442,20 +443,33 @@ class CharacterSheetPdf {
   /// centralizado corta a faixa do meio de uma imagem vertical, e é justamente
   /// a cabeça que se perde. Retrato de personagem é quase sempre vertical, e o
   /// rosto é o que identifica.
-  static pw.Widget _portraitFrame(pw.MemoryImage image) {
+  static pw.Widget _portraitFrame(pw.MemoryImage? image) {
     return pw.Container(
       width: portraitWidth,
       height: portraitHeight,
       decoration: pw.BoxDecoration(
         border: pw.Border.all(color: _boxRule, width: 0.8),
-        image: pw.DecorationImage(
-          image: image,
-          fit: pw.BoxFit.cover,
-          // No espaço do PDF o y cresce para cima, então `topCenter` é
-          // `Alignment(0, 1)` e realmente ancora no topo da imagem.
-          alignment: pw.Alignment.topCenter,
-        ),
+        color: image == null ? _band : null,
+        image:
+            image == null
+                ? null
+                : pw.DecorationImage(
+                  image: image,
+                  fit: pw.BoxFit.cover,
+                  // O recorte salvo já tem a proporção 4:3 desta moldura.
+                  // `cover` preserva também personagens antigos sem distorção.
+                  alignment: pw.Alignment.center,
+                ),
       ),
+      child:
+          image == null
+              ? pw.Center(
+                child: pw.Text(
+                  'SEM IMAGEM',
+                  style: pw.TextStyle(fontSize: 7, color: _muted),
+                ),
+              )
+              : null,
     );
   }
 
@@ -521,10 +535,7 @@ class CharacterSheetPdf {
             pw.Expanded(child: _field('Experiência', null)),
             pw.SizedBox(width: 8),
             pw.Expanded(
-              child: _field(
-                'Inspiração',
-                character.inspiration ? 'Sim' : null,
-              ),
+              child: _field('Inspiração', character.inspiration ? 'Sim' : null),
             ),
           ],
         ),
@@ -591,9 +602,8 @@ class CharacterSheetPdf {
       races: data.races,
     );
 
-    final hitDiceLabel = pool.isEmpty
-        ? '-'
-        : pool.map((group) => group.label).join(' + ');
+    final hitDiceLabel =
+        pool.isEmpty ? '-' : pool.map((group) => group.label).join(' + ');
 
     return [
       // Primeira fila: os números que decidem o turno.
@@ -636,9 +646,10 @@ class CharacterSheetPdf {
         _valueBox(
           label: 'Dados de vida',
           value: hitDiceLabel,
-          note: pool.isEmpty
-              ? null
-              : '${totalHitDice - character.hitDiceUsed} livres',
+          note:
+              pool.isEmpty
+                  ? null
+                  : '${totalHitDice - character.hitDiceUsed} livres',
           small: true,
         ),
         _valueBox(
@@ -672,9 +683,10 @@ class CharacterSheetPdf {
   static pw.Widget _deathSavesBox(CharacterSheetPdfData data) {
     final saves = data.character.deathSaves;
 
-    final state = saves.isDead
-        ? 'Morto: três falhas.'
-        : saves.isStable
+    final state =
+        saves.isDead
+            ? 'Morto: três falhas.'
+            : saves.isStable
             ? 'Estável: três sucessos.'
             : '3 sucessos estabilizam; 3 falhas matam.';
 
@@ -689,7 +701,11 @@ class CharacterSheetPdf {
         children: [
           pw.Text(
             _safe('TESTES CONTRA A MORTE'),
-            style: pw.TextStyle(fontSize: 6.5, color: _muted, letterSpacing: 0.5),
+            style: pw.TextStyle(
+              fontSize: 6.5,
+              color: _muted,
+              letterSpacing: 0.5,
+            ),
           ),
           pw.SizedBox(width: 12),
           pw.Text(
@@ -762,9 +778,8 @@ class CharacterSheetPdf {
               child: _abilityBlock(
                 ability: ability,
                 score: character.abilityScores.valueFor(ability),
-                saveBonus: character.abilityScores
-                        .valueFor(ability)
-                        .abilityModifier +
+                saveBonus:
+                    character.abilityScores.valueFor(ability).abilityModifier +
                     (proficientIn(ability) ? character.proficiencyBonus : 0),
                 saveProficient: proficientIn(ability),
               ),
@@ -883,10 +898,7 @@ class CharacterSheetPdf {
         // Largura fixa por coluna é obrigatória aqui: as células usam
         // `Expanded`, e a largura intrínseca padrão da tabela chega sem limite,
         // o que faz o layout do pdf lançar em vez de desenhar.
-        columnWidths: const {
-          0: pw.FlexColumnWidth(),
-          1: pw.FlexColumnWidth(),
-        },
+        columnWidths: const {0: pw.FlexColumnWidth(), 1: pw.FlexColumnWidth()},
         children: rows,
       ),
       pw.SizedBox(height: 4),
@@ -973,9 +985,11 @@ class CharacterSheetPdf {
       if (entry == null) {
         // Arma cujo id saiu do compêndio não é escondida em silêncio: some da
         // tabela, mas o nome fica registrado abaixo dela.
-        unknown.add(weapon.name?.trim().isNotEmpty == true
-            ? weapon.name!.trim()
-            : weapon.weaponId);
+        unknown.add(
+          weapon.name?.trim().isNotEmpty == true
+              ? weapon.name!.trim()
+              : weapon.weaponId,
+        );
         continue;
       }
 
@@ -1024,9 +1038,7 @@ class CharacterSheetPdf {
                     bold: true,
                   ),
                   _bodyCell(attack.formattedAttack, center: true, bold: true),
-                  _bodyCell(
-                    attack.damageExplanation ?? 'sem dano',
-                  ),
+                  _bodyCell(attack.damageExplanation ?? 'sem dano'),
                   _bodyCell(_rangeLabel(attack.entry)),
                   _bodyCell(attack.entry.propertiesLabel),
                 ],
@@ -1038,8 +1050,10 @@ class CharacterSheetPdf {
         // A composição de cada ataque em linha própria: a tabela mostra o
         // número, e aqui fica de onde ele saiu.
         for (final attack in attacks)
-          _note('${attack.name}: ${attack.attackExplanation}'
-              '${attack.isProficient ? '' : ' (sem proficiência)'}'),
+          _note(
+            '${attack.name}: ${attack.attackExplanation}'
+            '${attack.isProficient ? '' : ' (sem proficiência)'}',
+          ),
       ],
       if (itemAttack != 0 || itemDamage != 0)
         _note(
@@ -1236,12 +1250,12 @@ class CharacterSheetPdf {
     final widgets = <pw.Widget>[];
 
     for (final level in levels) {
-      final list = grouped[level]!
-        ..sort((a, b) {
-          final nameA = byId[a.spellId]?.namePt ?? '';
-          final nameB = byId[b.spellId]?.namePt ?? '';
-          return nameA.compareTo(nameB);
-        });
+      final list =
+          grouped[level]!..sort((a, b) {
+            final nameA = byId[a.spellId]?.namePt ?? '';
+            final nameB = byId[b.spellId]?.namePt ?? '';
+            return nameA.compareTo(nameB);
+          });
 
       widgets
         ..add(
@@ -1255,7 +1269,8 @@ class CharacterSheetPdf {
         // `MultiPage`, então uma lista longa quebra entre páginas sem
         // sobrepor nada.
         ..addAll([
-          for (final spell in list) _spellLine(data, spell, byId[spell.spellId]),
+          for (final spell in list)
+            _spellLine(data, spell, byId[spell.spellId]),
         ])
         ..add(pw.SizedBox(height: 5));
     }
@@ -1328,9 +1343,13 @@ class CharacterSheetPdf {
     // nascença", e sub-raça herda os traços da raça base.
     final race = _raceEntry(data);
     if (race != null) {
-      final parent = race.hasParentRace
-          ? _firstWhereOrNull(data.races, (item) => item.id == race.parentRaceId)
-          : null;
+      final parent =
+          race.hasParentRace
+              ? _firstWhereOrNull(
+                data.races,
+                (item) => item.id == race.parentRaceId,
+              )
+              : null;
 
       final traits = <String>[...?parent?.traits, ...race.traits];
       final languages = <String>[...?parent?.languages, ...race.languages];
@@ -1362,14 +1381,15 @@ class CharacterSheetPdf {
 
     // Classe e subclasse.
     for (final classLevel in character.classLevels) {
-      final features = data.classFeatures
-          .where(
-            (entry) =>
-                entry.classId == classLevel.classId &&
-                entry.level <= classLevel.level,
-          )
-          .toList()
-        ..sort((a, b) => a.level.compareTo(b.level));
+      final features =
+          data.classFeatures
+              .where(
+                (entry) =>
+                    entry.classId == classLevel.classId &&
+                    entry.level <= classLevel.level,
+              )
+              .toList()
+            ..sort((a, b) => a.level.compareTo(b.level));
 
       widgets.add(
         _subTitle(
@@ -1429,11 +1449,7 @@ class CharacterSheetPdf {
         final name = entry?.name ?? taken.featId;
         final chosen = taken.chosenAbility;
 
-        widgets.add(
-          _bullet(
-            chosen == null ? name : '$name (${chosen.label})',
-          ),
-        );
+        widgets.add(_bullet(chosen == null ? name : '$name (${chosen.label})'));
 
         final description = entry?.description?.trim();
         if (description != null && description.isNotEmpty) {
@@ -1596,7 +1612,9 @@ class CharacterSheetPdf {
 
     // Quantos itens estão sintonizados, que é o limite que a mesa controla.
     final attuned =
-        character.magicItems.where((item) => item.requiresAttunement && item.isAttuned).length;
+        character.magicItems
+            .where((item) => item.requiresAttunement && item.isAttuned)
+            .length;
     if (attuned > 0) {
       widgets
         ..add(pw.SizedBox(height: 2))
@@ -1661,8 +1679,7 @@ class CharacterSheetPdf {
         _indented(
           'Bônus antigo, fora das opções +1 a +3. Revise o item no app.',
         ),
-      if (item.saveDc != null)
-        _indented('CD fixa do item: ${item.saveDc}'),
+      if (item.saveDc != null) _indented('CD fixa do item: ${item.saveDc}'),
       if (item.attackBonus != null)
         _indented('Ataque fixo do item: ${_signed(item.attackBonus!)}'),
       if (item.description.trim().isNotEmpty)
@@ -1781,20 +1798,17 @@ class CharacterSheetPdf {
         children: [
           pw.Text(
             _safe('EXAUSTÃO'),
-            style: pw.TextStyle(fontSize: 6.5, color: _muted, letterSpacing: 0.5),
+            style: pw.TextStyle(
+              fontSize: 6.5,
+              color: _muted,
+              letterSpacing: 0.5,
+            ),
           ),
           pw.SizedBox(width: 10),
           for (var step = 1; step <= ActiveEffects.maxExhaustion; step++) ...[
-            _checkBox(
-              data,
-              name: 'exhaustion_$step',
-              value: step <= safe,
-            ),
+            _checkBox(data, name: 'exhaustion_$step', value: step <= safe),
             pw.SizedBox(width: 2),
-            pw.Text(
-              '$step',
-              style: pw.TextStyle(fontSize: 7, color: _muted),
-            ),
+            pw.Text('$step', style: pw.TextStyle(fontSize: 7, color: _muted)),
             pw.SizedBox(width: 7),
           ],
           pw.Expanded(child: pw.SizedBox()),
@@ -2042,27 +2056,24 @@ class CharacterSheetPdf {
           pw.Expanded(
             child: pw.Container(
               alignment: pw.Alignment.center,
-              child: fillable
-                  ? pw.SizedBox()
-                  : pw.Text(
-                      _safe(value),
-                      textAlign: pw.TextAlign.center,
-                      maxLines: 2,
-                      style: pw.TextStyle(
-                        fontSize: small ? 9 : 15,
-                        fontWeight: pw.FontWeight.bold,
-                        color: _ink,
-                        lineSpacing: 0.8,
+              child:
+                  fillable
+                      ? pw.SizedBox()
+                      : pw.Text(
+                        _safe(value),
+                        textAlign: pw.TextAlign.center,
+                        maxLines: 2,
+                        style: pw.TextStyle(
+                          fontSize: small ? 9 : 15,
+                          fontWeight: pw.FontWeight.bold,
+                          color: _ink,
+                          lineSpacing: 0.8,
+                        ),
                       ),
-                    ),
             ),
           ),
           if (writable)
-            pw.Container(
-              height: 0.6,
-              width: boxWidth * 0.62,
-              color: _rule,
-            )
+            pw.Container(height: 0.6, width: boxWidth * 0.62, color: _rule)
           else if (note != null)
             pw.Text(
               _safe(note),
@@ -2101,13 +2112,14 @@ class CharacterSheetPdf {
         alignment: pw.Alignment.center,
         // Marcado sem formulário vira um quadrado cheio: o "X" desenhado em 9pt
         // com a fonte do corpo fica torto e some na impressão.
-        child: value
-            ? pw.Container(
-                width: size * 0.55,
-                height: size * 0.55,
-                color: _accent,
-              )
-            : pw.SizedBox(),
+        child:
+            value
+                ? pw.Container(
+                  width: size * 0.55,
+                  height: size * 0.55,
+                  color: _accent,
+                )
+                : pw.SizedBox(),
       );
     }
 
@@ -2219,7 +2231,8 @@ class CharacterSheetPdf {
     return _firstWhereOrNull(data.races, (item) => item.id == id);
   }
 
-  static String? _raceName(CharacterSheetPdfData data) => _raceEntry(data)?.name;
+  static String? _raceName(CharacterSheetPdfData data) =>
+      _raceEntry(data)?.name;
 
   static String? _backgroundName(CharacterSheetPdfData data) {
     final character = data.character;

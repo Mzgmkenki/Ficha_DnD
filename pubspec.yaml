@@ -23,6 +23,12 @@ dependencies:
   path_provider: ^2.1.5
   path: ^1.9.0
 
+  # Editor de retrato em Flutter puro: oferece pan, zoom e recorte fixo sem
+  # adicionar permissões nativas. `image` valida, corrige EXIF e comprime o
+  # resultado antes de ele ser salvo para a ficha e para o PDF.
+  crop_your_image: ^2.0.1
+  image: ^4.5.4
+
   # Exportar a ficha em PDF. `pdf` monta o documento; `printing` entrega ao
   # sistema (compartilhar, salvar ou imprimir) sem precisarmos escrever num
   # diretório e depois pedir um app que abra o arquivo.
@@ -35,11 +41,6 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   build_runner: ^2.5.0
   drift_dev: ^2.32.1
-
-  # Só para o teste conferir os bytes da logo (canal alfa, dimensões, cantos
-  # transparentes). Olhar a arte não distingue fundo transparente de fundo
-  # branco, e a diferença estraga um dos dois usos.
-  image: ^4.5.4
 
   # Gera os ícones das plataformas a partir de assets/branding/logo_icon.png.
   # Roda à mão (`flutter pub run flutter_launcher_icons`), não no build.

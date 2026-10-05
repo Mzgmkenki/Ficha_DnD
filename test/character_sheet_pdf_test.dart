@@ -55,11 +55,11 @@ Uint8List _png({int size = 8}) {
 }
 
 List<int> _be32(int value) => [
-      (value >> 24) & 0xFF,
-      (value >> 16) & 0xFF,
-      (value >> 8) & 0xFF,
-      value & 0xFF,
-    ];
+  (value >> 24) & 0xFF,
+  (value >> 16) & 0xFF,
+  (value >> 8) & 0xFF,
+  value & 0xFF,
+];
 
 List<int> _chunk(String type, List<int> data) {
   final body = <int>[...ascii.encode(type), ...data];
@@ -145,11 +145,7 @@ CharacterSheetPdfData _data({bool rich = true}) {
   var character = characterFixture(
     name: 'Aelar Cantovento',
     classLevels: const [
-      ClassLevel(
-        classId: 'cleric',
-        subclassId: 'cleric_life_domain',
-        level: 3,
-      ),
+      ClassLevel(classId: 'cleric', subclassId: 'cleric_life_domain', level: 3),
     ],
     hitPoints: const HitPoints(current: 18, maximum: 24, temporary: 4),
     skillProficiencies: skillsWith({
@@ -266,7 +262,9 @@ void main() {
 
     test('descarta o que atrapalharia no sistema de arquivos', () {
       // Barra e dois-pontos viram caminho ou nome inválido no Windows.
-      final character = characterFixture(name: 'Thorin / Filho de Thráin: o 2º');
+      final character = characterFixture(
+        name: 'Thorin / Filho de Thráin: o 2º',
+      );
       final name = CharacterSheetPdf.fileName(character);
 
       expect(name.endsWith('.pdf'), isTrue);
@@ -336,6 +334,14 @@ void main() {
         closeTo(painel.aspectRatio, 0.001),
       );
     });
+
+    test(
+      'a moldura do retrato tem o dobro da largura e da altura anteriores',
+      () {
+        expect(CharacterSheetPdf.portraitWidth, 168);
+        expect(CharacterSheetPdf.portraitHeight, 126);
+      },
+    );
 
     test('o retrato entra sem derrubar a geração', () async {
       final base = _data();

@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show PlatformException;
+import 'package:image/image.dart' as img;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -39,6 +41,13 @@ class PortraitStorage {
 
   /// Subpasta dentro do diretório de documentos do app.
   static const String folderName = 'portraits';
+
+  /// Limites equilibrados para zoom fluido e impressão nítida. O recorte
+  /// final de 1600 x 1200 ainda passa de 300 dpi na moldura usada no PDF.
+  static const int maxSourceBytes = 25 * 1024 * 1024;
+  static const int editorMaxDimension = 2400;
+  static const int savedWidth = 1600;
+  static const int savedHeight = 1200;
 
   /// Extensões que o Flutter consegue decodificar. O picker já filtra por
   /// imagem, mas um arquivo renomeado passaria pelo filtro e só falharia na
@@ -103,6 +112,76 @@ class PortraitStorage {
     return PickedImage(path: sourcePath, extension: picked.extension);
   }
 
+  /// Lê, valida e normaliza uma imagem antes de abrir o editor.
+  ///
+  /// A orientação EXIF é incorporada aos pixels e imagens enormes são
+  /// reduzidas fora da isolate da interface. Assim o enquadramento visto no
+  /// editor é exatamente o que será salvo e usado no PDF.
+  Future<Uint8List> prepareForCropping(PickedImage picked) async {
+    final source = File(picked.path);
+    if (!await source.exists()) {
+      throw const PortraitException('A imagem escolhida não foi encontrada.');
+    }
+
+    final resolved = _resolveExtension(picked.extension, picked.path);
+    if (!allowedExtensions.contains(resolved)) {
+      final formats = allowedExtensions.join(', ');
+      throw PortraitException(
+        resolved.isEmpty
+            ? 'Não foi possível identificar o formato da imagem. Use $formats.'
+            : 'Formato não suportado (.$resolved). Use $formats.',
+      );
+    }
+
+    if (await source.length() > maxSourceBytes) {
+      throw const PortraitException(
+        'A imagem é muito grande. Escolha um arquivo de até 25 MB.',
+      );
+    }
+
+    final bytes = await source.readAsBytes();
+    try {
+      return await compute(_preparePortraitBytes, bytes);
+    } on PortraitException {
+      rethrow;
+    } catch (_) {
+      throw const PortraitException(
+        'Não foi possível ler a imagem. Escolha outro arquivo.',
+      );
+    }
+  }
+
+  /// Comprime o recorte confirmado para uma resolução suficiente para o
+  /// PDF sem guardar fotos de vários megapixels no diretório do app.
+  Future<Uint8List> optimizeCropped(Uint8List bytes) async {
+    try {
+      return await compute(_optimizeCroppedBytes, bytes);
+    } catch (_) {
+      throw const PortraitException(
+        'Não foi possível processar o recorte da imagem.',
+      );
+    }
+  }
+
+  /// Salva bytes já recortados. O arquivo anterior só será apagado pelo
+  /// caso de uso depois que o banco apontar com sucesso para este novo caminho.
+  Future<String> saveCropped({
+    required String characterId,
+    required Uint8List bytes,
+  }) async {
+    final directory = Directory(
+      p.join((await getApplicationDocumentsDirectory()).path, folderName),
+    );
+    await directory.create(recursive: true);
+
+    final fileName =
+        '${_sanitize(characterId)}_'
+        '${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final target = File(p.join(directory.path, fileName));
+    await target.writeAsBytes(bytes, flush: true);
+    return target.path;
+  }
+
   /// Copia [sourcePath] para o diretório do app e devolve o novo caminho.
   Future<String> save({
     required String characterId,
@@ -135,7 +214,8 @@ class PortraitStorage {
     // O timestamp no nome não é enfeite: o Flutter guarda imagens em cache
     // pelo caminho do arquivo, então reaproveitar o mesmo nome faria a ficha
     // continuar mostrando o retrato antigo depois da troca.
-    final fileName = '${_sanitize(characterId)}_'
+    final fileName =
+        '${_sanitize(characterId)}_'
         '${DateTime.now().millisecondsSinceEpoch}.$resolved';
 
     final target = await source.copy(p.join(directory.path, fileName));
@@ -177,4 +257,48 @@ class PortraitStorage {
     final cleaned = value.replaceAll(RegExp(r'[^A-Za-z0-9_-]'), '');
     return cleaned.isEmpty ? 'portrait' : cleaned;
   }
+}
+
+Uint8List _preparePortraitBytes(Uint8List bytes) {
+  final decoded = img.decodeImage(bytes);
+  if (decoded == null) {
+    throw const PortraitException(
+      'O arquivo escolhido não é uma imagem válida.',
+    );
+  }
+
+  var prepared = img.bakeOrientation(decoded);
+  final longest =
+      prepared.width > prepared.height ? prepared.width : prepared.height;
+  if (longest > PortraitStorage.editorMaxDimension) {
+    final scale = PortraitStorage.editorMaxDimension / longest;
+    prepared = img.copyResize(
+      prepared,
+      width: (prepared.width * scale).round(),
+      height: (prepared.height * scale).round(),
+      interpolation: img.Interpolation.average,
+    );
+  }
+
+  return img.encodeJpg(prepared, quality: 92);
+}
+
+Uint8List _optimizeCroppedBytes(Uint8List bytes) {
+  final decoded = img.decodeImage(bytes);
+  if (decoded == null) {
+    throw const PortraitException('O recorte gerado não é uma imagem válida.');
+  }
+
+  var result = decoded;
+  if (result.width > PortraitStorage.savedWidth ||
+      result.height > PortraitStorage.savedHeight) {
+    result = img.copyResize(
+      result,
+      width: PortraitStorage.savedWidth,
+      height: PortraitStorage.savedHeight,
+      interpolation: img.Interpolation.average,
+    );
+  }
+
+  return img.encodeJpg(result, quality: 90);
 }

@@ -46,6 +46,9 @@ class PdfSamples {
     'conjurador',
     'armas-e-itens',
     'textos-longos',
+    'foto-vertical',
+    'foto-horizontal',
+    'foto-baixa-resolucao',
   ];
 
   static CharacterSheetPdfData byName(String name) {
@@ -60,6 +63,12 @@ class PdfSamples {
         return weaponsAndItems();
       case 'textos-longos':
         return longText();
+      case 'foto-vertical':
+        return _withPortrait(simple(), _solidPng(width: 120, height: 240));
+      case 'foto-horizontal':
+        return _withPortrait(simple(), _solidPng(width: 240, height: 120));
+      case 'foto-baixa-resolucao':
+        return _withPortrait(simple(), _solidPng(width: 12, height: 9));
       default:
         throw ArgumentError('Exemplo desconhecido: $name');
     }
@@ -217,7 +226,11 @@ class PdfSamples {
     return CharacterSheetPdfData(
       character: characterFixture(
         name: 'Thorin Mãodeferro',
-        abilityScores: scoresWith(strength: 18, dexterity: 16, constitution: 15),
+        abilityScores: scoresWith(
+          strength: 18,
+          dexterity: 16,
+          constitution: 15,
+        ),
         classLevels: const [ClassLevel(classId: 'fighter', level: 8)],
         hitPoints: const HitPoints(current: 60, maximum: 76),
         combatStats: const CombatStats(
@@ -336,11 +349,7 @@ class PdfSamples {
         name: 'Anaïs de Sant\'Ana do Coração Ardente da Serra Acima',
         abilityScores: scoresWith(charisma: 18, wisdom: 16),
         classLevels: const [
-          ClassLevel(
-            classId: 'cleric',
-            subclassId: 'cleric_life',
-            level: 6,
-          ),
+          ClassLevel(classId: 'cleric', subclassId: 'cleric_life', level: 6),
         ],
         hitPoints: const HitPoints(current: 38, maximum: 45, temporary: 5),
         conditions: const {
@@ -365,8 +374,16 @@ class PdfSamples {
           name: 'Domínio da Vida e da Recuperação Prolongada',
           source: 'phb',
           features: [
-            SubclassFeature(level: 1, name: 'Discípulo da Vida', description: long),
-            SubclassFeature(level: 2, name: 'Preservar a Vida', description: long),
+            SubclassFeature(
+              level: 1,
+              name: 'Discípulo da Vida',
+              description: long,
+            ),
+            SubclassFeature(
+              level: 2,
+              name: 'Preservar a Vida',
+              description: long,
+            ),
           ],
         ),
       ],
@@ -390,7 +407,12 @@ class PdfSamples {
         ),
       ],
       feats: const [
-        FeatEntry(id: 'alert', name: 'Alerta', description: long, source: 'phb'),
+        FeatEntry(
+          id: 'alert',
+          name: 'Alerta',
+          description: long,
+          source: 'phb',
+        ),
       ],
       weapons: _weaponCatalog,
       iconBytes: markPng(),
@@ -465,7 +487,11 @@ class PdfSamples {
     size: 'Médio',
     speed: 9,
     darkvision: 18,
-    traits: ['Ancestralidade Feérica', 'Transe', 'Treinamento com Armas Élficas'],
+    traits: [
+      'Ancestralidade Feérica',
+      'Transe',
+      'Treinamento com Armas Élficas',
+    ],
     languages: ['Comum', 'Élfico'],
   );
 
@@ -546,18 +572,45 @@ class PdfSamples {
   /// do decodificador, e montar os chunks com o checksum calculado é a única
   /// forma de garantir uma imagem que o `pdf` aceite.
   static Uint8List markPng({int size = 16}) {
+    return _solidPng(width: size, height: size);
+  }
+
+  static CharacterSheetPdfData _withPortrait(
+    CharacterSheetPdfData data,
+    Uint8List portrait,
+  ) {
+    return CharacterSheetPdfData(
+      character: data.character,
+      classes: data.classes,
+      subclasses: data.subclasses,
+      races: data.races,
+      backgrounds: data.backgrounds,
+      classFeatures: data.classFeatures,
+      feats: data.feats,
+      spells: data.spells,
+      spellSlots: data.spellSlots,
+      weapons: data.weapons,
+      logoBytes: data.logoBytes,
+      iconBytes: data.iconBytes,
+      portraitBytes: portrait,
+      titleFontBytes: data.titleFontBytes,
+      interactiveForms: data.interactiveForms,
+    );
+  }
+
+  static Uint8List _solidPng({required int width, required int height}) {
     final header = <int>[
-      ..._be32(size),
-      ..._be32(size),
+      ..._be32(width),
+      ..._be32(height),
       8, // 8 bits por canal
       6, // RGBA
       0, 0, 0, // compressão, filtro e entrelaçamento padrão
     ];
 
     final raw = <int>[];
-    for (var y = 0; y < size; y++) {
+    for (var y = 0; y < height; y++) {
       raw.add(0); // filtro da linha
-      for (var x = 0; x < size; x++) {
+      for (var x = 0; x < width; x++) {
         raw.addAll(const [0xB7, 0x1C, 0x24, 0xFF]); // vermelho DragonSheet
       }
     }
@@ -571,11 +624,11 @@ class PdfSamples {
   }
 
   static List<int> _be32(int value) => [
-        (value >> 24) & 0xFF,
-        (value >> 16) & 0xFF,
-        (value >> 8) & 0xFF,
-        value & 0xFF,
-      ];
+    (value >> 24) & 0xFF,
+    (value >> 16) & 0xFF,
+    (value >> 8) & 0xFF,
+    value & 0xFF,
+  ];
 
   static List<int> _chunk(String type, List<int> data) {
     final body = <int>[...ascii.encode(type), ...data];
