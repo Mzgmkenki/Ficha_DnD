@@ -65,6 +65,10 @@ const _backgrounds = [_acolyte, BackgroundEntry.customOption];
 Future<_FakeCharacterRepository> _pumpCreationPage(WidgetTester tester) async {
   final repository = _FakeCharacterRepository();
 
+  tester.view.physicalSize = const Size(1200, 4200);
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
