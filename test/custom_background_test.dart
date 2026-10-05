@@ -76,13 +76,32 @@ Future<_FakeCharacterRepository> _pumpCreationPage(WidgetTester tester) async {
       child: MaterialApp(
         home: const CharacterCreationPage(),
         // A página faz pushReplacementNamed para a ficha depois de salvar.
-        onGenerateRoute: (_) => MaterialPageRoute<void>(
-          builder: (_) => const Text('FICHA'),
-        ),
+        onGenerateRoute:
+            (_) => MaterialPageRoute<void>(builder: (_) => const Text('FICHA')),
       ),
     ),
   );
   await tester.pump();
+
+  const valuesByAbility = {
+    'strength': 15,
+    'dexterity': 14,
+    'constitution': 13,
+    'intelligence': 12,
+    'wisdom': 10,
+    'charisma': 8,
+  };
+  for (final entry in valuesByAbility.entries) {
+    final field = tester.widget<DropdownButtonFormField<int>>(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is DropdownButtonFormField<int> &&
+            widget.key.toString().contains('standard-${entry.key}-'),
+      ),
+    );
+    field.onChanged!(entry.value);
+    await tester.pump();
+  }
 
   return repository;
 }
@@ -148,8 +167,9 @@ void main() {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
-      final backgrounds =
-          await container.read(backgroundEntriesProvider.future);
+      final backgrounds = await container.read(
+        backgroundEntriesProvider.future,
+      );
 
       expect(backgrounds.length, greaterThan(1));
       expect(backgrounds.last.id, BackgroundEntry.customId);
@@ -208,10 +228,10 @@ void main() {
       expect(saved!.backgroundId, BackgroundEntry.customId);
       expect(saved.customBackground.name, 'Caçador de Recompensas');
       expect(saved.customBackground.displayName, 'Caçador de Recompensas');
-      expect(
-        saved.customBackground.skillIds,
-        [Skill.insight.id, Skill.survival.id],
-      );
+      expect(saved.customBackground.skillIds, [
+        Skill.insight.id,
+        Skill.survival.id,
+      ]);
       expect(
         saved.customBackground.features,
         'Contatos na guilda de caçadores e um mandado sempre em aberto.',
@@ -290,10 +310,10 @@ void main() {
 
       await _tapSave(tester);
 
-      expect(
-        repository.created!.customBackground.skillIds,
-        [Skill.stealth.id, Skill.athletics.id],
-      );
+      expect(repository.created!.customBackground.skillIds, [
+        Skill.stealth.id,
+        Skill.athletics.id,
+      ]);
     },
   );
 
@@ -324,34 +344,33 @@ void main() {
     },
   );
 
-  testWidgets(
-    'a ficha mostra o antecedente customizado do personagem',
-    (tester) async {
-      await tester.pumpWidget(
-        const ProviderScope(
-          child: MaterialApp(
-            home: Scaffold(
-              body: BackgroundPanel(
-                backgroundId: BackgroundEntry.customId,
-                customBackground: CustomBackground(
-                  name: 'Caçador de Recompensas',
-                  skillIds: ['insight', 'survival'],
-                  features: 'Contatos na guilda.',
-                ),
+  testWidgets('a ficha mostra o antecedente customizado do personagem', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: BackgroundPanel(
+              backgroundId: BackgroundEntry.customId,
+              customBackground: CustomBackground(
+                name: 'Caçador de Recompensas',
+                skillIds: ['insight', 'survival'],
+                features: 'Contatos na guilda.',
               ),
             ),
           ),
         ),
-      );
-      await tester.pumpAndSettle();
+      ),
+    );
+    await tester.pumpAndSettle();
 
-      expect(find.text('Caçador de Recompensas'), findsOneWidget);
-      expect(find.text('Antecedente criado pelo jogador.'), findsOneWidget);
-      expect(find.text('Perícias: Intuição, Sobrevivência'), findsOneWidget);
-      expect(find.text('Características'), findsOneWidget);
-      expect(find.text('Contatos na guilda.'), findsOneWidget);
-    },
-  );
+    expect(find.text('Caçador de Recompensas'), findsOneWidget);
+    expect(find.text('Antecedente criado pelo jogador.'), findsOneWidget);
+    expect(find.text('Perícias: Intuição, Sobrevivência'), findsOneWidget);
+    expect(find.text('Características'), findsOneWidget);
+    expect(find.text('Contatos na guilda.'), findsOneWidget);
+  });
 
   testWidgets(
     'sem nome, a ficha cai no rótulo padrão do antecedente customizado',

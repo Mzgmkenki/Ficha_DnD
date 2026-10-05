@@ -180,13 +180,32 @@ Future<_FakeCharacterRepository> _pumpCreationPage(
       ],
       child: MaterialApp(
         home: const CharacterCreationPage(),
-        onGenerateRoute: (_) => MaterialPageRoute<void>(
-          builder: (_) => const Text('FICHA'),
-        ),
+        onGenerateRoute:
+            (_) => MaterialPageRoute<void>(builder: (_) => const Text('FICHA')),
       ),
     ),
   );
   await tester.pump();
+
+  const valuesByAbility = {
+    'strength': 15,
+    'dexterity': 14,
+    'constitution': 13,
+    'intelligence': 12,
+    'wisdom': 10,
+    'charisma': 8,
+  };
+  for (final entry in valuesByAbility.entries) {
+    final field = tester.widget<DropdownButtonFormField<int>>(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is DropdownButtonFormField<int> &&
+            widget.key.toString().contains('standard-${entry.key}-'),
+      ),
+    );
+    field.onChanged!(entry.value);
+    await tester.pump();
+  }
 
   return repository;
 }
@@ -214,7 +233,9 @@ Future<void> _tapSave(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('classe que escolhe no 1º nível mostra o seletor', (tester) async {
+  testWidgets('classe que escolhe no 1º nível mostra o seletor', (
+    tester,
+  ) async {
     await _pumpCreationPage(tester, const [_cleric]);
 
     // Usa o rótulo da própria classe, não um genérico.
@@ -222,17 +243,18 @@ void main() {
     expect(find.text('Domínio da Vida'), findsWidgets);
   });
 
-  testWidgets('classe que escolhe depois avisa o nível em vez de mostrar o seletor', (
-    tester,
-  ) async {
-    await _pumpCreationPage(tester, const [_fighter]);
+  testWidgets(
+    'classe que escolhe depois avisa o nível em vez de mostrar o seletor',
+    (tester) async {
+      await _pumpCreationPage(tester, const [_fighter]);
 
-    expect(
-      find.text('Arquétipo Marcial: você escolhe no 3º nível.'),
-      findsOneWidget,
-    );
-    expect(find.text('Campeão'), findsNothing);
-  });
+      expect(
+        find.text('Arquétipo Marcial: você escolhe no 3º nível.'),
+        findsOneWidget,
+      );
+      expect(find.text('Campeão'), findsNothing);
+    },
+  );
 
   testWidgets('subclasse escolhida no 1º nível é gravada no personagem', (
     tester,

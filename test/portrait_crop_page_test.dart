@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:crop_your_image/crop_your_image.dart';
 import 'package:dnd_ficha_app/core/theme/app_theme.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/portrait_crop_page.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +20,8 @@ void main() {
         home: PortraitCropPage(imageBytes: _imageBytes()),
       ),
     );
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
 
     expect(find.text('Enquadrar imagem'), findsOneWidget);
     expect(find.textContaining('Arraste'), findsOneWidget);
@@ -27,7 +29,7 @@ void main() {
     expect(find.text('Confirmar'), findsOneWidget);
 
     // Um arrasto representa a movimentação real do enquadramento.
-    await tester.drag(find.byType(PortraitCropPage), const Offset(20, 10));
+    await tester.drag(find.byType(Crop), const Offset(20, 10));
     await tester.pump();
     expect(tester.takeException(), isNull);
   });
@@ -54,7 +56,8 @@ void main() {
     );
 
     await tester.tap(find.text('Abrir'));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
     await tester.tap(find.byTooltip('Cancelar recorte'));
     await tester.pumpAndSettle();
 
