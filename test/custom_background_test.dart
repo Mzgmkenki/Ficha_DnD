@@ -339,12 +339,8 @@ void main() {
         isNull,
         reason: 'as perícias do antecedente são obrigatórias',
       );
-      // O ListView desmonta os dropdowns quando rolamos até o botão salvar,
-      // então a checagem tem de vir do estado, não do validator do widget.
-      expect(
-        find.textContaining('as duas perícias do antecedente'),
-        findsOneWidget,
-      );
+      expect(find.text('Escolha a primeira perícia.'), findsOneWidget);
+      expect(find.text('Escolha a segunda perícia.'), findsOneWidget);
     },
   );
 
