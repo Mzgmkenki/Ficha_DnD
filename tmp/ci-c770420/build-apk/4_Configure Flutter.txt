@@ -1,0 +1,96 @@
+﻿2026-10-05T18:00:44.1513711Z ##[group]Run subosito/flutter-action@v2
+2026-10-05T18:00:44.1514072Z with:
+2026-10-05T18:00:44.1514305Z   channel: stable
+2026-10-05T18:00:44.1514569Z   cache: true
+2026-10-05T18:00:44.1514810Z   architecture: X64
+2026-10-05T18:00:44.1515100Z   pub-cache-path: default
+2026-10-05T18:00:44.1515376Z   dry-run: false
+2026-10-05T18:00:44.1515694Z   git-source: https://github.com/flutter/flutter.git
+2026-10-05T18:00:44.1516056Z env:
+2026-10-05T18:00:44.1516405Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.12-1/x64
+2026-10-05T18:00:44.1516998Z   JAVA_HOME_21_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.12-1/x64
+2026-10-05T18:00:44.1517448Z ##[endgroup]
+2026-10-05T18:00:44.1639742Z ##[start-action display=Make yq tool available on Windows runners;id=__subosito_flutter-action.__run]
+2026-10-05T18:00:44.1652198Z ##[end-action id=__subosito_flutter-action.__run;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-10-05T18:00:44.1654850Z ##[start-action display=Make setup script executable;id=__subosito_flutter-action.__run_2]
+2026-10-05T18:00:44.1705485Z ##[group]Run chmod +x "$GITHUB_ACTION_PATH/setup.sh"
+2026-10-05T18:00:44.1706051Z [36;1mchmod +x "$GITHUB_ACTION_PATH/setup.sh"[0m
+2026-10-05T18:00:44.1850079Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-05T18:00:44.1850398Z env:
+2026-10-05T18:00:44.1850676Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.12-1/x64
+2026-10-05T18:00:44.1851275Z   JAVA_HOME_21_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.12-1/x64
+2026-10-05T18:00:44.1851611Z ##[endgroup]
+2026-10-05T18:00:44.1951870Z ##[end-action id=__subosito_flutter-action.__run_2;outcome=success;conclusion=success;duration_ms=29]
+2026-10-05T18:00:44.1953882Z ##[start-action display=Set action inputs;id=__subosito_flutter-action.flutter-action]
+2026-10-05T18:00:44.1983653Z ##[group]Run $GITHUB_ACTION_PATH/setup.sh -p \
+2026-10-05T18:00:44.1983987Z [36;1m$GITHUB_ACTION_PATH/setup.sh -p \[0m
+2026-10-05T18:00:44.1984244Z [36;1m  -n '' \[0m
+2026-10-05T18:00:44.1984444Z [36;1m  -f '' \[0m
+2026-10-05T18:00:44.1984623Z [36;1m  -a 'X64' \[0m
+2026-10-05T18:00:44.1984818Z [36;1m  -k '' \[0m
+2026-10-05T18:00:44.1985120Z [36;1m  -c '' \[0m
+2026-10-05T18:00:44.1985292Z [36;1m  -l '' \[0m
+2026-10-05T18:00:44.1985468Z [36;1m  -d 'default' \[0m
+2026-10-05T18:00:44.1985730Z [36;1m  -g 'https://github.com/flutter/flutter.git' \[0m
+2026-10-05T18:00:44.1985997Z [36;1m  stable[0m
+2026-10-05T18:00:44.2016087Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-05T18:00:44.2016386Z env:
+2026-10-05T18:00:44.2016648Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.12-1/x64
+2026-10-05T18:00:44.2017052Z   JAVA_HOME_21_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.12-1/x64
+2026-10-05T18:00:44.2017375Z ##[endgroup]
+2026-10-05T18:00:44.4438936Z ##[end-action id=__subosito_flutter-action.flutter-action;outcome=success;conclusion=success;duration_ms=248]
+2026-10-05T18:00:44.4444257Z ##[start-action display=Cache Flutter;id=__subosito_flutter-action.cache-flutter]
+2026-10-05T18:00:44.4480536Z ##[group]Run actions/cache@v5
+2026-10-05T18:00:44.4480777Z with:
+2026-10-05T18:00:44.4481013Z   path: /opt/hostedtoolcache/flutter/stable-3.47.6-x64
+2026-10-05T18:00:44.4481650Z   key: flutter-linux-stable-3.47.6-x64-5fc346839b5d0eef006ed8404392afb4dfae428d
+2026-10-05T18:00:44.4482013Z   enableCrossOsArchive: false
+2026-10-05T18:00:44.4482239Z   fail-on-cache-miss: false
+2026-10-05T18:00:44.4482444Z   lookup-only: false
+2026-10-05T18:00:44.4482629Z   save-always: false
+2026-10-05T18:00:44.4482803Z env:
+2026-10-05T18:00:44.4483052Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.12-1/x64
+2026-10-05T18:00:44.4483439Z   JAVA_HOME_21_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.12-1/x64
+2026-10-05T18:00:44.4483741Z ##[endgroup]
+2026-10-05T18:00:44.7969060Z Cache not found for input keys: flutter-linux-stable-3.47.6-x64-5fc346839b5d0eef006ed8404392afb4dfae428d
+2026-10-05T18:00:44.8005722Z ##[end-action id=__subosito_flutter-action.cache-flutter;outcome=success;conclusion=success;duration_ms=356]
+2026-10-05T18:00:44.8008146Z ##[start-action display=Cache pub dependencies;id=__subosito_flutter-action.cache-pub]
+2026-10-05T18:00:44.9027878Z ##[group]Run actions/cache@v5
+2026-10-05T18:00:44.9028119Z with:
+2026-10-05T18:00:44.9028320Z   path: /home/runner/.pub-cache
+2026-10-05T18:00:44.9028909Z   key: flutter-pub-linux-stable-3.47.6-x64-5fc346839b5d0eef006ed8404392afb4dfae428d-a8cf1e2d18c372116b98d0fa93b319a12974fd54743e625548d8fe7164952f9d
+2026-10-05T18:00:44.9029502Z   enableCrossOsArchive: false
+2026-10-05T18:00:44.9029719Z   fail-on-cache-miss: false
+2026-10-05T18:00:44.9029924Z   lookup-only: false
+2026-10-05T18:00:44.9030109Z   save-always: false
+2026-10-05T18:00:44.9030289Z env:
+2026-10-05T18:00:44.9030542Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.12-1/x64
+2026-10-05T18:00:44.9031009Z   JAVA_HOME_21_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.12-1/x64
+2026-10-05T18:00:44.9031635Z ##[endgroup]
+2026-10-05T18:00:45.2593336Z Cache not found for input keys: flutter-pub-linux-stable-3.47.6-x64-5fc346839b5d0eef006ed8404392afb4dfae428d-a8cf1e2d18c372116b98d0fa93b319a12974fd54743e625548d8fe7164952f9d
+2026-10-05T18:00:45.2610487Z ##[end-action id=__subosito_flutter-action.cache-pub;outcome=success;conclusion=success;duration_ms=460]
+2026-10-05T18:00:45.2614720Z ##[start-action display=Run setup script;id=__subosito_flutter-action.__run_3]
+2026-10-05T18:00:45.2657302Z ##[group]Run $GITHUB_ACTION_PATH/setup.sh \
+2026-10-05T18:00:45.2657642Z [36;1m$GITHUB_ACTION_PATH/setup.sh \[0m
+2026-10-05T18:00:45.2657903Z [36;1m  -n '3.47.6' \[0m
+2026-10-05T18:00:45.2658117Z [36;1m  -a 'x64' \[0m
+2026-10-05T18:00:45.2658397Z [36;1m  -c '/opt/hostedtoolcache/flutter/stable-3.47.6-x64' \[0m
+2026-10-05T18:00:45.2658736Z [36;1m  -d '/home/runner/.pub-cache' \[0m
+2026-10-05T18:00:45.2658981Z [36;1m  stable[0m
+2026-10-05T18:00:45.2695441Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-05T18:00:45.2695788Z env:
+2026-10-05T18:00:45.2696082Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.12-1/x64
+2026-10-05T18:00:45.2696674Z   JAVA_HOME_21_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.12-1/x64
+2026-10-05T18:00:45.2697037Z ##[endgroup]
+2026-10-05T18:00:45.4464971Z   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+2026-10-05T18:00:45.4466508Z                                  Dload  Upload   Total   Spent    Left  Speed
+2026-10-05T18:00:45.4466995Z 
+2026-10-05T18:00:46.1776439Z   0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+2026-10-05T18:00:47.1776065Z  12 1504M   12  181M    0     0   248M      0  0:00:06 --:--:--  0:00:06  247M
+2026-10-05T18:00:48.1775049Z  31 1504M   31  470M    0     0   271M      0  0:00:05  0:00:01  0:00:04  271M
+2026-10-05T18:00:49.1875890Z  57 1504M   57  858M    0     0   314M      0  0:00:04  0:00:02  0:00:02  314M
+2026-10-05T18:00:50.2385205Z  78 1504M   78 1178M    0     0   314M      0  0:00:04  0:00:03  0:00:01  314M
+2026-10-05T18:00:51.2196560Z  92 1504M   92 1386M    0     0   289M      0  0:00:05  0:00:04  0:00:01  289M
+2026-10-05T18:00:51.3273307Z  99 1504M   99 1493M    0     0   258M      0  0:00:05  0:00:05 --:--:--  260M
+2026-10-05T18:00:51.3274407Z 100 1504M  100 1504M    0     0   255M      0  0:00:05  0:00:05 --:--:--  249M
+2026-10-05T18:01:45.1554443Z ##[end-action id=__subosito_flutter-action.__run_3;outcome=success;conclusion=success;duration_ms=59893]

@@ -167,11 +167,11 @@ class _PortraitFrame extends StatelessWidget {
     // só para desenhar o retrato — e numa lista isso multiplica.
     final pixels = (width * MediaQuery.devicePixelRatioOf(context)).round();
 
-    final image =
-        bytes != null ? Image.memory(bytes!) : Image.file(File(path!));
+    final ImageProvider imageProvider =
+        bytes != null ? MemoryImage(bytes!) : FileImage(File(path!));
 
     return Image(
-      image: image.image,
+      image: ResizeImage.resizeIfNeeded(pixels, null, imageProvider),
       fit: BoxFit.cover,
       // Retrato de personagem é quase sempre uma imagem vertical, e `cover`
       // centralizado cortava justamente a cabeça, deixando o meio do corpo.
@@ -179,7 +179,6 @@ class _PortraitFrame extends StatelessWidget {
       alignment: Alignment.topCenter,
       width: width,
       height: height,
-      cacheWidth: pixels,
       filterQuality: FilterQuality.medium,
       // O arquivo mora no diretório do app, mas o jogador pode ter limpado os
       // dados ou restaurado um backup sem ele. Cair no placeholder é melhor

@@ -1,8 +1,8 @@
 import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
 import 'package:dnd_ficha_app/core/theme/app_typography.dart';
 import 'package:dnd_ficha_app/core/utils/distance_format.dart';
-import 'package:dnd_ficha_app/features/character/application/providers/initiative_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
+import 'package:dnd_ficha_app/features/character/application/providers/initiative_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/initiative_calculator.dart';
 import 'package:flutter/material.dart';

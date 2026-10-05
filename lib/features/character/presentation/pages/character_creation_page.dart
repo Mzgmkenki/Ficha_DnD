@@ -173,7 +173,10 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
     try {
       final storage = ref.read(portraitStorageProvider);
       final optimized = await storage.optimizeCropped(cropped);
-      return storage.saveCropped(characterId: characterId, bytes: optimized);
+      return await storage.saveCropped(
+        characterId: characterId,
+        bytes: optimized,
+      );
     } catch (error) {
       debugPrint('Falha ao salvar o retrato na criacao: $error');
 

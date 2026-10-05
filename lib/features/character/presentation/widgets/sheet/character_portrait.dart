@@ -1,3 +1,4 @@
+import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/core/storage/portrait_storage.dart';
 import 'package:dnd_ficha_app/core/theme/app_colors.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
