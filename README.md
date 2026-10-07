@@ -12,14 +12,15 @@ aplicativo, sem depender de servidor, conta ou conexão com a internet.
 - criação e edição de personagens;
 - raças, sub-raças, antecedentes, classes, subclasses e multiclasse;
 - atributos, perícias, salvaguardas, proficiência e valores passivos;
-- pontos de vida, classe de armadura, iniciativa e deslocamento;
+- pontos de vida com controles rápidos de dano e cura, classe de armadura,
+  iniciativa e deslocamento;
 - armas, ataques e ações de combate;
 - magias, espaços de magia e compêndio com busca e filtros;
 - itens mágicos, sintonia, cargas e bônus;
 - condições, exaustão, inspiração e salvaguardas contra a morte;
 - descansos curtos e longos, dados de vida e recuperação de recursos;
 - características raciais, características de classe e talentos;
-- retrato do personagem;
+- retrato do personagem com recorte, zoom, reposicionamento e pré-visualização;
 - importação e exportação da ficha em JSON;
 - geração e compartilhamento da ficha em PDF.
 
@@ -30,7 +31,8 @@ aplicativo, sem depender de servidor, conta ou conexão com a internet.
 - Drift/SQLite para persistência local;
 - arquivos JSON empacotados para o compêndio;
 - `pdf` e `printing` para geração e compartilhamento da ficha;
-- `file_picker` e `path_provider` para retratos e transferência de arquivos.
+- `file_picker`, `crop_your_image`, `image` e `path_provider` para seleção,
+  recorte, otimização e armazenamento dos retratos.
 
 ## Arquitetura
 
@@ -81,6 +83,20 @@ assets JSON -> SrdAssetSource -> CompendiumRepository -> FutureProvider -> UI
   silêncio.
 - Personagens antigos continuam compatíveis: os novos metadados de criação
   são opcionais e a migração não tenta adivinhar a distribuição original.
+
+### Pontos de vida e retratos
+
+- Os botões rápidos de dano e cura atualizam e persistem os PV diretamente na
+  ficha. O dano consome primeiro os PV temporários; a cura altera somente os
+  PV atuais e nunca ultrapassa o máximo.
+- Ao escolher um retrato, o aplicativo corrige a orientação da imagem e abre
+  um editor com proporção fixa, movimento, zoom, redefinição, cancelamento e
+  confirmação por pré-visualização.
+- O arquivo confirmado é convertido para JPEG e redimensionado antes de ser
+  salvo no diretório privado do aplicativo. Cancelar ou encontrar um erro
+  mantém o retrato anterior.
+- Na ficha em PDF, o retrato usa uma área de `168 x 126` pontos, com recorte
+  central proporcional e moldura visível mesmo quando não há imagem.
 
 ## Requisitos
 
@@ -141,7 +157,8 @@ flutter test test/domain/hit_points_test.dart
 ```
 
 Os testes cobrem regras de domínio, migrações do banco, assets do compêndio,
-rotas, widgets, importação/exportação e geração/layout do PDF.
+rotas, widgets, importação/exportação, controles de PV, processamento e recorte
+de retratos e geração/layout do PDF.
 
 ## Dados e persistência
 
