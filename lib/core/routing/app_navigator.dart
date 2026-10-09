@@ -97,6 +97,20 @@ class AppNavigator {
     );
   }
 
+  /// Abre o Painel de combate (Ações, Condições e Recursos) do personagem.
+  ///
+  /// Recebe o id, e não a entidade: o painel lê do provider para refletir na
+  /// hora o que foi mudado na ficha, e vice-versa.
+  static Future<void> toCombatPanel(
+    BuildContext context, {
+    required String characterId,
+  }) {
+    return Navigator.of(context).pushNamed(
+      AppRoutes.combatPanel,
+      arguments: CharacterIdArgs(characterId),
+    );
+  }
+
   static Future<void> toEditClassLevels(
     BuildContext context, {
     required Character character,

@@ -3,6 +3,7 @@ import 'package:dnd_ficha_app/features/character/presentation/pages/character_cr
 import 'package:dnd_ficha_app/features/character/presentation/pages/character_list_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/character_sheet_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/character_transfer_page.dart';
+import 'package:dnd_ficha_app/features/character/presentation/pages/combat_panel_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/edit_ability_scores_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/edit_armor_class_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/edit_class_levels_page.dart';
@@ -28,6 +29,7 @@ class AppRoutes {
   static const String editHitPoints = '/character/hit-points';
   static const String editArmorClass = '/character/armor-class';
   static const String editInitiative = '/character/initiative';
+  static const String combatPanel = '/character/combat-panel';
   static const String editClassLevels = '/character/class-levels';
   static const String editProficiencies = '/character/proficiencies';
   static const String manageSpells = '/character/spells';
@@ -107,6 +109,12 @@ class AppRouter {
         return _withArgs<EditInitiativeArgs>(
           settings,
           (args) => EditInitiativePage(character: args.character),
+        );
+
+      case AppRoutes.combatPanel:
+        return _withArgs<CharacterIdArgs>(
+          settings,
+          (args) => CombatPanelPage(characterId: args.characterId),
         );
 
       case AppRoutes.editClassLevels:

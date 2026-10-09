@@ -81,6 +81,10 @@ class EditInitiativeArgs {
   final Character character;
 }
 
+/// O Painel de combate reaproveita [CharacterIdArgs] de propósito: ele lê o
+/// personagem do provider para refletir mudança feita na ficha, então receber
+/// uma cópia da entidade só daria oportunidade de mostrar dado velho.
+
 class SpellDetailArgs {
   const SpellDetailArgs({required this.spell});
 

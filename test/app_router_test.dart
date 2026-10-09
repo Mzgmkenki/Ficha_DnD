@@ -4,6 +4,7 @@ import 'package:dnd_ficha_app/features/character/presentation/pages/character_cr
 import 'package:dnd_ficha_app/features/character/presentation/pages/character_list_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/character_sheet_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/character_transfer_page.dart';
+import 'package:dnd_ficha_app/features/character/presentation/pages/combat_panel_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/edit_hit_points_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/edit_identity_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/manage_character_spells_page.dart';
@@ -72,6 +73,18 @@ void main() {
       );
 
       expect((page as ManageCharacterSpellsPage).characterId, 'c9');
+    });
+
+    test('painel de combate recebe o id, e não o personagem', () {
+      // O id de propósito: o painel lê do provider para refletir na hora o que
+      // a ficha mudou. Uma cópia da entidade ficaria velha.
+      final page = _pageOf(
+        AppRoutes.combatPanel,
+        arguments: const CharacterIdArgs('c4'),
+      );
+
+      expect(page, isA<CombatPanelPage>());
+      expect((page as CombatPanelPage).characterId, 'c4');
     });
 
     test('editar PV recebe os pontos de vida atuais', () {

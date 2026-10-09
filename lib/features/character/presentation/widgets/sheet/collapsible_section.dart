@@ -12,13 +12,12 @@ import 'package:flutter/material.dart';
 /// chegam prontos de quem monta a seção.
 ///
 /// O conteúdo é construído somente quando aberto, e isso é decisão consciente.
-/// Ganho: "Ações em combate" resolve a lista inteira de magias do compêndio, e
-/// manter isso montado sem ninguém olhando custa caro numa página que já é
-/// grande. Risco aceito: estado só de interface dentro da seção se perde ao
-/// fechar — na prática, quais itens de ação estavam expandidos. Nada que o
-/// jogador tenha digitado ou escolhido passa por aqui: condições, recursos e
-/// características leem do personagem salvo, então fechar não apaga nem
-/// reinicia nada.
+/// Ganho: "Magias" e "Características de classe" resolvem listas inteiras do
+/// compêndio, e manter isso montado sem ninguém olhando custa caro numa página
+/// que já é grande. Risco aceito: estado só de interface dentro da seção se
+/// perde ao fechar — na prática, quais itens estavam expandidos. Nada que o
+/// jogador tenha digitado ou escolhido passa por aqui: tudo lê do personagem
+/// salvo, então fechar não apaga nem reinicia nada.
 class CollapsibleSection extends StatefulWidget {
   const CollapsibleSection({
     required this.id,

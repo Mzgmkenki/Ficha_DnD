@@ -12,15 +12,13 @@ import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/char
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/character_spells_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/class_features_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/collapsible_section.dart';
-import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/combat_actions_panel.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/combat_panel_button.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/combat_summary_card.dart';
-import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/conditions_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/currency_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/death_saves_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/feats_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/magic_items_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/racial_traits_panel.dart';
-import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/rest_and_resources_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/saving_throws_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/sheet_header_action.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/skills_panel.dart';
@@ -70,29 +68,9 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
     setState(() => _openSections[id] = value);
   }
 
-  /// Resumo de Condições: quantas estão ativas, contando a exaustão.
-  String _conditionsSummary(Character character) {
-    final active = character.conditions.length;
-    final exhaustion = character.exhaustion;
-
-    if (active == 0 && exhaustion == 0) return 'Nenhuma condição';
-
-    return [
-      if (active == 1) '1 condição ativa' else if (active > 1) '$active condições ativas',
-      if (exhaustion > 0) 'exaustão nível $exhaustion',
-    ].join(' • ');
-  }
-
-  /// Resumo de Recursos: dados de vida disponíveis e inspiração.
-  String _resourcesSummary(Character character) {
-    final total = character.totalLevel;
-    final available = total - character.hitDiceUsed;
-
-    return [
-      'Dados de vida $available de $total',
-      if (character.inspiration) 'com inspiração',
-    ].join(' • ');
-  }
+  // Os resumos de Condições e de Recursos moravam aqui. Foram para
+  // `CombatPanelSummary`, que alimenta ao mesmo tempo o botão do Painel de
+  // combate e os indicadores das abas — duas contas separadas divergiriam.
 
   /// Resumo de Testes contra a morte: o estado alcançado ou a contagem.
   String _deathSavesSummary(Character character) {
@@ -299,6 +277,18 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                   const SizedBox(height: 8),
                   CombatSummaryCard(character: character),
 
+                  // Logo abaixo do resumo de combate: Ações, Condições e
+                  // Recursos saíram daqui para uma tela própria, e este é o
+                  // ponto em que o jogador procura por elas.
+                  const SizedBox(height: 12),
+                  CombatPanelButton(
+                    character: character,
+                    onPressed: () => AppNavigator.toCombatPanel(
+                      context,
+                      characterId: character.id,
+                    ),
+                  ),
+
                   const SizedBox(height: 16),
                   CollapsibleSection(
                     id: 'weapons',
@@ -318,51 +308,9 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                     ),
                   ),
 
-                  const SizedBox(height: 16),
-                  CollapsibleSection(
-                    id: 'combat_actions',
-                    title: 'Ações em combate',
-                    // Sem contagem de propósito: contar as opções obrigaria a
-                    // resolver a lista inteira de magias do compêndio a cada
-                    // abertura da ficha, inclusive com a seção fechada — que é
-                    // justamente o custo que recolher evita.
-                    summary: 'Ver opções do turno',
-                    isExpanded: _isOpen('combat_actions'),
-                    onExpansionChanged: (value) =>
-                        _setOpen('combat_actions', value),
-                    child: CombatActionsPanel(character: character),
-                  ),
-
-                  const SizedBox(height: 16),
-                  CollapsibleSection(
-                    id: 'conditions',
-                    title: 'Condições',
-                    summary: _conditionsSummary(character),
-                    // Condição ativa não pode ficar escondida atrás de um
-                    // painel fechado: é o que muda o que o personagem
-                    // consegue fazer no turno.
-                    badge: character.conditions.isEmpty &&
-                            character.exhaustion == 0
-                        ? null
-                        : 'Ativa',
-                    isExpanded: _isOpen('conditions'),
-                    onExpansionChanged: (value) => _setOpen('conditions', value),
-                    child: ConditionsPanel(character: character),
-                  ),
-
-                  const SizedBox(height: 16),
-                  CollapsibleSection(
-                    id: 'resources',
-                    title: 'Recursos e descanso',
-                    summary: _resourcesSummary(character),
-                    badge: character.hitDiceUsed > 0 ? 'Gasto' : null,
-                    isExpanded: _isOpen('resources'),
-                    onExpansionChanged: (value) => _setOpen('resources', value),
-                    child: RestAndResourcesPanel(
-                      character: character,
-                      classes: classes,
-                    ),
-                  ),
+                  // "Ações em combate", "Condições" e "Recursos e descanso"
+                  // saíram daqui: viraram as abas do Painel de combate, aberto
+                  // pelo botão acima. Os widgets são os mesmos, não há cópia.
 
                   const SizedBox(height: 16),
                   CollapsibleSection(
