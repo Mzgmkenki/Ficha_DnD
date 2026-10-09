@@ -649,16 +649,18 @@
       "Resistência Celestial: resistência a dano necrótico e radiante.",
       "Mãos Curativas: ação para tocar uma criatura e restaurar uma quantidade de PV igual ao total de um número de d4 igual ao bônus de proficiência. Um uso por descanso longo.",
       "Portador da Luz: conhece o truque Luz; Carisma é o atributo de conjuração.",
-      "Revelação Celestial: no 3º nível, escolha uma das formas abaixo. Essa escolha determina suas transformações futuras. Ativação: ação bônus. Duração: 1 minuto; pode encerrar antecipadamente com ação bônus. Uso: uma vez por descanso longo. BP: bônus de proficiência. Dano adicional — todas as formas: durante a transformação, uma vez em cada turno seu, ao causar dano com ataque ou magia, você pode acrescentar BP de dano a um alvo: necrótico na Mortalha Necrótica; radiante nas demais."
+      "Revelação Celestial: no 3º nível, escolha uma das formas abaixo. Essa escolha determina suas transformações futuras.",
+      "Revelação Celestial — ativação: ação bônus. Duração: 1 minuto; pode encerrar antecipadamente com ação bônus. Uso: uma vez por descanso longo. BP: bônus de proficiência.",
+      "Revelação Celestial — dano adicional, em todas as formas: durante a transformação, uma vez em cada turno seu, ao causar dano com ataque ou magia, você pode acrescentar BP de dano a um alvo: necrótico na Mortalha Necrótica; radiante nas demais."
     ],
     "choice_groups": [
       {
         "id": "aasimar_revelation_choice",
-        "name": "Escolha a Revelação Celestial",
+        "name": "Revelação Celestial (3º nível)",
         "options": [
-          "Mortalha Necrótica — seus olhos escurecem e surgem asas fantasmagóricas que não permitem voar. Ao ativar, criaturas não aliadas a até 3 m que possam vê-lo fazem teste de resistência de Carisma, com CD = 8 + BP + modificador de Carisma. Na falha, ficam amedrontadas por você até o final do seu próximo turno. O medo ocorre somente na ativação.",
-          "Consumo Radiante — seus olhos e boca emitem luz plena num raio de 3 m, mais 3 m de penumbra. Ao final de cada turno seu, cada criatura a até 3 m, incluindo aliados, sofre BP de dano radiante, sem teste de resistência. Esse efeito acumula com o dano adicional de ataque ou magia.",
-          "Alma Radiante — duas asas espectrais luminosas concedem deslocamento de voo igual ao seu deslocamento de caminhada durante a transformação."
+          "Mortalha Necrótica: seus olhos escurecem e surgem asas fantasmagóricas que não permitem voar. Ao ativar, criaturas não aliadas a até 3 m que possam vê-lo fazem teste de resistência de Carisma, com CD = 8 + BP + modificador de Carisma. Na falha, ficam amedrontadas por você até o final do seu próximo turno. O medo ocorre somente na ativação.",
+          "Consumo Radiante: seus olhos e boca emitem luz plena num raio de 3 m, mais 3 m de penumbra. Ao final de cada turno seu, cada criatura a até 3 m, incluindo aliados, sofre BP de dano radiante, sem teste de resistência. Esse efeito acumula com o dano adicional de ataque ou magia.",
+          "Alma Radiante: duas asas espectrais luminosas concedem deslocamento de voo igual ao seu deslocamento de caminhada durante a transformação."
         ],
         "choose": 1
       }

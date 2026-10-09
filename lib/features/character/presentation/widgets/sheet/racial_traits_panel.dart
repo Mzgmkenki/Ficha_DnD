@@ -1,5 +1,6 @@
 ﻿import 'package:dnd_ficha_app/core/utils/distance_format.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/race_choice_group.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -137,17 +138,37 @@ class RacialTraitsPanel extends ConsumerWidget {
                   const Text('Nenhuma característica racial cadastrada.')
                 else
                   ...combinedRace.traits.map(
-                    (trait) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('• '),
-                          Expanded(child: Text(trait)),
-                        ],
-                      ),
-                    ),
+                    (trait) => _TraitLine(text: trait),
                   ),
+
+                // As opções de escolha da raça: as formas da Revelação
+                // Celestial do aasimar, as estações do eladrin, os legados do
+                // kobold, as ancestralidades do draconato.
+                //
+                // Ficavam fora da ficha, e isso deixava os traços sem sentido:
+                // "Revelação Celestial: escolha uma das formas abaixo" era
+                // seguido de nada, porque as formas moram em `choice_groups` e
+                // o painel só lia `traits`.
+                //
+                // Vêm todas listadas, e não só a escolhida, porque o app não
+                // persiste essa escolha — ela não muda número nenhum da ficha,
+                // e inventar um campo para guardá-la seria outra conversa.
+                for (final group in combinedRace.choiceGroups) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    group.name,
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    group.choose == 1
+                        ? 'Escolha uma opção.'
+                        : 'Escolha ${group.choose} opções.',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 8),
+                  ...group.options.map((option) => _TraitLine(text: option)),
+                ],
               ],
             ),
           ),
@@ -236,6 +257,12 @@ class RacialTraitsPanel extends ConsumerWidget {
       fixedAbilityBonuses: bonuses,
       traits: traits,
       languages: languages,
+      // Somados como os traços: a escolha pode estar na raça base (as
+      // ancestralidades do draconato) ou na sub-raça (as estações do eladrin).
+      choiceGroups: [
+        ...baseRace.choiceGroups,
+        ...selectedRace.choiceGroups,
+      ],
     );
   }
 
@@ -285,12 +312,34 @@ class RacialTraitsPanel extends ConsumerWidget {
   }
 }
 
+/// Uma linha de característica ou de opção, com marcador.
+class _TraitLine extends StatelessWidget {
+  const _TraitLine({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('• '),
+          Expanded(child: Text(text)),
+        ],
+      ),
+    );
+  }
+}
+
 class _CombinedRaceData {
   const _CombinedRaceData({
     required this.name,
     required this.fixedAbilityBonuses,
     required this.traits,
     required this.languages,
+    required this.choiceGroups,
     this.description,
     this.size,
     this.speed,
@@ -309,6 +358,7 @@ class _CombinedRaceData {
       fixedAbilityBonuses: race.fixedAbilityBonuses,
       traits: race.traits,
       languages: race.languages,
+      choiceGroups: race.choiceGroups,
     );
   }
 
@@ -323,6 +373,7 @@ class _CombinedRaceData {
   final Map<String, int> fixedAbilityBonuses;
   final List<String> traits;
   final List<String> languages;
+  final List<RaceChoiceGroup> choiceGroups;
 }
 
 class _InfoChip extends StatelessWidget {
