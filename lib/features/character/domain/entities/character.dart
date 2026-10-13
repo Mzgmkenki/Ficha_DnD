@@ -1,4 +1,5 @@
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/background_personality_choice.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_feat.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
@@ -6,9 +7,11 @@ import 'package:dnd_ficha_app/features/character/domain/entities/character_weapo
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/combat_stats.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/currency.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/currency_grant.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/custom_background.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/death_saves.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/inventory_item.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiency_grant.dart';
@@ -16,6 +19,7 @@ import 'package:dnd_ficha_app/features/character/domain/services/standard_array.
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/alignment.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/grant_source.dart';
 
 /// Marcador usado no [Character.copyWith] para distinguir "não informado"
 /// de "informado como null".
@@ -52,6 +56,9 @@ class Character {
     this.alignment,
     this.abilityScoreAllocation,
     this.skillProficiencyGrants = const [],
+    this.inventory = const [],
+    this.currencyGrants = const [],
+    this.backgroundPersonalityChoices = const [],
   });
 
   final String id;
@@ -131,10 +138,49 @@ class Character {
   final CharacterAlignment? alignment;
 
   /// Moedas carregadas pelo personagem.
+  ///
+  /// É o total, porque é assim que a mesa consulta a carteira. Quanto deste
+  /// total veio de cada fonte automática fica em [currencyGrants], ao lado.
   final Currency currency;
+
+  /// Itens que o personagem carrega.
+  ///
+  /// Não duplica armas nem itens mágicos: aqueles continuam nas próprias
+  /// seções, e um item daqui pode apontar para eles por vínculo. Personagem
+  /// anterior ao schema 17 chega com a lista vazia.
+  final List<InventoryItem> inventory;
+
+  /// Registro de quanto cada fonte automática somou em [currency].
+  ///
+  /// Existe para trocar o antecedente subtrair exatamente o que ele havia
+  /// concedido, sem encostar no dinheiro ganho em outra fonte nem no que o
+  /// jogador ajustou à mão.
+  final List<CurrencyGrant> currencyGrants;
+
+  /// Traços, ideal, vínculo e defeito escolhidos no antecedente.
+  ///
+  /// Vazia em personagem criado antes desta funcionalidade, e isso é um estado
+  /// válido: a ficha simplesmente não mostra a seção de personalidade. Nada é
+  /// sorteado por conta própria.
+  final List<BackgroundPersonalityChoice> backgroundPersonalityChoices;
 
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  /// Visão das escolhas narrativas com as regras de validação.
+  BackgroundPersonalitySelection get personalitySelection =>
+      BackgroundPersonalitySelection(backgroundPersonalityChoices);
+
+  /// Itens do inventário concedidos por uma origem específica.
+  List<InventoryItem> inventoryFrom(GrantSource source, {String? sourceId}) {
+    return inventory
+        .where(
+          (item) =>
+              item.source == source &&
+              (sourceId == null || item.sourceId == sourceId),
+        )
+        .toList(growable: false);
+  }
 
   int get totalLevel {
     return classLevels.fold(0, (total, item) => total + item.level);
@@ -191,6 +237,9 @@ class Character {
     DeathSaves? deathSaves,
     int? hitDiceUsed,
     Currency? currency,
+    List<InventoryItem>? inventory,
+    List<CurrencyGrant>? currencyGrants,
+    List<BackgroundPersonalityChoice>? backgroundPersonalityChoices,
     Object? alignment = _sentinel,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -242,6 +291,11 @@ class Character {
       deathSaves: deathSaves ?? this.deathSaves,
       hitDiceUsed: hitDiceUsed ?? this.hitDiceUsed,
       currency: currency ?? this.currency,
+      // Sem sentinela nos três: limpar é passar lista vazia, não null.
+      inventory: inventory ?? this.inventory,
+      currencyGrants: currencyGrants ?? this.currencyGrants,
+      backgroundPersonalityChoices:
+          backgroundPersonalityChoices ?? this.backgroundPersonalityChoices,
       // Sentinela é obrigatória: voltar o alinhamento para "não definido" é
       // setar null, e com `?? this.alignment` isso seria impossível.
       alignment:

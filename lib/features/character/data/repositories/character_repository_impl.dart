@@ -1,6 +1,9 @@
 import 'package:dnd_ficha_app/core/database/app_database.dart' as db;
+import 'package:dnd_ficha_app/features/character/data/mappers/background_personality_codec.dart';
 import 'package:dnd_ficha_app/features/character/data/mappers/character_creation_metadata_codec.dart';
 import 'package:dnd_ficha_app/features/character/data/mappers/character_mapper.dart';
+import 'package:dnd_ficha_app/features/character/data/mappers/currency_grant_mapper.dart';
+import 'package:dnd_ficha_app/features/character/data/mappers/inventory_mapper.dart';
 import 'package:dnd_ficha_app/features/character/data/mappers/magic_item_mapper.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart'
     as domain;
@@ -67,6 +70,11 @@ class CharacterRepositoryImpl implements CharacterRepository {
               skillProficiencyGrants: drift.Value(
                 CharacterCreationMetadataCodec.encodeSkillGrants(
                   character.skillProficiencyGrants,
+                ),
+              ),
+              backgroundPersonalityChoices: drift.Value(
+                BackgroundPersonalityCodec.encode(
+                  character.backgroundPersonalityChoices,
                 ),
               ),
               armorClass: drift.Value(character.combatStats.armorClass),
@@ -245,6 +253,24 @@ class CharacterRepositoryImpl implements CharacterRepository {
               );
         }
       }
+
+      for (final item in character.inventory) {
+        await _database.into(_database.characterInventoryItems).insert(
+              InventoryMapper.toInsert(
+                characterId: character.id,
+                item: item,
+              ),
+            );
+      }
+
+      for (final grant in character.currencyGrants) {
+        await _database.into(_database.characterCurrencyGrants).insert(
+              CurrencyGrantMapper.toInsert(
+                characterId: character.id,
+                grant: grant,
+              ),
+            );
+      }
     });
   }
 
@@ -281,6 +307,14 @@ class CharacterRepositoryImpl implements CharacterRepository {
           .go();
 
       await (_database.delete(_database.characterFeats)
+            ..where((tbl) => tbl.characterId.equals(id)))
+          .go();
+
+      await (_database.delete(_database.characterInventoryItems)
+            ..where((tbl) => tbl.characterId.equals(id)))
+          .go();
+
+      await (_database.delete(_database.characterCurrencyGrants)
             ..where((tbl) => tbl.characterId.equals(id)))
           .go();
 
@@ -322,6 +356,16 @@ class CharacterRepositoryImpl implements CharacterRepository {
     final featRows = await (_database.select(_database.characterFeats)
           ..where((tbl) => tbl.characterId.equals(id)))
         .get();
+
+    final inventoryRows =
+        await (_database.select(_database.characterInventoryItems)
+              ..where((tbl) => tbl.characterId.equals(id)))
+            .get();
+
+    final currencyGrantRows =
+        await (_database.select(_database.characterCurrencyGrants)
+              ..where((tbl) => tbl.characterId.equals(id)))
+            .get();
 
     final magicItems = <domain_items.CharacterMagicItem>[];
     for (final itemRow in itemRows) {
@@ -371,6 +415,12 @@ class CharacterRepositoryImpl implements CharacterRepository {
           .toList(growable: false),
       weapons: weaponRows.map(_weaponFromRow).toList(growable: false),
       magicItems: magicItems,
+      inventory: inventoryRows
+          .map(InventoryMapper.fromDatabase)
+          .toList(growable: false),
+      currencyGrants: currencyGrantRows
+          .map(CurrencyGrantMapper.fromDatabase)
+          .toList(growable: false),
     );
   }
 
@@ -436,6 +486,8 @@ class CharacterRepositoryImpl implements CharacterRepository {
       _database.characterMagicItems,
       _database.characterMagicItemSpells,
       _database.characterFeats,
+      _database.characterInventoryItems,
+      _database.characterCurrencyGrants,
     ]);
   }
 
@@ -487,6 +539,11 @@ class CharacterRepositoryImpl implements CharacterRepository {
           skillProficiencyGrants: drift.Value(
             CharacterCreationMetadataCodec.encodeSkillGrants(
               character.skillProficiencyGrants,
+            ),
+          ),
+          backgroundPersonalityChoices: drift.Value(
+            BackgroundPersonalityCodec.encode(
+              character.backgroundPersonalityChoices,
             ),
           ),
           armorClass: drift.Value(character.combatStats.armorClass),
@@ -578,6 +635,40 @@ class CharacterRepositoryImpl implements CharacterRepository {
 
       if (character.classLevels.isEmpty) {
         throw Exception('Personagem precisa ter pelo menos 1 classe');
+      }
+
+      // Inventário e concessões de moeda: apaga e reinsere, igual aos
+      // talentos. A lista vem inteira no agregado, e é o próprio domínio que
+      // já resolveu o que entra e o que sai (ver `BackgroundGrants`), então
+      // reconciliar linha a linha aqui só acrescentaria caminho para errar.
+      //
+      // O `localId` muda a cada gravação por causa disso. Não é problema: a
+      // tela sempre relê pelo `watchById` depois de gravar, e nada guarda o id
+      // entre sessões.
+      await (_database.delete(_database.characterInventoryItems)
+            ..where((tbl) => tbl.characterId.equals(character.id)))
+          .go();
+
+      for (final item in character.inventory) {
+        await _database.into(_database.characterInventoryItems).insert(
+              InventoryMapper.toInsert(
+                characterId: character.id,
+                item: item,
+              ),
+            );
+      }
+
+      await (_database.delete(_database.characterCurrencyGrants)
+            ..where((tbl) => tbl.characterId.equals(character.id)))
+          .go();
+
+      for (final grant in character.currencyGrants) {
+        await _database.into(_database.characterCurrencyGrants).insert(
+              CurrencyGrantMapper.toInsert(
+                characterId: character.id,
+                grant: grant,
+              ),
+            );
       }
 
       // Talentos: apaga e reinsere, igual aos níveis de classe. A lista é

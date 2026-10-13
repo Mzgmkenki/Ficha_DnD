@@ -1,158 +1,1522 @@
 [
   {
+    "id": "guild_artisan",
+    "name": "Artesão da Guilda",
+    "description": "Você é membro de uma guilda de artesãos, hábeis em um campo particular e associado a outros. Você aprendeu suas perícias como o aprendiz de um mestre ou junto de uma guilda, até se tornar um mestre você também.",
+    "source": "phb",
+    "skills": ["insight", "persuasion"],
+    "languages": 1,
+    "tools": ["Uma ferramenta de artesão"],
+    "feature_name": "Membro de Guilda",
+    "feature_description": "Como um membro respeitado de guilda você tem benefícios. Seus companheiros de guilda vão lhe providenciar alimentação e hospedagem, e pagar por seus custos funerários, se necessário. Guildas costumam ter um grande poder político, se você for acusado de um crime a guilda irá lhe dar suporte caso seja inocente ou seu crime justificável. Você deve pagar 5 po por mês para fazer parte de sua guilda.",
+    "starting_gold": 15,
+    "starting_currency": { "gold": 15 },
+    "starting_equipment": [
+      { "id": "artisans_tools", "name": "Uma ferramenta de artesão", "quantity": 1, "category": "tool" },
+      { "id": "guild_letter", "name": "Carta de referência da sua guilda", "quantity": 1, "category": "gear" },
+      { "id": "travelers_clothes", "name": "Roupas de viajante", "quantity": 1, "category": "clothing" }
+    ],
+    "personality_trait_choices": 2,
+    "ideal_choices": 1,
+    "bond_choices": 1,
+    "flaw_choices": 1,
+    "personality_traits": {
+      "die": "d8",
+      "options": [
+        { "roll": 1, "text": "Eu acredito que se algo vale a pena ser feito, deve ser feito bem. Não há fuga, eu sou um perfeccionista mesmo." },
+        { "roll": 2, "text": "Eu sou um esnobe que menospreza quem não sabe apreciar boa arte." },
+        { "roll": 3, "text": "Eu sempre quero saber como as coisas e pessoas funcionam." },
+        { "roll": 4, "text": "Eu sou cheio de aforismos e tenho um provérbio para cada ocasião." },
+        { "roll": 5, "text": "Eu sou rude com pessoas que não tem minha dedicação a trabalho duro." },
+        { "roll": 6, "text": "Eu gosto de discorrer longamente sobre minha profissão." },
+        { "roll": 7, "text": "Eu me seguro a meu dinheiro e regateio incansavelmente." },
+        { "roll": 8, "text": "Eu sou bem conhecido pelo meu trabalho e gosto de saber que as pessoas gostam dele. Eu fico abalado quando pessoas não ouviram falar de mim." }
+      ]
+    },
+    "ideals": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "name": "Comunidade", "text": "É o dever de todo povo civilizado a reforçar os elos de comunidade e segurança da civilização." },
+        { "roll": 2, "name": "Generosidade", "text": "Meus talentos foram dados a mim para que eu os use em benefício do mundo." },
+        { "roll": 3, "name": "Liberdade", "text": "Todo mundo deve ser livre para escolher sua profissão." },
+        { "roll": 4, "name": "Ganância", "text": "Eu estou nisso só pelo dinheiro." },
+        { "roll": 5, "name": "Pessoas", "text": "Eu sou dedicado às pessoas com quem me importo, não a ideais." },
+        { "roll": 6, "name": "Aspiração", "text": "Eu trabalho duro para ser o melhor que há em minha profissão." }
+      ]
+    },
+    "bonds": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "A loja onde aprendi minha profissão é o lugar mais importante do mundo para mim." },
+        { "roll": 2, "text": "Eu criei um grande trabalho para alguém, e então descobri que essa pessoa não era digna dele. Ainda estou procurando alguém digno." },
+        { "roll": 3, "text": "Eu devo muito à minha guilda por me forjar em quem sou hoje." },
+        { "roll": 4, "text": "Eu busco riqueza para conseguir o amor de alguém." },
+        { "roll": 5, "text": "Um dia vou retornar à minha guilda e provar que sou o melhor artista de todos eles." },
+        { "roll": 6, "text": "Eu vou conseguir vingança contra as forças que destruíram meu negócio e local de trabalho." }
+      ]
+    },
+    "flaws": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "Eu farei qualquer coisa para pôr minhas mãos em algo raro ou sem preço." },
+        { "roll": 2, "text": "Eu rapidamente suponho que alguém está tentando me trapacear." },
+        { "roll": 3, "text": "Ninguém deve descobrir que eu roubei dinheiro dos cofres da guilda." },
+        { "roll": 4, "text": "Eu nunca estou satisfeito com o que tenho, eu sempre quero mais." },
+        { "roll": 5, "text": "Eu mataria por um título de nobreza." },
+        { "roll": 6, "text": "Eu sou muito invejoso quando alguém supera minha habilidade. Aonde quer que eu vá, vejo rivais." }
+      ]
+    },
+    "extra_choices": [
+      {
+        "id": "guild_type",
+        "label": "Tipo de guilda",
+        "die": "d20",
+        "options": [
+          { "roll": 1, "text": "Alquimistas e farmacêuticos." },
+          { "roll": 2, "text": "Armeiros e armoreiros." },
+          { "roll": 3, "text": "Fazedores de bebidas." },
+          { "roll": 4, "text": "Calígrafos, escribas e escrivãos." },
+          { "roll": 5, "text": "Carpinteiros e rebocadores." },
+          { "roll": 6, "text": "Cartógrafos." },
+          { "roll": 7, "text": "Sapateiros." },
+          { "roll": 8, "text": "Cozinheiros e padeiros." },
+          { "roll": 9, "text": "Vidraceiros e fabricantes de vidro." },
+          { "roll": 10, "text": "Joalheiros e ourives." },
+          { "roll": 11, "text": "Coureiros, esfoladores e curtidores." },
+          { "roll": 12, "text": "Maçons e pedreiros." },
+          { "roll": 13, "text": "Pintores, e fazedores de sinais." },
+          { "roll": 14, "text": "Oleiros." },
+          { "roll": 15, "text": "Construtores de barcos e velas." },
+          { "roll": 16, "text": "Ferradores e forjadores de metal." },
+          { "roll": 17, "text": "Engenhoqueiros e conjuradores." },
+          { "roll": 18, "text": "Fazedores de carroças e rodas." },
+          { "roll": 19, "text": "Tecelões e tintureiros." },
+          { "roll": 20, "text": "Entalhadores e tanoeiros." }
+        ]
+      }
+    ]
+  },
+  {
     "id": "acolyte",
     "name": "Acólito",
-    "description": "Você serviu um templo, intermediando entre o povo e os deuses.",
+    "description": "Você passou sua vida em serviço de um templo. Você age como um intermediário entre o reino do sagrado e do mundo mortal, fazendo ritos sagrados e oferecendo sacrifícios para guiar os fiéis à presença do divino.",
+    "source": "phb",
     "skills": ["insight", "religion"],
     "languages": 2,
     "tools": [],
     "feature_name": "Abrigo dos Fiéis",
-    "feature_description": "Você e seus companheiros recebem cura e cuidados gratuitos em templos da sua fé.",
+    "feature_description": "Você tem o respeito de outros de sua fé, e pode fazer as cerimônias religiosas de sua divindade. Você e seus companheiros podem esperar cura e cuidado grátis em um templo de sua fé, apesar de precisar pagar componentes caros. Sua religião e doações lhe sustentam em um estilo de vida Modesto.",
     "starting_gold": 15,
-    "source": "phb"
+    "starting_currency": { "gold": 15 },
+    "starting_equipment": [
+      { "id": "holy_symbol", "name": "Um símbolo sagrado", "quantity": 1, "category": "gear" },
+      { "id": "prayer_book", "name": "Um livro de oração", "quantity": 1, "category": "book" },
+      { "id": "incense_stick", "name": "Bastão de incenso", "quantity": 5, "category": "gear" },
+      { "id": "vestments", "name": "Vestimentas", "quantity": 1, "category": "clothing" },
+      { "id": "common_clothes", "name": "Roupas comuns", "quantity": 1, "category": "clothing" }
+    ],
+    "personality_trait_choices": 2,
+    "ideal_choices": 1,
+    "bond_choices": 1,
+    "flaw_choices": 1,
+    "personality_traits": {
+      "die": "d8",
+      "options": [
+        { "roll": 1, "text": "Eu favoreço um herói particular de minha fé, e constantemente falo de seus feitos como exemplo." },
+        { "roll": 2, "text": "Eu consigo simpatizar mesmo com o pior inimigo, tendo empatia para com ele e me esforçando para alcançar paz." },
+        { "roll": 3, "text": "Eu vejo sinais em todo evento e ação. Os deuses tentam falar conosco, nós apenas precisamos ouvir." },
+        { "roll": 4, "text": "Nada abala minha atitude otimista." },
+        { "roll": 5, "text": "Eu menciono (ou menciono errado) textos sagrados constantemente." },
+        { "roll": 6, "text": "Eu sou tolerante (ou intolerante) com outras religiões, e respeito (ou condeno) o louvor de outros deuses." },
+        { "roll": 7, "text": "Eu tive boa comida, bebida e companhia entre a elite de meu templo. Vida simples me afeta." },
+        { "roll": 8, "text": "Eu passei tanto tempo no templo que tenho pouca experiência prática com pessoas do mundo externo." }
+      ]
+    },
+    "ideals": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "name": "Tradição", "text": "As antigas tradições devem ser preservadas e seguidas." },
+        { "roll": 2, "name": "Caridade", "text": "Eu sempre tento ajudar os necessitados, custe o que custar." },
+        { "roll": 3, "name": "Mudança", "text": "Devemos tentar nos adaptar às mudanças que os deuses introduzem no mundo." },
+        { "roll": 4, "name": "Poder", "text": "Eu anseio um dia chegar ao topo da hierarquia religiosa de minha fé." },
+        { "roll": 5, "name": "Fé", "text": "Eu confio que minha divindade irá guiar minhas ações. Se eu me esforçar, tudo ocorrerá bem." },
+        { "roll": 6, "name": "Aspiração", "text": "Eu tento me provar digno de meu deus ao basear minhas ações em seus ensinamentos." }
+      ]
+    },
+    "bonds": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "Eu morreria para recuperar um artefato de minha fé perdido há muito tempo." },
+        { "roll": 2, "text": "Um dia irei conseguir vingança contra a hierarquia corrupta que me declarou um herege." },
+        { "roll": 3, "text": "Eu devo minha vida ao sacerdote que cuidou de mim quando meus pais morreram." },
+        { "roll": 4, "text": "Tudo o que eu faço é pelo povo comum." },
+        { "roll": 5, "text": "Eu farei de tudo para proteger o templo em que servi." },
+        { "roll": 6, "text": "Eu tento proteger um texto sagrado que meus inimigos consideram herege e tentam destruir." }
+      ]
+    },
+    "flaws": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "Eu julgo os outros de forma muita dura, e eu ainda mais severamente." },
+        { "roll": 2, "text": "Eu confio demais naqueles que possuem poder dentro da hierarquia de meu templo." },
+        { "roll": 3, "text": "Minha fé às vezes me faz confiar cegamente naqueles que clamam a mesma fé." },
+        { "roll": 4, "text": "Eu sou inflexível." },
+        { "roll": 5, "text": "Eu suspeito de estranhos e espero o pior deles." },
+        { "roll": 6, "text": "Uma vez que eu escolha um objetivo eu me obceco nele em exclusão a tudo o mais na minha vida." }
+      ]
+    }
   },
   {
     "id": "charlatan",
     "name": "Charlatão",
-    "description": "Você sempre teve facilidade em ler pessoas e dizer o que elas querem ouvir.",
+    "description": "Você sempre teve um jeito com pessoas. Você sabe o que os faz funcionar, e com um pouco de cuidado pode os ler como um livro. Você sabe o que as pessoas querem e dá isso a elas, ou ao menos promete.",
+    "source": "phb",
     "skills": ["deception", "sleightOfHand"],
     "languages": 0,
-    "tools": ["Kit de disfarces", "Kit de falsificação"],
+    "tools": ["Kit de disfarce", "Kit de falsificação"],
     "feature_name": "Identidade Falsa",
-    "feature_description": "Você possui uma segunda identidade com documentos e contatos que a sustentam.",
+    "feature_description": "Você criou uma segunda identidade que inclui documentos, conhecidos e disfarces. Você também consegue forjar documentos, incluindo oficiais e cartas pessoais, desde que tenha um exemplo do documento ou escrita que está tentando copiar.",
     "starting_gold": 15,
-    "source": "phb"
+    "starting_currency": { "gold": 15 },
+    "starting_equipment": [
+      { "id": "fine_clothes", "name": "Roupas elegantes", "quantity": 1, "category": "clothing" },
+      { "id": "disguise_kit", "name": "Um kit de disfarce", "quantity": 1, "category": "tool" },
+      { "id": "con_tools", "name": "As ferramentas de seu golpe favorito", "quantity": 1, "category": "gear" }
+    ],
+    "personality_trait_choices": 2,
+    "ideal_choices": 1,
+    "bond_choices": 1,
+    "flaw_choices": 1,
+    "personality_traits": {
+      "die": "d8",
+      "options": [
+        { "roll": 1, "text": "Eu me apaixono facilmente, e sempre estou atrás de alguém." },
+        { "roll": 2, "text": "Eu tenho uma piada para cada ocasião, especialmente onde humor é inapropriado." },
+        { "roll": 3, "text": "Elogiar é meu truque favorito para conseguir o que eu quero." },
+        { "roll": 4, "text": "Eu sou um jogador nato que não consegue resistir a correr um risco para o potencial de pagamento." },
+        { "roll": 5, "text": "Eu minto sobre quase tudo, mesmo quando não há boa razão para tal." },
+        { "roll": 6, "text": "Sarcasmo e insultos são minha arma de escolha." },
+        { "roll": 7, "text": "Eu mantenho diversos símbolos sagrados e invoco qualquer deus que for útil no momento." },
+        { "roll": 8, "text": "Eu furto qualquer coisa que pode ter algum valor." }
+      ]
+    },
+    "ideals": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "name": "Independência", "text": "Eu sou um espírito livre. Ninguém me diz o que fazer." },
+        { "roll": 2, "name": "Justiça", "text": "Eu nunca tomo de quem não pode perder algumas moedas." },
+        { "roll": 3, "name": "Caridade", "text": "Eu distribuo o dinheiro que consigo a quem realmente precisa." },
+        { "roll": 4, "name": "Criatividade", "text": "Eu nunca faço o mesmo golpe duas vezes." },
+        { "roll": 5, "name": "Amizade", "text": "Bens materiais vêm a vão. Elos de amizade ficam para sempre." },
+        { "roll": 6, "name": "Aspiração", "text": "Eu sou determinado a me tornar alguém melhor." }
+      ]
+    },
+    "bonds": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "Eu enganei a pessoa errada e preciso ter certeza que ele nunca cruze meu caminho ou das pessoas com quem me importo." },
+        { "roll": 2, "text": "Eu devo tudo a meu mentor - uma pessoa horrível que deve estar apodrecendo em uma prisão." },
+        { "roll": 3, "text": "Em algum lugar eu tenho um filho que não me conhece. Eu estou fazendo isso por ele." },
+        { "roll": 4, "text": "Eu venho de uma família nobre, e um dia vou recuperar minhas terras e títulos daqueles que os tiraram de mim." },
+        { "roll": 5, "text": "Uma pessoa poderosa matou alguém que eu amava. Em breve terei minha vingança." },
+        { "roll": 6, "text": "Eu enganei e arruinei uma pessoa que não merecia. Eu me esforço em redimir meus erros, mas acho que nunca me perdoarei." }
+      ]
+    },
+    "flaws": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "Eu não resisto a um rosto bonito." },
+        { "roll": 2, "text": "Eu sempre estou devendo. Eu gasto meus ganhos mais rápido do que os obtenho." },
+        { "roll": 3, "text": "Eu estou convencido de que ninguém pode me enganar do jeito que engano os outros." },
+        { "roll": 4, "text": "Eu sou ganancioso demais. Eu não resisto me arriscar caso tenha dinheiro envolvido." },
+        { "roll": 5, "text": "Eu não resisto a golpear pessoas mais poderosas do que eu." },
+        { "roll": 6, "text": "Eu admito que vou fugir e salvar minha própria pele se as coisas ficarem feias." }
+      ]
+    },
+    "extra_choices": [
+      {
+        "id": "favorite_scheme",
+        "label": "Golpe favorito",
+        "die": "d6",
+        "options": [
+          { "roll": 1, "text": "Trapaça em jogos." },
+          { "roll": 2, "text": "Falsificação de documentos ou dinheiro." },
+          { "roll": 3, "text": "Insinuar-se na vida das pessoas e roubar seu dinheiro." },
+          { "roll": 4, "text": "Identidades falsas." },
+          { "roll": 5, "text": "Golpes de mão rápida nas ruas." },
+          { "roll": 6, "text": "Golpes de compra e venda." }
+        ]
+      }
+    ]
   },
   {
     "id": "criminal",
     "name": "Criminoso",
-    "description": "Você tem passado no submundo e conhece suas regras não escritas.",
+    "description": "Você é um criminoso experiente, com uma história em quebrar a lei. Você é muito mais próximo do que a maioria das pessoas do mundo de assassinato, roubo e violência, e sobreviveu até esse ponto ao ignorar as regras e regulamentos da sociedade.",
+    "source": "phb",
     "skills": ["deception", "stealth"],
     "languages": 0,
-    "tools": ["Kit de ladrão", "Um tipo de jogo"],
+    "tools": ["Um tipo de jogo", "Ferramentas de ladrão"],
     "feature_name": "Contato Criminal",
-    "feature_description": "Você tem um contato confiável no submundo que envia mensagens para você.",
+    "feature_description": "Você tem um contato confiável entre você e uma rede criminosa. Você sabe como mandar mensagens a seu contato, mesmo a grandes distâncias. Especificamente, você conhece os mensageiros, mestres de caravana e marinheiros corruptos dispostos a entregar esse tipo de mensagem.",
     "starting_gold": 15,
-    "source": "phb"
+    "starting_currency": { "gold": 15 },
+    "starting_equipment": [
+      { "id": "crowbar", "name": "Um pé de cabra", "quantity": 1, "category": "gear" },
+      { "id": "dark_hooded_clothes", "name": "Roupas comuns com capuz", "quantity": 1, "category": "clothing" }
+    ],
+    "personality_trait_choices": 2,
+    "ideal_choices": 1,
+    "bond_choices": 1,
+    "flaw_choices": 1,
+    "personality_traits": {
+      "die": "d8",
+      "options": [
+        { "roll": 1, "text": "Eu sempre tenho um plano para quando as coisas derem errado." },
+        { "roll": 2, "text": "Eu estou sempre calmo, independente da situação. Eu nunca ergo minha voz ou deixo minhas emoções me controlarem." },
+        { "roll": 3, "text": "A primeira coisa que faço num local é notar a localização de coisas valiosas — ou onde poderiam estar escondidas." },
+        { "roll": 4, "text": "Eu preferiria fazer um novo amigo a um novo inimigo." },
+        { "roll": 5, "text": "Eu demoro para confiar. Aqueles que parecem os melhores geralmente são os com mais a esconder." },
+        { "roll": 6, "text": "Eu não presto atenção aos riscos de uma situação. Nunca me diga as chances." },
+        { "roll": 7, "text": "A melhor forma de me forçar a fazer algo é me dizer que eu não consigo." },
+        { "roll": 8, "text": "Eu explodo ao menor insulto." }
+      ]
+    },
+    "ideals": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "name": "Honra", "text": "Eu não roubo de parceiros de profissão." },
+        { "roll": 2, "name": "Liberdade", "text": "Correntes foram feitas para serem quebradas, bem como quem as forjou." },
+        { "roll": 3, "name": "Caridade", "text": "Eu roubo dos ricos para dar aos pobres." },
+        { "roll": 4, "name": "Ganância", "text": "Eu roubo dos ricos para dar a mim mesmo." },
+        { "roll": 5, "name": "Pessoas", "text": "Eu sou leal a meus amigos, não a meus ideais, e todos os outros que se danem." },
+        { "roll": 6, "name": "Redenção", "text": "Há uma fagulha de bem em todo mundo." }
+      ]
+    },
+    "bonds": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "Eu estou tentando pagar uma dívida que devo a um benfeitor generoso." },
+        { "roll": 2, "text": "Meus ganhos vão para minha família." },
+        { "roll": 3, "text": "Algo importante foi tomado de mim e eu busco pegá-lo de volta." },
+        { "roll": 4, "text": "Eu vou me tornar o maior ladrão que já existiu." },
+        { "roll": 5, "text": "Eu sou culpado de um crime terrível. Eu espero que possa me redimir." },
+        { "roll": 6, "text": "Alguém que eu amava morreu por causa de um erro que cometi. Isso nunca vai acontecer de novo." }
+      ]
+    },
+    "flaws": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "Quando eu vejo algo de valor não consigo evitar pensar em como roubá-lo." },
+        { "roll": 2, "text": "Se forçado a escolher entre amigos e dinheiro eu costumo escolher dinheiro." },
+        { "roll": 3, "text": "Se tem um plano, eu vou esquecê-lo. Se eu não esquecer, eu vou ignorá-lo." },
+        { "roll": 4, "text": "Eu tenho uma falha que revela que estou mentindo." },
+        { "roll": 5, "text": "Eu fujo quando as coisas ficam ruins." },
+        { "roll": 6, "text": "Uma pessoa inocente está na prisão por causa de algo que eu fiz. Eu não tenho problema com isso." }
+      ]
+    },
+    "extra_choices": [
+      {
+        "id": "criminal_specialty",
+        "label": "Especialidade",
+        "die": "d8",
+        "options": [
+          { "roll": 1, "text": "Chantagista." },
+          { "roll": 2, "text": "Ladrão." },
+          { "roll": 3, "text": "Leão de Chácara." },
+          { "roll": 4, "text": "Atravessador." },
+          { "roll": 5, "text": "Assaltante de estrada." },
+          { "roll": 6, "text": "Matador de aluguel." },
+          { "roll": 7, "text": "Batedor de carteira." },
+          { "roll": 8, "text": "Contrabandista." }
+        ]
+      }
+    ]
   },
   {
     "id": "entertainer",
     "name": "Artista",
-    "description": "Você vive de encantar plateias com música, dança ou histórias.",
+    "description": "Você é seu melhor na frente de um público. Você sabe como prendê-los, entretê-los, e mesmo inspirá-los. Sua música pode instigar corações, sua música erguer espíritos, sua dança capturar mentes. Seja qual for a técnica, sua arte é sua vida.",
+    "source": "phb",
     "skills": ["acrobatics", "performance"],
     "languages": 0,
-    "tools": ["Kit de disfarces", "Um instrumento musical"],
-    "feature_name": "Pedido de Bis",
-    "feature_description": "Você sempre consegue abrigo e comida modestos onde possa se apresentar.",
+    "tools": ["Kit de disfarce", "Um instrumento musical"],
+    "feature_name": "Por Exigência Popular",
+    "feature_description": "Você sempre consegue encontrar um lugar para atuar, geralmente em uma taverna ou estalagem, mas possivelmente em um circo, teatro ou na corte de um nobre. Em tais lugares você recebe alimentação e pouso modesto ou confortável, desde que atue todas as noites. Adicionalmente sua performance lhe deixa famoso; estranhos que lhe reconhecem em locais onde se apresentou tendem a gostar de você.",
     "starting_gold": 15,
-    "source": "phb"
-  },
-  {
-    "id": "folk_hero",
-    "name": "Herói do Povo",
-    "description": "Você vem de origem humilde, mas está destinado a algo maior.",
-    "skills": ["animalHandling", "survival"],
-    "languages": 0,
-    "tools": ["Ferramentas de artesão", "Veículos terrestres"],
-    "feature_name": "Hospitalidade Rústica",
-    "feature_description": "O povo comum o acolhe e esconde você de quem o procura.",
-    "starting_gold": 10,
-    "source": "phb"
-  },
-  {
-    "id": "guild_artisan",
-    "name": "Artesão da Guilda",
-    "description": "Você é membro de uma guilda de ofício e domina um artesanato.",
-    "skills": ["insight", "persuasion"],
-    "languages": 1,
-    "tools": ["Ferramentas de artesão"],
-    "feature_name": "Membro de Guilda",
-    "feature_description": "A guilda oferece apoio, alojamento e acesso a contatos poderosos.",
-    "starting_gold": 15,
-    "source": "phb"
+    "starting_currency": { "gold": 15 },
+    "starting_equipment": [
+      { "id": "musical_instrument", "name": "Um instrumento musical", "quantity": 1, "category": "instrument" },
+      { "id": "admirer_favor", "name": "Um item de um admirador", "quantity": 1, "category": "trinket" },
+      { "id": "costume", "name": "Uma fantasia", "quantity": 1, "category": "clothing" }
+    ],
+    "personality_trait_choices": 2,
+    "ideal_choices": 1,
+    "bond_choices": 1,
+    "flaw_choices": 1,
+    "personality_traits": {
+      "die": "d8",
+      "options": [
+        { "roll": 1, "text": "Eu conheço uma história relevante para quase toda situação." },
+        { "roll": 2, "text": "Sempre que eu chego num lugar novo eu coleto rumores e espalho fofocas." },
+        { "roll": 3, "text": "Eu sou um romântico incurável, sempre procurando por aquele “alguém especial”." },
+        { "roll": 4, "text": "Ninguém fica bravo perto de mim por muito tempo, pois eu sempre consigo acalmar ânimos." },
+        { "roll": 5, "text": "Eu amo um bom insulto, mesmo os voltados contra mim." },
+        { "roll": 6, "text": "Eu fico amargo se não sou o centro das atenções." },
+        { "roll": 7, "text": "Eu não aceito nada menos que a perfeição." },
+        { "roll": 8, "text": "Eu mudo de humor ou de ideia tão rápido quanto mudo de notas musicais." }
+      ]
+    },
+    "ideals": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "name": "Beleza", "text": "Quando toco eu torno o mundo algo melhor." },
+        { "roll": 2, "name": "Tradição", "text": "As histórias, lendas e canções do passado não devem ser esquecidas nunca, pois nos ensinam quem somos." },
+        { "roll": 3, "name": "Criatividade", "text": "O mundo precisa de novos ideais e ações." },
+        { "roll": 4, "name": "Ganância", "text": "Eu só estou nessa pela fama e dinheiro." },
+        { "roll": 5, "name": "Pessoas", "text": "Eu gosto de ver a satisfação no rosto das pessoas quando atuo. Isso é tudo o que importa." },
+        { "roll": 6, "name": "Honestidade", "text": "Arte deve refletir a alma; deve vir de dentro e refletir quem nós realmente somos." }
+      ]
+    },
+    "bonds": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "Meu instrumento é minha posse mais estimada, e me lembra de alguém que eu amo." },
+        { "roll": 2, "text": "Alguém roubou meu precioso instrumento, e um dia eu vou recuperá-lo." },
+        { "roll": 3, "text": "Eu quero ser famoso, custe o que custar." },
+        { "roll": 4, "text": "Eu valorizo um herói de eras passadas e meço meus feitos contra os dele." },
+        { "roll": 5, "text": "Eu vou fazer de tudo para me provar superior a meu odiado rival." },
+        { "roll": 6, "text": "Eu faria de tudo pelos membros de minha antiga trupe." }
+      ]
+    },
+    "flaws": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "Eu farei qualquer coisa por fama e renome." },
+        { "roll": 2, "text": "Eu adoro um rosto bonito." },
+        { "roll": 3, "text": "Um escândalo me proíbe de voltar para casa. Esse tipo de problema parece me seguir." },
+        { "roll": 4, "text": "Uma vez eu provoquei um nobre que ainda quer minha cabeça. Foi um erro que provavelmente vai se repetir." },
+        { "roll": 5, "text": "Eu tenho dificuldade em esconder minhas intenções verdadeiras. Minha língua afiada me causa problemas." },
+        { "roll": 6, "text": "Apesar de meus esforços, eu não sou confiável." }
+      ]
+    },
+    "extra_choices": [
+      {
+        "id": "entertainer_specialty",
+        "label": "Especialidade",
+        "die": "d10",
+        "options": [
+          { "roll": 1, "text": "Ator." },
+          { "roll": 2, "text": "Dançarino." },
+          { "roll": 3, "text": "Engolidor de fogo." },
+          { "roll": 4, "text": "Bobo." },
+          { "roll": 5, "text": "Malabarista." },
+          { "roll": 6, "text": "Instrumentalista." },
+          { "roll": 7, "text": "Poeta." },
+          { "roll": 8, "text": "Cantor." },
+          { "roll": 9, "text": "Contador de histórias." },
+          { "roll": 10, "text": "Acrobata." }
+        ]
+      }
+    ]
   },
   {
     "id": "hermit",
     "name": "Eremita",
-    "description": "Você viveu em reclusão e encontrou uma revelação particular.",
+    "description": "Você viveu afastado, seja numa comunidade fechada como um monastério ou totalmente sozinho. Em seu tempo afastado da sociedade você encontrou solidão quieta e talvez as respostas que procurava.",
+    "source": "phb",
     "skills": ["medicine", "religion"],
     "languages": 1,
-    "tools": ["Kit de herbalismo"],
+    "tools": ["Kit de herbalista"],
     "feature_name": "Descoberta",
-    "feature_description": "Sua reclusão lhe deu acesso a uma verdade única e importante.",
+    "feature_description": "Sua peregrinação lhe garantiu uma poderosa descoberta, de acordo com seu afastamento; uma verdade sobre os deuses, cosmos, forças da natureza ou mesmo história. Pode ser informação importante para um grupo, ou perigosa para os que lhe exilaram, um dos motivos de seu retorno à sociedade.",
     "starting_gold": 5,
-    "source": "phb"
-  },
-  {
-    "id": "noble",
-    "name": "Nobre",
-    "description": "Você nasceu em berço de privilégio e sabe como o poder circula.",
-    "skills": ["history", "persuasion"],
-    "languages": 1,
-    "tools": ["Um tipo de jogo"],
-    "feature_name": "Posição de Privilégio",
-    "feature_description": "As pessoas presumem que você tem direito de estar onde está; você é bem recebido pela alta sociedade.",
-    "starting_gold": 25,
-    "source": "phb"
+    "starting_currency": { "gold": 5 },
+    "starting_equipment": [
+      { "id": "scroll_case_notes", "name": "Um porta-pergaminho com anotações", "quantity": 1, "category": "gear" },
+      { "id": "winter_blanket", "name": "Um cobertor de inverno", "quantity": 1, "category": "gear" },
+      { "id": "common_clothes", "name": "Roupas comuns", "quantity": 1, "category": "clothing" },
+      { "id": "herbalism_kit", "name": "Kit de herbalista", "quantity": 1, "category": "tool" }
+    ],
+    "personality_trait_choices": 2,
+    "ideal_choices": 1,
+    "bond_choices": 1,
+    "flaw_choices": 1,
+    "personality_traits": {
+      "die": "d8",
+      "options": [
+        { "roll": 1, "text": "Eu fiquei isolado por tempo demais, raramente falando." },
+        { "roll": 2, "text": "Eu sou completamente sereno, mesmo frente ao perigo." },
+        { "roll": 3, "text": "O líder de minha comunidade tinha algo sábio a dizer sobre todo tópico, e eu me esforço em dividir essa sabedoria." },
+        { "roll": 4, "text": "Eu sinto uma simpatia tremenda por todos os sofredores." },
+        { "roll": 5, "text": "Eu não entendo de etiqueta e expectativas sociais." },
+        { "roll": 6, "text": "Eu ligo tudo o que ocorre comigo a um grande plano cósmico." },
+        { "roll": 7, "text": "Eu costumo me perder em meus pensamentos e contemplação, desatento a minha volta." },
+        { "roll": 8, "text": "Eu estou trabalhando em uma grande teoria, e amo compartilhar minhas ideias." }
+      ]
+    },
+    "ideals": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "name": "Bem Maior", "text": "Meus dons são para ser divididos com todos, não para serem usados em meu benefício." },
+        { "roll": 2, "name": "Lógica", "text": "Emoções não devem nublar nossas noções de certo e errado ou nosso pensamento lógico." },
+        { "roll": 3, "name": "Pensamento Livre", "text": "Questionamento e curiosidade são os pilares do progresso." },
+        { "roll": 4, "name": "Poder", "text": "Solidão e contemplação são caminhos para o poder místico e mágico." },
+        { "roll": 5, "name": "Viva e Deixe Viver", "text": "Se meter nos assuntos dos outros só causa problemas." },
+        { "roll": 6, "name": "Autoconhecimento", "text": "Se você conhece a si, não há mais nada para conhecer." }
+      ]
+    },
+    "bonds": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "Nada é mais importante do que membros de minha cabala, ordem ou associação." },
+        { "roll": 2, "text": "Eu me afastei para me esconder dos que me caçavam. Um dia terei que enfrentá-los." },
+        { "roll": 3, "text": "Eu ainda busco a iluminação que procurei no afastamento." },
+        { "roll": 4, "text": "Eu me afastei porque amava alguém que não podia ter." },
+        { "roll": 5, "text": "Se minha descoberta for revelada pode trazer ruína ao mundo." },
+        { "roll": 6, "text": "Meu isolamento me trouxe grande conhecimento sobre um grande mal que apenas eu posso destruir." }
+      ]
+    },
+    "flaws": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "Agora que voltei ao mundo eu aproveito seus prazeres um pouco demais." },
+        { "roll": 2, "text": "Eu tenho pensamentos ruins que meu isolamento não conseguiu afogar." },
+        { "roll": 3, "text": "Eu sou dogmático em meus pensamentos e filosofia." },
+        { "roll": 4, "text": "Eu deixo minha necessidade de vencer argumentos superar amizades e harmonia." },
+        { "roll": 5, "text": "Eu arriscaria coisas demais para descobrir um pedacinho de conhecimento perdido." },
+        { "roll": 6, "text": "Eu gosto de manter segredos e não os divido com ninguém." }
+      ]
+    },
+    "extra_choices": [
+      {
+        "id": "hermit_seclusion",
+        "label": "Motivo de afastamento",
+        "die": "d8",
+        "options": [
+          { "roll": 1, "text": "Busca por iluminação." },
+          { "roll": 2, "text": "Vida comunitária em acordo com uma ordem religiosa." },
+          { "roll": 3, "text": "Exílio por um crime (cometido ou não)." },
+          { "roll": 4, "text": "Afastamento após um grande evento." },
+          { "roll": 5, "text": "Necessidade de solidão e silêncio para produzir." },
+          { "roll": 6, "text": "Comungar com a natureza, longe da civilização." },
+          { "roll": 7, "text": "Protetor de uma ruína ou relíquia antiga." },
+          { "roll": 8, "text": "Peregrinação." }
+        ]
+      }
+    ]
   },
   {
     "id": "outlander",
     "name": "Forasteiro",
-    "description": "Você cresceu longe da civilização, em terras selvagens.",
+    "description": "Você cresceu no ermo, longe da civilização e os confortos das cidades e tecnologia. Mesmo em locais onde você não conhece os detalhes do terreno, você ainda é hábil nos caminhos do ermo.",
+    "source": "phb",
     "skills": ["athletics", "survival"],
     "languages": 1,
     "tools": ["Um instrumento musical"],
     "feature_name": "Andarilho",
-    "feature_description": "Você se lembra da geografia por onde passou e consegue achar comida e água para o grupo.",
+    "feature_description": "Você tem uma memória excelente para mapas e geografia, e sempre pode se lembrar de terreno, postos de civilização e outros traços em volta. Você também pode encontrar comida e água para você e até mais cinco pessoas a cada dia, desde que a região os ofereça.",
     "starting_gold": 10,
-    "source": "phb"
+    "starting_currency": { "gold": 10 },
+    "starting_equipment": [
+      { "id": "staff", "name": "Um cajado", "quantity": 1, "category": "weapon" },
+      { "id": "hunting_trap", "name": "Armadilha de caçador", "quantity": 1, "category": "gear" },
+      { "id": "quarry_trophy", "name": "Um troféu de uma presa", "quantity": 1, "category": "trinket" },
+      { "id": "travelers_clothes", "name": "Roupas de viajante", "quantity": 1, "category": "clothing" }
+    ],
+    "personality_trait_choices": 2,
+    "ideal_choices": 1,
+    "bond_choices": 1,
+    "flaw_choices": 1,
+    "personality_traits": {
+      "die": "d8",
+      "options": [
+        { "roll": 1, "text": "Eu sou movido por uma natureza aventureira que me levou para longe de casa." },
+        { "roll": 2, "text": "Eu cuido de meus amigos como se fosse uma ninhada de filhotes." },
+        { "roll": 3, "text": "Uma vez eu corri 25 milhas sem parar para avisar minha tribo de um perigo, e o faria de novo se necessário." },
+        { "roll": 4, "text": "Eu tenho uma lição para cada situação, tiradas de observação da natureza." },
+        { "roll": 5, "text": "Eu não dou valor a pessoas ricas ou elegantes; dinheiro e boas maneiras não vão lhe salvar de uma fera faminta." },
+        { "roll": 6, "text": "Eu sempre estou pegando coisas, mexendo com elas e as vezes as quebrando." },
+        { "roll": 7, "text": "Eu me sinto muito mais confortável em volta de animais do que de pessoas." },
+        { "roll": 8, "text": "Na verdade eu fui realmente criado por lobos." }
+      ]
+    },
+    "ideals": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "name": "Mudança", "text": "A vida é como as estações, em constante mudança, e nós precisamos nos adaptar." },
+        { "roll": 2, "name": "Bem Maior", "text": "É o dever de todos trazerem a maior quantidade de felicidade para a tribo toda." },
+        { "roll": 3, "name": "Honra", "text": "Se eu desonrar a mim, desonro minha tribo toda." },
+        { "roll": 4, "name": "Poder", "text": "Os mais fortes devem governar." },
+        { "roll": 5, "name": "Natureza", "text": "O mundo natural é mais forte do que todos os construtos da civilização." },
+        { "roll": 6, "name": "Glória", "text": "Eu devo alcançar glória, para mim e para meu clã." }
+      ]
+    },
+    "bonds": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "Minha família, clã ou tribo é a coisa mais importante em minha vida, mesmo que estejam longe de mim." },
+        { "roll": 2, "text": "Um ferimento no ermo de meu lar é um ferimento em mim." },
+        { "roll": 3, "text": "Eu trarei ira terrível sobre os destruidores de minha terra natal." },
+        { "roll": 4, "text": "Eu sou o último de meu povo, e devo garantir que seu nome vire lenda." },
+        { "roll": 5, "text": "Eu sofro terríveis visões de desastres por vir, e farei de tudo para evitá-los." },
+        { "roll": 6, "text": "É meu dever providenciar crianças para sustentar minha tribo." }
+      ]
+    },
+    "flaws": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "Eu gosto demais de vinho, cerveja e semelhantes." },
+        { "roll": 2, "text": "Não há espaço para cautela em uma vida vivida ao máximo." },
+        { "roll": 3, "text": "Eu me lembro de cada insulto sofrido e tenho um rancor silencioso em relação a quem me causou mal." },
+        { "roll": 4, "text": "Eu demoro em confiar em pessoas de outras raças, tribos e sociedades." },
+        { "roll": 5, "text": "Violência é minha resposta para quase todo desafio." },
+        { "roll": 6, "text": "Não espere que eu salve quem não consegue se salvar; é o caminho da natureza que os fortes vivam e os fracos pereçam." }
+      ]
+    },
+    "extra_choices": [
+      {
+        "id": "outlander_origin",
+        "label": "Origem",
+        "die": "d10",
+        "options": [
+          { "roll": 1, "text": "Mateiro." },
+          { "roll": 2, "text": "Armadilheiro." },
+          { "roll": 3, "text": "Colono." },
+          { "roll": 4, "text": "Guia." },
+          { "roll": 5, "text": "Exilado ou pária." },
+          { "roll": 6, "text": "Caçador de recompensa." },
+          { "roll": 7, "text": "Peregrino." },
+          { "roll": 8, "text": "Nômade tribal." },
+          { "roll": 9, "text": "Caçador-coletor." },
+          { "roll": 10, "text": "Assaltante tribal." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "folk_hero",
+    "name": "Herói do Povo",
+    "description": "Você vem de uma posição social humilde, mas seu destino é algo muito maior. O povo de onde veio pode lhe ver como um campeão, e é seu destino enfrentar os monstros e tiranos que ameaçam o povo comum.",
+    "source": "phb",
+    "skills": ["animalHandling", "survival"],
+    "languages": 0,
+    "tools": ["Uma ferramenta de artesão", "Veículos (terra)"],
+    "feature_name": "Hospitalidade Rústica",
+    "feature_description": "Vindo do povo comum você encontra espaço entre eles. Sempre pode encontrar lugar para se esconder, descansar ou se recuperar entre o povo comum, a não ser que tenha se mostrado um perigo para eles; a plebe lhe esconde da lei ou de quem o persegue, apesar de não arriscarem a vida por você.",
+    "starting_gold": 10,
+    "starting_currency": { "gold": 10 },
+    "starting_equipment": [
+      { "id": "artisans_tools", "name": "Uma ferramenta de artesão", "quantity": 1, "category": "tool" },
+      { "id": "shovel", "name": "Uma pá", "quantity": 1, "category": "gear" },
+      { "id": "iron_pot", "name": "Uma panela de ferro", "quantity": 1, "category": "gear" },
+      { "id": "common_clothes", "name": "Roupas comuns", "quantity": 1, "category": "clothing" }
+    ],
+    "personality_trait_choices": 2,
+    "ideal_choices": 1,
+    "bond_choices": 1,
+    "flaw_choices": 1,
+    "personality_traits": {
+      "die": "d8",
+      "options": [
+        { "roll": 1, "text": "Eu julgo as pessoas por suas ações, não suas palavras." },
+        { "roll": 2, "text": "Se alguém está com problemas, eu sempre estou pronto para ajudar." },
+        { "roll": 3, "text": "Quando eu me foco em algo eu vou até o fim, independente do que esteja no caminho." },
+        { "roll": 4, "text": "Eu tenho uma noção forte de fair play e sempre tento achar um meio termo em discussões." },
+        { "roll": 5, "text": "Eu confio em minhas habilidades e faço o que posso para instigar confiança nos outros." },
+        { "roll": 6, "text": "Pensar é para os outros. Eu prefiro ação." },
+        { "roll": 7, "text": "Eu emprego vocábulos prolixos de modo inexato, em diligência de bacorejar-me astuto." },
+        { "roll": 8, "text": "Eu me entedio fácil. Quando eu vou começar a lidar com meu Destino?" }
+      ]
+    },
+    "ideals": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "name": "Respeito", "text": "As pessoas merecem ser tratadas com dignidade e respeito." },
+        { "roll": 2, "name": "Equivalência", "text": "Ninguém deveria ser tratado preferencialmente pela lei, e ninguém está acima dela." },
+        { "roll": 3, "name": "Liberdade", "text": "Tiranos não podem ser permitidos a oprimir o povo." },
+        { "roll": 4, "name": "Poder", "text": "Se eu me tornar forte poderei tomar o que eu quiser." },
+        { "roll": 5, "name": "Sinceridade", "text": "Não há razão em fingir ser algo que não sou." },
+        { "roll": 6, "name": "Destino", "text": "Nada pode evitar que eu encontre meu destino." }
+      ]
+    },
+    "bonds": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "Eu tenho uma família, mas não faço ideia de onde esteja. Eu espero vê-la de novo um dia." },
+        { "roll": 2, "text": "Eu arei a terra, eu amo a terra, e irei proteger a terra." },
+        { "roll": 3, "text": "Um nobre orgulhoso uma vez me surrou, e por causa disso eu vou me vingar em todos os fortões que encontrar." },
+        { "roll": 4, "text": "Minhas ferramentas são símbolos de minha vida passada, e eu os carrego para que eu nunca esqueça minhas raízes." },
+        { "roll": 5, "text": "Eu protejo aqueles que não podem se proteger." },
+        { "roll": 6, "text": "Eu queria que meu amor de infância tivesse vindo comigo atrás de meu destino." }
+      ]
+    },
+    "flaws": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "O tirano que governa minhas terras vai fazer de tudo para me ver morto." },
+        { "roll": 2, "text": "Eu estou convencido do significado do meu destino, e cego para as chances de falha." },
+        { "roll": 3, "text": "As pessoas que me conheciam sabem de meu segredo vergonhoso, por isso nunca posso voltar para casa." },
+        { "roll": 4, "text": "Eu tenho uma fraqueza pelos vícios da cidade, especialmente bebida forte." },
+        { "roll": 5, "text": "Em segredo eu acredito que as coisas seriam melhores se eu fosse o tirano." },
+        { "roll": 6, "text": "Eu tenho dificuldade em confiar nos meus aliados." }
+      ]
+    },
+    "extra_choices": [
+      {
+        "id": "folk_hero_defining_event",
+        "label": "Reviravolta",
+        "die": "d10",
+        "options": [
+          { "roll": 1, "text": "Enfrentou os agentes de um tirano." },
+          { "roll": 2, "text": "Salvou pessoas de um desastre natural." },
+          { "roll": 3, "text": "Encarou um monstro terrível." },
+          { "roll": 4, "text": "Roubou de corruptos para ajudar os pobres." },
+          { "roll": 5, "text": "Liderou uma milícia contra uma ameaça." },
+          { "roll": 6, "text": "Invadiu a fortaleza de um tirano e roubou armas para o povo." },
+          { "roll": 7, "text": "Treinou a plebe para usar ferramentas de fazenda como armas." },
+          { "roll": 8, "text": "Um nobre removeu um decreto impopular depois um ato simbólico seu contra." },
+          { "roll": 9, "text": "Teve seu destino revelado por uma criatura mágica." },
+          { "roll": 10, "text": "Recrutado para um exército subiu de posto e foi elogiado por seu heroísmo." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "noble",
+    "name": "Nobre",
+    "description": "Você entende poder, riqueza e privilégio. Você possui um título nobre e sua família é dona de terras, coleta impostos e tem influência política.",
+    "source": "phb",
+    "skills": ["history", "persuasion"],
+    "languages": 1,
+    "tools": ["Um jogo à escolha"],
+    "feature_name": "Posição de Privilégio",
+    "feature_description": "Graças a seu título as pessoas tendem a esperar o melhor de você. Você é bem recebido em alta sociedade, e as pessoas assumem que você tem o direito de estar onde está. O povo comum tenta evitar lhe desagradar, e você pode conseguir uma audiência com nobres locais.",
+    "starting_gold": 25,
+    "starting_currency": { "gold": 25 },
+    "starting_equipment": [
+      { "id": "fine_clothes", "name": "Roupas finas", "quantity": 1, "category": "clothing" },
+      { "id": "signet_ring", "name": "Um anel de sinete", "quantity": 1, "category": "trinket" },
+      { "id": "pedigree_scroll", "name": "Um documento de linhagem", "quantity": 1, "category": "gear" }
+    ],
+    "personality_trait_choices": 2,
+    "ideal_choices": 1,
+    "bond_choices": 1,
+    "flaw_choices": 1,
+    "personality_traits": {
+      "die": "d8",
+      "options": [
+        { "roll": 1, "text": "Minha bajulação eloquente faz com que qualquer pessoa com quem converso se sinta a mais importante do mundo." },
+        { "roll": 2, "text": "O povo comum me ama por minha bondade e generosidade." },
+        { "roll": 3, "text": "Pela minha aparência elegante ninguém pode duvidar que estou acima das massas sujas." },
+        { "roll": 4, "text": "Eu me esforço muito para sempre estar no meu melhor e seguir as últimas modas." },
+        { "roll": 5, "text": "Eu não gosto de sujar minhas mãos, e não serei pego em acomodações impróprias." },
+        { "roll": 6, "text": "Apesar de meu nascimento nobre eu não me boto acima de outras pessoas. Temos todos o mesmo sangue." },
+        { "roll": 7, "text": "Meu apoio uma vez perdido, é perdido para sempre." },
+        { "roll": 8, "text": "Se você me ferir eu irei esmagar você, arruinar seu nome e salgar seus campos." }
+      ]
+    },
+    "ideals": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "name": "Respeito", "text": "Respeito me é devido por causa de minha posição, mas todo mundo merece ser tratado com dignidade." },
+        { "roll": 2, "name": "Responsabilidade", "text": "É meu dever respeitar a autoridade daqueles acima de mim, bem como os abaixo devem me respeitar." },
+        { "roll": 3, "name": "Independência", "text": "Eu devo provar que posso cuidar de mim mesmo sem o apoio de minha família." },
+        { "roll": 4, "name": "Poder", "text": "Se eu conseguir mais poder, ninguém vai me dizer o que fazer." },
+        { "roll": 5, "name": "Família", "text": "Sangue é mais grosso que água." },
+        { "roll": 6, "name": "Obrigação", "text": "É meu dever cuidar e proteger aqueles abaixo de mim." }
+      ]
+    },
+    "bonds": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "Eu irei encarar qualquer desafio para receber aprovação de minha família." },
+        { "roll": 2, "text": "A aliança de minha família com outra deve ser sustentada a todo custo." },
+        { "roll": 3, "text": "Nada é mais importante do que os outros membros de minha família." },
+        { "roll": 4, "text": "Eu estou apaixonado pelo herdeiro e uma família que odeia a minha." },
+        { "roll": 5, "text": "Minha lealdade ao soberano é infalível." },
+        { "roll": 6, "text": "O povo comum deve me ver como um herói do povo." }
+      ]
+    },
+    "flaws": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "Eu secretamente acredito que todos estão abaixo de mim." },
+        { "roll": 2, "text": "Eu escondo um segredo escandaloso que poderia arruinar minha família para sempre." },
+        { "roll": 3, "text": "Eu vejo insultos e ameaças veladas em tudo que me é dito, e me irrito facilmente." },
+        { "roll": 4, "text": "Eu tenho um desejo insaciável por prazeres carnais." },
+        { "roll": 5, "text": "Na verdade o mundo realmente gira em volta de mim." },
+        { "roll": 6, "text": "Eu costumo trazer vergonha a minha família através de minhas palavras e ações." }
+      ]
+    },
+    "feature_options": [
+      {
+        "id": "position_of_privilege",
+        "name": "Posição de Privilégio",
+        "description": "Graças a seu título as pessoas tendem a esperar o melhor de você. Você é bem recebido em alta sociedade, e as pessoas assumem que você tem o direito de estar onde está. O povo comum tenta evitar lhe desagradar, e você pode conseguir uma audiência com nobres locais."
+      },
+      {
+        "id": "retainers",
+        "name": "Servos",
+        "description": "Você tem o serviço de até três servos fiéis à sua família, atendentes, mensageiro, mordomos, etc. Seus servos são plebeus que realizam funções simples, mas não lutam por você nem o acompanham em situações perigosas."
+      }
+    ]
   },
   {
     "id": "sage",
     "name": "Sábio",
-    "description": "Você passou anos estudando os saberes do multiverso.",
+    "description": "Você passou anos aprendendo sobre o multiverso. Você fuçou escritos, estudou pergaminhos e ouviu os grandes especialistas no assunto que lhe interessa. Seus esforços lhe tornaram um mestre em seu campo.",
+    "source": "phb",
     "skills": ["arcana", "history"],
     "languages": 2,
     "tools": [],
     "feature_name": "Pesquisador",
-    "feature_description": "Quando não sabe algo, você sabe onde e com quem obter a informação.",
+    "feature_description": "Se você não sabe de algo costuma saber onde e com quem encontrar. Esse conhecimento normalmente vem na forma de uma universidade, biblioteca ou sábio específico. Alguns segredos podem levar bastante para serem descobertos, e existem coisas sobre as quais ninguém falou ainda.",
     "starting_gold": 10,
-    "source": "phb"
+    "starting_currency": { "gold": 10 },
+    "starting_equipment": [
+      { "id": "ink_black", "name": "Tinta preta", "quantity": 1, "category": "gear" },
+      { "id": "quill", "name": "Pena", "quantity": 1, "category": "gear" },
+      { "id": "small_knife", "name": "Uma faca pequena", "quantity": 1, "category": "weapon" },
+      { "id": "unanswered_letter", "name": "Uma carta com uma pergunta que ainda não conseguiu responder", "quantity": 1, "category": "gear" },
+      { "id": "common_clothes", "name": "Roupas comuns", "quantity": 1, "category": "clothing" }
+    ],
+    "personality_trait_choices": 2,
+    "ideal_choices": 1,
+    "bond_choices": 1,
+    "flaw_choices": 1,
+    "personality_traits": {
+      "die": "d8",
+      "options": [
+        { "roll": 1, "text": "Eu uso palavras polissilábicas que passam uma impressão de grande erudição." },
+        { "roll": 2, "text": "Eu já li livros das maiores bibliotecas do mundo, ou ao menos eu gosto de dizer que o fiz." },
+        { "roll": 3, "text": "Eu estou acostumado a ajudar aqueles que não são tão espertos quanto eu, e explico tudo pacientemente." },
+        { "roll": 4, "text": "Não há nada que eu goste mais do que um bom mistério." },
+        { "roll": 5, "text": "Eu estou disposto a ouvir todos os lados de um argumento antes de julgar." },
+        { "roll": 6, "text": "Eu… preciso… falar… lentamente… quando... falando... com... idiotas... o que é... quase... todo mundo... comparado... comigo." },
+        { "roll": 7, "text": "Eu sou terrivelmente sem jeito em situações sociais." },
+        { "roll": 8, "text": "Eu acredito que as pessoas estão sempre tentando roubar meus segredos." }
+      ]
+    },
+    "ideals": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "name": "Conhecimento", "text": "O caminho para o poder e melhoria pessoal é através de conhecimento." },
+        { "roll": 2, "name": "Beleza", "text": "O que é belo nos aponta para o que é verdadeiro." },
+        { "roll": 3, "name": "Lógica", "text": "Emoções não devem nublar nosso pensamento lógico." },
+        { "roll": 4, "name": "Sem Limites", "text": "Nada deve parar as possibilidades infinitas da existência." },
+        { "roll": 5, "name": "Poder", "text": "Conhecimento é o caminho para poder e dominação." },
+        { "roll": 6, "name": "Melhoramento Pessoal", "text": "O objetivo de uma vida de estudos é melhorar a si mesmo." }
+      ]
+    },
+    "bonds": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "É meu dever proteger meus estudantes." },
+        { "roll": 2, "text": "Eu tenho um texto antigo com conhecimentos secretos que não devem cair em mãos erradas." },
+        { "roll": 3, "text": "Eu me esforço para preservar uma biblioteca, universidade ou monastério." },
+        { "roll": 4, "text": "O trabalho de minha vida é uma série de tomos relacionados a um campo específico." },
+        { "roll": 5, "text": "Eu tenho procurado minha vida a resposta para uma certa questão." },
+        { "roll": 6, "text": "Eu vendi minha alma por conhecimento. Eu espero fazer grandes feitos e recuperá-la." }
+      ]
+    },
+    "flaws": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "Eu sou facilmente distraído pela promessa de informação." },
+        { "roll": 2, "text": "A maioria das pessoas grita e corre ao ver um demônio; eu paro e tomo nota de sua anatomia." },
+        { "roll": 3, "text": "Descobrir um segredo antigo vale o preço de uma civilização." },
+        { "roll": 4, "text": "Eu ignoro soluções simples e favoreço as complexas." },
+        { "roll": 5, "text": "Eu falo sem pensar nas palavras, invariavelmente ofendendo os outros." },
+        { "roll": 6, "text": "Eu não conseguiria manter um segredo nem que minha vida, ou de alguém, dependesse disso." }
+      ]
+    },
+    "extra_choices": [
+      {
+        "id": "sage_specialty",
+        "label": "Especialidade",
+        "die": "d8",
+        "options": [
+          { "roll": 1, "text": "Alquimista." },
+          { "roll": 2, "text": "Astrônomo." },
+          { "roll": 3, "text": "Acadêmico desacreditado." },
+          { "roll": 4, "text": "Bibliotecário." },
+          { "roll": 5, "text": "Professor." },
+          { "roll": 6, "text": "Pesquisador." },
+          { "roll": 7, "text": "Aprendiz de feiticeiro." },
+          { "roll": 8, "text": "Escriba." }
+        ]
+      }
+    ]
   },
   {
     "id": "sailor",
     "name": "Marujo",
-    "description": "Você passou anos em um navio, enfrentando o mar aberto.",
+    "description": "Você navegou por anos. Nesse tempo você encarou tempestades poderosas, monstros e aqueles tencionando afundar seu navio. Você ama a linha distante do horizonte, mas chegou a hora de tentar algo novo.",
+    "source": "phb",
     "skills": ["athletics", "perception"],
     "languages": 0,
-    "tools": ["Instrumentos de navegador", "Veículos aquáticos"],
+    "tools": ["Ferramentas de navegação", "Veículos aquáticos"],
     "feature_name": "Passagem de Navio",
-    "feature_description": "Você consegue passagem gratuita em navios para você e seus companheiros.",
+    "feature_description": "Quando precisa você consegue arranjar passagem grátis para você e seus companheiros. Você pode velejar seu antigo navio, com amigos ou conhecidos, ou oferecendo seu conhecimento em troca. Como você está dependendo de um favor, as viagens geralmente não vão atender todas as suas necessidades. Espera-se que você e seu grupo ajudem durante a viagem.",
     "starting_gold": 10,
-    "source": "phb"
+    "starting_currency": { "gold": 10 },
+    "starting_equipment": [
+      { "id": "club", "name": "Um porrete", "quantity": 1, "category": "weapon" },
+      { "id": "silk_rope_15m", "name": "15 m de corda de seda", "quantity": 1, "category": "gear" },
+      { "id": "lucky_charm", "name": "Um amuleto da sorte", "quantity": 1, "category": "trinket" },
+      { "id": "common_clothes", "name": "Roupas comuns", "quantity": 1, "category": "clothing" }
+    ],
+    "personality_trait_choices": 2,
+    "ideal_choices": 1,
+    "bond_choices": 1,
+    "flaw_choices": 1,
+    "personality_traits": {
+      "die": "d8",
+      "options": [
+        { "roll": 1, "text": "Meus amigos sabem que podem confiar em mim." },
+        { "roll": 2, "text": "Eu trabalho muito para poder me divertir ainda mais quando o trabalho terminar." },
+        { "roll": 3, "text": "Eu gosto de navegar a novos portos e fazer novos amigos em volta de uma garrafa de cerveja." },
+        { "roll": 4, "text": "Eu estico a verdade para conseguir uma boa história." },
+        { "roll": 5, "text": "Para mim uma briga de taverna é uma boa forma de conhecer uma nova cidade." },
+        { "roll": 6, "text": "Eu nunca digo não a uma aposta amistosa." },
+        { "roll": 7, "text": "Meu palavreado é tão sujo quanto um galinheiro." },
+        { "roll": 8, "text": "Eu gosto de um trabalho bem feito, especialmente se eu puder convencer alguém a fazê-lo." }
+      ]
+    },
+    "ideals": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "name": "Respeito", "text": "O que mantém um navio unido é o respeito mútuo entre o capitão e a tripulação." },
+        { "roll": 2, "name": "Justiça", "text": "Todos trabalhamos, todos dividimos as recompensas." },
+        { "roll": 3, "name": "Liberdade", "text": "O mar é liberdade, liberdade para ir onde quiser e fazer qualquer coisa." },
+        { "roll": 4, "name": "Maestria", "text": "Eu sou um predador, e os outros navios no mar são minhas presas." },
+        { "roll": 5, "name": "Pessoas", "text": "Eu sou dedicado a meus companheiros, não ideais." },
+        { "roll": 6, "name": "Aspiração", "text": "Um dia eu terei meu próprio navio e farei meu próprio destino." }
+      ]
+    },
+    "bonds": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "Eu sou leal a meu capitão primeiro, tudo o mais vem em segundo." },
+        { "roll": 2, "text": "O navio é a coisa mais importante - capitães e companheiros vêm e vão." },
+        { "roll": 3, "text": "Eu vou sempre me lembrar de meu primeiro navio." },
+        { "roll": 4, "text": "Em um porto eu tenho um amor cujos olhos quase me roubaram do mar." },
+        { "roll": 5, "text": "Eu fui roubado de minha parte justa nos lucros, e pretendo conseguir o que é meu." },
+        { "roll": 6, "text": "Piratas mataram meu capitão e tripulação, tomaram nosso navio e me deixaram para morrer. Eu terei minha vingança." }
+      ]
+    },
+    "flaws": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "Eu sigo ordens, mesmo que eu ache elas erradas." },
+        { "roll": 2, "text": "Eu direi qualquer coisa para evitar trabalho extra." },
+        { "roll": 3, "text": "Uma vez que alguém questiona minha coragem eu não volto atrás, não importa quão perigoso." },
+        { "roll": 4, "text": "Uma vez que eu comece a beber, é difícil parar." },
+        { "roll": 5, "text": "Eu não consigo evitar em afanar moedas que eu vejo soltas." },
+        { "roll": 6, "text": "Meu orgulho vai me destruir." }
+      ]
+    },
+    "feature_options": [
+      {
+        "id": "ships_passage",
+        "name": "Passagem de Navio",
+        "description": "Quando precisa você consegue arranjar passagem grátis para você e seus companheiros. Você pode velejar seu antigo navio, com amigos ou conhecidos, ou oferecendo seu conhecimento em troca. Espera-se que você e seu grupo ajudem durante a viagem."
+      },
+      {
+        "id": "bad_reputation",
+        "name": "Reputação Ruim",
+        "description": "Não importa aonde você vá, as pessoas têm medo de sua reputação. Quando em terras civilizadas você consegue escapar de ofensas menores como não pagar uma bebida na taverna ou uma briga, porque a maioria das pessoas não tem coragem de te entregar para as autoridades."
+      }
+    ]
   },
   {
     "id": "soldier",
     "name": "Soldado",
-    "description": "Você foi treinado para a guerra e serviu numa força militar.",
+    "description": "Guerra está em sua vida desde quando você consegue se lembrar. Você treinou de jovem em como usar armas e armaduras, aprendendo as perícias básicas da sobrevivência, incluindo como ficar vivo no campo de batalha.",
+    "source": "phb",
     "skills": ["athletics", "intimidation"],
     "languages": 0,
     "tools": ["Um tipo de jogo", "Veículos terrestres"],
     "feature_name": "Patente Militar",
-    "feature_description": "Soldados leais à sua antiga organização reconhecem sua autoridade.",
+    "feature_description": "Você tem uma patente de sua carreira como soldado. Soldados leais a sua organização ainda reconhecem sua autoridade e influência, prestam deferência a você se de patente menor. Você pode usar sua influência para emprestar cavalos e equipamentos simples, ou ter acesso a fortaleza e acampamentos militares onde sua patente é reconhecida.",
     "starting_gold": 10,
-    "source": "phb"
+    "starting_currency": { "gold": 10 },
+    "starting_equipment": [
+      { "id": "rank_insignia", "name": "Uma medalha de patente", "quantity": 1, "category": "trinket" },
+      { "id": "fallen_foe_trophy", "name": "Um troféu tirado de um oponente caído", "quantity": 1, "category": "trinket" },
+      { "id": "gaming_set", "name": "Um tipo de jogo", "quantity": 1, "category": "tool" },
+      { "id": "common_clothes", "name": "Roupas comuns", "quantity": 1, "category": "clothing" }
+    ],
+    "personality_trait_choices": 2,
+    "ideal_choices": 1,
+    "bond_choices": 1,
+    "flaw_choices": 1,
+    "personality_traits": {
+      "die": "d8",
+      "options": [
+        { "roll": 1, "text": "Eu sou sempre educado e respeitoso." },
+        { "roll": 2, "text": "Eu sou perseguido por memórias da guerra, e não consigo tirar as imagens de violência de minha cabeça." },
+        { "roll": 3, "text": "Eu perdi amigos demais, e demoro para criar novos." },
+        { "roll": 4, "text": "Eu sou repleto de contos inspiradores ou de cautela sobre quase toda situação de combate." },
+        { "roll": 5, "text": "Eu posso encarar uma fera terrível sem nem piscar." },
+        { "roll": 6, "text": "Eu gosto de ser forte e quebrar coisas." },
+        { "roll": 7, "text": "Eu tenho um senso de humor grosseiro." },
+        { "roll": 8, "text": "Eu encaro problemas de frente. Uma solução simples e direta é o melhor caminho para o sucesso." }
+      ]
+    },
+    "ideals": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "name": "Bem Maior", "text": "Nosso dever é dar nossas vidas em defesa dos outros." },
+        { "roll": 2, "name": "Responsabilidade", "text": "Eu faço o que preciso, e obedeço autoridade justa." },
+        { "roll": 3, "name": "Independência", "text": "Pessoas seguindo ordens cegamente abraçam um tipo de tirania." },
+        { "roll": 4, "name": "Poder", "text": "Tanto na guerra quanto na vida o mais forte vence." },
+        { "roll": 5, "name": "Viva e Deixe Viver", "text": "Não vale a pena matar ou guerrear por ideais." },
+        { "roll": 6, "name": "Nação", "text": "Minha cidade, nação ou povo são tudo o que importa." }
+      ]
+    },
+    "bonds": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "Eu daria minha vida pelas pessoas com quem servi." },
+        { "roll": 2, "text": "Alguém salvou minha vida no campo de batalha. Até hoje eu nunca deixarei um amigo para trás." },
+        { "roll": 3, "text": "Minha honra é minha vida." },
+        { "roll": 4, "text": "Eu nunca esquecerei uma derrota esmagadora que minha companhia sofreu, nem os inimigos que a fizeram." },
+        { "roll": 5, "text": "Aqueles que lutam ao meu lado são aqueles dignos de morrer por." },
+        { "roll": 6, "text": "Eu luto por aqueles que não podem lutar." }
+      ]
+    },
+    "flaws": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "O inimigo monstruoso que enfrentamos em campo ainda me faz tremer." },
+        { "roll": 2, "text": "Eu tenho pouco respeito por quem não é um bom guerreiro." },
+        { "roll": 3, "text": "Eu cometi um engano terrível em batalha que custou muitas vidas, e eu faria de tudo para mantê-lo em segredo." },
+        { "roll": 4, "text": "Meu ódio por meus inimigos é cego." },
+        { "roll": 5, "text": "Eu obedeço a lei, mesmo que ela cause miséria." },
+        { "roll": 6, "text": "Eu preferiria comer minha armadura a admitir que estou errado." }
+      ]
+    },
+    "extra_choices": [
+      {
+        "id": "soldier_specialty",
+        "label": "Especialidade",
+        "die": "d8",
+        "options": [
+          { "roll": 1, "text": "Oficial." },
+          { "roll": 2, "text": "Batedor." },
+          { "roll": 3, "text": "Infantaria." },
+          { "roll": 4, "text": "Cavalaria." },
+          { "roll": 5, "text": "Curandeiro." },
+          { "roll": 6, "text": "Contramestre." },
+          { "roll": 7, "text": "Portador de estandarte." },
+          { "roll": 8, "text": "Não-combatente (cozinheiro, domador de cavalos, ferreiro, etc)." }
+        ]
+      }
+    ]
   },
   {
     "id": "urchin",
     "name": "Órfão",
-    "description": "Você cresceu nas ruas, sozinho, aprendendo a sobreviver.",
+    "description": "Você cresceu nas ruas sozinho, órfão ou pobre. Você não tinha ninguém para cuidar de você e teve que aprender a se virar. Contra todas as apostas você sobreviveu, e o fez através de esperteza, força, velocidade ou uma combinação de cada.",
+    "source": "phb",
     "skills": ["sleightOfHand", "stealth"],
     "languages": 0,
-    "tools": ["Kit de disfarces", "Kit de ladrão"],
+    "tools": ["Kit de disfarce", "Ferramentas de ladrão"],
     "feature_name": "Segredos da Cidade",
-    "feature_description": "Você conhece os atalhos e viaja pela cidade ao dobro da velocidade normal.",
+    "feature_description": "Você conhece os padrões e fluxos secretos das cidades, e pode encontrar passagens que outros perderiam. Fora de combate você e seus companheiros podem se mover de um local a outro na cidade em metade do tempo.",
     "starting_gold": 10,
-    "source": "phb"
+    "starting_currency": { "gold": 10 },
+    "starting_equipment": [
+      { "id": "small_knife", "name": "Uma faca pequena", "quantity": 1, "category": "weapon" },
+      { "id": "city_map", "name": "Um mapa da cidade em que cresceu", "quantity": 1, "category": "gear" },
+      { "id": "pet", "name": "Um bichinho de estimação", "quantity": 1, "category": "trinket" },
+      { "id": "parents_token", "name": "Uma lembrança de seus parentes", "quantity": 1, "category": "trinket" },
+      { "id": "common_clothes", "name": "Roupas comuns", "quantity": 1, "category": "clothing" }
+    ],
+    "personality_trait_choices": 2,
+    "ideal_choices": 1,
+    "bond_choices": 1,
+    "flaw_choices": 1,
+    "personality_traits": {
+      "die": "d8",
+      "options": [
+        { "roll": 1, "text": "Eu escondo comida e badulaques nos meus bolsos." },
+        { "roll": 2, "text": "Eu faço muitas perguntas." },
+        { "roll": 3, "text": "Eu gosto de me enfurnar em espacinhos onde ninguém pode me alcançar." },
+        { "roll": 4, "text": "Eu durmo com as costas para uma parede e com tudo o que tenho entre meus braços." },
+        { "roll": 5, "text": "Eu como feito um porco, e possuo péssimos hábitos." },
+        { "roll": 6, "text": "Eu acho que todo mundo que é legal comigo tem intenções malignas." },
+        { "roll": 7, "text": "Eu não gosto de tomar banho." },
+        { "roll": 8, "text": "Eu abertamente digo o que outras pessoas apenas indicam." }
+      ]
+    },
+    "ideals": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "name": "Respeito", "text": "Todas as pessoas, ricas ou pobres, merecem respeito." },
+        { "roll": 2, "name": "Comunidade", "text": "Nós temos que cuidar uns dos outros, porque ninguém mais vai fazê-lo." },
+        { "roll": 3, "name": "Mudança", "text": "Os pequenos são erguidos e os grandes caem. Mudança é a natureza das coisas." },
+        { "roll": 4, "name": "Retribuição", "text": "Os ricos têm que ser mostrados como é a vida e morte nas regiões pobres." },
+        { "roll": 5, "name": "Pessoas", "text": "Eu ajudo as pessoas que me ajudam, é isso que nos mantém vivos." },
+        { "roll": 6, "name": "Aspiração", "text": "Eu vou provar que sou digno de uma vida melhor." }
+      ]
+    },
+    "bonds": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "Minha cidade é meu lar, e eu irei lutar para defendê-la." },
+        { "roll": 2, "text": "Eu protejo um orfanato para evitar que outros sejam forçados a passar pelo que passei." },
+        { "roll": 3, "text": "Eu devo minha sobrevivência a outra criança de rua que me ensinou a viver nas ruas." },
+        { "roll": 4, "text": "Eu tenho uma dívida que não tenho como pagar para com a pessoa que teve piedade de mim." },
+        { "roll": 5, "text": "Eu escapei de minha vida de pobreza ao roubar alguém importante, e agora eu sou procurado por isso." },
+        { "roll": 6, "text": "Ninguém deveria ter que passar pelas dificuldades que passei." }
+      ]
+    },
+    "flaws": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "Eu fujo de uma luta se estiver em desvantagem numérica." },
+        { "roll": 2, "text": "Ouro é muito dinheiro para mim, e eu faria quase qualquer coisa por mais." },
+        { "roll": 3, "text": "Eu nunca vou realmente confiar em alguém além de mim mesmo." },
+        { "roll": 4, "text": "Eu preferiria matar alguém dormindo a encarar uma luta justa." },
+        { "roll": 5, "text": "Não é roubo se eu preciso mais do que a pessoa." },
+        { "roll": 6, "text": "Pessoas não conseguem se proteger recebem o que merecem." }
+      ]
+    }
+  },
+  {
+    "id": "far_traveler",
+    "name": "Viajante Distante",
+    "description": "Você vem de algum lugar distante. Não apenas longe, um lugar que a maioria das pessoas da região sequer sabe que existe, quem dera onde existe, tendo no máximo ouvido histórias absurdas.",
+    "source": "scag",
+    "skills": ["insight", "perception"],
+    "languages": 1,
+    "tools": ["Um instrumento musical ou jogo de sua escolha"],
+    "feature_name": "Olhos em Você",
+    "feature_description": "Seu sotaque, maneirismo, modos de linguagem e talvez até sua aparência lhe marcam como estrangeiros, e enquanto isso pode ser perigoso também chama atenção de pessoas curiosas com sua história. Nobres, príncipes e escolásticos podem estar interessados em sua companhia exótica.",
+    "starting_gold": 5,
+    "starting_currency": { "gold": 5 },
+    "starting_equipment": [
+      { "id": "travelers_clothes", "name": "Roupas de viajante", "quantity": 1, "category": "clothing" },
+      { "id": "chosen_instrument_or_gaming_set", "name": "O instrumento musical ou conjunto de jogos escolhido", "quantity": 1, "category": "tool" },
+      { "id": "homeland_maps", "name": "Mapas rudimentares da terra natal que mostram onde você está em Faerûn", "quantity": 1, "category": "gear" },
+      { "id": "homeland_jewel", "name": "Uma joia de fabricação natal no valor de 10 po", "quantity": 1, "category": "trinket" }
+    ],
+    "personality_trait_choices": 2,
+    "ideal_choices": 1,
+    "bond_choices": 1,
+    "flaw_choices": 1,
+    "personality_traits": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "Eu tenho noções diferentes de espaço pessoal." },
+        { "roll": 2, "text": "Eu tenho minhas próprias ideias do que é ou não comida, e acho os hábitos de outros de fascinantes a repugnantes." },
+        { "roll": 3, "text": "Eu tenho um código de moral ou de propriedade que outros não entendem." },
+        { "roll": 4, "text": "Eu mostro afeição ou desprezo de formas não familiares." },
+        { "roll": 5, "text": "Eu honro minhas divindades com costumes estranhos para essa região." },
+        { "roll": 6, "text": "Eu começo ou termino meu dia com rituais tradicionais que outros não entendem." }
+      ]
+    },
+    "ideals": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "name": "Aberto", "text": "Eu tenho muito a aprender com o povo bom que conheço no caminho." },
+        { "roll": 2, "name": "Reservado", "text": "Como alguém novo, eu sou cauteloso e respeitoso." },
+        { "roll": 3, "name": "Aventura", "text": "Estou longe de casa e tudo é estranho e fantástico." },
+        { "roll": 4, "name": "Esperteza", "text": "Eu posso não saber seus métodos, mas eles não sabem os meus, e isso pode ser vantajoso." },
+        { "roll": 5, "name": "Inquisitivo", "text": "Tudo é novo, mas eu tenho uma sede por aprender." },
+        { "roll": 6, "name": "Suspeita", "text": "Eu preciso tomar cuidado, pois não sei diferenciar amigo de inimigo aqui." }
+      ]
+    },
+    "bonds": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "Enquanto eu tiver esse pedaço de minha terra natal, posso encarar qualquer desafio." },
+        { "roll": 2, "text": "Os deuses de meu povo me confortam aqui no estrangeiro." },
+        { "roll": 3, "text": "Não tenho causa maior do que o serviço à meu povo." },
+        { "roll": 4, "text": "Minha liberdade é meu bem mais precioso, e nunca permitirei que a tomem de novo." },
+        { "roll": 5, "text": "Eu sou fascinado pela beleza e esplendor dessa nova terra." },
+        { "roll": 6, "text": "Apesar de eu não ter tido escolha eu lamento deixar meus amados para trás. Espero os ver de novo um dia." }
+      ]
+    },
+    "flaws": {
+      "die": "d6",
+      "options": [
+        { "roll": 1, "text": "Secretamente (ou não) eu estou convencido da superioridade de minha cultura sobre essa." },
+        { "roll": 2, "text": "Eu finjo não entender o idioma local para evitar interações que eu não desejo ter." },
+        { "roll": 3, "text": "Eu tenho uma fraqueza pelos prazeres dessa terra." },
+        { "roll": 4, "text": "Eu não aceito bem algumas das ações e motivações desse povo, porque eles são diferentes." },
+        { "roll": 5, "text": "Eu considero os seguidores desses deuses inocentes na melhor das hipóteses, tolos ignorantes na pior." },
+        { "roll": 6, "text": "Eu tenho uma fraqueza pela beleza exótica desse povo." }
+      ]
+    },
+    "extra_choices": [
+      {
+        "id": "far_traveler_reason",
+        "label": "Por que você está aqui?",
+        "die": "d6",
+        "options": [
+          { "roll": 1, "text": "Emissário." },
+          { "roll": 2, "text": "Exilado." },
+          { "roll": 3, "text": "Fugitivo." },
+          { "roll": 4, "text": "Peregrino." },
+          { "roll": 5, "text": "Turista." },
+          { "roll": 6, "text": "Andarilho." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "guild_merchant",
+    "name": "Mercante de Guilda",
+    "description": "Em vez de uma guilda de artesão você é de uma guilda mercante. Você vive de comprar e vender produtos, ou a matéria-prima que artesãos precisam. Você pode ser um importador, mercante local ou mesmo mestre de caravana.",
+    "source": "phb",
+    "variant_of": "guild_artisan",
+    "personality_from": "guild_artisan",
+    "skills": ["insight", "persuasion"],
+    "languages": 1,
+    "tools": ["Uma ferramenta de artesão (pode ser substituída por ferramentas de navegação)"],
+    "feature_name": "Membro de Guilda",
+    "feature_description": "Como um membro respeitado de guilda você tem benefícios. Seus companheiros de guilda vão lhe providenciar alimentação e hospedagem, e pagar por seus custos funerários, se necessário. Guildas costumam ter um grande poder político, se você for acusado de um crime a guilda irá lhe dar suporte caso seja inocente ou seu crime justificável. Você deve pagar 5 po por mês para fazer parte de sua guilda.",
+    "starting_gold": 15,
+    "starting_currency": { "gold": 15 },
+    "starting_equipment": [
+      { "id": "guild_letter", "name": "Carta de referência da guilda", "quantity": 1, "category": "gear" },
+      { "id": "travelers_clothes", "name": "Roupas de viajante", "quantity": 1, "category": "clothing" }
+    ],
+    "equipment_choices": [
+      {
+        "id": "guild_merchant_kit",
+        "label": "Escolha entre ferramentas de artesão ou uma mula com carroça",
+        "count": 1,
+        "options": [
+          {
+            "id": "artisans_tools",
+            "label": "Ferramentas de artesão",
+            "items": [
+              { "id": "artisans_tools", "name": "Ferramentas de artesão", "quantity": 1, "category": "tool" }
+            ]
+          },
+          {
+            "id": "mule_and_cart",
+            "label": "Uma mula e uma carroça",
+            "items": [
+              { "id": "mule", "name": "Uma mula", "quantity": 1, "category": "mount" },
+              { "id": "cart", "name": "Uma carroça", "quantity": 1, "category": "vehicle" }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "agent",
+    "name": "Agente",
+    "description": "Muitas organizações não são presas à uma região geográfica, e seus membros atuam além de barreiras políticas e onde a organização precisa. Um tipo de espião, contato ou diplomata, você serviu a uma organização desse tipo.",
+    "source": "scag",
+    "personality_from": "acolyte",
+    "skills": ["insight"],
+    "skill_choices": {
+      "count": 1,
+      "label": "Uma perícia de INT, SAB ou CAR apropriada para sua organização",
+      "options": ["arcana", "history", "investigation", "nature", "religion", "animalHandling", "insight", "medicine", "perception", "survival", "deception", "intimidation", "performance", "persuasion"]
+    },
+    "languages": 2,
+    "tools": [],
+    "feature_name": "Abrigo Seguro",
+    "feature_description": "Você tem acesso a uma rede de operativos e auxiliares que podem lhe ajudar. Você conhece palavras secretas e senhas para acessar casas seguras, pouso grátis ou informação. Outros agentes não arriscam vida ou serem descobertos para te ajudar porém.",
+    "starting_gold": 15,
+    "starting_currency": { "gold": 15 },
+    "starting_equipment": [
+      { "id": "organization_badge", "name": "Emblema de sua organização", "quantity": 1, "category": "trinket" },
+      { "id": "codebook", "name": "Um livro de códigos", "quantity": 1, "category": "book" },
+      { "id": "common_clothes", "name": "Roupas comuns", "quantity": 1, "category": "clothing" }
+    ]
+  },
+  {
+    "id": "bounty_hunter",
+    "name": "Caçador de Recompensas",
+    "description": "Mesmo antes de ser aventureiro sua vida era repleta de conflito, porque você capturava pessoas em troca de pagamento, especialmente em um ambiente urbano. De pegador de ladrões à \"máscara de veludo\" que caça bandidos de alta classe, você sabe como encontrar sua presa.",
+    "source": "scag",
+    "personality_from": "criminal",
+    "skills": [],
+    "skill_choices": {
+      "count": 2,
+      "label": "Dois entre Enganação, Furtividade, Intuição e Persuasão",
+      "options": ["deception", "stealth", "insight", "persuasion"]
+    },
+    "languages": 0,
+    "tools": ["Duas entre ferramentas de ladrão, instrumento musical ou jogo"],
+    "feature_name": "Ouvido no Chão",
+    "feature_description": "Você tem contato com as pessoas com quem suas presas se comunicam. Essa conexão vem na forma de contatos em todo lugar que visita, alguém que lhe dá informação sobre as pessoas e lugares da área.",
+    "starting_gold": 20,
+    "starting_currency": { "gold": 20 },
+    "starting_equipment": [
+      { "id": "profession_clothes", "name": "Roupas apropriadas para sua profissão", "quantity": 1, "category": "clothing" }
+    ]
+  },
+  {
+    "id": "knight_of_the_order",
+    "name": "Cavaleiro da Ordem",
+    "description": "Você pertence a uma ordem de cavalaria e jurou alcançar um certo objetivo. Apesar da palavra cavaleiro invocar imagens de homens nobres montados em cavalos, ser um cavaleiro é mais sobre a filosofia, dever e bravura do que um estilo de combate.",
+    "source": "scag",
+    "personality_from": "soldier",
+    "skills": ["persuasion"],
+    "skill_choices": {
+      "count": 1,
+      "label": "Um entre Arcanismo, História ou Religião, apropriado para sua ordem",
+      "options": ["arcana", "history", "religion"]
+    },
+    "languages": 1,
+    "tools": ["Instrumento musical ou jogo"],
+    "feature_name": "Respeito do Cavaleiro",
+    "feature_description": "Você recebe apoio de cavaleiros de sua ordem e aqueles que concordam com seus objetivos. Essa ajuda vem na forma de refeições e abrigo, cura conforme apropriado, e o ocasional risco de vida com o povo ajudando um cavaleiro ferido numa briga de rua.",
+    "starting_gold": 10,
+    "starting_currency": { "gold": 10 },
+    "starting_equipment": [
+      { "id": "order_signet", "name": "Estandarte, sinete ou selo da ordem", "quantity": 1, "category": "trinket" },
+      { "id": "travelers_clothes", "name": "Roupas de viajante", "quantity": 1, "category": "clothing" }
+    ]
+  },
+  {
+    "id": "courtier",
+    "name": "Cortesão",
+    "description": "Em tempos anteriores você era uma figura de importância na corte de um nobre ou em uma organização burocrática. Você pode até ter vindo de nascimento comum; é seu talento e não seu sangue que lhe ganhara essa posição.",
+    "source": "scag",
+    "personality_from": "guild_artisan",
+    "skills": ["insight", "persuasion"],
+    "languages": 2,
+    "tools": [],
+    "feature_name": "Funcionário da Corte",
+    "feature_description": "Seu conhecimento de burocracia lhe permite acessar os mecanismos internos de qualquer corte nobre ou governo. Você sabe a quem apaziguar e a quem pedir favores, bem como quais são as intrigas atuais.",
+    "starting_gold": 5,
+    "starting_currency": { "gold": 5 },
+    "starting_equipment": [
+      { "id": "fine_clothes", "name": "Roupas elegantes", "quantity": 1, "category": "clothing" }
+    ]
+  },
+  {
+    "id": "spy",
+    "name": "Espião",
+    "description": "Apesar de suas capacidades não serem diferentes de um bandido comum, você aprendeu essa arte em um contexto diferente: o de agente de espionagem. Você pode ser sancionado pela coroa, ou talvez um agente livre vendendo informações.",
+    "source": "phb",
+    "variant_of": "criminal",
+    "personality_from": "criminal",
+    "skills": ["deception", "stealth"],
+    "languages": 0,
+    "tools": ["Um tipo de jogo", "Ferramentas de ladrão"],
+    "feature_name": "Contato Criminal",
+    "feature_description": "Você tem um contato confiável entre você e uma rede criminosa. Você sabe como mandar mensagens a seu contato, mesmo a grandes distâncias. Especificamente, você conhece os mensageiros, mestres de caravana e marinheiros corruptos dispostos a entregar esse tipo de mensagem.",
+    "starting_gold": 15,
+    "starting_currency": { "gold": 15 },
+    "starting_equipment": [
+      { "id": "crowbar", "name": "Um pé de cabra", "quantity": 1, "category": "gear" },
+      { "id": "dark_hooded_clothes", "name": "Roupas comuns com capuz", "quantity": 1, "category": "clothing" }
+    ],
+    "extra_choices": [
+      {
+        "id": "criminal_specialty",
+        "label": "Especialidade",
+        "die": "d8",
+        "options": [
+          { "roll": 1, "text": "Chantagista." },
+          { "roll": 2, "text": "Ladrão." },
+          { "roll": 3, "text": "Leão de Chácara." },
+          { "roll": 4, "text": "Atravessador." },
+          { "roll": 5, "text": "Assaltante de estrada." },
+          { "roll": 6, "text": "Matador de aluguel." },
+          { "roll": 7, "text": "Batedor de carteira." },
+          { "roll": 8, "text": "Contrabandista." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gladiator",
+    "name": "Gladiador",
+    "description": "Tanto no ramo do entretenimento quanto qualquer menestrel, um gladiador é treinado na arte de transformar o combate em um espetáculo digno de audiência.",
+    "source": "phb",
+    "variant_of": "entertainer",
+    "personality_from": "entertainer",
+    "skills": ["acrobatics", "performance"],
+    "languages": 0,
+    "tools": ["Kit de disfarce", "Um instrumento musical"],
+    "feature_name": "Por Exigência Popular",
+    "feature_description": "Você sempre consegue encontrar um lugar para atuar, geralmente em uma taverna ou estalagem, mas possivelmente em um circo, teatro ou na corte de um nobre. Em tais lugares você recebe alimentação e pouso modesto ou confortável, desde que atue todas as noites. Adicionalmente sua performance lhe deixa famoso; estranhos que lhe reconhecem em locais onde se apresentou tendem a gostar de você.",
+    "starting_gold": 15,
+    "starting_currency": { "gold": 15 },
+    "starting_equipment": [
+      { "id": "unusual_cheap_weapon", "name": "Uma arma incomum e barata, como um tridente ou uma rede", "quantity": 1, "category": "weapon" },
+      { "id": "admirer_favor", "name": "Um item de um admirador", "quantity": 1, "category": "trinket" },
+      { "id": "costume", "name": "Uma fantasia", "quantity": 1, "category": "clothing" }
+    ],
+    "specialty": "Gladiador"
+  },
+  {
+    "id": "cloistered_scholar",
+    "name": "Escolástico",
+    "description": "Em seus anos formativos você se encontrou em uma das grandes instituições de ensino do mundo, onde você aprendeu que conhecimento é tesouro maior que ouro e gemas.",
+    "source": "scag",
+    "personality_from": "sage",
+    "skills": ["history"],
+    "skill_choices": {
+      "count": 1,
+      "label": "Uma entre Arcanismo, Natureza e Religião",
+      "options": ["arcana", "nature", "religion"]
+    },
+    "languages": 2,
+    "tools": [],
+    "feature_name": "Acesso à Biblioteca",
+    "feature_description": "Você tem acesso livre à maior parte das bibliotecas de sua ordem. Apesar de algumas informações serem preciosas ou secretas, você tem uma boa ideia sobre como lidar com a burocracia. Adicionalmente você recebe tratamento preferencial em outras bibliotecas e com professores e escolásticos.",
+    "starting_gold": 10,
+    "starting_currency": { "gold": 10 },
+    "starting_equipment": [
+      { "id": "scholars_robes", "name": "Robes de sua ordem", "quantity": 1, "category": "clothing" },
+      { "id": "writing_kit", "name": "Kit de escrita (tinta, caneta, afiador de pena e pergaminhos)", "quantity": 1, "category": "tool" },
+      { "id": "borrowed_book", "name": "Um livro emprestado", "quantity": 1, "category": "book" }
+    ]
+  },
+  {
+    "id": "city_watch",
+    "name": "Guarda da Cidade",
+    "description": "Você serviu em uma cidade, sendo uma defesa contra o crime. Você não era um soldado, voltado contra possíveis inimigos, e sim proteger e policiar a população da cidade.",
+    "source": "scag",
+    "personality_from": "soldier",
+    "skills": ["athletics", "insight"],
+    "languages": 2,
+    "tools": [],
+    "feature_name": "Olho do Guardião",
+    "feature_description": "Sua experiência com proteger a lei lhe dá uma boa noção com leis locais. Você facilmente encontra o posto da guarda local e organizações similares, bem como antros de atividade criminosa.",
+    "starting_gold": 10,
+    "starting_currency": { "gold": 10 },
+    "starting_equipment": [
+      { "id": "uniform", "name": "Um uniforme", "quantity": 1, "category": "clothing" },
+      { "id": "signal_horn", "name": "Chifre de sinal", "quantity": 1, "category": "gear" },
+      { "id": "manacles", "name": "Grilhões", "quantity": 1, "category": "gear" }
+    ]
+  },
+  {
+    "id": "investigator",
+    "name": "Investigador",
+    "description": "Em vez de ser um guarda você era um detetive que resolvia crimes, uma profissão incomum no campo, mas que surge em regiões de tamanho decente.",
+    "source": "scag",
+    "variant_of": "city_watch",
+    "personality_from": "soldier",
+    "skills": ["investigation", "insight"],
+    "languages": 2,
+    "tools": [],
+    "feature_name": "Olho do Guardião",
+    "feature_description": "Sua experiência com proteger a lei lhe dá uma boa noção com leis locais. Você facilmente encontra o posto da guarda local e organizações similares, bem como antros de atividade criminosa.",
+    "starting_gold": 10,
+    "starting_currency": { "gold": 10 },
+    "starting_equipment": [
+      { "id": "uniform", "name": "Um uniforme", "quantity": 1, "category": "clothing" },
+      { "id": "signal_horn", "name": "Um chifre de sinal", "quantity": 1, "category": "gear" },
+      { "id": "manacles", "name": "Grilhões", "quantity": 1, "category": "gear" }
+    ]
+  },
+  {
+    "id": "inheritor",
+    "name": "Herdeiro",
+    "description": "Você herdou algo de grande valor, não apenas dinheiro e riqueza, mas um objeto que fora confiado apenas à você. A revelação dessa herança mudou sua vida e lhe colocou no caminho da aventura.",
+    "source": "scag",
+    "personality_from": "folk_hero",
+    "skills": ["survival"],
+    "skill_choices": {
+      "count": 1,
+      "label": "Um entre Arcanismo, História ou Religião",
+      "options": ["arcana", "history", "religion"]
+    },
+    "languages": 1,
+    "tools": ["Um instrumento musical ou um tipo de jogo"],
+    "feature_name": "Herança",
+    "feature_description": "Crie com o mestre uma herança ou escolha uma da lista. Ela servirá como gancho para o mestre, que criará junto com você mais detalhes. O item pode por exemplo ser crucial para algo, ou um item mágico menor que torna-se mais potente com o tempo.",
+    "starting_gold": 15,
+    "starting_currency": { "gold": 15 },
+    "starting_equipment": [
+      { "id": "inheritance", "name": "Sua herança", "quantity": 1, "category": "trinket" },
+      { "id": "travelers_clothes", "name": "Roupas de viajante", "quantity": 1, "category": "clothing" },
+      { "id": "chosen_instrument_or_gaming_set", "name": "O instrumento musical ou conjunto de jogos escolhido", "quantity": 1, "category": "tool" }
+    ],
+    "extra_choices": [
+      {
+        "id": "inheritance_kind",
+        "label": "Herança",
+        "die": "d8",
+        "options": [
+          { "roll": 1, "text": "Um documento, como um mapa, carta ou diário." },
+          { "roll": 2, "text": "Uma bugiganga." },
+          { "roll": 3, "text": "Uma bugiganga." },
+          { "roll": 4, "text": "Uma peça de vestuário." },
+          { "roll": 5, "text": "Uma joia." },
+          { "roll": 6, "text": "Um livro arcano ou de fórmulas." },
+          { "roll": 7, "text": "Uma história, poema ou segredo." },
+          { "roll": 8, "text": "Uma tatuagem ou marca corporal." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mercenary_veteran",
+    "name": "Mercenário Veterano",
+    "description": "Você lutava por dinheiro, e não por ideais, e está acostumado com arriscar a vida por uma fatia de tesouro. Sua experiência lhe torna familiar com a vida de aventureiro, e lhe rende boas histórias.",
+    "source": "scag",
+    "personality_from": "soldier",
+    "skills": ["athletics", "persuasion"],
+    "languages": 0,
+    "tools": ["Um tipo de jogo", "Veículos (terrestres)"],
+    "feature_name": "Vida de Mercenário",
+    "feature_description": "Você consegue identificar companhias mercenárias pelos símbolos, bem como sua reputação e comandantes. Você consegue encontrar tavernas que mercenários frequentam, e consegue trabalho mercenário entre aventuras.",
+    "starting_gold": 10,
+    "starting_currency": { "gold": 10 },
+    "starting_equipment": [
+      { "id": "uniform", "name": "Uniforme", "quantity": 1, "category": "clothing" },
+      { "id": "rank_insignia", "name": "Insígnia de posto", "quantity": 1, "category": "trinket" },
+      { "id": "gaming_set", "name": "Um jogo", "quantity": 1, "category": "tool" }
+    ]
+  },
+  {
+    "id": "pirate",
+    "name": "Pirata",
+    "description": "Você passou sua juventude debaixo de um terrível pirata, uma criatura feroz que lhe ensinou a sobreviver em um mundo de tubarões e selvagens.",
+    "source": "phb",
+    "variant_of": "sailor",
+    "personality_from": "sailor",
+    "skills": ["athletics", "perception"],
+    "languages": 0,
+    "tools": ["Ferramentas de navegação", "Veículos aquáticos"],
+    "feature_name": "Reputação Ruim",
+    "feature_description": "Não importa aonde você vá, as pessoas têm medo de sua reputação. Quando em terras civilizadas você consegue escapar de ofensas menores como não pagar uma bebida na taverna ou uma briga, porque a maioria das pessoas não tem coragem de te entregar para as autoridades.",
+    "starting_gold": 10,
+    "starting_currency": { "gold": 10 },
+    "starting_equipment": [
+      { "id": "club", "name": "Um porrete", "quantity": 1, "category": "weapon" },
+      { "id": "silk_rope_15m", "name": "15 m de corda de seda", "quantity": 1, "category": "gear" },
+      { "id": "lucky_charm", "name": "Um amuleto da sorte", "quantity": 1, "category": "trinket" },
+      { "id": "common_clothes", "name": "Roupas comuns", "quantity": 1, "category": "clothing" }
+    ]
+  },
+  {
+    "id": "knight",
+    "name": "Cavaleiro",
+    "description": "O título de Cavaleiro é um dos menores na nobreza de muitas sociedades, mas pode ser o caminho para uma posição mais elevada. Um de seus servos é um nobre que serve como escudeiro em troca de treinamento.",
+    "source": "phb",
+    "variant_of": "noble",
+    "personality_from": "noble",
+    "skills": ["history", "persuasion"],
+    "languages": 1,
+    "tools": ["Um tipo de jogo à escolha"],
+    "feature_name": "Servos",
+    "feature_description": "Você tem o serviço de até três servos fiéis à sua família, atendentes, mensageiro, mordomos, etc. Seus servos são plebeus que realizam funções simples, mas não lutam por você nem o acompanham em situações perigosas.",
+    "starting_gold": 25,
+    "starting_currency": { "gold": 25 },
+    "starting_equipment": [
+      { "id": "fine_clothes", "name": "Roupas finas", "quantity": 1, "category": "clothing" },
+      { "id": "signet_ring", "name": "Um anel de sinete", "quantity": 1, "category": "trinket" },
+      { "id": "pedigree_scroll", "name": "Um documento de linhagem", "quantity": 1, "category": "gear" },
+      { "id": "lords_banner", "name": "Uma bandeira ou outro símbolo do lorde ou da lady a quem jurou devoção", "quantity": 1, "category": "trinket" }
+    ]
   }
 ]

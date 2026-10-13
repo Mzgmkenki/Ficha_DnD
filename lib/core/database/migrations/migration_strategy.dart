@@ -385,6 +385,38 @@ MigrationStrategy buildMigrationStrategy(AppDatabase db) {
           'WHERE skill_proficiency_grants IS NULL',
         );
       }
+
+      if (from < 17) {
+        // Inventário do personagem e rastro de origem do dinheiro.
+        //
+        // As duas tabelas nascem vazias de propósito. Popular o inventário a
+        // partir das armas e dos itens mágicos já cadastrados pareceria
+        // simpático, mas duplicaria o que já aparece naquelas seções: a espada
+        // apareceria em "Armas" e de novo em "Inventário", e consumir uma
+        // delas não mexeria na outra. Quem quiser a arma listada também no
+        // inventário adiciona o item e usa o vínculo
+        // (`linked_weapon_local_id`), que é explícito.
+        await _tryCreateTable(m, db.characterInventoryItems);
+        await _tryCreateTable(m, db.characterCurrencyGrants);
+
+        // Traços, ideal, vínculo e defeito escolhidos no antecedente.
+        await _tryAddColumn(
+          m,
+          db.characters,
+          db.characters.backgroundPersonalityChoices,
+        );
+
+        // Personagem anterior a esta versão não tem escolhas narrativas, e
+        // sortear por conta própria seria inventar decisão do jogador. Fica a
+        // lista vazia: a ficha mostra o antecedente normalmente, só sem a
+        // seção de personalidade, e a criação de personagem novo é que passa a
+        // pedir as escolhas.
+        await _tryQuery(
+          db,
+          "UPDATE characters SET background_personality_choices = '[]' "
+          'WHERE background_personality_choices IS NULL',
+        );
+      }
     },
     beforeOpen: (details) async {
       // Roda fora da transação de migração, então aqui é seguro usar `db`.

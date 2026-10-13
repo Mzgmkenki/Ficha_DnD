@@ -9,13 +9,18 @@ import 'package:dnd_ficha_app/core/theme/app_colors.dart';
 import 'package:dnd_ficha_app/core/utils/distance_format.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/background_personality_choice.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/combat_stats.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/currency.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/currency_grant.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/custom_background.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/inventory_item.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiency_grant.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/background_grants.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/standard_array.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/alignment.dart';
@@ -23,6 +28,7 @@ import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart
 import 'package:dnd_ficha_app/features/character/domain/value_objects/spellcasting_type.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/portrait_crop_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/alignment_field.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/background_personality_form.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/custom_background_form.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/portrait_avatar.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/subclass_summary.dart';
@@ -69,6 +75,26 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
   /// Substituições explícitas quando uma perícia fixa do antecedente já foi
   /// adquirida em outra etapa. A chave é a perícia original do antecedente.
   final Map<String, String> _backgroundSkillReplacements = {};
+
+  /// Traço, ideal, vínculo e defeito escolhidos no antecedente.
+  ///
+  /// Começa vazio: nenhuma opção é pré-selecionada, porque escolher a primeira
+  /// linha da tabela decidiria a personagem pelo jogador. Mora no State, então
+  /// sobrevive a cada reconstrução do formulário.
+  BackgroundPersonalitySelection _personalitySelection =
+      BackgroundPersonalitySelection.empty;
+
+  /// Equipamento concedido pelo antecedente, já com a origem registrada.
+  ///
+  /// É calculado na troca de antecedente e não na gravação para a tela poder
+  /// mostrar o que o jogador vai receber antes de concluir.
+  List<InventoryItem> _grantedInventory = const [];
+
+  /// Dinheiro concedido pelo antecedente, com a origem registrada.
+  List<CurrencyGrant> _grantedCurrency = const [];
+
+  /// Carteira montada a partir das concessões.
+  Currency _wallet = const Currency();
 
   /// Recorte confirmado, ainda não copiado para o diretório do app.
   ///
@@ -414,10 +440,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                                 )
                                 .toList(),
                         onChanged: (value) {
-                          setState(() {
-                            _selectedBackgroundId = value;
-                            _backgroundSkillReplacements.clear();
-                          });
+                          _onBackgroundChanged(value, backgrounds);
                         },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -432,6 +455,13 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                         ..._buildBackgroundReplacementSection(
                           selectedBackground,
                           creationSkills,
+                        ),
+                        BackgroundPersonalityForm(
+                          personality: selectedBackground.personality,
+                          selection: _personalitySelection,
+                          onChanged: (value) => setState(
+                            () => _personalitySelection = value,
+                          ),
                         ),
                       ],
                       if (_isCustomBackground)
@@ -550,6 +580,52 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
         loading: () => const Center(child: CircularProgressIndicator()),
       ),
     );
+  }
+
+  /// Reage à troca de antecedente.
+  ///
+  /// A decisão do que sai e do que entra é toda do domínio
+  /// (`BackgroundGrants`): aqui só se guarda o resultado e se avisa o jogador.
+  /// Em particular, escolha de personalidade que continua válida no antecedente
+  /// novo é preservada — Criminoso e Espião compartilham as tabelas, e obrigar
+  /// a refazer tudo seria trabalho à toa.
+  void _onBackgroundChanged(
+    String? value,
+    List<BackgroundEntry> backgrounds,
+  ) {
+    BackgroundEntry? next;
+    for (final item in backgrounds) {
+      if (item.id == value) {
+        next = item;
+        break;
+      }
+    }
+
+    final result = BackgroundGrants.apply(
+      background: next,
+      inventory: _grantedInventory,
+      wallet: _wallet,
+      currencyGrants: _grantedCurrency,
+      personality: _personalitySelection,
+    );
+
+    setState(() {
+      _selectedBackgroundId = value;
+      _backgroundSkillReplacements.clear();
+      _grantedInventory = result.inventory;
+      _grantedCurrency = result.currencyGrants;
+      _wallet = result.wallet;
+      _personalitySelection = result.personality;
+    });
+
+    // Avisa só quando há o que avisar: trocar entre dois antecedentes que
+    // compartilham tabela não perde nada, e um aviso nesse caso seria ruído.
+    final notice = BackgroundGrants.changeNotice(result);
+    if (notice == null || !mounted) return;
+
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(SnackBar(content: Text(notice)));
   }
 
   BackgroundEntry? _findBackground(List<BackgroundEntry> backgrounds) {
@@ -737,6 +813,20 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
       return;
     }
 
+    // Personalidade: a seção também sai da viewport, então a contagem é
+    // checada aqui contra o estado. Antecedente sem tabelas devolve `null` e
+    // não gera pendência — é o que mantém a criação funcionando para dado
+    // incompleto e para o antecedente customizável.
+    final personalityError = background == null
+        ? null
+        : _personalitySelection.validationError(background.personality);
+    if (personalityError != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(personalityError)));
+      return;
+    }
+
     setState(() {
       _saving = true;
     });
@@ -791,6 +881,17 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
         savingThrowProficiencies: _savingThrowsForClass(selectedClass),
         skillProficiencies: skillSelection.toProficiencies(),
         skillProficiencyGrants: skillSelection.grants,
+
+        // Equipamento, dinheiro e personalidade do antecedente.
+        //
+        // Os três já foram resolvidos na troca de antecedente, com a origem
+        // registrada, então aqui é só repassar. Recalcular neste ponto
+        // arriscaria aplicar de novo o que já estava aplicado.
+        inventory: _grantedInventory,
+        currency: _wallet,
+        currencyGrants: _grantedCurrency,
+        backgroundPersonalityChoices: _personalitySelection.choices,
+
         createdAt: now,
         updatedAt: now,
       );

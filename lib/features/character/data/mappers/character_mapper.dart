@@ -1,4 +1,5 @@
 import 'package:dnd_ficha_app/core/database/app_database.dart';
+import 'package:dnd_ficha_app/features/character/data/mappers/background_personality_codec.dart';
 import 'package:dnd_ficha_app/features/character/data/mappers/character_creation_metadata_codec.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart'
@@ -128,6 +129,9 @@ class CharacterMapper {
       ),
       skillProficiencyGrants: CharacterCreationMetadataCodec.decodeSkillGrants(
         character.skillProficiencyGrants,
+      ),
+      backgroundPersonalityChoices: BackgroundPersonalityCodec.decode(
+        character.backgroundPersonalityChoices,
       ),
 
       feats: feats

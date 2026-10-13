@@ -1,7 +1,12 @@
 import 'package:dnd_ficha_app/core/utils/html_text.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/currency.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/item_category.dart';
 import 'package:dnd_ficha_app/features/compendium/data/sources/srd_asset_source.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/ability_bonus_mode.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/background_choices.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/background_equipment.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/background_personality.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_entry.dart';
@@ -148,9 +153,39 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
     final items =
         await _source.loadJsonList('assets/data/srd/backgrounds.json');
 
-    final entries = items.map((item) {
+    // Primeira passada: só as tabelas narrativas de quem as declara.
+    //
+    // É preciso ter todas antes de montar as entradas porque o livro deixa um
+    // antecedente reaproveitar as tabelas de outro ("Este antecedente usa as
+    // tabelas oficiais de Acólito"), e o dono pode aparecer depois no arquivo.
+    // Guardar a referência em vez de repetir as 26 opções evita que a mesma
+    // tabela exista em cinco cópias que depois divergem entre si.
+    final tablesByOwner = <String, BackgroundPersonality>{};
+    for (final raw in items) {
+      final item = _asMap(raw);
+      final ownerId = (item['id'] as String?)?.trim();
+      if (ownerId == null || ownerId.isEmpty) continue;
+
+      final tables = _parsePersonalityTables(ownerId, item);
+      if (tables != null) tablesByOwner[ownerId] = tables;
+    }
+
+    final entries = items.map((raw) {
+      final item = _asMap(raw);
+      final id = item['id'] as String;
+      final inheritFrom = (item['personality_from'] as String?)?.trim();
+
+      // Tabelas próprias quando existem; senão as do antecedente apontado.
+      // Referência quebrada cai em "sem personalidade" em vez de lançar: um
+      // antecedente sem traços continua jogável, e derrubar o compêndio
+      // inteiro por causa de uma linha de dado seria pior.
+      final tables = tablesByOwner[id] ??
+          (inheritFrom == null ? null : tablesByOwner[inheritFrom]);
+
+      final startingGold = _asInt(item['starting_gold']) ?? 0;
+
       return BackgroundEntry(
-        id: item['id'] as String,
+        id: id,
         name: item['name'] as String,
         description: item['description'] as String?,
         skillIds: _asList(item['skills'])
@@ -162,8 +197,21 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
             .toList(growable: false),
         featureName: item['feature_name'] as String?,
         featureDescription: item['feature_description'] as String?,
-        startingGold: _asInt(item['starting_gold']) ?? 0,
+        startingGold: startingGold,
         source: item['source'] as String? ?? 'phb',
+        variantOf: (item['variant_of'] as String?)?.trim(),
+        personality: _personalityFor(tables, item),
+        startingCurrency: _parseStartingCurrency(item, startingGold),
+        startingEquipment: _parseEquipmentItems(
+          _asList(item['starting_equipment']),
+        ),
+        equipmentChoices: _parseEquipmentChoices(
+          _asList(item['equipment_choices']),
+        ),
+        skillChoice: _parseBackgroundSkillChoice(item['skill_choices']),
+        extraChoices: _parseExtraChoices(_asList(item['extra_choices'])),
+        featureOptions: _parseFeatureOptions(_asList(item['feature_options'])),
+        specialty: (item['specialty'] as String?)?.trim(),
       );
     }).toList();
 
@@ -175,6 +223,294 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
     }
 
     return List<BackgroundEntry>.unmodifiable(entries);
+  }
+
+  /// Lê as quatro tabelas narrativas declaradas pelo próprio antecedente.
+  ///
+  /// Devolve `null` quando ele não declara nenhuma — é o caso de quem herda as
+  /// tabelas de outro, e de quem simplesmente não tem.
+  BackgroundPersonality? _parsePersonalityTables(
+    String ownerId,
+    Map<String, dynamic> item,
+  ) {
+    final traits = _parsePersonalityTable(
+      ownerId,
+      PersonalityCategory.trait,
+      item['personality_traits'],
+    );
+    final ideals = _parsePersonalityTable(
+      ownerId,
+      PersonalityCategory.ideal,
+      item['ideals'],
+    );
+    final bonds = _parsePersonalityTable(
+      ownerId,
+      PersonalityCategory.bond,
+      item['bonds'],
+    );
+    final flaws = _parsePersonalityTable(
+      ownerId,
+      PersonalityCategory.flaw,
+      item['flaws'],
+    );
+
+    if (traits == null && ideals == null && bonds == null && flaws == null) {
+      return null;
+    }
+
+    return BackgroundPersonality(
+      sourceId: ownerId,
+      traits: traits ?? PersonalityTable.noTraits,
+      ideals: ideals ?? PersonalityTable.noIdeals,
+      bonds: bonds ?? PersonalityTable.noBonds,
+      flaws: flaws ?? PersonalityTable.noFlaws,
+      // As contagens do dono ficam guardadas junto das tabelas para servirem
+      // de base a quem as reaproveita: a variante segue a regra do
+      // antecedente-base, e repetir os quatro números em cada entrada que
+      // herda só criaria oportunidade de divergirem.
+      traitChoiceCount: _asInt(item['personality_trait_choices']) ?? 0,
+      idealChoiceCount: _asInt(item['ideal_choices']) ?? 0,
+      bondChoiceCount: _asInt(item['bond_choices']) ?? 0,
+      flawChoiceCount: _asInt(item['flaw_choices']) ?? 0,
+    );
+  }
+
+  PersonalityTable? _parsePersonalityTable(
+    String ownerId,
+    PersonalityCategory category,
+    dynamic raw,
+  ) {
+    if (raw == null) return null;
+
+    final map = _asMap(raw);
+    final parsed = <PersonalityOption>[];
+
+    for (final optionRaw in _asList(map['options'])) {
+      final option = _asMap(optionRaw);
+      final roll = _asInt(option['roll']);
+      final text = (option['text'] as String?)?.trim();
+      // Linha sem resultado de dado ou sem texto é descartada em silêncio: ela
+      // não teria id estável nem nada para mostrar ao jogador.
+      if (roll == null || text == null || text.isEmpty) continue;
+
+      final name = (option['name'] as String?)?.trim();
+
+      parsed.add(
+        PersonalityOption(
+          // O id deriva do DONO da tabela, não de quem a usa. Assim Acólito e
+          // Agente compartilham os mesmos ids e trocar entre os dois não
+          // invalida a escolha já feita.
+          id: '$ownerId.${category.id}.$roll',
+          category: category,
+          roll: roll,
+          text: text,
+          name: name == null || name.isEmpty ? null : name,
+        ),
+      );
+    }
+
+    if (parsed.isEmpty) return null;
+
+    return PersonalityTable(
+      category: category,
+      die: (map['die'] as String?)?.trim() ?? '',
+      options: List<PersonalityOption>.unmodifiable(parsed),
+    );
+  }
+
+  /// Combina as tabelas (que podem vir de outro antecedente) com as contagens
+  /// de escolha.
+  ///
+  /// A entrada que usa as tabelas pode declarar as próprias contagens; quando
+  /// não declara, herda as do dono das tabelas. É isso que faz o Espião pedir
+  /// dois traços sem ter que repetir o número: o livro manda a variante seguir
+  /// a regra do antecedente-base.
+  BackgroundPersonality _personalityFor(
+    BackgroundPersonality? tables,
+    Map<String, dynamic> item,
+  ) {
+    if (tables == null) return BackgroundPersonality.none;
+
+    return BackgroundPersonality(
+      sourceId: tables.sourceId,
+      traits: tables.traits,
+      ideals: tables.ideals,
+      bonds: tables.bonds,
+      flaws: tables.flaws,
+      traitChoiceCount: _asInt(item['personality_trait_choices']) ??
+          tables.traitChoiceCount,
+      idealChoiceCount:
+          _asInt(item['ideal_choices']) ?? tables.idealChoiceCount,
+      bondChoiceCount: _asInt(item['bond_choices']) ?? tables.bondChoiceCount,
+      flawChoiceCount: _asInt(item['flaw_choices']) ?? tables.flawChoiceCount,
+    );
+  }
+
+  /// Moedas concedidas. Cai no ouro solto quando o antecedente só declara ele,
+  /// que é o formato do compêndio antigo.
+  Currency _parseStartingCurrency(
+    Map<String, dynamic> item,
+    int startingGold,
+  ) {
+    final raw = item['starting_currency'];
+    if (raw == null) {
+      return startingGold > 0 ? Currency(gold: startingGold) : const Currency();
+    }
+
+    final map = _asMap(raw);
+
+    // Negativo é descartado: antecedente não cobra dinheiro do personagem.
+    int coin(String key) {
+      final value = _asInt(map[key]) ?? 0;
+      return value < 0 ? 0 : value;
+    }
+
+    return Currency(
+      copper: coin('copper'),
+      silver: coin('silver'),
+      electrum: coin('electrum'),
+      gold: coin('gold'),
+      platinum: coin('platinum'),
+    );
+  }
+
+  List<BackgroundEquipmentItem> _parseEquipmentItems(List<dynamic> raw) {
+    final result = <BackgroundEquipmentItem>[];
+
+    for (final entry in raw) {
+      final map = _asMap(entry);
+      final id = (map['id'] as String?)?.trim();
+      final name = (map['name'] as String?)?.trim();
+      // Sem id não há como rastrear a origem na troca de antecedente, e sem
+      // nome não há o que mostrar. Nos dois casos o item é ignorado.
+      if (id == null || id.isEmpty) continue;
+      if (name == null || name.isEmpty) continue;
+
+      final quantity = _asInt(map['quantity']) ?? 1;
+
+      result.add(
+        BackgroundEquipmentItem(
+          id: id,
+          name: name,
+          quantity: quantity < 1 ? 1 : quantity,
+          category: ItemCategory.fromIdOrOther(map['category'] as String?),
+        ),
+      );
+    }
+
+    return List<BackgroundEquipmentItem>.unmodifiable(result);
+  }
+
+  List<BackgroundEquipmentChoice> _parseEquipmentChoices(List<dynamic> raw) {
+    final result = <BackgroundEquipmentChoice>[];
+
+    for (final entry in raw) {
+      final map = _asMap(entry);
+      final id = (map['id'] as String?)?.trim();
+      if (id == null || id.isEmpty) continue;
+
+      final options = <BackgroundEquipmentOption>[];
+      for (final optionRaw in _asList(map['options'])) {
+        final option = _asMap(optionRaw);
+        final optionId = (option['id'] as String?)?.trim();
+        if (optionId == null || optionId.isEmpty) continue;
+
+        options.add(
+          BackgroundEquipmentOption(
+            id: optionId,
+            label: (option['label'] as String?)?.trim() ?? optionId,
+            items: _parseEquipmentItems(_asList(option['items'])),
+          ),
+        );
+      }
+
+      if (options.isEmpty) continue;
+
+      result.add(
+        BackgroundEquipmentChoice(
+          id: id,
+          label: (map['label'] as String?)?.trim() ?? '',
+          count: _asInt(map['count']) ?? 1,
+          options: List<BackgroundEquipmentOption>.unmodifiable(options),
+        ),
+      );
+    }
+
+    return List<BackgroundEquipmentChoice>.unmodifiable(result);
+  }
+
+  BackgroundSkillChoice? _parseBackgroundSkillChoice(dynamic raw) {
+    if (raw == null) return null;
+
+    final map = _asMap(raw);
+    final count = _asInt(map['count']) ?? 0;
+    final ids = _asList(map['options'])
+        .map((e) => e.toString())
+        .where((e) => e.trim().isNotEmpty)
+        .toList(growable: false);
+
+    if (count <= 0 || ids.isEmpty) return null;
+
+    return BackgroundSkillChoice(
+      count: count,
+      label: (map['label'] as String?)?.trim(),
+      skillIds: ids,
+    );
+  }
+
+  List<BackgroundExtraChoice> _parseExtraChoices(List<dynamic> raw) {
+    final result = <BackgroundExtraChoice>[];
+
+    for (final entry in raw) {
+      final map = _asMap(entry);
+      final id = (map['id'] as String?)?.trim();
+      if (id == null || id.isEmpty) continue;
+
+      final options = <BackgroundTableOption>[];
+      for (final optionRaw in _asList(map['options'])) {
+        final option = _asMap(optionRaw);
+        final roll = _asInt(option['roll']);
+        final text = (option['text'] as String?)?.trim();
+        if (roll == null || text == null || text.isEmpty) continue;
+
+        options.add(BackgroundTableOption(roll: roll, text: text));
+      }
+
+      if (options.isEmpty) continue;
+
+      result.add(
+        BackgroundExtraChoice(
+          id: id,
+          label: (map['label'] as String?)?.trim() ?? '',
+          die: (map['die'] as String?)?.trim() ?? '',
+          options: List<BackgroundTableOption>.unmodifiable(options),
+        ),
+      );
+    }
+
+    return List<BackgroundExtraChoice>.unmodifiable(result);
+  }
+
+  List<BackgroundFeatureOption> _parseFeatureOptions(List<dynamic> raw) {
+    final result = <BackgroundFeatureOption>[];
+
+    for (final entry in raw) {
+      final map = _asMap(entry);
+      final id = (map['id'] as String?)?.trim();
+      final name = (map['name'] as String?)?.trim();
+      if (id == null || id.isEmpty) continue;
+      if (name == null || name.isEmpty) continue;
+
+      result.add(
+        BackgroundFeatureOption(
+          id: id,
+          name: name,
+          description: (map['description'] as String?)?.trim(),
+        ),
+      );
+    }
+
+    return List<BackgroundFeatureOption>.unmodifiable(result);
   }
 
   @override

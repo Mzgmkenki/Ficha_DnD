@@ -17,6 +17,7 @@ import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/comb
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/currency_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/death_saves_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/feats_panel.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/inventory_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/magic_items_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/racial_traits_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/saving_throws_panel.dart';
@@ -71,6 +72,23 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
   // Os resumos de Condições e de Recursos moravam aqui. Foram para
   // `CombatPanelSummary`, que alimenta ao mesmo tempo o botão do Painel de
   // combate e os indicadores das abas — duas contas separadas divergiriam.
+
+  /// Resumo do Inventário: quantos itens e quantos estão equipados.
+  ///
+  /// O peso total não entra: o app não tem tabela de pesos, então a soma só
+  /// cobriria os itens em que o jogador digitou o peso à mão e daria a
+  /// impressão errada de ser o total carregado.
+  String _inventorySummary(Character character) {
+    final items = character.inventory;
+    if (items.isEmpty) return 'Nenhum item registrado';
+
+    final count = items.length;
+    final equipped = items.where((item) => item.equipped).length;
+    final label = '$count ${count == 1 ? 'item' : 'itens'}';
+
+    return equipped == 0 ? label : '$label · $equipped equipado'
+        '${equipped == 1 ? '' : 's'}';
+  }
 
   /// Resumo de Testes contra a morte: o estado alcançado ou a contagem.
   String _deathSavesSummary(Character character) {
@@ -422,6 +440,19 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                   const SizedBox(height: 8),
                   MagicItemsPanel(character: character),
 
+                  const SizedBox(height: 16),
+                  CollapsibleSection(
+                    id: 'inventory',
+                    title: 'Inventário',
+                    summary: _inventorySummary(character),
+                    isExpanded: _isOpen('inventory'),
+                    onExpansionChanged: (value) => _setOpen('inventory', value),
+                    child: InventoryPanel(character: character),
+                  ),
+
+                  // As moedas ficam logo depois do inventário de propósito: em
+                  // mesa comprar e vender é uma coisa só, e o dinheiro inicial
+                  // do antecedente entra junto com o equipamento dele.
                   const SizedBox(height: 16),
                   CurrencyPanel(character: character),
 

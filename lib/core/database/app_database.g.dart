@@ -232,6 +232,18 @@ class $CharactersTable extends Characters
         requiredDuringInsert: false,
         defaultValue: const Constant('[]'),
       );
+  static const VerificationMeta _backgroundPersonalityChoicesMeta =
+      const VerificationMeta('backgroundPersonalityChoices');
+  @override
+  late final GeneratedColumn<String> backgroundPersonalityChoices =
+      GeneratedColumn<String>(
+        'background_personality_choices',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('[]'),
+      );
   static const VerificationMeta _armorClassMeta = const VerificationMeta(
     'armorClass',
   );
@@ -1063,6 +1075,7 @@ class $CharactersTable extends Characters
     baseAbilityScores,
     originAbilityBonuses,
     skillProficiencyGrants,
+    backgroundPersonalityChoices,
     armorClass,
     initiativeBonus,
     speed,
@@ -1286,6 +1299,15 @@ class $CharactersTable extends Characters
         skillProficiencyGrants.isAcceptableOrUnknown(
           data['skill_proficiency_grants']!,
           _skillProficiencyGrantsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('background_personality_choices')) {
+      context.handle(
+        _backgroundPersonalityChoicesMeta,
+        backgroundPersonalityChoices.isAcceptableOrUnknown(
+          data['background_personality_choices']!,
+          _backgroundPersonalityChoicesMeta,
         ),
       );
     }
@@ -1913,6 +1935,11 @@ class $CharactersTable extends Characters
             DriftSqlType.string,
             data['${effectivePrefix}skill_proficiency_grants'],
           )!,
+      backgroundPersonalityChoices:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}background_personality_choices'],
+          )!,
       armorClass:
           attachedDatabase.typeMapping.read(
             DriftSqlType.int,
@@ -2272,6 +2299,18 @@ class Character extends DataClass implements Insertable<Character> {
 
   /// Origem das proficiências adquiridas durante a criação, em JSON.
   final String skillProficiencyGrants;
+
+  /// Traços, ideal, vínculo e defeito escolhidos no antecedente, em JSON.
+  ///
+  /// JSON e não tabela filha porque o conjunto é minúsculo (cinco entradas no
+  /// padrão 2014), é sempre lido e gravado inteiro, e cada entrada precisa
+  /// guardar dois campos alternativos — o id da opção OU o texto que o jogador
+  /// escreveu. CSV não daria conta do texto livre, que pode ter vírgula.
+  ///
+  /// Guarda o IDENTIFICADOR da opção, não o texto: assim corrigir uma frase do
+  /// compêndio corrige a ficha, e o texto não fica duplicado em cada
+  /// personagem. Ver `BackgroundPersonalityChoice`.
+  final String backgroundPersonalityChoices;
   final int armorClass;
   final int initiativeBonus;
 
@@ -2382,6 +2421,7 @@ class Character extends DataClass implements Insertable<Character> {
     this.baseAbilityScores,
     this.originAbilityBonuses,
     required this.skillProficiencyGrants,
+    required this.backgroundPersonalityChoices,
     required this.armorClass,
     required this.initiativeBonus,
     required this.speed,
@@ -2486,6 +2526,9 @@ class Character extends DataClass implements Insertable<Character> {
       map['origin_ability_bonuses'] = Variable<String>(originAbilityBonuses);
     }
     map['skill_proficiency_grants'] = Variable<String>(skillProficiencyGrants);
+    map['background_personality_choices'] = Variable<String>(
+      backgroundPersonalityChoices,
+    );
     map['armor_class'] = Variable<int>(armorClass);
     map['initiative_bonus'] = Variable<int>(initiativeBonus);
     map['speed'] = Variable<int>(speed);
@@ -2599,6 +2642,7 @@ class Character extends DataClass implements Insertable<Character> {
               ? const Value.absent()
               : Value(originAbilityBonuses),
       skillProficiencyGrants: Value(skillProficiencyGrants),
+      backgroundPersonalityChoices: Value(backgroundPersonalityChoices),
       armorClass: Value(armorClass),
       initiativeBonus: Value(initiativeBonus),
       speed: Value(speed),
@@ -2705,6 +2749,9 @@ class Character extends DataClass implements Insertable<Character> {
       skillProficiencyGrants: serializer.fromJson<String>(
         json['skillProficiencyGrants'],
       ),
+      backgroundPersonalityChoices: serializer.fromJson<String>(
+        json['backgroundPersonalityChoices'],
+      ),
       armorClass: serializer.fromJson<int>(json['armorClass']),
       initiativeBonus: serializer.fromJson<int>(json['initiativeBonus']),
       speed: serializer.fromJson<int>(json['speed']),
@@ -2801,6 +2848,9 @@ class Character extends DataClass implements Insertable<Character> {
       'skillProficiencyGrants': serializer.toJson<String>(
         skillProficiencyGrants,
       ),
+      'backgroundPersonalityChoices': serializer.toJson<String>(
+        backgroundPersonalityChoices,
+      ),
       'armorClass': serializer.toJson<int>(armorClass),
       'initiativeBonus': serializer.toJson<int>(initiativeBonus),
       'speed': serializer.toJson<int>(speed),
@@ -2887,6 +2937,7 @@ class Character extends DataClass implements Insertable<Character> {
     Value<String?> baseAbilityScores = const Value.absent(),
     Value<String?> originAbilityBonuses = const Value.absent(),
     String? skillProficiencyGrants,
+    String? backgroundPersonalityChoices,
     int? armorClass,
     int? initiativeBonus,
     int? speed,
@@ -2982,6 +3033,8 @@ class Character extends DataClass implements Insertable<Character> {
             : this.originAbilityBonuses,
     skillProficiencyGrants:
         skillProficiencyGrants ?? this.skillProficiencyGrants,
+    backgroundPersonalityChoices:
+        backgroundPersonalityChoices ?? this.backgroundPersonalityChoices,
     armorClass: armorClass ?? this.armorClass,
     initiativeBonus: initiativeBonus ?? this.initiativeBonus,
     speed: speed ?? this.speed,
@@ -3098,6 +3151,10 @@ class Character extends DataClass implements Insertable<Character> {
           data.skillProficiencyGrants.present
               ? data.skillProficiencyGrants.value
               : this.skillProficiencyGrants,
+      backgroundPersonalityChoices:
+          data.backgroundPersonalityChoices.present
+              ? data.backgroundPersonalityChoices.value
+              : this.backgroundPersonalityChoices,
       armorClass:
           data.armorClass.present ? data.armorClass.value : this.armorClass,
       initiativeBonus:
@@ -3325,6 +3382,9 @@ class Character extends DataClass implements Insertable<Character> {
           ..write('baseAbilityScores: $baseAbilityScores, ')
           ..write('originAbilityBonuses: $originAbilityBonuses, ')
           ..write('skillProficiencyGrants: $skillProficiencyGrants, ')
+          ..write(
+            'backgroundPersonalityChoices: $backgroundPersonalityChoices, ',
+          )
           ..write('armorClass: $armorClass, ')
           ..write('initiativeBonus: $initiativeBonus, ')
           ..write('speed: $speed, ')
@@ -3413,6 +3473,7 @@ class Character extends DataClass implements Insertable<Character> {
     baseAbilityScores,
     originAbilityBonuses,
     skillProficiencyGrants,
+    backgroundPersonalityChoices,
     armorClass,
     initiativeBonus,
     speed,
@@ -3500,6 +3561,8 @@ class Character extends DataClass implements Insertable<Character> {
           other.baseAbilityScores == this.baseAbilityScores &&
           other.originAbilityBonuses == this.originAbilityBonuses &&
           other.skillProficiencyGrants == this.skillProficiencyGrants &&
+          other.backgroundPersonalityChoices ==
+              this.backgroundPersonalityChoices &&
           other.armorClass == this.armorClass &&
           other.initiativeBonus == this.initiativeBonus &&
           other.speed == this.speed &&
@@ -3585,6 +3648,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
   final Value<String?> baseAbilityScores;
   final Value<String?> originAbilityBonuses;
   final Value<String> skillProficiencyGrants;
+  final Value<String> backgroundPersonalityChoices;
   final Value<int> armorClass;
   final Value<int> initiativeBonus;
   final Value<int> speed;
@@ -3669,6 +3733,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.baseAbilityScores = const Value.absent(),
     this.originAbilityBonuses = const Value.absent(),
     this.skillProficiencyGrants = const Value.absent(),
+    this.backgroundPersonalityChoices = const Value.absent(),
     this.armorClass = const Value.absent(),
     this.initiativeBonus = const Value.absent(),
     this.speed = const Value.absent(),
@@ -3754,6 +3819,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.baseAbilityScores = const Value.absent(),
     this.originAbilityBonuses = const Value.absent(),
     this.skillProficiencyGrants = const Value.absent(),
+    this.backgroundPersonalityChoices = const Value.absent(),
     this.armorClass = const Value.absent(),
     this.initiativeBonus = const Value.absent(),
     this.speed = const Value.absent(),
@@ -3842,6 +3908,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Expression<String>? baseAbilityScores,
     Expression<String>? originAbilityBonuses,
     Expression<String>? skillProficiencyGrants,
+    Expression<String>? backgroundPersonalityChoices,
     Expression<int>? armorClass,
     Expression<int>? initiativeBonus,
     Expression<int>? speed,
@@ -3932,6 +3999,8 @@ class CharactersCompanion extends UpdateCompanion<Character> {
         'origin_ability_bonuses': originAbilityBonuses,
       if (skillProficiencyGrants != null)
         'skill_proficiency_grants': skillProficiencyGrants,
+      if (backgroundPersonalityChoices != null)
+        'background_personality_choices': backgroundPersonalityChoices,
       if (armorClass != null) 'armor_class': armorClass,
       if (initiativeBonus != null) 'initiative_bonus': initiativeBonus,
       if (speed != null) 'speed': speed,
@@ -4023,6 +4092,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Value<String?>? baseAbilityScores,
     Value<String?>? originAbilityBonuses,
     Value<String>? skillProficiencyGrants,
+    Value<String>? backgroundPersonalityChoices,
     Value<int>? armorClass,
     Value<int>? initiativeBonus,
     Value<int>? speed,
@@ -4111,6 +4181,8 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       originAbilityBonuses: originAbilityBonuses ?? this.originAbilityBonuses,
       skillProficiencyGrants:
           skillProficiencyGrants ?? this.skillProficiencyGrants,
+      backgroundPersonalityChoices:
+          backgroundPersonalityChoices ?? this.backgroundPersonalityChoices,
       armorClass: armorClass ?? this.armorClass,
       initiativeBonus: initiativeBonus ?? this.initiativeBonus,
       speed: speed ?? this.speed,
@@ -4248,6 +4320,11 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     if (skillProficiencyGrants.present) {
       map['skill_proficiency_grants'] = Variable<String>(
         skillProficiencyGrants.value,
+      );
+    }
+    if (backgroundPersonalityChoices.present) {
+      map['background_personality_choices'] = Variable<String>(
+        backgroundPersonalityChoices.value,
       );
     }
     if (armorClass.present) {
@@ -4465,6 +4542,9 @@ class CharactersCompanion extends UpdateCompanion<Character> {
           ..write('baseAbilityScores: $baseAbilityScores, ')
           ..write('originAbilityBonuses: $originAbilityBonuses, ')
           ..write('skillProficiencyGrants: $skillProficiencyGrants, ')
+          ..write(
+            'backgroundPersonalityChoices: $backgroundPersonalityChoices, ',
+          )
           ..write('armorClass: $armorClass, ')
           ..write('initiativeBonus: $initiativeBonus, ')
           ..write('speed: $speed, ')
@@ -8863,6 +8943,1849 @@ class CharacterFeatsCompanion extends UpdateCompanion<CharacterFeat> {
   }
 }
 
+class $CharacterInventoryItemsTable extends CharacterInventoryItems
+    with TableInfo<$CharacterInventoryItemsTable, CharacterInventoryItem> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CharacterInventoryItemsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _localIdMeta = const VerificationMeta(
+    'localId',
+  );
+  @override
+  late final GeneratedColumn<int> localId = GeneratedColumn<int>(
+    'local_id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _characterIdMeta = const VerificationMeta(
+    'characterId',
+  );
+  @override
+  late final GeneratedColumn<String> characterId = GeneratedColumn<String>(
+    'character_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES characters (id)',
+    ),
+  );
+  static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
+  @override
+  late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
+    'item_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _quantityMeta = const VerificationMeta(
+    'quantity',
+  );
+  @override
+  late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
+    'quantity',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _weightMeta = const VerificationMeta('weight');
+  @override
+  late final GeneratedColumn<double> weight = GeneratedColumn<double>(
+    'weight',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _categoryMeta = const VerificationMeta(
+    'category',
+  );
+  @override
+  late final GeneratedColumn<String> category = GeneratedColumn<String>(
+    'category',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('gear'),
+  );
+  static const VerificationMeta _isEquippedMeta = const VerificationMeta(
+    'isEquipped',
+  );
+  @override
+  late final GeneratedColumn<bool> isEquipped = GeneratedColumn<bool>(
+    'is_equipped',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_equipped" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _isCustomMeta = const VerificationMeta(
+    'isCustom',
+  );
+  @override
+  late final GeneratedColumn<bool> isCustom = GeneratedColumn<bool>(
+    'is_custom',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_custom" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('manual'),
+  );
+  static const VerificationMeta _sourceIdMeta = const VerificationMeta(
+    'sourceId',
+  );
+  @override
+  late final GeneratedColumn<String> sourceId = GeneratedColumn<String>(
+    'source_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sourceLabelMeta = const VerificationMeta(
+    'sourceLabel',
+  );
+  @override
+  late final GeneratedColumn<String> sourceLabel = GeneratedColumn<String>(
+    'source_label',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _grantedAtCreationMeta = const VerificationMeta(
+    'grantedAtCreation',
+  );
+  @override
+  late final GeneratedColumn<bool> grantedAtCreation = GeneratedColumn<bool>(
+    'granted_at_creation',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("granted_at_creation" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _grantedQuantityMeta = const VerificationMeta(
+    'grantedQuantity',
+  );
+  @override
+  late final GeneratedColumn<int> grantedQuantity = GeneratedColumn<int>(
+    'granted_quantity',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _manuallyEditedMeta = const VerificationMeta(
+    'manuallyEdited',
+  );
+  @override
+  late final GeneratedColumn<bool> manuallyEdited = GeneratedColumn<bool>(
+    'manually_edited',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("manually_edited" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _linkedWeaponLocalIdMeta =
+      const VerificationMeta('linkedWeaponLocalId');
+  @override
+  late final GeneratedColumn<int> linkedWeaponLocalId = GeneratedColumn<int>(
+    'linked_weapon_local_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _linkedMagicItemLocalIdMeta =
+      const VerificationMeta('linkedMagicItemLocalId');
+  @override
+  late final GeneratedColumn<int> linkedMagicItemLocalId = GeneratedColumn<int>(
+    'linked_magic_item_local_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    localId,
+    characterId,
+    itemId,
+    name,
+    quantity,
+    description,
+    weight,
+    category,
+    isEquipped,
+    note,
+    isCustom,
+    source,
+    sourceId,
+    sourceLabel,
+    grantedAtCreation,
+    grantedQuantity,
+    manuallyEdited,
+    linkedWeaponLocalId,
+    linkedMagicItemLocalId,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'character_inventory_items';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CharacterInventoryItem> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('local_id')) {
+      context.handle(
+        _localIdMeta,
+        localId.isAcceptableOrUnknown(data['local_id']!, _localIdMeta),
+      );
+    }
+    if (data.containsKey('character_id')) {
+      context.handle(
+        _characterIdMeta,
+        characterId.isAcceptableOrUnknown(
+          data['character_id']!,
+          _characterIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_characterIdMeta);
+    }
+    if (data.containsKey('item_id')) {
+      context.handle(
+        _itemIdMeta,
+        itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta),
+      );
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('quantity')) {
+      context.handle(
+        _quantityMeta,
+        quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta),
+      );
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('weight')) {
+      context.handle(
+        _weightMeta,
+        weight.isAcceptableOrUnknown(data['weight']!, _weightMeta),
+      );
+    }
+    if (data.containsKey('category')) {
+      context.handle(
+        _categoryMeta,
+        category.isAcceptableOrUnknown(data['category']!, _categoryMeta),
+      );
+    }
+    if (data.containsKey('is_equipped')) {
+      context.handle(
+        _isEquippedMeta,
+        isEquipped.isAcceptableOrUnknown(data['is_equipped']!, _isEquippedMeta),
+      );
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    if (data.containsKey('is_custom')) {
+      context.handle(
+        _isCustomMeta,
+        isCustom.isAcceptableOrUnknown(data['is_custom']!, _isCustomMeta),
+      );
+    }
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    }
+    if (data.containsKey('source_id')) {
+      context.handle(
+        _sourceIdMeta,
+        sourceId.isAcceptableOrUnknown(data['source_id']!, _sourceIdMeta),
+      );
+    }
+    if (data.containsKey('source_label')) {
+      context.handle(
+        _sourceLabelMeta,
+        sourceLabel.isAcceptableOrUnknown(
+          data['source_label']!,
+          _sourceLabelMeta,
+        ),
+      );
+    }
+    if (data.containsKey('granted_at_creation')) {
+      context.handle(
+        _grantedAtCreationMeta,
+        grantedAtCreation.isAcceptableOrUnknown(
+          data['granted_at_creation']!,
+          _grantedAtCreationMeta,
+        ),
+      );
+    }
+    if (data.containsKey('granted_quantity')) {
+      context.handle(
+        _grantedQuantityMeta,
+        grantedQuantity.isAcceptableOrUnknown(
+          data['granted_quantity']!,
+          _grantedQuantityMeta,
+        ),
+      );
+    }
+    if (data.containsKey('manually_edited')) {
+      context.handle(
+        _manuallyEditedMeta,
+        manuallyEdited.isAcceptableOrUnknown(
+          data['manually_edited']!,
+          _manuallyEditedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('linked_weapon_local_id')) {
+      context.handle(
+        _linkedWeaponLocalIdMeta,
+        linkedWeaponLocalId.isAcceptableOrUnknown(
+          data['linked_weapon_local_id']!,
+          _linkedWeaponLocalIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('linked_magic_item_local_id')) {
+      context.handle(
+        _linkedMagicItemLocalIdMeta,
+        linkedMagicItemLocalId.isAcceptableOrUnknown(
+          data['linked_magic_item_local_id']!,
+          _linkedMagicItemLocalIdMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {localId};
+  @override
+  CharacterInventoryItem map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CharacterInventoryItem(
+      localId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}local_id'],
+          )!,
+      characterId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}character_id'],
+          )!,
+      itemId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}item_id'],
+      ),
+      name:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}name'],
+          )!,
+      quantity:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}quantity'],
+          )!,
+      description:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}description'],
+          )!,
+      weight: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}weight'],
+      ),
+      category:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}category'],
+          )!,
+      isEquipped:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.bool,
+            data['${effectivePrefix}is_equipped'],
+          )!,
+      note:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}note'],
+          )!,
+      isCustom:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.bool,
+            data['${effectivePrefix}is_custom'],
+          )!,
+      source:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}source'],
+          )!,
+      sourceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_id'],
+      ),
+      sourceLabel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_label'],
+      ),
+      grantedAtCreation:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.bool,
+            data['${effectivePrefix}granted_at_creation'],
+          )!,
+      grantedQuantity: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}granted_quantity'],
+      ),
+      manuallyEdited:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.bool,
+            data['${effectivePrefix}manually_edited'],
+          )!,
+      linkedWeaponLocalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}linked_weapon_local_id'],
+      ),
+      linkedMagicItemLocalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}linked_magic_item_local_id'],
+      ),
+    );
+  }
+
+  @override
+  $CharacterInventoryItemsTable createAlias(String alias) {
+    return $CharacterInventoryItemsTable(attachedDatabase, alias);
+  }
+}
+
+class CharacterInventoryItem extends DataClass
+    implements Insertable<CharacterInventoryItem> {
+  final int localId;
+  final String characterId;
+
+  /// Id estável da definição do item (`crowbar`, `common_clothes`).
+  ///
+  /// Nulo em item avulso criado pelo jogador, que não corresponde a nada
+  /// catalogado.
+  final String? itemId;
+  final String name;
+
+  /// Quantidade atual. Zero é válido: munição acabada continua listada até o
+  /// jogador confirmar a remoção.
+  final int quantity;
+  final String description;
+
+  /// Peso em quilos. Nulo é "não informado" — o app não tem tabela de pesos, e
+  /// gravar zero afirmaria que o item não pesa nada.
+  final double? weight;
+
+  /// Id de [ItemCategory]. Texto em vez de inteiro para a ordem do enum poder
+  /// mudar sem reinterpretar dado gravado.
+  final String category;
+  final bool isEquipped;
+  final String note;
+  final bool isCustom;
+
+  /// Id de `GrantSource`. `manual` é o padrão e nunca é removido por
+  /// recálculo.
+  final String source;
+
+  /// Id da fonte (`criminal` para o antecedente Criminoso).
+  final String? sourceId;
+
+  /// Rótulo da fonte, já pronto para exibir.
+  ///
+  /// Persistido em vez de remontado na leitura: o compêndio pode mudar de
+  /// nome, e a ficha deve continuar dizendo de onde o item veio.
+  final String? sourceLabel;
+  final bool grantedAtCreation;
+
+  /// Quantidade originalmente concedida pela fonte. Nula em item manual.
+  ///
+  /// Comparada com [quantity] para saber se o jogador consumiu ou acumulou
+  /// unidades, caso em que o item não pode ser apagado em silêncio.
+  final int? grantedQuantity;
+  final bool manuallyEdited;
+
+  /// `CharacterWeapons.localId` da arma correspondente.
+  ///
+  /// Sem `references` de propósito: o vínculo é informativo e a arma pode ser
+  /// removida sem que o item de inventário deixe de existir. Uma chave
+  /// estrangeira obrigaria a apagar os dois juntos.
+  final int? linkedWeaponLocalId;
+
+  /// `CharacterMagicItems.localId` do item mágico correspondente.
+  final int? linkedMagicItemLocalId;
+  const CharacterInventoryItem({
+    required this.localId,
+    required this.characterId,
+    this.itemId,
+    required this.name,
+    required this.quantity,
+    required this.description,
+    this.weight,
+    required this.category,
+    required this.isEquipped,
+    required this.note,
+    required this.isCustom,
+    required this.source,
+    this.sourceId,
+    this.sourceLabel,
+    required this.grantedAtCreation,
+    this.grantedQuantity,
+    required this.manuallyEdited,
+    this.linkedWeaponLocalId,
+    this.linkedMagicItemLocalId,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['local_id'] = Variable<int>(localId);
+    map['character_id'] = Variable<String>(characterId);
+    if (!nullToAbsent || itemId != null) {
+      map['item_id'] = Variable<String>(itemId);
+    }
+    map['name'] = Variable<String>(name);
+    map['quantity'] = Variable<int>(quantity);
+    map['description'] = Variable<String>(description);
+    if (!nullToAbsent || weight != null) {
+      map['weight'] = Variable<double>(weight);
+    }
+    map['category'] = Variable<String>(category);
+    map['is_equipped'] = Variable<bool>(isEquipped);
+    map['note'] = Variable<String>(note);
+    map['is_custom'] = Variable<bool>(isCustom);
+    map['source'] = Variable<String>(source);
+    if (!nullToAbsent || sourceId != null) {
+      map['source_id'] = Variable<String>(sourceId);
+    }
+    if (!nullToAbsent || sourceLabel != null) {
+      map['source_label'] = Variable<String>(sourceLabel);
+    }
+    map['granted_at_creation'] = Variable<bool>(grantedAtCreation);
+    if (!nullToAbsent || grantedQuantity != null) {
+      map['granted_quantity'] = Variable<int>(grantedQuantity);
+    }
+    map['manually_edited'] = Variable<bool>(manuallyEdited);
+    if (!nullToAbsent || linkedWeaponLocalId != null) {
+      map['linked_weapon_local_id'] = Variable<int>(linkedWeaponLocalId);
+    }
+    if (!nullToAbsent || linkedMagicItemLocalId != null) {
+      map['linked_magic_item_local_id'] = Variable<int>(linkedMagicItemLocalId);
+    }
+    return map;
+  }
+
+  CharacterInventoryItemsCompanion toCompanion(bool nullToAbsent) {
+    return CharacterInventoryItemsCompanion(
+      localId: Value(localId),
+      characterId: Value(characterId),
+      itemId:
+          itemId == null && nullToAbsent ? const Value.absent() : Value(itemId),
+      name: Value(name),
+      quantity: Value(quantity),
+      description: Value(description),
+      weight:
+          weight == null && nullToAbsent ? const Value.absent() : Value(weight),
+      category: Value(category),
+      isEquipped: Value(isEquipped),
+      note: Value(note),
+      isCustom: Value(isCustom),
+      source: Value(source),
+      sourceId:
+          sourceId == null && nullToAbsent
+              ? const Value.absent()
+              : Value(sourceId),
+      sourceLabel:
+          sourceLabel == null && nullToAbsent
+              ? const Value.absent()
+              : Value(sourceLabel),
+      grantedAtCreation: Value(grantedAtCreation),
+      grantedQuantity:
+          grantedQuantity == null && nullToAbsent
+              ? const Value.absent()
+              : Value(grantedQuantity),
+      manuallyEdited: Value(manuallyEdited),
+      linkedWeaponLocalId:
+          linkedWeaponLocalId == null && nullToAbsent
+              ? const Value.absent()
+              : Value(linkedWeaponLocalId),
+      linkedMagicItemLocalId:
+          linkedMagicItemLocalId == null && nullToAbsent
+              ? const Value.absent()
+              : Value(linkedMagicItemLocalId),
+    );
+  }
+
+  factory CharacterInventoryItem.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CharacterInventoryItem(
+      localId: serializer.fromJson<int>(json['localId']),
+      characterId: serializer.fromJson<String>(json['characterId']),
+      itemId: serializer.fromJson<String?>(json['itemId']),
+      name: serializer.fromJson<String>(json['name']),
+      quantity: serializer.fromJson<int>(json['quantity']),
+      description: serializer.fromJson<String>(json['description']),
+      weight: serializer.fromJson<double?>(json['weight']),
+      category: serializer.fromJson<String>(json['category']),
+      isEquipped: serializer.fromJson<bool>(json['isEquipped']),
+      note: serializer.fromJson<String>(json['note']),
+      isCustom: serializer.fromJson<bool>(json['isCustom']),
+      source: serializer.fromJson<String>(json['source']),
+      sourceId: serializer.fromJson<String?>(json['sourceId']),
+      sourceLabel: serializer.fromJson<String?>(json['sourceLabel']),
+      grantedAtCreation: serializer.fromJson<bool>(json['grantedAtCreation']),
+      grantedQuantity: serializer.fromJson<int?>(json['grantedQuantity']),
+      manuallyEdited: serializer.fromJson<bool>(json['manuallyEdited']),
+      linkedWeaponLocalId: serializer.fromJson<int?>(
+        json['linkedWeaponLocalId'],
+      ),
+      linkedMagicItemLocalId: serializer.fromJson<int?>(
+        json['linkedMagicItemLocalId'],
+      ),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'localId': serializer.toJson<int>(localId),
+      'characterId': serializer.toJson<String>(characterId),
+      'itemId': serializer.toJson<String?>(itemId),
+      'name': serializer.toJson<String>(name),
+      'quantity': serializer.toJson<int>(quantity),
+      'description': serializer.toJson<String>(description),
+      'weight': serializer.toJson<double?>(weight),
+      'category': serializer.toJson<String>(category),
+      'isEquipped': serializer.toJson<bool>(isEquipped),
+      'note': serializer.toJson<String>(note),
+      'isCustom': serializer.toJson<bool>(isCustom),
+      'source': serializer.toJson<String>(source),
+      'sourceId': serializer.toJson<String?>(sourceId),
+      'sourceLabel': serializer.toJson<String?>(sourceLabel),
+      'grantedAtCreation': serializer.toJson<bool>(grantedAtCreation),
+      'grantedQuantity': serializer.toJson<int?>(grantedQuantity),
+      'manuallyEdited': serializer.toJson<bool>(manuallyEdited),
+      'linkedWeaponLocalId': serializer.toJson<int?>(linkedWeaponLocalId),
+      'linkedMagicItemLocalId': serializer.toJson<int?>(linkedMagicItemLocalId),
+    };
+  }
+
+  CharacterInventoryItem copyWith({
+    int? localId,
+    String? characterId,
+    Value<String?> itemId = const Value.absent(),
+    String? name,
+    int? quantity,
+    String? description,
+    Value<double?> weight = const Value.absent(),
+    String? category,
+    bool? isEquipped,
+    String? note,
+    bool? isCustom,
+    String? source,
+    Value<String?> sourceId = const Value.absent(),
+    Value<String?> sourceLabel = const Value.absent(),
+    bool? grantedAtCreation,
+    Value<int?> grantedQuantity = const Value.absent(),
+    bool? manuallyEdited,
+    Value<int?> linkedWeaponLocalId = const Value.absent(),
+    Value<int?> linkedMagicItemLocalId = const Value.absent(),
+  }) => CharacterInventoryItem(
+    localId: localId ?? this.localId,
+    characterId: characterId ?? this.characterId,
+    itemId: itemId.present ? itemId.value : this.itemId,
+    name: name ?? this.name,
+    quantity: quantity ?? this.quantity,
+    description: description ?? this.description,
+    weight: weight.present ? weight.value : this.weight,
+    category: category ?? this.category,
+    isEquipped: isEquipped ?? this.isEquipped,
+    note: note ?? this.note,
+    isCustom: isCustom ?? this.isCustom,
+    source: source ?? this.source,
+    sourceId: sourceId.present ? sourceId.value : this.sourceId,
+    sourceLabel: sourceLabel.present ? sourceLabel.value : this.sourceLabel,
+    grantedAtCreation: grantedAtCreation ?? this.grantedAtCreation,
+    grantedQuantity:
+        grantedQuantity.present ? grantedQuantity.value : this.grantedQuantity,
+    manuallyEdited: manuallyEdited ?? this.manuallyEdited,
+    linkedWeaponLocalId:
+        linkedWeaponLocalId.present
+            ? linkedWeaponLocalId.value
+            : this.linkedWeaponLocalId,
+    linkedMagicItemLocalId:
+        linkedMagicItemLocalId.present
+            ? linkedMagicItemLocalId.value
+            : this.linkedMagicItemLocalId,
+  );
+  CharacterInventoryItem copyWithCompanion(
+    CharacterInventoryItemsCompanion data,
+  ) {
+    return CharacterInventoryItem(
+      localId: data.localId.present ? data.localId.value : this.localId,
+      characterId:
+          data.characterId.present ? data.characterId.value : this.characterId,
+      itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      name: data.name.present ? data.name.value : this.name,
+      quantity: data.quantity.present ? data.quantity.value : this.quantity,
+      description:
+          data.description.present ? data.description.value : this.description,
+      weight: data.weight.present ? data.weight.value : this.weight,
+      category: data.category.present ? data.category.value : this.category,
+      isEquipped:
+          data.isEquipped.present ? data.isEquipped.value : this.isEquipped,
+      note: data.note.present ? data.note.value : this.note,
+      isCustom: data.isCustom.present ? data.isCustom.value : this.isCustom,
+      source: data.source.present ? data.source.value : this.source,
+      sourceId: data.sourceId.present ? data.sourceId.value : this.sourceId,
+      sourceLabel:
+          data.sourceLabel.present ? data.sourceLabel.value : this.sourceLabel,
+      grantedAtCreation:
+          data.grantedAtCreation.present
+              ? data.grantedAtCreation.value
+              : this.grantedAtCreation,
+      grantedQuantity:
+          data.grantedQuantity.present
+              ? data.grantedQuantity.value
+              : this.grantedQuantity,
+      manuallyEdited:
+          data.manuallyEdited.present
+              ? data.manuallyEdited.value
+              : this.manuallyEdited,
+      linkedWeaponLocalId:
+          data.linkedWeaponLocalId.present
+              ? data.linkedWeaponLocalId.value
+              : this.linkedWeaponLocalId,
+      linkedMagicItemLocalId:
+          data.linkedMagicItemLocalId.present
+              ? data.linkedMagicItemLocalId.value
+              : this.linkedMagicItemLocalId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CharacterInventoryItem(')
+          ..write('localId: $localId, ')
+          ..write('characterId: $characterId, ')
+          ..write('itemId: $itemId, ')
+          ..write('name: $name, ')
+          ..write('quantity: $quantity, ')
+          ..write('description: $description, ')
+          ..write('weight: $weight, ')
+          ..write('category: $category, ')
+          ..write('isEquipped: $isEquipped, ')
+          ..write('note: $note, ')
+          ..write('isCustom: $isCustom, ')
+          ..write('source: $source, ')
+          ..write('sourceId: $sourceId, ')
+          ..write('sourceLabel: $sourceLabel, ')
+          ..write('grantedAtCreation: $grantedAtCreation, ')
+          ..write('grantedQuantity: $grantedQuantity, ')
+          ..write('manuallyEdited: $manuallyEdited, ')
+          ..write('linkedWeaponLocalId: $linkedWeaponLocalId, ')
+          ..write('linkedMagicItemLocalId: $linkedMagicItemLocalId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    localId,
+    characterId,
+    itemId,
+    name,
+    quantity,
+    description,
+    weight,
+    category,
+    isEquipped,
+    note,
+    isCustom,
+    source,
+    sourceId,
+    sourceLabel,
+    grantedAtCreation,
+    grantedQuantity,
+    manuallyEdited,
+    linkedWeaponLocalId,
+    linkedMagicItemLocalId,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CharacterInventoryItem &&
+          other.localId == this.localId &&
+          other.characterId == this.characterId &&
+          other.itemId == this.itemId &&
+          other.name == this.name &&
+          other.quantity == this.quantity &&
+          other.description == this.description &&
+          other.weight == this.weight &&
+          other.category == this.category &&
+          other.isEquipped == this.isEquipped &&
+          other.note == this.note &&
+          other.isCustom == this.isCustom &&
+          other.source == this.source &&
+          other.sourceId == this.sourceId &&
+          other.sourceLabel == this.sourceLabel &&
+          other.grantedAtCreation == this.grantedAtCreation &&
+          other.grantedQuantity == this.grantedQuantity &&
+          other.manuallyEdited == this.manuallyEdited &&
+          other.linkedWeaponLocalId == this.linkedWeaponLocalId &&
+          other.linkedMagicItemLocalId == this.linkedMagicItemLocalId);
+}
+
+class CharacterInventoryItemsCompanion
+    extends UpdateCompanion<CharacterInventoryItem> {
+  final Value<int> localId;
+  final Value<String> characterId;
+  final Value<String?> itemId;
+  final Value<String> name;
+  final Value<int> quantity;
+  final Value<String> description;
+  final Value<double?> weight;
+  final Value<String> category;
+  final Value<bool> isEquipped;
+  final Value<String> note;
+  final Value<bool> isCustom;
+  final Value<String> source;
+  final Value<String?> sourceId;
+  final Value<String?> sourceLabel;
+  final Value<bool> grantedAtCreation;
+  final Value<int?> grantedQuantity;
+  final Value<bool> manuallyEdited;
+  final Value<int?> linkedWeaponLocalId;
+  final Value<int?> linkedMagicItemLocalId;
+  const CharacterInventoryItemsCompanion({
+    this.localId = const Value.absent(),
+    this.characterId = const Value.absent(),
+    this.itemId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.quantity = const Value.absent(),
+    this.description = const Value.absent(),
+    this.weight = const Value.absent(),
+    this.category = const Value.absent(),
+    this.isEquipped = const Value.absent(),
+    this.note = const Value.absent(),
+    this.isCustom = const Value.absent(),
+    this.source = const Value.absent(),
+    this.sourceId = const Value.absent(),
+    this.sourceLabel = const Value.absent(),
+    this.grantedAtCreation = const Value.absent(),
+    this.grantedQuantity = const Value.absent(),
+    this.manuallyEdited = const Value.absent(),
+    this.linkedWeaponLocalId = const Value.absent(),
+    this.linkedMagicItemLocalId = const Value.absent(),
+  });
+  CharacterInventoryItemsCompanion.insert({
+    this.localId = const Value.absent(),
+    required String characterId,
+    this.itemId = const Value.absent(),
+    required String name,
+    this.quantity = const Value.absent(),
+    this.description = const Value.absent(),
+    this.weight = const Value.absent(),
+    this.category = const Value.absent(),
+    this.isEquipped = const Value.absent(),
+    this.note = const Value.absent(),
+    this.isCustom = const Value.absent(),
+    this.source = const Value.absent(),
+    this.sourceId = const Value.absent(),
+    this.sourceLabel = const Value.absent(),
+    this.grantedAtCreation = const Value.absent(),
+    this.grantedQuantity = const Value.absent(),
+    this.manuallyEdited = const Value.absent(),
+    this.linkedWeaponLocalId = const Value.absent(),
+    this.linkedMagicItemLocalId = const Value.absent(),
+  }) : characterId = Value(characterId),
+       name = Value(name);
+  static Insertable<CharacterInventoryItem> custom({
+    Expression<int>? localId,
+    Expression<String>? characterId,
+    Expression<String>? itemId,
+    Expression<String>? name,
+    Expression<int>? quantity,
+    Expression<String>? description,
+    Expression<double>? weight,
+    Expression<String>? category,
+    Expression<bool>? isEquipped,
+    Expression<String>? note,
+    Expression<bool>? isCustom,
+    Expression<String>? source,
+    Expression<String>? sourceId,
+    Expression<String>? sourceLabel,
+    Expression<bool>? grantedAtCreation,
+    Expression<int>? grantedQuantity,
+    Expression<bool>? manuallyEdited,
+    Expression<int>? linkedWeaponLocalId,
+    Expression<int>? linkedMagicItemLocalId,
+  }) {
+    return RawValuesInsertable({
+      if (localId != null) 'local_id': localId,
+      if (characterId != null) 'character_id': characterId,
+      if (itemId != null) 'item_id': itemId,
+      if (name != null) 'name': name,
+      if (quantity != null) 'quantity': quantity,
+      if (description != null) 'description': description,
+      if (weight != null) 'weight': weight,
+      if (category != null) 'category': category,
+      if (isEquipped != null) 'is_equipped': isEquipped,
+      if (note != null) 'note': note,
+      if (isCustom != null) 'is_custom': isCustom,
+      if (source != null) 'source': source,
+      if (sourceId != null) 'source_id': sourceId,
+      if (sourceLabel != null) 'source_label': sourceLabel,
+      if (grantedAtCreation != null) 'granted_at_creation': grantedAtCreation,
+      if (grantedQuantity != null) 'granted_quantity': grantedQuantity,
+      if (manuallyEdited != null) 'manually_edited': manuallyEdited,
+      if (linkedWeaponLocalId != null)
+        'linked_weapon_local_id': linkedWeaponLocalId,
+      if (linkedMagicItemLocalId != null)
+        'linked_magic_item_local_id': linkedMagicItemLocalId,
+    });
+  }
+
+  CharacterInventoryItemsCompanion copyWith({
+    Value<int>? localId,
+    Value<String>? characterId,
+    Value<String?>? itemId,
+    Value<String>? name,
+    Value<int>? quantity,
+    Value<String>? description,
+    Value<double?>? weight,
+    Value<String>? category,
+    Value<bool>? isEquipped,
+    Value<String>? note,
+    Value<bool>? isCustom,
+    Value<String>? source,
+    Value<String?>? sourceId,
+    Value<String?>? sourceLabel,
+    Value<bool>? grantedAtCreation,
+    Value<int?>? grantedQuantity,
+    Value<bool>? manuallyEdited,
+    Value<int?>? linkedWeaponLocalId,
+    Value<int?>? linkedMagicItemLocalId,
+  }) {
+    return CharacterInventoryItemsCompanion(
+      localId: localId ?? this.localId,
+      characterId: characterId ?? this.characterId,
+      itemId: itemId ?? this.itemId,
+      name: name ?? this.name,
+      quantity: quantity ?? this.quantity,
+      description: description ?? this.description,
+      weight: weight ?? this.weight,
+      category: category ?? this.category,
+      isEquipped: isEquipped ?? this.isEquipped,
+      note: note ?? this.note,
+      isCustom: isCustom ?? this.isCustom,
+      source: source ?? this.source,
+      sourceId: sourceId ?? this.sourceId,
+      sourceLabel: sourceLabel ?? this.sourceLabel,
+      grantedAtCreation: grantedAtCreation ?? this.grantedAtCreation,
+      grantedQuantity: grantedQuantity ?? this.grantedQuantity,
+      manuallyEdited: manuallyEdited ?? this.manuallyEdited,
+      linkedWeaponLocalId: linkedWeaponLocalId ?? this.linkedWeaponLocalId,
+      linkedMagicItemLocalId:
+          linkedMagicItemLocalId ?? this.linkedMagicItemLocalId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (localId.present) {
+      map['local_id'] = Variable<int>(localId.value);
+    }
+    if (characterId.present) {
+      map['character_id'] = Variable<String>(characterId.value);
+    }
+    if (itemId.present) {
+      map['item_id'] = Variable<String>(itemId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (quantity.present) {
+      map['quantity'] = Variable<int>(quantity.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (weight.present) {
+      map['weight'] = Variable<double>(weight.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(category.value);
+    }
+    if (isEquipped.present) {
+      map['is_equipped'] = Variable<bool>(isEquipped.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (isCustom.present) {
+      map['is_custom'] = Variable<bool>(isCustom.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (sourceId.present) {
+      map['source_id'] = Variable<String>(sourceId.value);
+    }
+    if (sourceLabel.present) {
+      map['source_label'] = Variable<String>(sourceLabel.value);
+    }
+    if (grantedAtCreation.present) {
+      map['granted_at_creation'] = Variable<bool>(grantedAtCreation.value);
+    }
+    if (grantedQuantity.present) {
+      map['granted_quantity'] = Variable<int>(grantedQuantity.value);
+    }
+    if (manuallyEdited.present) {
+      map['manually_edited'] = Variable<bool>(manuallyEdited.value);
+    }
+    if (linkedWeaponLocalId.present) {
+      map['linked_weapon_local_id'] = Variable<int>(linkedWeaponLocalId.value);
+    }
+    if (linkedMagicItemLocalId.present) {
+      map['linked_magic_item_local_id'] = Variable<int>(
+        linkedMagicItemLocalId.value,
+      );
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CharacterInventoryItemsCompanion(')
+          ..write('localId: $localId, ')
+          ..write('characterId: $characterId, ')
+          ..write('itemId: $itemId, ')
+          ..write('name: $name, ')
+          ..write('quantity: $quantity, ')
+          ..write('description: $description, ')
+          ..write('weight: $weight, ')
+          ..write('category: $category, ')
+          ..write('isEquipped: $isEquipped, ')
+          ..write('note: $note, ')
+          ..write('isCustom: $isCustom, ')
+          ..write('source: $source, ')
+          ..write('sourceId: $sourceId, ')
+          ..write('sourceLabel: $sourceLabel, ')
+          ..write('grantedAtCreation: $grantedAtCreation, ')
+          ..write('grantedQuantity: $grantedQuantity, ')
+          ..write('manuallyEdited: $manuallyEdited, ')
+          ..write('linkedWeaponLocalId: $linkedWeaponLocalId, ')
+          ..write('linkedMagicItemLocalId: $linkedMagicItemLocalId')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CharacterCurrencyGrantsTable extends CharacterCurrencyGrants
+    with TableInfo<$CharacterCurrencyGrantsTable, CharacterCurrencyGrant> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CharacterCurrencyGrantsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _localIdMeta = const VerificationMeta(
+    'localId',
+  );
+  @override
+  late final GeneratedColumn<int> localId = GeneratedColumn<int>(
+    'local_id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _characterIdMeta = const VerificationMeta(
+    'characterId',
+  );
+  @override
+  late final GeneratedColumn<String> characterId = GeneratedColumn<String>(
+    'character_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES characters (id)',
+    ),
+  );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sourceIdMeta = const VerificationMeta(
+    'sourceId',
+  );
+  @override
+  late final GeneratedColumn<String> sourceId = GeneratedColumn<String>(
+    'source_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sourceLabelMeta = const VerificationMeta(
+    'sourceLabel',
+  );
+  @override
+  late final GeneratedColumn<String> sourceLabel = GeneratedColumn<String>(
+    'source_label',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _copperPiecesMeta = const VerificationMeta(
+    'copperPieces',
+  );
+  @override
+  late final GeneratedColumn<int> copperPieces = GeneratedColumn<int>(
+    'copper_pieces',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _silverPiecesMeta = const VerificationMeta(
+    'silverPieces',
+  );
+  @override
+  late final GeneratedColumn<int> silverPieces = GeneratedColumn<int>(
+    'silver_pieces',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _electrumPiecesMeta = const VerificationMeta(
+    'electrumPieces',
+  );
+  @override
+  late final GeneratedColumn<int> electrumPieces = GeneratedColumn<int>(
+    'electrum_pieces',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _goldPiecesMeta = const VerificationMeta(
+    'goldPieces',
+  );
+  @override
+  late final GeneratedColumn<int> goldPieces = GeneratedColumn<int>(
+    'gold_pieces',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _platinumPiecesMeta = const VerificationMeta(
+    'platinumPieces',
+  );
+  @override
+  late final GeneratedColumn<int> platinumPieces = GeneratedColumn<int>(
+    'platinum_pieces',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _grantedAtCreationMeta = const VerificationMeta(
+    'grantedAtCreation',
+  );
+  @override
+  late final GeneratedColumn<bool> grantedAtCreation = GeneratedColumn<bool>(
+    'granted_at_creation',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("granted_at_creation" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    localId,
+    characterId,
+    source,
+    sourceId,
+    sourceLabel,
+    copperPieces,
+    silverPieces,
+    electrumPieces,
+    goldPieces,
+    platinumPieces,
+    grantedAtCreation,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'character_currency_grants';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CharacterCurrencyGrant> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('local_id')) {
+      context.handle(
+        _localIdMeta,
+        localId.isAcceptableOrUnknown(data['local_id']!, _localIdMeta),
+      );
+    }
+    if (data.containsKey('character_id')) {
+      context.handle(
+        _characterIdMeta,
+        characterId.isAcceptableOrUnknown(
+          data['character_id']!,
+          _characterIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_characterIdMeta);
+    }
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceMeta);
+    }
+    if (data.containsKey('source_id')) {
+      context.handle(
+        _sourceIdMeta,
+        sourceId.isAcceptableOrUnknown(data['source_id']!, _sourceIdMeta),
+      );
+    }
+    if (data.containsKey('source_label')) {
+      context.handle(
+        _sourceLabelMeta,
+        sourceLabel.isAcceptableOrUnknown(
+          data['source_label']!,
+          _sourceLabelMeta,
+        ),
+      );
+    }
+    if (data.containsKey('copper_pieces')) {
+      context.handle(
+        _copperPiecesMeta,
+        copperPieces.isAcceptableOrUnknown(
+          data['copper_pieces']!,
+          _copperPiecesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('silver_pieces')) {
+      context.handle(
+        _silverPiecesMeta,
+        silverPieces.isAcceptableOrUnknown(
+          data['silver_pieces']!,
+          _silverPiecesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('electrum_pieces')) {
+      context.handle(
+        _electrumPiecesMeta,
+        electrumPieces.isAcceptableOrUnknown(
+          data['electrum_pieces']!,
+          _electrumPiecesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('gold_pieces')) {
+      context.handle(
+        _goldPiecesMeta,
+        goldPieces.isAcceptableOrUnknown(data['gold_pieces']!, _goldPiecesMeta),
+      );
+    }
+    if (data.containsKey('platinum_pieces')) {
+      context.handle(
+        _platinumPiecesMeta,
+        platinumPieces.isAcceptableOrUnknown(
+          data['platinum_pieces']!,
+          _platinumPiecesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('granted_at_creation')) {
+      context.handle(
+        _grantedAtCreationMeta,
+        grantedAtCreation.isAcceptableOrUnknown(
+          data['granted_at_creation']!,
+          _grantedAtCreationMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {localId};
+  @override
+  CharacterCurrencyGrant map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CharacterCurrencyGrant(
+      localId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}local_id'],
+          )!,
+      characterId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}character_id'],
+          )!,
+      source:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}source'],
+          )!,
+      sourceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_id'],
+      ),
+      sourceLabel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_label'],
+      ),
+      copperPieces:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}copper_pieces'],
+          )!,
+      silverPieces:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}silver_pieces'],
+          )!,
+      electrumPieces:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}electrum_pieces'],
+          )!,
+      goldPieces:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}gold_pieces'],
+          )!,
+      platinumPieces:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}platinum_pieces'],
+          )!,
+      grantedAtCreation:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.bool,
+            data['${effectivePrefix}granted_at_creation'],
+          )!,
+    );
+  }
+
+  @override
+  $CharacterCurrencyGrantsTable createAlias(String alias) {
+    return $CharacterCurrencyGrantsTable(attachedDatabase, alias);
+  }
+}
+
+class CharacterCurrencyGrant extends DataClass
+    implements Insertable<CharacterCurrencyGrant> {
+  final int localId;
+  final String characterId;
+
+  /// Id de `GrantSource`.
+  final String source;
+  final String? sourceId;
+  final String? sourceLabel;
+  final int copperPieces;
+  final int silverPieces;
+  final int electrumPieces;
+  final int goldPieces;
+  final int platinumPieces;
+  final bool grantedAtCreation;
+  const CharacterCurrencyGrant({
+    required this.localId,
+    required this.characterId,
+    required this.source,
+    this.sourceId,
+    this.sourceLabel,
+    required this.copperPieces,
+    required this.silverPieces,
+    required this.electrumPieces,
+    required this.goldPieces,
+    required this.platinumPieces,
+    required this.grantedAtCreation,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['local_id'] = Variable<int>(localId);
+    map['character_id'] = Variable<String>(characterId);
+    map['source'] = Variable<String>(source);
+    if (!nullToAbsent || sourceId != null) {
+      map['source_id'] = Variable<String>(sourceId);
+    }
+    if (!nullToAbsent || sourceLabel != null) {
+      map['source_label'] = Variable<String>(sourceLabel);
+    }
+    map['copper_pieces'] = Variable<int>(copperPieces);
+    map['silver_pieces'] = Variable<int>(silverPieces);
+    map['electrum_pieces'] = Variable<int>(electrumPieces);
+    map['gold_pieces'] = Variable<int>(goldPieces);
+    map['platinum_pieces'] = Variable<int>(platinumPieces);
+    map['granted_at_creation'] = Variable<bool>(grantedAtCreation);
+    return map;
+  }
+
+  CharacterCurrencyGrantsCompanion toCompanion(bool nullToAbsent) {
+    return CharacterCurrencyGrantsCompanion(
+      localId: Value(localId),
+      characterId: Value(characterId),
+      source: Value(source),
+      sourceId:
+          sourceId == null && nullToAbsent
+              ? const Value.absent()
+              : Value(sourceId),
+      sourceLabel:
+          sourceLabel == null && nullToAbsent
+              ? const Value.absent()
+              : Value(sourceLabel),
+      copperPieces: Value(copperPieces),
+      silverPieces: Value(silverPieces),
+      electrumPieces: Value(electrumPieces),
+      goldPieces: Value(goldPieces),
+      platinumPieces: Value(platinumPieces),
+      grantedAtCreation: Value(grantedAtCreation),
+    );
+  }
+
+  factory CharacterCurrencyGrant.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CharacterCurrencyGrant(
+      localId: serializer.fromJson<int>(json['localId']),
+      characterId: serializer.fromJson<String>(json['characterId']),
+      source: serializer.fromJson<String>(json['source']),
+      sourceId: serializer.fromJson<String?>(json['sourceId']),
+      sourceLabel: serializer.fromJson<String?>(json['sourceLabel']),
+      copperPieces: serializer.fromJson<int>(json['copperPieces']),
+      silverPieces: serializer.fromJson<int>(json['silverPieces']),
+      electrumPieces: serializer.fromJson<int>(json['electrumPieces']),
+      goldPieces: serializer.fromJson<int>(json['goldPieces']),
+      platinumPieces: serializer.fromJson<int>(json['platinumPieces']),
+      grantedAtCreation: serializer.fromJson<bool>(json['grantedAtCreation']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'localId': serializer.toJson<int>(localId),
+      'characterId': serializer.toJson<String>(characterId),
+      'source': serializer.toJson<String>(source),
+      'sourceId': serializer.toJson<String?>(sourceId),
+      'sourceLabel': serializer.toJson<String?>(sourceLabel),
+      'copperPieces': serializer.toJson<int>(copperPieces),
+      'silverPieces': serializer.toJson<int>(silverPieces),
+      'electrumPieces': serializer.toJson<int>(electrumPieces),
+      'goldPieces': serializer.toJson<int>(goldPieces),
+      'platinumPieces': serializer.toJson<int>(platinumPieces),
+      'grantedAtCreation': serializer.toJson<bool>(grantedAtCreation),
+    };
+  }
+
+  CharacterCurrencyGrant copyWith({
+    int? localId,
+    String? characterId,
+    String? source,
+    Value<String?> sourceId = const Value.absent(),
+    Value<String?> sourceLabel = const Value.absent(),
+    int? copperPieces,
+    int? silverPieces,
+    int? electrumPieces,
+    int? goldPieces,
+    int? platinumPieces,
+    bool? grantedAtCreation,
+  }) => CharacterCurrencyGrant(
+    localId: localId ?? this.localId,
+    characterId: characterId ?? this.characterId,
+    source: source ?? this.source,
+    sourceId: sourceId.present ? sourceId.value : this.sourceId,
+    sourceLabel: sourceLabel.present ? sourceLabel.value : this.sourceLabel,
+    copperPieces: copperPieces ?? this.copperPieces,
+    silverPieces: silverPieces ?? this.silverPieces,
+    electrumPieces: electrumPieces ?? this.electrumPieces,
+    goldPieces: goldPieces ?? this.goldPieces,
+    platinumPieces: platinumPieces ?? this.platinumPieces,
+    grantedAtCreation: grantedAtCreation ?? this.grantedAtCreation,
+  );
+  CharacterCurrencyGrant copyWithCompanion(
+    CharacterCurrencyGrantsCompanion data,
+  ) {
+    return CharacterCurrencyGrant(
+      localId: data.localId.present ? data.localId.value : this.localId,
+      characterId:
+          data.characterId.present ? data.characterId.value : this.characterId,
+      source: data.source.present ? data.source.value : this.source,
+      sourceId: data.sourceId.present ? data.sourceId.value : this.sourceId,
+      sourceLabel:
+          data.sourceLabel.present ? data.sourceLabel.value : this.sourceLabel,
+      copperPieces:
+          data.copperPieces.present
+              ? data.copperPieces.value
+              : this.copperPieces,
+      silverPieces:
+          data.silverPieces.present
+              ? data.silverPieces.value
+              : this.silverPieces,
+      electrumPieces:
+          data.electrumPieces.present
+              ? data.electrumPieces.value
+              : this.electrumPieces,
+      goldPieces:
+          data.goldPieces.present ? data.goldPieces.value : this.goldPieces,
+      platinumPieces:
+          data.platinumPieces.present
+              ? data.platinumPieces.value
+              : this.platinumPieces,
+      grantedAtCreation:
+          data.grantedAtCreation.present
+              ? data.grantedAtCreation.value
+              : this.grantedAtCreation,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CharacterCurrencyGrant(')
+          ..write('localId: $localId, ')
+          ..write('characterId: $characterId, ')
+          ..write('source: $source, ')
+          ..write('sourceId: $sourceId, ')
+          ..write('sourceLabel: $sourceLabel, ')
+          ..write('copperPieces: $copperPieces, ')
+          ..write('silverPieces: $silverPieces, ')
+          ..write('electrumPieces: $electrumPieces, ')
+          ..write('goldPieces: $goldPieces, ')
+          ..write('platinumPieces: $platinumPieces, ')
+          ..write('grantedAtCreation: $grantedAtCreation')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    localId,
+    characterId,
+    source,
+    sourceId,
+    sourceLabel,
+    copperPieces,
+    silverPieces,
+    electrumPieces,
+    goldPieces,
+    platinumPieces,
+    grantedAtCreation,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CharacterCurrencyGrant &&
+          other.localId == this.localId &&
+          other.characterId == this.characterId &&
+          other.source == this.source &&
+          other.sourceId == this.sourceId &&
+          other.sourceLabel == this.sourceLabel &&
+          other.copperPieces == this.copperPieces &&
+          other.silverPieces == this.silverPieces &&
+          other.electrumPieces == this.electrumPieces &&
+          other.goldPieces == this.goldPieces &&
+          other.platinumPieces == this.platinumPieces &&
+          other.grantedAtCreation == this.grantedAtCreation);
+}
+
+class CharacterCurrencyGrantsCompanion
+    extends UpdateCompanion<CharacterCurrencyGrant> {
+  final Value<int> localId;
+  final Value<String> characterId;
+  final Value<String> source;
+  final Value<String?> sourceId;
+  final Value<String?> sourceLabel;
+  final Value<int> copperPieces;
+  final Value<int> silverPieces;
+  final Value<int> electrumPieces;
+  final Value<int> goldPieces;
+  final Value<int> platinumPieces;
+  final Value<bool> grantedAtCreation;
+  const CharacterCurrencyGrantsCompanion({
+    this.localId = const Value.absent(),
+    this.characterId = const Value.absent(),
+    this.source = const Value.absent(),
+    this.sourceId = const Value.absent(),
+    this.sourceLabel = const Value.absent(),
+    this.copperPieces = const Value.absent(),
+    this.silverPieces = const Value.absent(),
+    this.electrumPieces = const Value.absent(),
+    this.goldPieces = const Value.absent(),
+    this.platinumPieces = const Value.absent(),
+    this.grantedAtCreation = const Value.absent(),
+  });
+  CharacterCurrencyGrantsCompanion.insert({
+    this.localId = const Value.absent(),
+    required String characterId,
+    required String source,
+    this.sourceId = const Value.absent(),
+    this.sourceLabel = const Value.absent(),
+    this.copperPieces = const Value.absent(),
+    this.silverPieces = const Value.absent(),
+    this.electrumPieces = const Value.absent(),
+    this.goldPieces = const Value.absent(),
+    this.platinumPieces = const Value.absent(),
+    this.grantedAtCreation = const Value.absent(),
+  }) : characterId = Value(characterId),
+       source = Value(source);
+  static Insertable<CharacterCurrencyGrant> custom({
+    Expression<int>? localId,
+    Expression<String>? characterId,
+    Expression<String>? source,
+    Expression<String>? sourceId,
+    Expression<String>? sourceLabel,
+    Expression<int>? copperPieces,
+    Expression<int>? silverPieces,
+    Expression<int>? electrumPieces,
+    Expression<int>? goldPieces,
+    Expression<int>? platinumPieces,
+    Expression<bool>? grantedAtCreation,
+  }) {
+    return RawValuesInsertable({
+      if (localId != null) 'local_id': localId,
+      if (characterId != null) 'character_id': characterId,
+      if (source != null) 'source': source,
+      if (sourceId != null) 'source_id': sourceId,
+      if (sourceLabel != null) 'source_label': sourceLabel,
+      if (copperPieces != null) 'copper_pieces': copperPieces,
+      if (silverPieces != null) 'silver_pieces': silverPieces,
+      if (electrumPieces != null) 'electrum_pieces': electrumPieces,
+      if (goldPieces != null) 'gold_pieces': goldPieces,
+      if (platinumPieces != null) 'platinum_pieces': platinumPieces,
+      if (grantedAtCreation != null) 'granted_at_creation': grantedAtCreation,
+    });
+  }
+
+  CharacterCurrencyGrantsCompanion copyWith({
+    Value<int>? localId,
+    Value<String>? characterId,
+    Value<String>? source,
+    Value<String?>? sourceId,
+    Value<String?>? sourceLabel,
+    Value<int>? copperPieces,
+    Value<int>? silverPieces,
+    Value<int>? electrumPieces,
+    Value<int>? goldPieces,
+    Value<int>? platinumPieces,
+    Value<bool>? grantedAtCreation,
+  }) {
+    return CharacterCurrencyGrantsCompanion(
+      localId: localId ?? this.localId,
+      characterId: characterId ?? this.characterId,
+      source: source ?? this.source,
+      sourceId: sourceId ?? this.sourceId,
+      sourceLabel: sourceLabel ?? this.sourceLabel,
+      copperPieces: copperPieces ?? this.copperPieces,
+      silverPieces: silverPieces ?? this.silverPieces,
+      electrumPieces: electrumPieces ?? this.electrumPieces,
+      goldPieces: goldPieces ?? this.goldPieces,
+      platinumPieces: platinumPieces ?? this.platinumPieces,
+      grantedAtCreation: grantedAtCreation ?? this.grantedAtCreation,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (localId.present) {
+      map['local_id'] = Variable<int>(localId.value);
+    }
+    if (characterId.present) {
+      map['character_id'] = Variable<String>(characterId.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (sourceId.present) {
+      map['source_id'] = Variable<String>(sourceId.value);
+    }
+    if (sourceLabel.present) {
+      map['source_label'] = Variable<String>(sourceLabel.value);
+    }
+    if (copperPieces.present) {
+      map['copper_pieces'] = Variable<int>(copperPieces.value);
+    }
+    if (silverPieces.present) {
+      map['silver_pieces'] = Variable<int>(silverPieces.value);
+    }
+    if (electrumPieces.present) {
+      map['electrum_pieces'] = Variable<int>(electrumPieces.value);
+    }
+    if (goldPieces.present) {
+      map['gold_pieces'] = Variable<int>(goldPieces.value);
+    }
+    if (platinumPieces.present) {
+      map['platinum_pieces'] = Variable<int>(platinumPieces.value);
+    }
+    if (grantedAtCreation.present) {
+      map['granted_at_creation'] = Variable<bool>(grantedAtCreation.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CharacterCurrencyGrantsCompanion(')
+          ..write('localId: $localId, ')
+          ..write('characterId: $characterId, ')
+          ..write('source: $source, ')
+          ..write('sourceId: $sourceId, ')
+          ..write('sourceLabel: $sourceLabel, ')
+          ..write('copperPieces: $copperPieces, ')
+          ..write('silverPieces: $silverPieces, ')
+          ..write('electrumPieces: $electrumPieces, ')
+          ..write('goldPieces: $goldPieces, ')
+          ..write('platinumPieces: $platinumPieces, ')
+          ..write('grantedAtCreation: $grantedAtCreation')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $ClassEntriesTable extends ClassEntries
     with TableInfo<$ClassEntriesTable, ClassEntry> {
   @override
@@ -9249,6 +11172,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $CharacterSpellSlotsUsageTable characterSpellSlotsUsage =
       $CharacterSpellSlotsUsageTable(this);
   late final $CharacterFeatsTable characterFeats = $CharacterFeatsTable(this);
+  late final $CharacterInventoryItemsTable characterInventoryItems =
+      $CharacterInventoryItemsTable(this);
+  late final $CharacterCurrencyGrantsTable characterCurrencyGrants =
+      $CharacterCurrencyGrantsTable(this);
   late final $ClassEntriesTable classEntries = $ClassEntriesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -9263,6 +11190,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     characterMagicItemSpells,
     characterSpellSlotsUsage,
     characterFeats,
+    characterInventoryItems,
+    characterCurrencyGrants,
     classEntries,
   ];
 }
@@ -9289,6 +11218,7 @@ typedef $$CharactersTableCreateCompanionBuilder =
       Value<String?> baseAbilityScores,
       Value<String?> originAbilityBonuses,
       Value<String> skillProficiencyGrants,
+      Value<String> backgroundPersonalityChoices,
       Value<int> armorClass,
       Value<int> initiativeBonus,
       Value<int> speed,
@@ -9375,6 +11305,7 @@ typedef $$CharactersTableUpdateCompanionBuilder =
       Value<String?> baseAbilityScores,
       Value<String?> originAbilityBonuses,
       Value<String> skillProficiencyGrants,
+      Value<String> backgroundPersonalityChoices,
       Value<int> armorClass,
       Value<int> initiativeBonus,
       Value<int> speed,
@@ -9593,6 +11524,62 @@ final class $$CharactersTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<
+    $CharacterInventoryItemsTable,
+    List<CharacterInventoryItem>
+  >
+  _characterInventoryItemsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.characterInventoryItems,
+        aliasName: $_aliasNameGenerator(
+          db.characters.id,
+          db.characterInventoryItems.characterId,
+        ),
+      );
+
+  $$CharacterInventoryItemsTableProcessedTableManager
+  get characterInventoryItemsRefs {
+    final manager = $$CharacterInventoryItemsTableTableManager(
+      $_db,
+      $_db.characterInventoryItems,
+    ).filter((f) => f.characterId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _characterInventoryItemsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $CharacterCurrencyGrantsTable,
+    List<CharacterCurrencyGrant>
+  >
+  _characterCurrencyGrantsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.characterCurrencyGrants,
+        aliasName: $_aliasNameGenerator(
+          db.characters.id,
+          db.characterCurrencyGrants.characterId,
+        ),
+      );
+
+  $$CharacterCurrencyGrantsTableProcessedTableManager
+  get characterCurrencyGrantsRefs {
+    final manager = $$CharacterCurrencyGrantsTableTableManager(
+      $_db,
+      $_db.characterCurrencyGrants,
+    ).filter((f) => f.characterId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _characterCurrencyGrantsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$CharactersTableFilterComposer
@@ -9701,6 +11688,11 @@ class $$CharactersTableFilterComposer
 
   ColumnFilters<String> get skillProficiencyGrants => $composableBuilder(
     column: $table.skillProficiencyGrants,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get backgroundPersonalityChoices => $composableBuilder(
+    column: $table.backgroundPersonalityChoices,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -10165,6 +12157,58 @@ class $$CharactersTableFilterComposer
     );
     return f(composer);
   }
+
+  Expression<bool> characterInventoryItemsRefs(
+    Expression<bool> Function($$CharacterInventoryItemsTableFilterComposer f) f,
+  ) {
+    final $$CharacterInventoryItemsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.characterInventoryItems,
+          getReferencedColumn: (t) => t.characterId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CharacterInventoryItemsTableFilterComposer(
+                $db: $db,
+                $table: $db.characterInventoryItems,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<bool> characterCurrencyGrantsRefs(
+    Expression<bool> Function($$CharacterCurrencyGrantsTableFilterComposer f) f,
+  ) {
+    final $$CharacterCurrencyGrantsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.characterCurrencyGrants,
+          getReferencedColumn: (t) => t.characterId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CharacterCurrencyGrantsTableFilterComposer(
+                $db: $db,
+                $table: $db.characterCurrencyGrants,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$CharactersTableOrderingComposer
@@ -10275,6 +12319,12 @@ class $$CharactersTableOrderingComposer
     column: $table.skillProficiencyGrants,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get backgroundPersonalityChoices =>
+      $composableBuilder(
+        column: $table.backgroundPersonalityChoices,
+        builder: (column) => ColumnOrderings(column),
+      );
 
   ColumnOrderings<int> get armorClass => $composableBuilder(
     column: $table.armorClass,
@@ -10677,6 +12727,12 @@ class $$CharactersTableAnnotationComposer
     column: $table.skillProficiencyGrants,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get backgroundPersonalityChoices =>
+      $composableBuilder(
+        column: $table.backgroundPersonalityChoices,
+        builder: (column) => column,
+      );
 
   GeneratedColumn<int> get armorClass => $composableBuilder(
     column: $table.armorClass,
@@ -11131,6 +13187,60 @@ class $$CharactersTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> characterInventoryItemsRefs<T extends Object>(
+    Expression<T> Function($$CharacterInventoryItemsTableAnnotationComposer a)
+    f,
+  ) {
+    final $$CharacterInventoryItemsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.characterInventoryItems,
+          getReferencedColumn: (t) => t.characterId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CharacterInventoryItemsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.characterInventoryItems,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<T> characterCurrencyGrantsRefs<T extends Object>(
+    Expression<T> Function($$CharacterCurrencyGrantsTableAnnotationComposer a)
+    f,
+  ) {
+    final $$CharacterCurrencyGrantsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.characterCurrencyGrants,
+          getReferencedColumn: (t) => t.characterId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CharacterCurrencyGrantsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.characterCurrencyGrants,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$CharactersTableTableManager
@@ -11153,6 +13263,8 @@ class $$CharactersTableTableManager
             bool characterMagicItemsRefs,
             bool characterSpellSlotsUsageRefs,
             bool characterFeatsRefs,
+            bool characterInventoryItemsRefs,
+            bool characterCurrencyGrantsRefs,
           })
         > {
   $$CharactersTableTableManager(_$AppDatabase db, $CharactersTable table)
@@ -11188,6 +13300,8 @@ class $$CharactersTableTableManager
                 Value<String?> baseAbilityScores = const Value.absent(),
                 Value<String?> originAbilityBonuses = const Value.absent(),
                 Value<String> skillProficiencyGrants = const Value.absent(),
+                Value<String> backgroundPersonalityChoices =
+                    const Value.absent(),
                 Value<int> armorClass = const Value.absent(),
                 Value<int> initiativeBonus = const Value.absent(),
                 Value<int> speed = const Value.absent(),
@@ -11272,6 +13386,7 @@ class $$CharactersTableTableManager
                 baseAbilityScores: baseAbilityScores,
                 originAbilityBonuses: originAbilityBonuses,
                 skillProficiencyGrants: skillProficiencyGrants,
+                backgroundPersonalityChoices: backgroundPersonalityChoices,
                 armorClass: armorClass,
                 initiativeBonus: initiativeBonus,
                 speed: speed,
@@ -11358,6 +13473,8 @@ class $$CharactersTableTableManager
                 Value<String?> baseAbilityScores = const Value.absent(),
                 Value<String?> originAbilityBonuses = const Value.absent(),
                 Value<String> skillProficiencyGrants = const Value.absent(),
+                Value<String> backgroundPersonalityChoices =
+                    const Value.absent(),
                 Value<int> armorClass = const Value.absent(),
                 Value<int> initiativeBonus = const Value.absent(),
                 Value<int> speed = const Value.absent(),
@@ -11442,6 +13559,7 @@ class $$CharactersTableTableManager
                 baseAbilityScores: baseAbilityScores,
                 originAbilityBonuses: originAbilityBonuses,
                 skillProficiencyGrants: skillProficiencyGrants,
+                backgroundPersonalityChoices: backgroundPersonalityChoices,
                 armorClass: armorClass,
                 initiativeBonus: initiativeBonus,
                 speed: speed,
@@ -11523,6 +13641,8 @@ class $$CharactersTableTableManager
             characterMagicItemsRefs = false,
             characterSpellSlotsUsageRefs = false,
             characterFeatsRefs = false,
+            characterInventoryItemsRefs = false,
+            characterCurrencyGrantsRefs = false,
           }) {
             return PrefetchHooks(
               db: db,
@@ -11533,6 +13653,8 @@ class $$CharactersTableTableManager
                 if (characterMagicItemsRefs) db.characterMagicItems,
                 if (characterSpellSlotsUsageRefs) db.characterSpellSlotsUsage,
                 if (characterFeatsRefs) db.characterFeats,
+                if (characterInventoryItemsRefs) db.characterInventoryItems,
+                if (characterCurrencyGrantsRefs) db.characterCurrencyGrants,
               ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
@@ -11669,6 +13791,50 @@ class $$CharactersTableTableManager
                           ),
                       typedResults: items,
                     ),
+                  if (characterInventoryItemsRefs)
+                    await $_getPrefetchedData<
+                      Character,
+                      $CharactersTable,
+                      CharacterInventoryItem
+                    >(
+                      currentTable: table,
+                      referencedTable: $$CharactersTableReferences
+                          ._characterInventoryItemsRefsTable(db),
+                      managerFromTypedResult:
+                          (p0) =>
+                              $$CharactersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).characterInventoryItemsRefs,
+                      referencedItemsForCurrentItem:
+                          (item, referencedItems) => referencedItems.where(
+                            (e) => e.characterId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
+                  if (characterCurrencyGrantsRefs)
+                    await $_getPrefetchedData<
+                      Character,
+                      $CharactersTable,
+                      CharacterCurrencyGrant
+                    >(
+                      currentTable: table,
+                      referencedTable: $$CharactersTableReferences
+                          ._characterCurrencyGrantsRefsTable(db),
+                      managerFromTypedResult:
+                          (p0) =>
+                              $$CharactersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).characterCurrencyGrantsRefs,
+                      referencedItemsForCurrentItem:
+                          (item, referencedItems) => referencedItems.where(
+                            (e) => e.characterId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
                 ];
               },
             );
@@ -11696,6 +13862,8 @@ typedef $$CharactersTableProcessedTableManager =
         bool characterMagicItemsRefs,
         bool characterSpellSlotsUsageRefs,
         bool characterFeatsRefs,
+        bool characterInventoryItemsRefs,
+        bool characterCurrencyGrantsRefs,
       })
     >;
 typedef $$CharacterClassLevelsTableCreateCompanionBuilder =
@@ -14798,6 +16966,1102 @@ typedef $$CharacterFeatsTableProcessedTableManager =
       CharacterFeat,
       PrefetchHooks Function({bool characterId})
     >;
+typedef $$CharacterInventoryItemsTableCreateCompanionBuilder =
+    CharacterInventoryItemsCompanion Function({
+      Value<int> localId,
+      required String characterId,
+      Value<String?> itemId,
+      required String name,
+      Value<int> quantity,
+      Value<String> description,
+      Value<double?> weight,
+      Value<String> category,
+      Value<bool> isEquipped,
+      Value<String> note,
+      Value<bool> isCustom,
+      Value<String> source,
+      Value<String?> sourceId,
+      Value<String?> sourceLabel,
+      Value<bool> grantedAtCreation,
+      Value<int?> grantedQuantity,
+      Value<bool> manuallyEdited,
+      Value<int?> linkedWeaponLocalId,
+      Value<int?> linkedMagicItemLocalId,
+    });
+typedef $$CharacterInventoryItemsTableUpdateCompanionBuilder =
+    CharacterInventoryItemsCompanion Function({
+      Value<int> localId,
+      Value<String> characterId,
+      Value<String?> itemId,
+      Value<String> name,
+      Value<int> quantity,
+      Value<String> description,
+      Value<double?> weight,
+      Value<String> category,
+      Value<bool> isEquipped,
+      Value<String> note,
+      Value<bool> isCustom,
+      Value<String> source,
+      Value<String?> sourceId,
+      Value<String?> sourceLabel,
+      Value<bool> grantedAtCreation,
+      Value<int?> grantedQuantity,
+      Value<bool> manuallyEdited,
+      Value<int?> linkedWeaponLocalId,
+      Value<int?> linkedMagicItemLocalId,
+    });
+
+final class $$CharacterInventoryItemsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $CharacterInventoryItemsTable,
+          CharacterInventoryItem
+        > {
+  $$CharacterInventoryItemsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $CharactersTable _characterIdTable(_$AppDatabase db) =>
+      db.characters.createAlias(
+        $_aliasNameGenerator(
+          db.characterInventoryItems.characterId,
+          db.characters.id,
+        ),
+      );
+
+  $$CharactersTableProcessedTableManager get characterId {
+    final $_column = $_itemColumn<String>('character_id')!;
+
+    final manager = $$CharactersTableTableManager(
+      $_db,
+      $_db.characters,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_characterIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$CharacterInventoryItemsTableFilterComposer
+    extends Composer<_$AppDatabase, $CharacterInventoryItemsTable> {
+  $$CharacterInventoryItemsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get itemId => $composableBuilder(
+    column: $table.itemId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get quantity => $composableBuilder(
+    column: $table.quantity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get weight => $composableBuilder(
+    column: $table.weight,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isEquipped => $composableBuilder(
+    column: $table.isEquipped,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isCustom => $composableBuilder(
+    column: $table.isCustom,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceId => $composableBuilder(
+    column: $table.sourceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceLabel => $composableBuilder(
+    column: $table.sourceLabel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get grantedAtCreation => $composableBuilder(
+    column: $table.grantedAtCreation,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get grantedQuantity => $composableBuilder(
+    column: $table.grantedQuantity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get manuallyEdited => $composableBuilder(
+    column: $table.manuallyEdited,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get linkedWeaponLocalId => $composableBuilder(
+    column: $table.linkedWeaponLocalId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get linkedMagicItemLocalId => $composableBuilder(
+    column: $table.linkedMagicItemLocalId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CharactersTableFilterComposer get characterId {
+    final $$CharactersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableFilterComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterInventoryItemsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CharacterInventoryItemsTable> {
+  $$CharacterInventoryItemsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get itemId => $composableBuilder(
+    column: $table.itemId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get quantity => $composableBuilder(
+    column: $table.quantity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get weight => $composableBuilder(
+    column: $table.weight,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isEquipped => $composableBuilder(
+    column: $table.isEquipped,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isCustom => $composableBuilder(
+    column: $table.isCustom,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceId => $composableBuilder(
+    column: $table.sourceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceLabel => $composableBuilder(
+    column: $table.sourceLabel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get grantedAtCreation => $composableBuilder(
+    column: $table.grantedAtCreation,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get grantedQuantity => $composableBuilder(
+    column: $table.grantedQuantity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get manuallyEdited => $composableBuilder(
+    column: $table.manuallyEdited,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get linkedWeaponLocalId => $composableBuilder(
+    column: $table.linkedWeaponLocalId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get linkedMagicItemLocalId => $composableBuilder(
+    column: $table.linkedMagicItemLocalId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CharactersTableOrderingComposer get characterId {
+    final $$CharactersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableOrderingComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterInventoryItemsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CharacterInventoryItemsTable> {
+  $$CharacterInventoryItemsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get localId =>
+      $composableBuilder(column: $table.localId, builder: (column) => column);
+
+  GeneratedColumn<String> get itemId =>
+      $composableBuilder(column: $table.itemId, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<int> get quantity =>
+      $composableBuilder(column: $table.quantity, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get weight =>
+      $composableBuilder(column: $table.weight, builder: (column) => column);
+
+  GeneratedColumn<String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<bool> get isEquipped => $composableBuilder(
+    column: $table.isEquipped,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<bool> get isCustom =>
+      $composableBuilder(column: $table.isCustom, builder: (column) => column);
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceId =>
+      $composableBuilder(column: $table.sourceId, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceLabel => $composableBuilder(
+    column: $table.sourceLabel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get grantedAtCreation => $composableBuilder(
+    column: $table.grantedAtCreation,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get grantedQuantity => $composableBuilder(
+    column: $table.grantedQuantity,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get manuallyEdited => $composableBuilder(
+    column: $table.manuallyEdited,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get linkedWeaponLocalId => $composableBuilder(
+    column: $table.linkedWeaponLocalId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get linkedMagicItemLocalId => $composableBuilder(
+    column: $table.linkedMagicItemLocalId,
+    builder: (column) => column,
+  );
+
+  $$CharactersTableAnnotationComposer get characterId {
+    final $$CharactersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterInventoryItemsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CharacterInventoryItemsTable,
+          CharacterInventoryItem,
+          $$CharacterInventoryItemsTableFilterComposer,
+          $$CharacterInventoryItemsTableOrderingComposer,
+          $$CharacterInventoryItemsTableAnnotationComposer,
+          $$CharacterInventoryItemsTableCreateCompanionBuilder,
+          $$CharacterInventoryItemsTableUpdateCompanionBuilder,
+          (CharacterInventoryItem, $$CharacterInventoryItemsTableReferences),
+          CharacterInventoryItem,
+          PrefetchHooks Function({bool characterId})
+        > {
+  $$CharacterInventoryItemsTableTableManager(
+    _$AppDatabase db,
+    $CharacterInventoryItemsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer:
+              () => $$CharacterInventoryItemsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer:
+              () => $$CharacterInventoryItemsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer:
+              () => $$CharacterInventoryItemsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> localId = const Value.absent(),
+                Value<String> characterId = const Value.absent(),
+                Value<String?> itemId = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<int> quantity = const Value.absent(),
+                Value<String> description = const Value.absent(),
+                Value<double?> weight = const Value.absent(),
+                Value<String> category = const Value.absent(),
+                Value<bool> isEquipped = const Value.absent(),
+                Value<String> note = const Value.absent(),
+                Value<bool> isCustom = const Value.absent(),
+                Value<String> source = const Value.absent(),
+                Value<String?> sourceId = const Value.absent(),
+                Value<String?> sourceLabel = const Value.absent(),
+                Value<bool> grantedAtCreation = const Value.absent(),
+                Value<int?> grantedQuantity = const Value.absent(),
+                Value<bool> manuallyEdited = const Value.absent(),
+                Value<int?> linkedWeaponLocalId = const Value.absent(),
+                Value<int?> linkedMagicItemLocalId = const Value.absent(),
+              }) => CharacterInventoryItemsCompanion(
+                localId: localId,
+                characterId: characterId,
+                itemId: itemId,
+                name: name,
+                quantity: quantity,
+                description: description,
+                weight: weight,
+                category: category,
+                isEquipped: isEquipped,
+                note: note,
+                isCustom: isCustom,
+                source: source,
+                sourceId: sourceId,
+                sourceLabel: sourceLabel,
+                grantedAtCreation: grantedAtCreation,
+                grantedQuantity: grantedQuantity,
+                manuallyEdited: manuallyEdited,
+                linkedWeaponLocalId: linkedWeaponLocalId,
+                linkedMagicItemLocalId: linkedMagicItemLocalId,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> localId = const Value.absent(),
+                required String characterId,
+                Value<String?> itemId = const Value.absent(),
+                required String name,
+                Value<int> quantity = const Value.absent(),
+                Value<String> description = const Value.absent(),
+                Value<double?> weight = const Value.absent(),
+                Value<String> category = const Value.absent(),
+                Value<bool> isEquipped = const Value.absent(),
+                Value<String> note = const Value.absent(),
+                Value<bool> isCustom = const Value.absent(),
+                Value<String> source = const Value.absent(),
+                Value<String?> sourceId = const Value.absent(),
+                Value<String?> sourceLabel = const Value.absent(),
+                Value<bool> grantedAtCreation = const Value.absent(),
+                Value<int?> grantedQuantity = const Value.absent(),
+                Value<bool> manuallyEdited = const Value.absent(),
+                Value<int?> linkedWeaponLocalId = const Value.absent(),
+                Value<int?> linkedMagicItemLocalId = const Value.absent(),
+              }) => CharacterInventoryItemsCompanion.insert(
+                localId: localId,
+                characterId: characterId,
+                itemId: itemId,
+                name: name,
+                quantity: quantity,
+                description: description,
+                weight: weight,
+                category: category,
+                isEquipped: isEquipped,
+                note: note,
+                isCustom: isCustom,
+                source: source,
+                sourceId: sourceId,
+                sourceLabel: sourceLabel,
+                grantedAtCreation: grantedAtCreation,
+                grantedQuantity: grantedQuantity,
+                manuallyEdited: manuallyEdited,
+                linkedWeaponLocalId: linkedWeaponLocalId,
+                linkedMagicItemLocalId: linkedMagicItemLocalId,
+              ),
+          withReferenceMapper:
+              (p0) =>
+                  p0
+                      .map(
+                        (e) => (
+                          e.readTable(table),
+                          $$CharacterInventoryItemsTableReferences(
+                            db,
+                            table,
+                            e,
+                          ),
+                        ),
+                      )
+                      .toList(),
+          prefetchHooksCallback: ({characterId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                T extends TableManagerState<
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic
+                >
+              >(state) {
+                if (characterId) {
+                  state =
+                      state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.characterId,
+                            referencedTable:
+                                $$CharacterInventoryItemsTableReferences
+                                    ._characterIdTable(db),
+                            referencedColumn:
+                                $$CharacterInventoryItemsTableReferences
+                                    ._characterIdTable(db)
+                                    .id,
+                          )
+                          as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$CharacterInventoryItemsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CharacterInventoryItemsTable,
+      CharacterInventoryItem,
+      $$CharacterInventoryItemsTableFilterComposer,
+      $$CharacterInventoryItemsTableOrderingComposer,
+      $$CharacterInventoryItemsTableAnnotationComposer,
+      $$CharacterInventoryItemsTableCreateCompanionBuilder,
+      $$CharacterInventoryItemsTableUpdateCompanionBuilder,
+      (CharacterInventoryItem, $$CharacterInventoryItemsTableReferences),
+      CharacterInventoryItem,
+      PrefetchHooks Function({bool characterId})
+    >;
+typedef $$CharacterCurrencyGrantsTableCreateCompanionBuilder =
+    CharacterCurrencyGrantsCompanion Function({
+      Value<int> localId,
+      required String characterId,
+      required String source,
+      Value<String?> sourceId,
+      Value<String?> sourceLabel,
+      Value<int> copperPieces,
+      Value<int> silverPieces,
+      Value<int> electrumPieces,
+      Value<int> goldPieces,
+      Value<int> platinumPieces,
+      Value<bool> grantedAtCreation,
+    });
+typedef $$CharacterCurrencyGrantsTableUpdateCompanionBuilder =
+    CharacterCurrencyGrantsCompanion Function({
+      Value<int> localId,
+      Value<String> characterId,
+      Value<String> source,
+      Value<String?> sourceId,
+      Value<String?> sourceLabel,
+      Value<int> copperPieces,
+      Value<int> silverPieces,
+      Value<int> electrumPieces,
+      Value<int> goldPieces,
+      Value<int> platinumPieces,
+      Value<bool> grantedAtCreation,
+    });
+
+final class $$CharacterCurrencyGrantsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $CharacterCurrencyGrantsTable,
+          CharacterCurrencyGrant
+        > {
+  $$CharacterCurrencyGrantsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $CharactersTable _characterIdTable(_$AppDatabase db) =>
+      db.characters.createAlias(
+        $_aliasNameGenerator(
+          db.characterCurrencyGrants.characterId,
+          db.characters.id,
+        ),
+      );
+
+  $$CharactersTableProcessedTableManager get characterId {
+    final $_column = $_itemColumn<String>('character_id')!;
+
+    final manager = $$CharactersTableTableManager(
+      $_db,
+      $_db.characters,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_characterIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$CharacterCurrencyGrantsTableFilterComposer
+    extends Composer<_$AppDatabase, $CharacterCurrencyGrantsTable> {
+  $$CharacterCurrencyGrantsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceId => $composableBuilder(
+    column: $table.sourceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceLabel => $composableBuilder(
+    column: $table.sourceLabel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get copperPieces => $composableBuilder(
+    column: $table.copperPieces,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get silverPieces => $composableBuilder(
+    column: $table.silverPieces,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get electrumPieces => $composableBuilder(
+    column: $table.electrumPieces,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get goldPieces => $composableBuilder(
+    column: $table.goldPieces,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get platinumPieces => $composableBuilder(
+    column: $table.platinumPieces,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get grantedAtCreation => $composableBuilder(
+    column: $table.grantedAtCreation,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CharactersTableFilterComposer get characterId {
+    final $$CharactersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableFilterComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterCurrencyGrantsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CharacterCurrencyGrantsTable> {
+  $$CharacterCurrencyGrantsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceId => $composableBuilder(
+    column: $table.sourceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceLabel => $composableBuilder(
+    column: $table.sourceLabel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get copperPieces => $composableBuilder(
+    column: $table.copperPieces,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get silverPieces => $composableBuilder(
+    column: $table.silverPieces,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get electrumPieces => $composableBuilder(
+    column: $table.electrumPieces,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get goldPieces => $composableBuilder(
+    column: $table.goldPieces,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get platinumPieces => $composableBuilder(
+    column: $table.platinumPieces,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get grantedAtCreation => $composableBuilder(
+    column: $table.grantedAtCreation,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CharactersTableOrderingComposer get characterId {
+    final $$CharactersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableOrderingComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterCurrencyGrantsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CharacterCurrencyGrantsTable> {
+  $$CharacterCurrencyGrantsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get localId =>
+      $composableBuilder(column: $table.localId, builder: (column) => column);
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceId =>
+      $composableBuilder(column: $table.sourceId, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceLabel => $composableBuilder(
+    column: $table.sourceLabel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get copperPieces => $composableBuilder(
+    column: $table.copperPieces,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get silverPieces => $composableBuilder(
+    column: $table.silverPieces,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get electrumPieces => $composableBuilder(
+    column: $table.electrumPieces,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get goldPieces => $composableBuilder(
+    column: $table.goldPieces,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get platinumPieces => $composableBuilder(
+    column: $table.platinumPieces,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get grantedAtCreation => $composableBuilder(
+    column: $table.grantedAtCreation,
+    builder: (column) => column,
+  );
+
+  $$CharactersTableAnnotationComposer get characterId {
+    final $$CharactersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterCurrencyGrantsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CharacterCurrencyGrantsTable,
+          CharacterCurrencyGrant,
+          $$CharacterCurrencyGrantsTableFilterComposer,
+          $$CharacterCurrencyGrantsTableOrderingComposer,
+          $$CharacterCurrencyGrantsTableAnnotationComposer,
+          $$CharacterCurrencyGrantsTableCreateCompanionBuilder,
+          $$CharacterCurrencyGrantsTableUpdateCompanionBuilder,
+          (CharacterCurrencyGrant, $$CharacterCurrencyGrantsTableReferences),
+          CharacterCurrencyGrant,
+          PrefetchHooks Function({bool characterId})
+        > {
+  $$CharacterCurrencyGrantsTableTableManager(
+    _$AppDatabase db,
+    $CharacterCurrencyGrantsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer:
+              () => $$CharacterCurrencyGrantsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer:
+              () => $$CharacterCurrencyGrantsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer:
+              () => $$CharacterCurrencyGrantsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> localId = const Value.absent(),
+                Value<String> characterId = const Value.absent(),
+                Value<String> source = const Value.absent(),
+                Value<String?> sourceId = const Value.absent(),
+                Value<String?> sourceLabel = const Value.absent(),
+                Value<int> copperPieces = const Value.absent(),
+                Value<int> silverPieces = const Value.absent(),
+                Value<int> electrumPieces = const Value.absent(),
+                Value<int> goldPieces = const Value.absent(),
+                Value<int> platinumPieces = const Value.absent(),
+                Value<bool> grantedAtCreation = const Value.absent(),
+              }) => CharacterCurrencyGrantsCompanion(
+                localId: localId,
+                characterId: characterId,
+                source: source,
+                sourceId: sourceId,
+                sourceLabel: sourceLabel,
+                copperPieces: copperPieces,
+                silverPieces: silverPieces,
+                electrumPieces: electrumPieces,
+                goldPieces: goldPieces,
+                platinumPieces: platinumPieces,
+                grantedAtCreation: grantedAtCreation,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> localId = const Value.absent(),
+                required String characterId,
+                required String source,
+                Value<String?> sourceId = const Value.absent(),
+                Value<String?> sourceLabel = const Value.absent(),
+                Value<int> copperPieces = const Value.absent(),
+                Value<int> silverPieces = const Value.absent(),
+                Value<int> electrumPieces = const Value.absent(),
+                Value<int> goldPieces = const Value.absent(),
+                Value<int> platinumPieces = const Value.absent(),
+                Value<bool> grantedAtCreation = const Value.absent(),
+              }) => CharacterCurrencyGrantsCompanion.insert(
+                localId: localId,
+                characterId: characterId,
+                source: source,
+                sourceId: sourceId,
+                sourceLabel: sourceLabel,
+                copperPieces: copperPieces,
+                silverPieces: silverPieces,
+                electrumPieces: electrumPieces,
+                goldPieces: goldPieces,
+                platinumPieces: platinumPieces,
+                grantedAtCreation: grantedAtCreation,
+              ),
+          withReferenceMapper:
+              (p0) =>
+                  p0
+                      .map(
+                        (e) => (
+                          e.readTable(table),
+                          $$CharacterCurrencyGrantsTableReferences(
+                            db,
+                            table,
+                            e,
+                          ),
+                        ),
+                      )
+                      .toList(),
+          prefetchHooksCallback: ({characterId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                T extends TableManagerState<
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic
+                >
+              >(state) {
+                if (characterId) {
+                  state =
+                      state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.characterId,
+                            referencedTable:
+                                $$CharacterCurrencyGrantsTableReferences
+                                    ._characterIdTable(db),
+                            referencedColumn:
+                                $$CharacterCurrencyGrantsTableReferences
+                                    ._characterIdTable(db)
+                                    .id,
+                          )
+                          as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$CharacterCurrencyGrantsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CharacterCurrencyGrantsTable,
+      CharacterCurrencyGrant,
+      $$CharacterCurrencyGrantsTableFilterComposer,
+      $$CharacterCurrencyGrantsTableOrderingComposer,
+      $$CharacterCurrencyGrantsTableAnnotationComposer,
+      $$CharacterCurrencyGrantsTableCreateCompanionBuilder,
+      $$CharacterCurrencyGrantsTableUpdateCompanionBuilder,
+      (CharacterCurrencyGrant, $$CharacterCurrencyGrantsTableReferences),
+      CharacterCurrencyGrant,
+      PrefetchHooks Function({bool characterId})
+    >;
 typedef $$ClassEntriesTableCreateCompanionBuilder =
     ClassEntriesCompanion Function({
       required String id,
@@ -15034,6 +18298,16 @@ class $AppDatabaseManager {
       );
   $$CharacterFeatsTableTableManager get characterFeats =>
       $$CharacterFeatsTableTableManager(_db, _db.characterFeats);
+  $$CharacterInventoryItemsTableTableManager get characterInventoryItems =>
+      $$CharacterInventoryItemsTableTableManager(
+        _db,
+        _db.characterInventoryItems,
+      );
+  $$CharacterCurrencyGrantsTableTableManager get characterCurrencyGrants =>
+      $$CharacterCurrencyGrantsTableTableManager(
+        _db,
+        _db.characterCurrencyGrants,
+      );
   $$ClassEntriesTableTableManager get classEntries =>
       $$ClassEntriesTableTableManager(_db, _db.classEntries);
 }

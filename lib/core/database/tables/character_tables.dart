@@ -52,6 +52,19 @@ class Characters extends Table {
   TextColumn get skillProficiencyGrants =>
       text().withDefault(const Constant('[]'))();
 
+  /// Traços, ideal, vínculo e defeito escolhidos no antecedente, em JSON.
+  ///
+  /// JSON e não tabela filha porque o conjunto é minúsculo (cinco entradas no
+  /// padrão 2014), é sempre lido e gravado inteiro, e cada entrada precisa
+  /// guardar dois campos alternativos — o id da opção OU o texto que o jogador
+  /// escreveu. CSV não daria conta do texto livre, que pode ter vírgula.
+  ///
+  /// Guarda o IDENTIFICADOR da opção, não o texto: assim corrigir uma frase do
+  /// compêndio corrige a ficha, e o texto não fica duplicado em cada
+  /// personagem. Ver `BackgroundPersonalityChoice`.
+  TextColumn get backgroundPersonalityChoices =>
+      text().withDefault(const Constant('[]'))();
+
   IntColumn get armorClass => integer().withDefault(const Constant(10))();
   IntColumn get initiativeBonus => integer().withDefault(const Constant(0))();
 
@@ -392,4 +405,109 @@ class CharacterSpellSlotsUsage extends Table {
   TextColumn get characterId => text().references(Characters, #id)();
   IntColumn get slotLevel => integer()(); // 1 até 9
   IntColumn get used => integer().withDefault(const Constant(0))();
+}
+
+/// Itens que o personagem carrega.
+///
+/// Tabela filha, e não CSV ou JSON numa coluna, porque aqui cada linha é uma
+/// entidade com estado próprio que o jogador edita uma por uma: quantidade,
+/// equipado, observação. É a mesma escolha de [CharacterMagicItems].
+///
+/// Os campos de origem ([source], [sourceId], [grantedQuantity], ...) existem
+/// para a troca de antecedente conseguir remover só o que aquele antecedente
+/// concedeu. Sem eles a remoção seletiva teria que comparar nomes, e nome é
+/// editável pelo jogador.
+class CharacterInventoryItems extends Table {
+  IntColumn get localId => integer().autoIncrement()();
+  TextColumn get characterId => text().references(Characters, #id)();
+
+  /// Id estável da definição do item (`crowbar`, `common_clothes`).
+  ///
+  /// Nulo em item avulso criado pelo jogador, que não corresponde a nada
+  /// catalogado.
+  TextColumn get itemId => text().nullable()();
+
+  TextColumn get name => text()();
+
+  /// Quantidade atual. Zero é válido: munição acabada continua listada até o
+  /// jogador confirmar a remoção.
+  IntColumn get quantity => integer().withDefault(const Constant(1))();
+
+  TextColumn get description => text().withDefault(const Constant(''))();
+
+  /// Peso em quilos. Nulo é "não informado" — o app não tem tabela de pesos, e
+  /// gravar zero afirmaria que o item não pesa nada.
+  RealColumn get weight => real().nullable()();
+
+  /// Id de [ItemCategory]. Texto em vez de inteiro para a ordem do enum poder
+  /// mudar sem reinterpretar dado gravado.
+  TextColumn get category => text().withDefault(const Constant('gear'))();
+
+  BoolColumn get isEquipped => boolean().withDefault(const Constant(false))();
+
+  TextColumn get note => text().withDefault(const Constant(''))();
+
+  BoolColumn get isCustom => boolean().withDefault(const Constant(false))();
+
+  /// Id de `GrantSource`. `manual` é o padrão e nunca é removido por
+  /// recálculo.
+  TextColumn get source => text().withDefault(const Constant('manual'))();
+
+  /// Id da fonte (`criminal` para o antecedente Criminoso).
+  TextColumn get sourceId => text().nullable()();
+
+  /// Rótulo da fonte, já pronto para exibir.
+  ///
+  /// Persistido em vez de remontado na leitura: o compêndio pode mudar de
+  /// nome, e a ficha deve continuar dizendo de onde o item veio.
+  TextColumn get sourceLabel => text().nullable()();
+
+  BoolColumn get grantedAtCreation =>
+      boolean().withDefault(const Constant(false))();
+
+  /// Quantidade originalmente concedida pela fonte. Nula em item manual.
+  ///
+  /// Comparada com [quantity] para saber se o jogador consumiu ou acumulou
+  /// unidades, caso em que o item não pode ser apagado em silêncio.
+  IntColumn get grantedQuantity => integer().nullable()();
+
+  BoolColumn get manuallyEdited =>
+      boolean().withDefault(const Constant(false))();
+
+  /// `CharacterWeapons.localId` da arma correspondente.
+  ///
+  /// Sem `references` de propósito: o vínculo é informativo e a arma pode ser
+  /// removida sem que o item de inventário deixe de existir. Uma chave
+  /// estrangeira obrigaria a apagar os dois juntos.
+  IntColumn get linkedWeaponLocalId => integer().nullable()();
+
+  /// `CharacterMagicItems.localId` do item mágico correspondente.
+  IntColumn get linkedMagicItemLocalId => integer().nullable()();
+}
+
+/// Moedas concedidas por fontes automáticas.
+///
+/// A carteira continua sendo o total nas colunas de moeda de [Characters],
+/// porque é assim que a mesa consulta. Esta tabela registra ao lado quanto
+/// daquele total veio de cada fonte, para trocar o antecedente subtrair
+/// exatamente o que ele havia somado — e não zerar a carteira nem subtrair às
+/// cegas um valor recalculado.
+class CharacterCurrencyGrants extends Table {
+  IntColumn get localId => integer().autoIncrement()();
+  TextColumn get characterId => text().references(Characters, #id)();
+
+  /// Id de `GrantSource`.
+  TextColumn get source => text()();
+
+  TextColumn get sourceId => text().nullable()();
+  TextColumn get sourceLabel => text().nullable()();
+
+  IntColumn get copperPieces => integer().withDefault(const Constant(0))();
+  IntColumn get silverPieces => integer().withDefault(const Constant(0))();
+  IntColumn get electrumPieces => integer().withDefault(const Constant(0))();
+  IntColumn get goldPieces => integer().withDefault(const Constant(0))();
+  IntColumn get platinumPieces => integer().withDefault(const Constant(0))();
+
+  BoolColumn get grantedAtCreation =>
+      boolean().withDefault(const Constant(false))();
 }
