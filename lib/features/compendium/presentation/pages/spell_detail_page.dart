@@ -1,28 +1,20 @@
-﻿import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
+import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_entry.dart';
 import 'package:flutter/material.dart';
 
 class SpellDetailPage extends StatelessWidget {
-  const SpellDetailPage({
-    required this.spell,
-    super.key,
-  });
+  const SpellDetailPage({required this.spell, super.key});
 
   final SpellEntry spell;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(spell.namePt),
-      ),
+      appBar: AppBar(title: Text(spell.namePt)),
       body: ListView(
         padding: context.scrollContentPadding(),
         children: [
-          Text(
-            spell.namePt,
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
+          Text(spell.namePt, style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 4),
           if (spell.nameOriginal.isNotEmpty)
             Text(
@@ -58,7 +50,7 @@ class SpellDetailPage extends StatelessWidget {
               Text(
                 spell.classes.isEmpty
                     ? 'Nenhuma classe cadastrada.'
-                    : spell.classes.join(', '),
+                    : spell.classLabels.join(', '),
               ),
             ],
           ),
@@ -66,25 +58,16 @@ class SpellDetailPage extends StatelessWidget {
             const SizedBox(height: 16),
             _InfoCard(
               title: 'Subclasses',
-              children: [
-                Text(spell.subclasses.join(', ')),
-              ],
+              children: [Text(spell.subclasses.join(', '))],
             ),
           ],
           const SizedBox(height: 16),
-          _InfoCard(
-            title: 'Descrição',
-            children: [
-              Text(spell.description),
-            ],
-          ),
+          _InfoCard(title: 'Descrição', children: [Text(spell.description)]),
           if (spell.upcast != null && spell.upcast!.trim().isNotEmpty) ...[
             const SizedBox(height: 16),
             _InfoCard(
               title: 'Em círculos superiores',
-              children: [
-                Text(spell.upcast!),
-              ],
+              children: [Text(spell.upcast!)],
             ),
           ],
           const SizedBox(height: 16),
@@ -107,10 +90,7 @@ class SpellDetailPage extends StatelessWidget {
 }
 
 class _InfoCard extends StatelessWidget {
-  const _InfoCard({
-    required this.title,
-    required this.children,
-  });
+  const _InfoCard({required this.title, required this.children});
 
   final String title;
   final List<Widget> children;
@@ -134,10 +114,7 @@ class _InfoCard extends StatelessWidget {
 }
 
 class _InfoRow extends StatelessWidget {
-  const _InfoRow({
-    required this.label,
-    required this.value,
-  });
+  const _InfoRow({required this.label, required this.value});
 
   final String label;
   final String value;

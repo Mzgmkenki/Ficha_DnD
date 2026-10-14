@@ -21,21 +21,14 @@ class _SpellCompendiumPageState extends ConsumerState<SpellCompendiumPage> {
   bool _onlyRitual = false;
   bool _onlyConcentration = false;
 
+  /// Opções do filtro de classe: "Todas" mais os rótulos de `spellClassLabels`.
+  ///
+  /// Os rótulos vêm de um lugar só. Antes esta tela tinha a própria cópia da
+  /// tabela, e a tela de detalhe não tinha nenhuma — por isso o detalhe mostrava
+  /// o id em inglês.
   static const Map<String, String> _classLabels = {
     'all': 'Todas',
-    'artificer': 'Artífice',
-    'barbarian': 'Bárbaro',
-    'bard': 'Bardo',
-    'cleric': 'Clérigo',
-    'druid': 'Druida',
-    'fighter': 'Guerreiro',
-    'monk': 'Monge',
-    'paladin': 'Paladino',
-    'ranger': 'Patrulheiro',
-    'rogue': 'Ladino',
-    'sorcerer': 'Feiticeiro',
-    'warlock': 'Bruxo',
-    'wizard': 'Mago',
+    ...spellClassLabels,
   };
 
   @override
@@ -49,9 +42,7 @@ class _SpellCompendiumPageState extends ConsumerState<SpellCompendiumPage> {
     final spellsAsync = ref.watch(spellEntriesProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Compêndio de Magias'),
-      ),
+      appBar: AppBar(title: const Text('Compêndio de Magias')),
       body: spellsAsync.when(
         data: (spells) {
           final filtered = _applyFilters(spells);
@@ -67,17 +58,18 @@ class _SpellCompendiumPageState extends ConsumerState<SpellCompendiumPage> {
                       decoration: InputDecoration(
                         labelText: 'Buscar magia',
                         prefixIcon: const Icon(Icons.search),
-                        suffixIcon: _search.isEmpty
-                            ? null
-                            : IconButton(
-                                onPressed: () {
-                                  _searchController.clear();
-                                  setState(() {
-                                    _search = '';
-                                  });
-                                },
-                                icon: const Icon(Icons.clear),
-                              ),
+                        suffixIcon:
+                            _search.isEmpty
+                                ? null
+                                : IconButton(
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    setState(() {
+                                      _search = '';
+                                    });
+                                  },
+                                  icon: const Icon(Icons.clear),
+                                ),
                         border: const OutlineInputBorder(),
                       ),
                       onChanged: (value) {
@@ -96,14 +88,15 @@ class _SpellCompendiumPageState extends ConsumerState<SpellCompendiumPage> {
                               labelText: 'Classe',
                               border: OutlineInputBorder(),
                             ),
-                            items: _classLabels.entries
-                                .map(
-                                  (entry) => DropdownMenuItem<String>(
-                                    value: entry.key,
-                                    child: Text(entry.value),
-                                  ),
-                                )
-                                .toList(),
+                            items:
+                                _classLabels.entries
+                                    .map(
+                                      (entry) => DropdownMenuItem<String>(
+                                        value: entry.key,
+                                        child: Text(entry.value),
+                                      ),
+                                    )
+                                    .toList(),
                             onChanged: (value) {
                               if (value == null) return;
                               setState(() {
@@ -182,88 +175,91 @@ class _SpellCompendiumPageState extends ConsumerState<SpellCompendiumPage> {
               ),
               const Divider(height: 1),
               Expanded(
-                child: filtered.isEmpty
-                    ? const Center(
-                        child: Text('Nenhuma magia encontrada com esses filtros.'),
-                      )
-                    : ListView.separated(
-                        itemCount: filtered.length,
-                        separatorBuilder: (_, __) => const Divider(height: 1),
-                        itemBuilder: (context, index) {
-                          final spell = filtered[index];
+                child:
+                    filtered.isEmpty
+                        ? const Center(
+                          child: Text(
+                            'Nenhuma magia encontrada com esses filtros.',
+                          ),
+                        )
+                        : ListView.separated(
+                          itemCount: filtered.length,
+                          separatorBuilder: (_, __) => const Divider(height: 1),
+                          itemBuilder: (context, index) {
+                            final spell = filtered[index];
 
-                          return ListTile(
-                            title: Text(spell.namePt),
-                            subtitle: Text(
-                              '${_levelLabel(spell.level)} • ${spell.school}',
-                            ),
-                            trailing: Wrap(
-                              spacing: 6,
-                              children: [
-                                if (spell.ritual)
-                                  const Icon(Icons.menu_book, size: 18),
-                                if (spell.concentration)
-                                  const Icon(Icons.blur_on, size: 18),
-                              ],
-                            ),
-                            onTap: () {
-                              AppNavigator.toSpellDetail(
-                                context,
-                                spell: spell,
-                              );
-                            },
-                          );
-                        },
-                      ),
+                            return ListTile(
+                              title: Text(spell.namePt),
+                              subtitle: Text(
+                                '${_levelLabel(spell.level)} • ${spell.school}',
+                              ),
+                              trailing: Wrap(
+                                spacing: 6,
+                                children: [
+                                  if (spell.ritual)
+                                    const Icon(Icons.menu_book, size: 18),
+                                  if (spell.concentration)
+                                    const Icon(Icons.blur_on, size: 18),
+                                ],
+                              ),
+                              onTap: () {
+                                AppNavigator.toSpellDetail(
+                                  context,
+                                  spell: spell,
+                                );
+                              },
+                            );
+                          },
+                        ),
               ),
             ],
           );
         },
         error: (error, stackTrace) {
-          return Center(
-            child: Text('Erro ao carregar magias: $error'),
-          );
+          return Center(child: Text('Erro ao carregar magias: $error'));
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
+        loading: () => const Center(child: CircularProgressIndicator()),
       ),
     );
   }
 
   List<SpellEntry> _applyFilters(List<SpellEntry> spells) {
-    return spells.where((spell) {
-      if (_search.isNotEmpty) {
-        final matchesPt = spell.namePt.toLowerCase().contains(_search);
-        final matchesOriginal = spell.nameOriginal.toLowerCase().contains(_search);
-        if (!matchesPt && !matchesOriginal) {
+    return spells
+      .where((spell) {
+        if (_search.isNotEmpty) {
+          final matchesPt = spell.namePt.toLowerCase().contains(_search);
+          final matchesOriginal = spell.nameOriginal.toLowerCase().contains(
+            _search,
+          );
+          if (!matchesPt && !matchesOriginal) {
+            return false;
+          }
+        }
+
+        if (_selectedClass != 'all' &&
+            !spell.classes.contains(_selectedClass)) {
           return false;
         }
-      }
 
-      if (_selectedClass != 'all' && !spell.classes.contains(_selectedClass)) {
-        return false;
-      }
+        if (_selectedLevel != null && spell.level != _selectedLevel) {
+          return false;
+        }
 
-      if (_selectedLevel != null && spell.level != _selectedLevel) {
-        return false;
-      }
+        if (_onlyRitual && !spell.ritual) {
+          return false;
+        }
 
-      if (_onlyRitual && !spell.ritual) {
-        return false;
-      }
+        if (_onlyConcentration && !spell.concentration) {
+          return false;
+        }
 
-      if (_onlyConcentration && !spell.concentration) {
-        return false;
-      }
-
-      return true;
-    }).toList(growable: false)
-      ..sort((a, b) {
-        final levelCompare = a.level.compareTo(b.level);
-        if (levelCompare != 0) return levelCompare;
-        return a.namePt.compareTo(b.namePt);
-      });
+        return true;
+      })
+      .toList(growable: false)..sort((a, b) {
+      final levelCompare = a.level.compareTo(b.level);
+      if (levelCompare != 0) return levelCompare;
+      return a.namePt.compareTo(b.namePt);
+    });
   }
 
   String _levelLabel(int level) {
