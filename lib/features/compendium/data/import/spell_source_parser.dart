@@ -79,12 +79,19 @@ class SpellSourceParser {
       'materiais pagos',
       'material com custo',
       'componente com custo',
+      'possui componente material com custo',
     ],
     'duracao': ['duracao', 'duration'],
     'concentracao': ['concentracao', 'concentration'],
     'ritual': ['ritual'],
     'classes': ['classes', 'classe', 'class'],
-    'subclasses': ['subclasses', 'subclasse', 'subclass'],
+    'subclasses': [
+      'subclasses',
+      'subclasse',
+      'subclass',
+      'subclasses ou disponibilidade especial',
+      'disponibilidade especial',
+    ],
     'descricao': ['descricao', 'description', 'efeito', 'texto'],
     'upcast': [
       'upcast',
@@ -126,9 +133,32 @@ class SpellSourceParser {
 
   /// Lê o formato de texto rotulado.
   ///
-  /// Um bloco termina quando aparece um rótulo `Nome:`/`ID:` já visto no bloco
-  /// atual, ou numa linha separadora. Linha sem rótulo é continuação do último
-  /// campo, que é como a descrição vem quebrada em vários parágrafos.
+  /// Reconhece duas formas de escrever a mesma magia. A direta usa um rótulo
+  /// por campo, inclusive `Nome:` e `Descrição:`. A de catálogo, que é como os
+  /// livros de magia costumam vir, usa:
+  ///
+  /// ```
+  /// ==============================================
+  /// 1. Conhecimento Emprestado (Borrowed Knowledge)
+  /// ----------------------------------------------
+  /// ID: 40001
+  /// Nível: 2º círculo
+  /// ...
+  ///
+  /// DESCRIÇÃO
+  /// Você recorre ao conhecimento de espíritos do passado.
+  ///
+  /// EM CÍRCULOS SUPERIORES
+  /// Ao conjurar esta magia usando um espaço de 3º círculo...
+  /// ```
+  ///
+  /// Nessa forma o nome em português e o original saem da linha de título, e
+  /// `DESCRIÇÃO` e `EM CÍRCULOS SUPERIORES` são cabeçalhos de seção em vez de
+  /// rótulos. O título é o que separa uma magia da seguinte: linha de
+  /// tracejado não serve, porque aparece também entre o título e os campos.
+  ///
+  /// Linha sem rótulo é continuação do último campo, e linha em branco no meio
+  /// de uma descrição vira parágrafo em vez de cortar o texto.
   SpellParseResult parseLabeledText(String text) {
     final all = _splitBlocks(text);
 
@@ -216,25 +246,73 @@ class SpellSourceParser {
     var current = <String, dynamic>{};
     String? lastKey;
 
+    // Verdadeiro logo depois de uma linha de tracejado ou cerquilha. Só nessa
+    // posição uma linha sem rótulo pode ser o título de uma magia; no meio de
+    // uma descrição ela é continuação de texto.
+    var afterSeparator = true;
+
+    // Guarda a linha em branco em vez de descartar o campo atual, para o
+    // parágrafo seguinte continuar a mesma descrição em vez de desaparecer.
+    var pendingBlank = false;
+
     void flush() {
       if (current.isNotEmpty) blocks.add(current);
       current = <String, dynamic>{};
       lastKey = null;
+      pendingBlank = false;
+    }
+
+    void append(String field, String value) {
+      final existing = current[field];
+      if (existing == null || existing.toString().isEmpty) {
+        current[field] = value;
+      } else {
+        current[field] = '$existing${pendingBlank ? '\n\n' : '\n'}$value';
+      }
+      pendingBlank = false;
     }
 
     final labelPattern = RegExp(r'^\s*([^:]{1,40}):\s*(.*)$');
 
+    // "1. Conhecimento Emprestado (Borrowed Knowledge)": numeração opcional,
+    // nome em português e nome original entre parênteses no fim.
+    final titlePattern = RegExp(r'^\s*(?:\d+[.)]\s*)?(.+?)\s*\(([^()]+)\)\s*$');
+
     for (final rawLine in text.split(RegExp(r'\r?\n'))) {
       final line = rawLine.trimRight();
 
-      // Linha separadora fecha o bloco.
-      if (RegExp(r'^\s*([-=_*]{3,}|#{1,6}\s*$)\s*$').hasMatch(line)) {
-        flush();
+      // Separador fecha o bloco, com uma exceção: quando o bloco atual é só o
+      // título. Num catálogo o tracejado aparece entre o título e os campos da
+      // mesma magia, e fechar ali separaria o nome do resto.
+      //
+      // Sem fechar nos outros casos, o cabeçalho da fonte seguinte ("LOST
+      // LABORATORY OF KWALISH") era somado ao último campo da magia anterior,
+      // porque é uma linha de texto solta como qualquer continuação.
+      if (RegExp(r'^\s*[-=_*#]{3,}\s*$').hasMatch(line)) {
+        final onlyTitle =
+            current.isNotEmpty &&
+            current.keys.every((key) => key == 'nome' || key == 'original');
+
+        if (!onlyTitle) flush();
+
+        afterSeparator = true;
+        pendingBlank = false;
         continue;
       }
 
       if (line.trim().isEmpty) {
-        lastKey = null;
+        pendingBlank = true;
+        continue;
+      }
+
+      // Cabeçalho de seção: "DESCRIÇÃO" e "EM CÍRCULOS SUPERIORES" vêm numa
+      // linha só, sem valor na frente.
+      final section = _sectionForHeader(line);
+      if (section != null) {
+        current.putIfAbsent(section, () => '');
+        lastKey = section;
+        afterSeparator = false;
+        pendingBlank = false;
         continue;
       }
 
@@ -251,11 +329,32 @@ class SpellSourceParser {
             (field == 'nome' || field == 'id' || field == 'original')) {
           flush();
         }
-        final value = match!.group(2)!.trim();
-        current[field] = value;
+        current[field] = match!.group(2)!.trim();
         lastKey = field;
+        afterSeparator = false;
+        pendingBlank = false;
         continue;
       }
+
+      // Título de magia. Só vale imediatamente após um separador, para uma
+      // linha de descrição terminada em parênteses não ser confundida com um.
+      if (afterSeparator && !line.contains(':')) {
+        final title = titlePattern.firstMatch(line);
+        if (title != null) {
+          // Um título sempre começa magia nova, então o que estiver acumulado
+          // pertence ao bloco anterior — inclusive a capa e o cabeçalho de
+          // fonte, que viram um bloco de prosa descartado depois.
+          flush();
+          current['nome'] = title.group(1)!.trim();
+          current['original'] = title.group(2)!.trim();
+          lastKey = null;
+          afterSeparator = false;
+          pendingBlank = false;
+          continue;
+        }
+      }
+
+      afterSeparator = false;
 
       if (label != null && match != null && _looksLikeLabel(label)) {
         // Rótulo não reconhecido: registra para o relatório em vez de somar o
@@ -265,16 +364,44 @@ class SpellSourceParser {
         unknown.add('${match.group(1)!.trim()}: ${match.group(2)!.trim()}');
         current['__desconhecidos'] = unknown;
         lastKey = null;
+        pendingBlank = false;
         continue;
       }
 
       if (lastKey != null) {
-        current[lastKey!] = '${current[lastKey!]}\n${line.trim()}';
+        append(lastKey!, line.trim());
       }
     }
 
     flush();
     return blocks;
+  }
+
+  /// Cabeçalhos de seção que trocam o campo em edição.
+  ///
+  /// São comparados sem acento e sem caixa, e a linha precisa ser só o
+  /// cabeçalho — "DESCRIÇÃO" sozinha troca o campo, "Descrição: algo" é
+  /// rótulo e cai no caminho normal.
+  static const Map<String, List<String>> sectionHeaders = {
+    'descricao': ['descricao', 'description', 'efeito', 'texto da magia'],
+    'upcast': [
+      'em circulos superiores',
+      'em niveis superiores',
+      'niveis superiores',
+      'circulos superiores',
+      'at higher levels',
+      'upcast',
+    ],
+  };
+
+  static String? _sectionForHeader(String line) {
+    final key = foldAccents(line.trim().toLowerCase());
+    if (key.isEmpty || key.length > 40) return null;
+
+    for (final entry in sectionHeaders.entries) {
+      if (entry.value.contains(key)) return entry.key;
+    }
+    return null;
   }
 
   static String? _fieldForLabel(String label) {

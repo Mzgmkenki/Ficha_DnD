@@ -893,6 +893,161 @@ Página: 4
       expect(warning.received, contains('Salvaguarda'));
     });
 
+    test('lê o formato de catálogo, com título e cabeçalho de seção', () {
+      // Formato real dos catálogos de magia: o nome e o nome original vêm na
+      // linha de título, o tracejado separa o título dos campos, e a descrição
+      // e o upcast vêm sob cabeçalhos em linha própria.
+      final result = parser.parseLabeledText('''
+CATÁLOGO DE MAGIAS
+Total de magias: 2
+
+##############################################################################
+
+FONTE DE EXEMPLO
+Quantidade de magias: 2
+==============================================================================
+1. Dobra do Vórtice (Vortex Warp)
+------------------------------------------------------------------------------
+ID: 40004
+Nível: 2º círculo
+Escola: Invocação
+Tempo de conjuração: Uma ação
+Alcance: 27m [90 ft.]
+Componentes: V S
+Possui componente material com custo: Não
+Duração: Instantânea
+Concentração: Não
+Ritual: Não
+Classes: Artífice, Feiticeiro, Mago
+Subclasses ou disponibilidade especial: —
+Fonte: Strixhaven: A Curriculum of Chaos (SCC)
+Página: 38
+SRD: Não
+
+DESCRIÇÃO
+Você distorce o espaço ao redor de uma criatura.
+    O alvo deve fazer uma salvaguarda de Constituição.
+
+EM CÍRCULOS SUPERIORES
+Ao conjurar com um espaço de 3º círculo ou superior, o alcance aumenta.
+
+==============================================================================
+2. Codificar Pensamentos (Encode Thoughts)
+------------------------------------------------------------------------------
+ID: 41001
+Nível: Truque
+Escola: Encantamento
+Tempo de conjuração: Uma ação
+Alcance: Pessoal
+Componentes: S
+Possui componente material com custo: Não
+Duração: 8 horas
+Concentração: Não
+Ritual: Não
+Classes: —
+Subclasses ou disponibilidade especial: Magias da Guilda: Casa Dimir
+Fonte: Guildmasters' Guide to Ravnica (GGR)
+Página: 47
+SRD: Não
+
+DESCRIÇÃO
+Você extrai de sua mente uma lembrança e a transforma em um filamento.
+''');
+
+      expect(result.rejected, isEmpty);
+      expect(result.records, hasLength(2));
+
+      final warp = result.records.first;
+      expect(warp.namePt, 'Dobra do Vórtice');
+      expect(warp.nameOriginal, 'Vortex Warp');
+      expect(warp.id, 40004);
+      expect(warp.level, 2);
+      expect(warp.hasCostlyMaterials, isFalse);
+      expect(warp.subclasses, isEmpty);
+      // A fonte tem dois-pontos no meio e precisa chegar inteira.
+      expect(warp.source, 'Strixhaven: A Curriculum of Chaos (SCC)');
+      expect(
+        warp.description,
+        'Você distorce o espaço ao redor de uma criatura.\n'
+        'O alvo deve fazer uma salvaguarda de Constituição.',
+      );
+      expect(warp.upcast, contains('o alcance aumenta'));
+      // O cabeçalho da fonte não pode ter grudado no texto da magia.
+      expect(warp.upcast, isNot(contains('FONTE DE EXEMPLO')));
+      expect(warp.description, isNot(contains('Quantidade de magias')));
+
+      final encode = result.records.last;
+      expect(encode.level, 0);
+      expect(encode.classes, isEmpty);
+      expect(encode.subclasses, ['Magias da Guilda: Casa Dimir']);
+      expect(encode.namePt, 'Codificar Pensamentos');
+    });
+
+    test('capa e cabeçalho de fonte não viram registro rejeitado', () {
+      final result = parser.parseLabeledText('''
+CATÁLOGO DE MAGIAS
+Total de magias: 1
+
+##############################################################################
+
+FONTE DE EXEMPLO
+Quantidade de magias: 1
+==============================================================================
+1. Teste (Test)
+------------------------------------------------------------------------------
+ID: 1
+Nível: 1
+Escola: Evocação
+Tempo de conjuração: Uma ação
+Alcance: Toque
+Componentes: V
+Duração: Instantânea
+Classes: Mago
+Fonte: Livro de Teste
+Página: 1
+
+DESCRIÇÃO
+Faz algo.
+''');
+
+      expect(result.records, hasLength(1));
+      expect(result.rejected, isEmpty);
+      expect(result.receivedCount, 1);
+
+      final warning = result.warnings.firstWhere(
+        (item) => item.field == '(blocos sem magia)',
+      );
+      expect(warning.received, contains('bloco'));
+    });
+
+    test('linha de descrição terminada em parênteses não vira título', () {
+      final result = parser.parseLabeledText('''
+==============================================================================
+1. Teste (Test)
+------------------------------------------------------------------------------
+ID: 1
+Nível: 1
+Escola: Evocação
+Tempo de conjuração: Uma ação
+Alcance: Toque
+Componentes: V
+Duração: Instantânea
+Classes: Mago
+Fonte: Livro de Teste
+Página: 1
+
+DESCRIÇÃO
+O alvo sofre dano energético (nenhum outro efeito)
+''');
+
+      expect(result.records, hasLength(1));
+      expect(result.records.single.namePt, 'Teste');
+      expect(
+        result.records.single.description,
+        'O alvo sofre dano energético (nenhum outro efeito)',
+      );
+    });
+
     test('usa a fonte padrão quando o bloco não declara', () {
       final result = parser.parseLabeledText('''
 ID: 5
