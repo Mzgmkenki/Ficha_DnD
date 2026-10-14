@@ -21,6 +21,7 @@ import 'package:dnd_ficha_app/features/character/domain/services/standard_array.
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/alignment.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/grant_source.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/magic_item_bonus.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/proficiency_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
@@ -204,11 +205,22 @@ class CharacterJsonCodec {
           <String, dynamic>{
             'weaponId': weapon.weaponId,
             'name': weapon.name,
+            'quantity': weapon.quantity,
             'magicBonus': weapon.magicBonus,
             'chosenAbility': weapon.chosenAbility?.name,
             'twoHanded': weapon.twoHanded,
             'proficiencyOverride': weapon.proficiencyOverride,
             'notes': weapon.notes,
+            // Origem no arquivo exportado: sem ela, reimportar um personagem
+            // transformaria o equipamento inicial da classe em arma manual, e
+            // a procedência que a ficha mostra desapareceria.
+            'source': weapon.source.id,
+            'sourceId': weapon.sourceId,
+            'sourceLabel': weapon.sourceLabel,
+            'grantedAtCreation': weapon.grantedAtCreation,
+            'grantedQuantity': weapon.grantedQuantity,
+            'manuallyEdited': weapon.manuallyEdited,
+            'grantRef': weapon.grantRef,
           },
       ],
       'magicItems': [
@@ -637,6 +649,9 @@ class CharacterJsonCodec {
           localId: null,
           weaponId: weaponId,
           name: _asString(map['name']),
+          // Arquivo exportado antes da quantidade existir não declara o campo:
+          // uma unidade é a leitura correta, e não zero.
+          quantity: _asInt(map['quantity']) ?? 1,
           magicBonus: _asInt(map['magicBonus']) ?? 0,
           chosenAbility: Ability.fromName(_asString(map['chosenAbility'])),
           twoHanded: _asBool(map['twoHanded']),
@@ -645,6 +660,14 @@ class CharacterJsonCodec {
                   ? map['proficiencyOverride'] as bool
                   : null,
           notes: _asString(map['notes']) ?? '',
+          // Origem ausente cai em `manual`, que nenhum recálculo apaga.
+          source: GrantSource.fromIdOrManual(_asString(map['source'])),
+          sourceId: _asString(map['sourceId']),
+          sourceLabel: _asString(map['sourceLabel']),
+          grantedAtCreation: _asBool(map['grantedAtCreation']),
+          grantedQuantity: _asInt(map['grantedQuantity']),
+          manuallyEdited: _asBool(map['manuallyEdited']),
+          grantRef: _asString(map['grantRef']),
         ),
       );
     }

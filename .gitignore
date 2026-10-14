@@ -65,6 +65,10 @@ app.*.map.json
 /_*.png
 /_*.bin
 
+# Copias de seguranca da base de magias feitas antes de uma importacao.
+# O `tool/import_spells.dart` grava aqui com data e hora no nome da pasta.
+/backup/
+
 # Capturas de tela e APK gerados para teste manual.
 /shot*.png
 /flutter_*.png

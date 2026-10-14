@@ -5,6 +5,7 @@ import 'package:dnd_ficha_app/features/character/data/mappers/character_mapper.d
 import 'package:dnd_ficha_app/features/character/data/mappers/currency_grant_mapper.dart';
 import 'package:dnd_ficha_app/features/character/data/mappers/inventory_mapper.dart';
 import 'package:dnd_ficha_app/features/character/data/mappers/magic_item_mapper.dart';
+import 'package:dnd_ficha_app/features/character/data/mappers/weapon_mapper.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart'
     as domain;
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart'
@@ -16,7 +17,6 @@ import 'package:dnd_ficha_app/features/character/domain/entities/character_spell
 import 'package:dnd_ficha_app/features/character/domain/entities/character_weapon.dart'
     as domain_weapons;
 import 'package:dnd_ficha_app/features/character/domain/repositories/character_repository.dart';
-import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart'
     as domain_condition;
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart'
@@ -217,15 +217,9 @@ class CharacterRepositoryImpl implements CharacterRepository {
 
       for (final weapon in character.weapons) {
         await _database.into(_database.characterWeapons).insert(
-              db.CharacterWeaponsCompanion.insert(
+              WeaponMapper.toInsert(
                 characterId: character.id,
-                weaponId: weapon.weaponId,
-                name: drift.Value(weapon.name),
-                magicBonus: drift.Value(weapon.magicBonus),
-                chosenAbility: drift.Value(weapon.chosenAbility?.name),
-                twoHanded: drift.Value(weapon.twoHanded),
-                proficiencyOverride: drift.Value(weapon.proficiencyOverride),
-                notes: drift.Value(weapon.notes),
+                weapon: weapon,
               ),
             );
       }
@@ -425,22 +419,8 @@ class CharacterRepositoryImpl implements CharacterRepository {
   }
 
   /// Converte a linha da tabela na arma de domínio.
-  ///
-  /// O atributo escolhido é guardado pelo nome do enum. Nome inválido no banco
-  /// vira nulo, e aí o cálculo volta a escolher o melhor entre Força e
-  /// Destreza — degradar assim é melhor que estourar ao abrir a ficha.
-  domain_weapons.CharacterWeapon _weaponFromRow(db.CharacterWeapon row) {
-    return domain_weapons.CharacterWeapon(
-      localId: row.localId,
-      weaponId: row.weaponId,
-      name: row.name,
-      magicBonus: row.magicBonus,
-      chosenAbility: Ability.fromName(row.chosenAbility),
-      twoHanded: row.twoHanded,
-      proficiencyOverride: row.proficiencyOverride,
-      notes: row.notes,
-    );
-  }
+  domain_weapons.CharacterWeapon _weaponFromRow(db.CharacterWeapon row) =>
+      WeaponMapper.fromDatabase(row);
 
   @override
   Future<void> resetUsedSpellSlots({
@@ -781,16 +761,7 @@ class CharacterRepositoryImpl implements CharacterRepository {
     required domain_weapons.CharacterWeapon weapon,
   }) async {
     await _database.into(_database.characterWeapons).insert(
-          db.CharacterWeaponsCompanion.insert(
-            characterId: characterId,
-            weaponId: weapon.weaponId,
-            name: drift.Value(weapon.name),
-            magicBonus: drift.Value(weapon.magicBonus),
-            chosenAbility: drift.Value(weapon.chosenAbility?.name),
-            twoHanded: drift.Value(weapon.twoHanded),
-            proficiencyOverride: drift.Value(weapon.proficiencyOverride),
-            notes: drift.Value(weapon.notes),
-          ),
+          WeaponMapper.toInsert(characterId: characterId, weapon: weapon),
         );
   }
 
@@ -805,17 +776,7 @@ class CharacterRepositoryImpl implements CharacterRepository {
 
     await (_database.update(_database.characterWeapons)
           ..where((tbl) => tbl.localId.equals(localId)))
-        .write(
-      db.CharacterWeaponsCompanion(
-        weaponId: drift.Value(weapon.weaponId),
-        name: drift.Value(weapon.name),
-        magicBonus: drift.Value(weapon.magicBonus),
-        chosenAbility: drift.Value(weapon.chosenAbility?.name),
-        twoHanded: drift.Value(weapon.twoHanded),
-        proficiencyOverride: drift.Value(weapon.proficiencyOverride),
-        notes: drift.Value(weapon.notes),
-      ),
-    );
+        .write(WeaponMapper.toUpdate(weapon));
   }
 
   @override

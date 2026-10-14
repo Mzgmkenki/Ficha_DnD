@@ -8,12 +8,21 @@ class DerivedValueRow extends StatelessWidget {
     this.proficient = false,
     this.level,
     this.onRoll,
+    this.disadvantageReason,
     super.key,
   });
 
   final String label;
   final int value;
   final bool proficient;
+
+  /// Quando informado, a linha ganha um selo de desvantagem com esta
+  /// explicação no tooltip.
+  ///
+  /// Não mexe em [value] de propósito: vantagem e desvantagem alteram a
+  /// rolagem (dois d20), não o modificador. Mudar o número aqui seria inventar
+  /// uma penalidade que a regra não tem.
+  final String? disadvantageReason;
 
   /// Quando informado, o ícone e a etiqueta refletem o nível exato
   /// (metade, proficiente ou especialista) em vez de apenas sim/não.
@@ -25,7 +34,8 @@ class DerivedValueRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final display = value >= 0 ? '+$value' : '$value';
-    final effective = level ??
+    final effective =
+        level ??
         (proficient ? ProficiencyLevel.proficient : ProficiencyLevel.none);
 
     final row = Row(
@@ -40,10 +50,9 @@ class DerivedValueRow extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: Theme.of(context)
-                    .colorScheme
-                    .primaryContainer
-                    .withValues(alpha: 0.6),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primaryContainer.withValues(alpha: 0.6),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
@@ -54,10 +63,33 @@ class DerivedValueRow extends StatelessWidget {
           ),
           const SizedBox(width: 8),
         ],
-        Text(
-          display,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+        if (disadvantageReason != null) ...[
+          Tooltip(
+            message: disadvantageReason!,
+            child: Container(
+              key: const ValueKey('skill-disadvantage-badge'),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Theme.of(
+                  context,
+                ).colorScheme.errorContainer.withValues(alpha: 0.6),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.trending_down, size: 12),
+                  const SizedBox(width: 4),
+                  Text(
+                    'desvantagem',
+                    style: Theme.of(context).textTheme.labelSmall,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
+        Text(display, style: Theme.of(context).textTheme.titleMedium),
         if (onRoll != null) ...[
           const SizedBox(width: 8),
           Icon(

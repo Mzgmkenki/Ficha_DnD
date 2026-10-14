@@ -36,18 +36,24 @@ class _EditAbilityScoresPageState extends ConsumerState<EditAbilityScoresPage> {
   @override
   void initState() {
     super.initState();
-    _strengthController =
-        TextEditingController(text: widget.initialScores.strength.toString());
-    _dexterityController =
-        TextEditingController(text: widget.initialScores.dexterity.toString());
-    _constitutionController =
-        TextEditingController(text: widget.initialScores.constitution.toString());
-    _intelligenceController =
-        TextEditingController(text: widget.initialScores.intelligence.toString());
-    _wisdomController =
-        TextEditingController(text: widget.initialScores.wisdom.toString());
-    _charismaController =
-        TextEditingController(text: widget.initialScores.charisma.toString());
+    _strengthController = TextEditingController(
+      text: widget.initialScores.strength.toString(),
+    );
+    _dexterityController = TextEditingController(
+      text: widget.initialScores.dexterity.toString(),
+    );
+    _constitutionController = TextEditingController(
+      text: widget.initialScores.constitution.toString(),
+    );
+    _intelligenceController = TextEditingController(
+      text: widget.initialScores.intelligence.toString(),
+    );
+    _wisdomController = TextEditingController(
+      text: widget.initialScores.wisdom.toString(),
+    );
+    _charismaController = TextEditingController(
+      text: widget.initialScores.charisma.toString(),
+    );
   }
 
   @override
@@ -64,9 +70,7 @@ class _EditAbilityScoresPageState extends ConsumerState<EditAbilityScoresPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Editar atributos'),
-      ),
+      appBar: AppBar(title: const Text('Editar atributos')),
       body: Form(
         key: _formKey,
         child: ListView(
@@ -86,13 +90,14 @@ class _EditAbilityScoresPageState extends ConsumerState<EditAbilityScoresPage> {
             const SizedBox(height: 24),
             FilledButton.icon(
               onPressed: _saving ? null : _save,
-              icon: _saving
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.save),
+              icon:
+                  _saving
+                      ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                      : const Icon(Icons.save),
               label: Text(_saving ? 'Salvando...' : 'Salvar atributos'),
             ),
           ],
@@ -166,9 +171,7 @@ class _EditAbilityScoresPageState extends ConsumerState<EditAbilityScoresPage> {
       if (error != null) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Pré-requisito quebrado: $error'),
-          ),
+          SnackBar(content: Text('Pré-requisito quebrado: $error')),
         );
         return;
       }
@@ -182,7 +185,7 @@ class _EditAbilityScoresPageState extends ConsumerState<EditAbilityScoresPage> {
       final useCase = ref.read(updateCharacterAbilityScoresProvider);
       final classes = await ref.read(classEntriesProvider.future);
 
-      await useCase(
+      final outcome = await useCase(
         characterId: widget.characterId,
         abilityScores: newScores,
         // Permite recalcular o PV máximo quando a Constituição muda.
@@ -197,13 +200,28 @@ class _EditAbilityScoresPageState extends ConsumerState<EditAbilityScoresPage> {
       );
 
       if (!mounted) return;
+
+      // Perder Força pode tirar a armadura do personagem. O aviso sai antes de
+      // fechar a tela, no messenger da raiz, para sobreviver ao pop.
+      final notice = outcome.unequippedArmorNotice;
+      if (notice != null) {
+        ScaffoldMessenger.of(context)
+          ..clearSnackBars()
+          ..showSnackBar(
+            SnackBar(
+              content: Text('$notice CA recalculada: ${outcome.armorClass}.'),
+              duration: const Duration(seconds: 6),
+            ),
+          );
+      }
+
       Navigator.of(context).pop(true);
     } catch (error) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao salvar: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao salvar: $error')));
     } finally {
       if (mounted) {
         setState(() {

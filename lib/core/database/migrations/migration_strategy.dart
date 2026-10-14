@@ -417,6 +417,116 @@ MigrationStrategy buildMigrationStrategy(AppDatabase db) {
           'WHERE background_personality_choices IS NULL',
         );
       }
+
+      if (from < 18) {
+        // Equipamento inicial da classe: a arma passa a ter quantidade e
+        // rastro de origem, como o item de inventário já tinha.
+        //
+        // Nada é inferido para a arma que já existia. Ela fica com quantidade
+        // 1, origem `manual` e sem referência de concessão — que é a verdade:
+        // foi o jogador quem a cadastrou. Deduzir "classe" a partir da
+        // proficiência faria a troca de classe apagar arma que o jogador
+        // escolheu à mão.
+        await _tryAddColumn(
+          m,
+          db.characterWeapons,
+          db.characterWeapons.quantity,
+        );
+        await _tryAddColumn(m, db.characterWeapons, db.characterWeapons.source);
+        await _tryAddColumn(
+          m,
+          db.characterWeapons,
+          db.characterWeapons.sourceId,
+        );
+        await _tryAddColumn(
+          m,
+          db.characterWeapons,
+          db.characterWeapons.sourceLabel,
+        );
+        await _tryAddColumn(
+          m,
+          db.characterWeapons,
+          db.characterWeapons.grantedAtCreation,
+        );
+        await _tryAddColumn(
+          m,
+          db.characterWeapons,
+          db.characterWeapons.grantedQuantity,
+        );
+        await _tryAddColumn(
+          m,
+          db.characterWeapons,
+          db.characterWeapons.manuallyEdited,
+        );
+        await _tryAddColumn(
+          m,
+          db.characterWeapons,
+          db.characterWeapons.grantRef,
+        );
+
+        // Qual grupo e qual alternativa concederam o item.
+        await _tryAddColumn(
+          m,
+          db.characterInventoryItems,
+          db.characterInventoryItems.grantRef,
+        );
+
+        // O ALTER TABLE com DEFAULT já preenche as linhas existentes, mas em
+        // base que veio de uma versão onde a coluna foi criada sem default o
+        // valor fica nulo, e aí a leitura veria quantidade zero numa arma que
+        // o personagem tem. Barato garantir.
+        await _tryQuery(
+          db,
+          'UPDATE character_weapons SET quantity = 1 '
+          'WHERE quantity IS NULL OR quantity < 1',
+        );
+        await _tryQuery(
+          db,
+          "UPDATE character_weapons SET source = 'manual' WHERE source IS NULL",
+        );
+        await _tryQuery(
+          db,
+          'UPDATE character_weapons SET granted_at_creation = 0 '
+          'WHERE granted_at_creation IS NULL',
+        );
+        await _tryQuery(
+          db,
+          'UPDATE character_weapons SET manually_edited = 0 '
+          'WHERE manually_edited IS NULL',
+        );
+      }
+
+      if (from < 19) {
+        // Requisito de Força e desvantagem em Furtividade por PEÇA, para a
+        // armadura mágica poder divergir da tabela.
+        //
+        // As duas primeiras ficam nulas, e nulo quer dizer "usa o que a tabela
+        // diz". É o que mantém a armadura já gravada se comportando igual: a
+        // cota de malha continua exigindo Força 13 porque o requisito vive na
+        // tabela, não na linha. Preencher com o valor da tabela aqui seria
+        // congelar o dado e perder correção futura do compêndio.
+        await _tryAddColumn(
+          m,
+          db.characterInventoryItems,
+          db.characterInventoryItems.armorStrengthRequirement,
+        );
+        await _tryAddColumn(
+          m,
+          db.characterInventoryItems,
+          db.characterInventoryItems.armorStealthDisadvantage,
+        );
+        await _tryAddColumn(
+          m,
+          db.characterInventoryItems,
+          db.characterInventoryItems.armorMagicBonus,
+        );
+
+        await _tryQuery(
+          db,
+          'UPDATE character_inventory_items SET armor_magic_bonus = 0 '
+          'WHERE armor_magic_bonus IS NULL',
+        );
+      }
     },
     beforeOpen: (details) async {
       // Roda fora da transação de migração, então aqui é seguro usar `db`.

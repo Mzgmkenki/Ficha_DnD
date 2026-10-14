@@ -50,9 +50,11 @@ void main() {
       expect(_armor('chain_mail').strengthRequirement, 13);
       expect(_armor('splint').strengthRequirement, 15);
       expect(_armor('plate').strengthRequirement, 15);
-      // As demais não exigem Força.
-      expect(_armor('half_plate').strengthRequirement, 0);
-      expect(_armor('ring_mail').strengthRequirement, 0);
+      // As demais não exigem Força. Nulo, e não zero: "não exige" e "exige 0"
+      // são afirmações diferentes.
+      expect(_armor('half_plate').strengthRequirement, isNull);
+      expect(_armor('ring_mail').strengthRequirement, isNull);
+      expect(_armor('half_plate').requiresStrength, isFalse);
     });
 
     test('desvantagem em Furtividade confere com o PHB', () {

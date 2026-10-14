@@ -118,6 +118,10 @@ Future<_FakeCharacterRepository> _pumpCreationPage(
         classEntriesProvider.overrideWith((ref) => const [_fighter]),
         raceEntriesProvider.overrideWith((ref) => races),
         backgroundEntriesProvider.overrideWith((ref) => const [_acolyte]),
+        // Classe sem equipamento inicial cadastrado: este teste é sobre raça e
+        // perícias, e com o asset real o Guerreiro traria quatro grupos de
+        // escolha obrigatória que impediriam a criação de concluir.
+        classEquipmentProvider.overrideWith((ref) => const []),
       ],
       child: MaterialApp(
         home: const CharacterCreationPage(),

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
+import 'package:dnd_ficha_app/features/compendium/data/spell_assets.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/services/spell_name_index.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -70,7 +71,11 @@ void main() {
 
       final label = item['subclass_label'];
       expect(label, isA<String>(), reason: '$id sem subclass_label');
-      expect((label as String).trim(), isNotEmpty, reason: '$id com rótulo vazio');
+      expect(
+        (label as String).trim(),
+        isNotEmpty,
+        reason: '$id com rótulo vazio',
+      );
     }
   });
 
@@ -82,14 +87,22 @@ void main() {
       expect(ids.add(id), isTrue, reason: 'classe repetida: $id');
 
       expect((item['name'] as String).trim(), isNotEmpty);
-      expect(item['hit_die'], matches(RegExp(r'^d\d+$')), reason: '$id hit_die');
+      expect(
+        item['hit_die'],
+        matches(RegExp(r'^d\d+$')),
+        reason: '$id hit_die',
+      );
 
       for (final save in item['saving_throws'] as List<dynamic>) {
         expect(abilities, contains(save), reason: '$id salvaguarda inválida');
       }
 
       for (final skill in item['skill_options'] as List<dynamic>) {
-        expect(skillIds, contains(skill), reason: '$id perícia inválida: $skill');
+        expect(
+          skillIds,
+          contains(skill),
+          reason: '$id perícia inválida: $skill',
+        );
       }
 
       final primary = item['primary_ability'];
@@ -125,28 +138,35 @@ void main() {
 
       final ability = item['spellcasting_ability'];
       expect(ability, isNotNull, reason: '$id conjura sem atributo definido');
-      expect(abilities, contains(ability), reason: '$id atributo de conjuração');
+      expect(
+        abilities,
+        contains(ability),
+        reason: '$id atributo de conjuração',
+      );
     }
   });
 
-  test('artífice conjura desde o 1º nível, diferente dos outros meio-conjuradores', () {
-    final artificer = classes.firstWhere((item) => item['id'] == 'artificer');
-    expect(artificer['spellcasting_type'], 'artificer');
+  test(
+    'artífice conjura desde o 1º nível, diferente dos outros meio-conjuradores',
+    () {
+      final artificer = classes.firstWhere((item) => item['id'] == 'artificer');
+      expect(artificer['spellcasting_type'], 'artificer');
 
-    int firstSlotsAt(String tableId) {
-      for (var level = 1; level <= 20; level++) {
-        final row = slots.firstWhere(
-          (item) => item['table_id'] == tableId && item['level'] == level,
-        );
-        if ((row['1'] as int) > 0) return level;
+      int firstSlotsAt(String tableId) {
+        for (var level = 1; level <= 20; level++) {
+          final row = slots.firstWhere(
+            (item) => item['table_id'] == tableId && item['level'] == level,
+          );
+          if ((row['1'] as int) > 0) return level;
+        }
+        return -1;
       }
-      return -1;
-    }
 
-    expect(firstSlotsAt('artificer'), 1);
-    // Paladino e patrulheiro só ganham espaços no 2º nível.
-    expect(firstSlotsAt('half'), 2);
-  });
+      expect(firstSlotsAt('artificer'), 1);
+      // Paladino e patrulheiro só ganham espaços no 2º nível.
+      expect(firstSlotsAt('half'), 2);
+    },
+  );
 
   test('subclasse aponta para uma classe existente e não repete id', () {
     final classIds = classes.map((item) => item['id'] as String).toSet();
@@ -162,7 +182,11 @@ void main() {
         reason: '$id aponta para classe inexistente: ${item['class_id']}',
       );
 
-      expect((item['name'] as String).trim(), isNotEmpty, reason: '$id sem nome');
+      expect(
+        (item['name'] as String).trim(),
+        isNotEmpty,
+        reason: '$id sem nome',
+      );
       expect(item['source'], isA<String>(), reason: '$id sem fonte');
     }
   });
@@ -172,11 +196,7 @@ void main() {
     // livro do personagem, sem nenhum aviso.
     final spells = <SpellEntry>[];
 
-    for (final path in const [
-      'assets/data/spells/magias-livro-do-jogador.json',
-      'assets/data/spells/magias-xanathar-guide.json',
-      'assets/data/spells/magias-tasha-cauldron.json',
-    ]) {
+    for (final path in spellAssetPaths) {
       final file = File(path);
       expect(file.existsSync(), isTrue, reason: 'asset ausente: $path');
 

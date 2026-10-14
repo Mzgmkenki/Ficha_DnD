@@ -1,5 +1,6 @@
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/repositories/character_repository.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/armor_requirements.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/hit_points_calculator.dart';
 
 class UpdateCharacterAbilityScores {
@@ -13,7 +14,12 @@ class UpdateCharacterAbilityScores {
   /// Em 5e o modificador de Constituição entra em CADA nível, então mudar a
   /// Constituição altera o PV máximo retroativamente. Antes o PV ficava
   /// congelado no valor antigo.
-  Future<void> call({
+  ///
+  /// Devolve o que precisa ser avisado ao jogador: quando a Força cai abaixo do
+  /// requisito da armadura equipada, ela é desequipada e a CA recalculada na
+  /// MESMA gravação — duas gravações separadas deixariam a ficha mostrando a CA
+  /// da armadura que já não está sendo usada.
+  Future<AbilityScoreUpdateOutcome> call({
     required String characterId,
     required AbilityScores abilityScores,
     int Function(String classId)? dieSizeForClass,
@@ -57,6 +63,33 @@ class UpdateCharacterAbilityScores {
       );
     }
 
+    // Requisito de armadura: a Destreza também importa aqui, porque a CA
+    // precisa ser recalculada quando ela muda, não só quando a Força muda.
+    final armor = ArmorRequirements.apply(updatedCharacter);
+    updatedCharacter = armor.character;
+
     await _repository.update(updatedCharacter);
+
+    return AbilityScoreUpdateOutcome(
+      unequippedArmorNotice: armor.notice,
+      armorClass: updatedCharacter.combatStats.armorClass,
+    );
   }
+}
+
+/// O que a tela precisa contar ao jogador depois de mudar os atributos.
+class AbilityScoreUpdateOutcome {
+  const AbilityScoreUpdateOutcome({
+    this.unequippedArmorNotice,
+    required this.armorClass,
+  });
+
+  /// Aviso pronto quando alguma armadura foi desequipada por falta de Força.
+  /// Nulo quando nada mudou.
+  final String? unequippedArmorNotice;
+
+  /// A CA depois do recálculo.
+  final int armorClass;
+
+  bool get needsPlayerAttention => unequippedArmorNotice != null;
 }

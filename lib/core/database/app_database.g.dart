@@ -5794,6 +5794,18 @@ class $CharacterWeaponsTable extends CharacterWeapons
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _quantityMeta = const VerificationMeta(
+    'quantity',
+  );
+  @override
+  late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
+    'quantity',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
   static const VerificationMeta _magicBonusMeta = const VerificationMeta(
     'magicBonus',
   );
@@ -5855,17 +5867,109 @@ class $CharacterWeaponsTable extends CharacterWeapons
     requiredDuringInsert: false,
     defaultValue: const Constant(''),
   );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('manual'),
+  );
+  static const VerificationMeta _sourceIdMeta = const VerificationMeta(
+    'sourceId',
+  );
+  @override
+  late final GeneratedColumn<String> sourceId = GeneratedColumn<String>(
+    'source_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sourceLabelMeta = const VerificationMeta(
+    'sourceLabel',
+  );
+  @override
+  late final GeneratedColumn<String> sourceLabel = GeneratedColumn<String>(
+    'source_label',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _grantedAtCreationMeta = const VerificationMeta(
+    'grantedAtCreation',
+  );
+  @override
+  late final GeneratedColumn<bool> grantedAtCreation = GeneratedColumn<bool>(
+    'granted_at_creation',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("granted_at_creation" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _grantedQuantityMeta = const VerificationMeta(
+    'grantedQuantity',
+  );
+  @override
+  late final GeneratedColumn<int> grantedQuantity = GeneratedColumn<int>(
+    'granted_quantity',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _manuallyEditedMeta = const VerificationMeta(
+    'manuallyEdited',
+  );
+  @override
+  late final GeneratedColumn<bool> manuallyEdited = GeneratedColumn<bool>(
+    'manually_edited',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("manually_edited" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _grantRefMeta = const VerificationMeta(
+    'grantRef',
+  );
+  @override
+  late final GeneratedColumn<String> grantRef = GeneratedColumn<String>(
+    'grant_ref',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     localId,
     characterId,
     weaponId,
     name,
+    quantity,
     magicBonus,
     chosenAbility,
     twoHanded,
     proficiencyOverride,
     notes,
+    source,
+    sourceId,
+    sourceLabel,
+    grantedAtCreation,
+    grantedQuantity,
+    manuallyEdited,
+    grantRef,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -5910,6 +6014,12 @@ class $CharacterWeaponsTable extends CharacterWeapons
         name.isAcceptableOrUnknown(data['name']!, _nameMeta),
       );
     }
+    if (data.containsKey('quantity')) {
+      context.handle(
+        _quantityMeta,
+        quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta),
+      );
+    }
     if (data.containsKey('magic_bonus')) {
       context.handle(
         _magicBonusMeta,
@@ -5946,6 +6056,60 @@ class $CharacterWeaponsTable extends CharacterWeapons
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
       );
     }
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    }
+    if (data.containsKey('source_id')) {
+      context.handle(
+        _sourceIdMeta,
+        sourceId.isAcceptableOrUnknown(data['source_id']!, _sourceIdMeta),
+      );
+    }
+    if (data.containsKey('source_label')) {
+      context.handle(
+        _sourceLabelMeta,
+        sourceLabel.isAcceptableOrUnknown(
+          data['source_label']!,
+          _sourceLabelMeta,
+        ),
+      );
+    }
+    if (data.containsKey('granted_at_creation')) {
+      context.handle(
+        _grantedAtCreationMeta,
+        grantedAtCreation.isAcceptableOrUnknown(
+          data['granted_at_creation']!,
+          _grantedAtCreationMeta,
+        ),
+      );
+    }
+    if (data.containsKey('granted_quantity')) {
+      context.handle(
+        _grantedQuantityMeta,
+        grantedQuantity.isAcceptableOrUnknown(
+          data['granted_quantity']!,
+          _grantedQuantityMeta,
+        ),
+      );
+    }
+    if (data.containsKey('manually_edited')) {
+      context.handle(
+        _manuallyEditedMeta,
+        manuallyEdited.isAcceptableOrUnknown(
+          data['manually_edited']!,
+          _manuallyEditedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('grant_ref')) {
+      context.handle(
+        _grantRefMeta,
+        grantRef.isAcceptableOrUnknown(data['grant_ref']!, _grantRefMeta),
+      );
+    }
     return context;
   }
 
@@ -5974,6 +6138,11 @@ class $CharacterWeaponsTable extends CharacterWeapons
         DriftSqlType.string,
         data['${effectivePrefix}name'],
       ),
+      quantity:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}quantity'],
+          )!,
       magicBonus:
           attachedDatabase.typeMapping.read(
             DriftSqlType.int,
@@ -5997,6 +6166,37 @@ class $CharacterWeaponsTable extends CharacterWeapons
             DriftSqlType.string,
             data['${effectivePrefix}notes'],
           )!,
+      source:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}source'],
+          )!,
+      sourceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_id'],
+      ),
+      sourceLabel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_label'],
+      ),
+      grantedAtCreation:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.bool,
+            data['${effectivePrefix}granted_at_creation'],
+          )!,
+      grantedQuantity: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}granted_quantity'],
+      ),
+      manuallyEdited:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.bool,
+            data['${effectivePrefix}manually_edited'],
+          )!,
+      grantRef: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}grant_ref'],
+      ),
     );
   }
 
@@ -6018,6 +6218,14 @@ class CharacterWeapon extends DataClass implements Insertable<CharacterWeapon> {
   /// Serve para a arma mágica com nome próprio continuar sendo mecanicamente
   /// uma espada longa.
   final String? name;
+
+  /// Quantas unidades iguais o personagem carrega.
+  ///
+  /// Uma linha com quantidade em vez de várias linhas idênticas: os dez dardos
+  /// do Monge são o mesmo ataque repetido, e dez linhas iguais na seção de
+  /// Armas atrapalhariam a leitura em mesa. Não entra em conta de ataque nem
+  /// de dano.
+  final int quantity;
 
   /// Bônus mágico da arma: o `+1`, `+2` ou `+3`.
   ///
@@ -6047,16 +6255,43 @@ class CharacterWeapon extends DataClass implements Insertable<CharacterWeapon> {
   /// corrigir.
   final bool? proficiencyOverride;
   final String notes;
+
+  /// Id de `GrantSource`. `manual` é o padrão e nunca é removido por
+  /// recálculo, o que mantém compatível toda arma cadastrada antes disto.
+  final String source;
+
+  /// Id da fonte (`fighter` para o equipamento inicial do Guerreiro).
+  final String? sourceId;
+
+  /// Rótulo da fonte, já pronto para exibir.
+  final String? sourceLabel;
+  final bool grantedAtCreation;
+
+  /// Quantidade originalmente concedida. Nula em arma manual.
+  final int? grantedQuantity;
+  final bool manuallyEdited;
+
+  /// Grupo e alternativa que concederam a arma (`martial|two_martial`), ou
+  /// `fixed` no equipamento automático.
+  final String? grantRef;
   const CharacterWeapon({
     required this.localId,
     required this.characterId,
     required this.weaponId,
     this.name,
+    required this.quantity,
     required this.magicBonus,
     this.chosenAbility,
     required this.twoHanded,
     this.proficiencyOverride,
     required this.notes,
+    required this.source,
+    this.sourceId,
+    this.sourceLabel,
+    required this.grantedAtCreation,
+    this.grantedQuantity,
+    required this.manuallyEdited,
+    this.grantRef,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -6067,6 +6302,7 @@ class CharacterWeapon extends DataClass implements Insertable<CharacterWeapon> {
     if (!nullToAbsent || name != null) {
       map['name'] = Variable<String>(name);
     }
+    map['quantity'] = Variable<int>(quantity);
     map['magic_bonus'] = Variable<int>(magicBonus);
     if (!nullToAbsent || chosenAbility != null) {
       map['chosen_ability'] = Variable<String>(chosenAbility);
@@ -6076,6 +6312,21 @@ class CharacterWeapon extends DataClass implements Insertable<CharacterWeapon> {
       map['proficiency_override'] = Variable<bool>(proficiencyOverride);
     }
     map['notes'] = Variable<String>(notes);
+    map['source'] = Variable<String>(source);
+    if (!nullToAbsent || sourceId != null) {
+      map['source_id'] = Variable<String>(sourceId);
+    }
+    if (!nullToAbsent || sourceLabel != null) {
+      map['source_label'] = Variable<String>(sourceLabel);
+    }
+    map['granted_at_creation'] = Variable<bool>(grantedAtCreation);
+    if (!nullToAbsent || grantedQuantity != null) {
+      map['granted_quantity'] = Variable<int>(grantedQuantity);
+    }
+    map['manually_edited'] = Variable<bool>(manuallyEdited);
+    if (!nullToAbsent || grantRef != null) {
+      map['grant_ref'] = Variable<String>(grantRef);
+    }
     return map;
   }
 
@@ -6085,6 +6336,7 @@ class CharacterWeapon extends DataClass implements Insertable<CharacterWeapon> {
       characterId: Value(characterId),
       weaponId: Value(weaponId),
       name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      quantity: Value(quantity),
       magicBonus: Value(magicBonus),
       chosenAbility:
           chosenAbility == null && nullToAbsent
@@ -6096,6 +6348,25 @@ class CharacterWeapon extends DataClass implements Insertable<CharacterWeapon> {
               ? const Value.absent()
               : Value(proficiencyOverride),
       notes: Value(notes),
+      source: Value(source),
+      sourceId:
+          sourceId == null && nullToAbsent
+              ? const Value.absent()
+              : Value(sourceId),
+      sourceLabel:
+          sourceLabel == null && nullToAbsent
+              ? const Value.absent()
+              : Value(sourceLabel),
+      grantedAtCreation: Value(grantedAtCreation),
+      grantedQuantity:
+          grantedQuantity == null && nullToAbsent
+              ? const Value.absent()
+              : Value(grantedQuantity),
+      manuallyEdited: Value(manuallyEdited),
+      grantRef:
+          grantRef == null && nullToAbsent
+              ? const Value.absent()
+              : Value(grantRef),
     );
   }
 
@@ -6109,6 +6380,7 @@ class CharacterWeapon extends DataClass implements Insertable<CharacterWeapon> {
       characterId: serializer.fromJson<String>(json['characterId']),
       weaponId: serializer.fromJson<String>(json['weaponId']),
       name: serializer.fromJson<String?>(json['name']),
+      quantity: serializer.fromJson<int>(json['quantity']),
       magicBonus: serializer.fromJson<int>(json['magicBonus']),
       chosenAbility: serializer.fromJson<String?>(json['chosenAbility']),
       twoHanded: serializer.fromJson<bool>(json['twoHanded']),
@@ -6116,6 +6388,13 @@ class CharacterWeapon extends DataClass implements Insertable<CharacterWeapon> {
         json['proficiencyOverride'],
       ),
       notes: serializer.fromJson<String>(json['notes']),
+      source: serializer.fromJson<String>(json['source']),
+      sourceId: serializer.fromJson<String?>(json['sourceId']),
+      sourceLabel: serializer.fromJson<String?>(json['sourceLabel']),
+      grantedAtCreation: serializer.fromJson<bool>(json['grantedAtCreation']),
+      grantedQuantity: serializer.fromJson<int?>(json['grantedQuantity']),
+      manuallyEdited: serializer.fromJson<bool>(json['manuallyEdited']),
+      grantRef: serializer.fromJson<String?>(json['grantRef']),
     );
   }
   @override
@@ -6126,11 +6405,19 @@ class CharacterWeapon extends DataClass implements Insertable<CharacterWeapon> {
       'characterId': serializer.toJson<String>(characterId),
       'weaponId': serializer.toJson<String>(weaponId),
       'name': serializer.toJson<String?>(name),
+      'quantity': serializer.toJson<int>(quantity),
       'magicBonus': serializer.toJson<int>(magicBonus),
       'chosenAbility': serializer.toJson<String?>(chosenAbility),
       'twoHanded': serializer.toJson<bool>(twoHanded),
       'proficiencyOverride': serializer.toJson<bool?>(proficiencyOverride),
       'notes': serializer.toJson<String>(notes),
+      'source': serializer.toJson<String>(source),
+      'sourceId': serializer.toJson<String?>(sourceId),
+      'sourceLabel': serializer.toJson<String?>(sourceLabel),
+      'grantedAtCreation': serializer.toJson<bool>(grantedAtCreation),
+      'grantedQuantity': serializer.toJson<int?>(grantedQuantity),
+      'manuallyEdited': serializer.toJson<bool>(manuallyEdited),
+      'grantRef': serializer.toJson<String?>(grantRef),
     };
   }
 
@@ -6139,16 +6426,25 @@ class CharacterWeapon extends DataClass implements Insertable<CharacterWeapon> {
     String? characterId,
     String? weaponId,
     Value<String?> name = const Value.absent(),
+    int? quantity,
     int? magicBonus,
     Value<String?> chosenAbility = const Value.absent(),
     bool? twoHanded,
     Value<bool?> proficiencyOverride = const Value.absent(),
     String? notes,
+    String? source,
+    Value<String?> sourceId = const Value.absent(),
+    Value<String?> sourceLabel = const Value.absent(),
+    bool? grantedAtCreation,
+    Value<int?> grantedQuantity = const Value.absent(),
+    bool? manuallyEdited,
+    Value<String?> grantRef = const Value.absent(),
   }) => CharacterWeapon(
     localId: localId ?? this.localId,
     characterId: characterId ?? this.characterId,
     weaponId: weaponId ?? this.weaponId,
     name: name.present ? name.value : this.name,
+    quantity: quantity ?? this.quantity,
     magicBonus: magicBonus ?? this.magicBonus,
     chosenAbility:
         chosenAbility.present ? chosenAbility.value : this.chosenAbility,
@@ -6158,6 +6454,14 @@ class CharacterWeapon extends DataClass implements Insertable<CharacterWeapon> {
             ? proficiencyOverride.value
             : this.proficiencyOverride,
     notes: notes ?? this.notes,
+    source: source ?? this.source,
+    sourceId: sourceId.present ? sourceId.value : this.sourceId,
+    sourceLabel: sourceLabel.present ? sourceLabel.value : this.sourceLabel,
+    grantedAtCreation: grantedAtCreation ?? this.grantedAtCreation,
+    grantedQuantity:
+        grantedQuantity.present ? grantedQuantity.value : this.grantedQuantity,
+    manuallyEdited: manuallyEdited ?? this.manuallyEdited,
+    grantRef: grantRef.present ? grantRef.value : this.grantRef,
   );
   CharacterWeapon copyWithCompanion(CharacterWeaponsCompanion data) {
     return CharacterWeapon(
@@ -6166,6 +6470,7 @@ class CharacterWeapon extends DataClass implements Insertable<CharacterWeapon> {
           data.characterId.present ? data.characterId.value : this.characterId,
       weaponId: data.weaponId.present ? data.weaponId.value : this.weaponId,
       name: data.name.present ? data.name.value : this.name,
+      quantity: data.quantity.present ? data.quantity.value : this.quantity,
       magicBonus:
           data.magicBonus.present ? data.magicBonus.value : this.magicBonus,
       chosenAbility:
@@ -6178,6 +6483,23 @@ class CharacterWeapon extends DataClass implements Insertable<CharacterWeapon> {
               ? data.proficiencyOverride.value
               : this.proficiencyOverride,
       notes: data.notes.present ? data.notes.value : this.notes,
+      source: data.source.present ? data.source.value : this.source,
+      sourceId: data.sourceId.present ? data.sourceId.value : this.sourceId,
+      sourceLabel:
+          data.sourceLabel.present ? data.sourceLabel.value : this.sourceLabel,
+      grantedAtCreation:
+          data.grantedAtCreation.present
+              ? data.grantedAtCreation.value
+              : this.grantedAtCreation,
+      grantedQuantity:
+          data.grantedQuantity.present
+              ? data.grantedQuantity.value
+              : this.grantedQuantity,
+      manuallyEdited:
+          data.manuallyEdited.present
+              ? data.manuallyEdited.value
+              : this.manuallyEdited,
+      grantRef: data.grantRef.present ? data.grantRef.value : this.grantRef,
     );
   }
 
@@ -6188,11 +6510,19 @@ class CharacterWeapon extends DataClass implements Insertable<CharacterWeapon> {
           ..write('characterId: $characterId, ')
           ..write('weaponId: $weaponId, ')
           ..write('name: $name, ')
+          ..write('quantity: $quantity, ')
           ..write('magicBonus: $magicBonus, ')
           ..write('chosenAbility: $chosenAbility, ')
           ..write('twoHanded: $twoHanded, ')
           ..write('proficiencyOverride: $proficiencyOverride, ')
-          ..write('notes: $notes')
+          ..write('notes: $notes, ')
+          ..write('source: $source, ')
+          ..write('sourceId: $sourceId, ')
+          ..write('sourceLabel: $sourceLabel, ')
+          ..write('grantedAtCreation: $grantedAtCreation, ')
+          ..write('grantedQuantity: $grantedQuantity, ')
+          ..write('manuallyEdited: $manuallyEdited, ')
+          ..write('grantRef: $grantRef')
           ..write(')'))
         .toString();
   }
@@ -6203,11 +6533,19 @@ class CharacterWeapon extends DataClass implements Insertable<CharacterWeapon> {
     characterId,
     weaponId,
     name,
+    quantity,
     magicBonus,
     chosenAbility,
     twoHanded,
     proficiencyOverride,
     notes,
+    source,
+    sourceId,
+    sourceLabel,
+    grantedAtCreation,
+    grantedQuantity,
+    manuallyEdited,
+    grantRef,
   );
   @override
   bool operator ==(Object other) =>
@@ -6217,11 +6555,19 @@ class CharacterWeapon extends DataClass implements Insertable<CharacterWeapon> {
           other.characterId == this.characterId &&
           other.weaponId == this.weaponId &&
           other.name == this.name &&
+          other.quantity == this.quantity &&
           other.magicBonus == this.magicBonus &&
           other.chosenAbility == this.chosenAbility &&
           other.twoHanded == this.twoHanded &&
           other.proficiencyOverride == this.proficiencyOverride &&
-          other.notes == this.notes);
+          other.notes == this.notes &&
+          other.source == this.source &&
+          other.sourceId == this.sourceId &&
+          other.sourceLabel == this.sourceLabel &&
+          other.grantedAtCreation == this.grantedAtCreation &&
+          other.grantedQuantity == this.grantedQuantity &&
+          other.manuallyEdited == this.manuallyEdited &&
+          other.grantRef == this.grantRef);
 }
 
 class CharacterWeaponsCompanion extends UpdateCompanion<CharacterWeapon> {
@@ -6229,32 +6575,56 @@ class CharacterWeaponsCompanion extends UpdateCompanion<CharacterWeapon> {
   final Value<String> characterId;
   final Value<String> weaponId;
   final Value<String?> name;
+  final Value<int> quantity;
   final Value<int> magicBonus;
   final Value<String?> chosenAbility;
   final Value<bool> twoHanded;
   final Value<bool?> proficiencyOverride;
   final Value<String> notes;
+  final Value<String> source;
+  final Value<String?> sourceId;
+  final Value<String?> sourceLabel;
+  final Value<bool> grantedAtCreation;
+  final Value<int?> grantedQuantity;
+  final Value<bool> manuallyEdited;
+  final Value<String?> grantRef;
   const CharacterWeaponsCompanion({
     this.localId = const Value.absent(),
     this.characterId = const Value.absent(),
     this.weaponId = const Value.absent(),
     this.name = const Value.absent(),
+    this.quantity = const Value.absent(),
     this.magicBonus = const Value.absent(),
     this.chosenAbility = const Value.absent(),
     this.twoHanded = const Value.absent(),
     this.proficiencyOverride = const Value.absent(),
     this.notes = const Value.absent(),
+    this.source = const Value.absent(),
+    this.sourceId = const Value.absent(),
+    this.sourceLabel = const Value.absent(),
+    this.grantedAtCreation = const Value.absent(),
+    this.grantedQuantity = const Value.absent(),
+    this.manuallyEdited = const Value.absent(),
+    this.grantRef = const Value.absent(),
   });
   CharacterWeaponsCompanion.insert({
     this.localId = const Value.absent(),
     required String characterId,
     required String weaponId,
     this.name = const Value.absent(),
+    this.quantity = const Value.absent(),
     this.magicBonus = const Value.absent(),
     this.chosenAbility = const Value.absent(),
     this.twoHanded = const Value.absent(),
     this.proficiencyOverride = const Value.absent(),
     this.notes = const Value.absent(),
+    this.source = const Value.absent(),
+    this.sourceId = const Value.absent(),
+    this.sourceLabel = const Value.absent(),
+    this.grantedAtCreation = const Value.absent(),
+    this.grantedQuantity = const Value.absent(),
+    this.manuallyEdited = const Value.absent(),
+    this.grantRef = const Value.absent(),
   }) : characterId = Value(characterId),
        weaponId = Value(weaponId);
   static Insertable<CharacterWeapon> custom({
@@ -6262,23 +6632,39 @@ class CharacterWeaponsCompanion extends UpdateCompanion<CharacterWeapon> {
     Expression<String>? characterId,
     Expression<String>? weaponId,
     Expression<String>? name,
+    Expression<int>? quantity,
     Expression<int>? magicBonus,
     Expression<String>? chosenAbility,
     Expression<bool>? twoHanded,
     Expression<bool>? proficiencyOverride,
     Expression<String>? notes,
+    Expression<String>? source,
+    Expression<String>? sourceId,
+    Expression<String>? sourceLabel,
+    Expression<bool>? grantedAtCreation,
+    Expression<int>? grantedQuantity,
+    Expression<bool>? manuallyEdited,
+    Expression<String>? grantRef,
   }) {
     return RawValuesInsertable({
       if (localId != null) 'local_id': localId,
       if (characterId != null) 'character_id': characterId,
       if (weaponId != null) 'weapon_id': weaponId,
       if (name != null) 'name': name,
+      if (quantity != null) 'quantity': quantity,
       if (magicBonus != null) 'magic_bonus': magicBonus,
       if (chosenAbility != null) 'chosen_ability': chosenAbility,
       if (twoHanded != null) 'two_handed': twoHanded,
       if (proficiencyOverride != null)
         'proficiency_override': proficiencyOverride,
       if (notes != null) 'notes': notes,
+      if (source != null) 'source': source,
+      if (sourceId != null) 'source_id': sourceId,
+      if (sourceLabel != null) 'source_label': sourceLabel,
+      if (grantedAtCreation != null) 'granted_at_creation': grantedAtCreation,
+      if (grantedQuantity != null) 'granted_quantity': grantedQuantity,
+      if (manuallyEdited != null) 'manually_edited': manuallyEdited,
+      if (grantRef != null) 'grant_ref': grantRef,
     });
   }
 
@@ -6287,22 +6673,38 @@ class CharacterWeaponsCompanion extends UpdateCompanion<CharacterWeapon> {
     Value<String>? characterId,
     Value<String>? weaponId,
     Value<String?>? name,
+    Value<int>? quantity,
     Value<int>? magicBonus,
     Value<String?>? chosenAbility,
     Value<bool>? twoHanded,
     Value<bool?>? proficiencyOverride,
     Value<String>? notes,
+    Value<String>? source,
+    Value<String?>? sourceId,
+    Value<String?>? sourceLabel,
+    Value<bool>? grantedAtCreation,
+    Value<int?>? grantedQuantity,
+    Value<bool>? manuallyEdited,
+    Value<String?>? grantRef,
   }) {
     return CharacterWeaponsCompanion(
       localId: localId ?? this.localId,
       characterId: characterId ?? this.characterId,
       weaponId: weaponId ?? this.weaponId,
       name: name ?? this.name,
+      quantity: quantity ?? this.quantity,
       magicBonus: magicBonus ?? this.magicBonus,
       chosenAbility: chosenAbility ?? this.chosenAbility,
       twoHanded: twoHanded ?? this.twoHanded,
       proficiencyOverride: proficiencyOverride ?? this.proficiencyOverride,
       notes: notes ?? this.notes,
+      source: source ?? this.source,
+      sourceId: sourceId ?? this.sourceId,
+      sourceLabel: sourceLabel ?? this.sourceLabel,
+      grantedAtCreation: grantedAtCreation ?? this.grantedAtCreation,
+      grantedQuantity: grantedQuantity ?? this.grantedQuantity,
+      manuallyEdited: manuallyEdited ?? this.manuallyEdited,
+      grantRef: grantRef ?? this.grantRef,
     );
   }
 
@@ -6321,6 +6723,9 @@ class CharacterWeaponsCompanion extends UpdateCompanion<CharacterWeapon> {
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
+    if (quantity.present) {
+      map['quantity'] = Variable<int>(quantity.value);
+    }
     if (magicBonus.present) {
       map['magic_bonus'] = Variable<int>(magicBonus.value);
     }
@@ -6336,6 +6741,27 @@ class CharacterWeaponsCompanion extends UpdateCompanion<CharacterWeapon> {
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (sourceId.present) {
+      map['source_id'] = Variable<String>(sourceId.value);
+    }
+    if (sourceLabel.present) {
+      map['source_label'] = Variable<String>(sourceLabel.value);
+    }
+    if (grantedAtCreation.present) {
+      map['granted_at_creation'] = Variable<bool>(grantedAtCreation.value);
+    }
+    if (grantedQuantity.present) {
+      map['granted_quantity'] = Variable<int>(grantedQuantity.value);
+    }
+    if (manuallyEdited.present) {
+      map['manually_edited'] = Variable<bool>(manuallyEdited.value);
+    }
+    if (grantRef.present) {
+      map['grant_ref'] = Variable<String>(grantRef.value);
+    }
     return map;
   }
 
@@ -6346,11 +6772,19 @@ class CharacterWeaponsCompanion extends UpdateCompanion<CharacterWeapon> {
           ..write('characterId: $characterId, ')
           ..write('weaponId: $weaponId, ')
           ..write('name: $name, ')
+          ..write('quantity: $quantity, ')
           ..write('magicBonus: $magicBonus, ')
           ..write('chosenAbility: $chosenAbility, ')
           ..write('twoHanded: $twoHanded, ')
           ..write('proficiencyOverride: $proficiencyOverride, ')
-          ..write('notes: $notes')
+          ..write('notes: $notes, ')
+          ..write('source: $source, ')
+          ..write('sourceId: $sourceId, ')
+          ..write('sourceLabel: $sourceLabel, ')
+          ..write('grantedAtCreation: $grantedAtCreation, ')
+          ..write('grantedQuantity: $grantedQuantity, ')
+          ..write('manuallyEdited: $manuallyEdited, ')
+          ..write('grantRef: $grantRef')
           ..write(')'))
         .toString();
   }
@@ -9154,6 +9588,54 @@ class $CharacterInventoryItemsTable extends CharacterInventoryItems
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _grantRefMeta = const VerificationMeta(
+    'grantRef',
+  );
+  @override
+  late final GeneratedColumn<String> grantRef = GeneratedColumn<String>(
+    'grant_ref',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _armorStrengthRequirementMeta =
+      const VerificationMeta('armorStrengthRequirement');
+  @override
+  late final GeneratedColumn<int> armorStrengthRequirement =
+      GeneratedColumn<int>(
+        'armor_strength_requirement',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _armorStealthDisadvantageMeta =
+      const VerificationMeta('armorStealthDisadvantage');
+  @override
+  late final GeneratedColumn<bool> armorStealthDisadvantage =
+      GeneratedColumn<bool>(
+        'armor_stealth_disadvantage',
+        aliasedName,
+        true,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("armor_stealth_disadvantage" IN (0, 1))',
+        ),
+      );
+  static const VerificationMeta _armorMagicBonusMeta = const VerificationMeta(
+    'armorMagicBonus',
+  );
+  @override
+  late final GeneratedColumn<int> armorMagicBonus = GeneratedColumn<int>(
+    'armor_magic_bonus',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   static const VerificationMeta _linkedWeaponLocalIdMeta =
       const VerificationMeta('linkedWeaponLocalId');
   @override
@@ -9193,6 +9675,10 @@ class $CharacterInventoryItemsTable extends CharacterInventoryItems
     grantedAtCreation,
     grantedQuantity,
     manuallyEdited,
+    grantRef,
+    armorStrengthRequirement,
+    armorStealthDisadvantage,
+    armorMagicBonus,
     linkedWeaponLocalId,
     linkedMagicItemLocalId,
   ];
@@ -9332,6 +9818,39 @@ class $CharacterInventoryItemsTable extends CharacterInventoryItems
         ),
       );
     }
+    if (data.containsKey('grant_ref')) {
+      context.handle(
+        _grantRefMeta,
+        grantRef.isAcceptableOrUnknown(data['grant_ref']!, _grantRefMeta),
+      );
+    }
+    if (data.containsKey('armor_strength_requirement')) {
+      context.handle(
+        _armorStrengthRequirementMeta,
+        armorStrengthRequirement.isAcceptableOrUnknown(
+          data['armor_strength_requirement']!,
+          _armorStrengthRequirementMeta,
+        ),
+      );
+    }
+    if (data.containsKey('armor_stealth_disadvantage')) {
+      context.handle(
+        _armorStealthDisadvantageMeta,
+        armorStealthDisadvantage.isAcceptableOrUnknown(
+          data['armor_stealth_disadvantage']!,
+          _armorStealthDisadvantageMeta,
+        ),
+      );
+    }
+    if (data.containsKey('armor_magic_bonus')) {
+      context.handle(
+        _armorMagicBonusMeta,
+        armorMagicBonus.isAcceptableOrUnknown(
+          data['armor_magic_bonus']!,
+          _armorMagicBonusMeta,
+        ),
+      );
+    }
     if (data.containsKey('linked_weapon_local_id')) {
       context.handle(
         _linkedWeaponLocalIdMeta,
@@ -9439,6 +9958,23 @@ class $CharacterInventoryItemsTable extends CharacterInventoryItems
             DriftSqlType.bool,
             data['${effectivePrefix}manually_edited'],
           )!,
+      grantRef: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}grant_ref'],
+      ),
+      armorStrengthRequirement: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}armor_strength_requirement'],
+      ),
+      armorStealthDisadvantage: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}armor_stealth_disadvantage'],
+      ),
+      armorMagicBonus:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}armor_magic_bonus'],
+          )!,
       linkedWeaponLocalId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}linked_weapon_local_id'],
@@ -9505,6 +10041,22 @@ class CharacterInventoryItem extends DataClass
   final int? grantedQuantity;
   final bool manuallyEdited;
 
+  /// Grupo e alternativa da fonte que concederam o item
+  /// (`armor|leather_longbow`), ou `fixed` no que vem automático.
+  ///
+  /// Nulo quando a fonte não tem grupos de escolha, como o antecedente.
+  final String? grantRef;
+
+  /// Requisito de Força próprio da peça. Nulo usa o da tabela; zero é a peça
+  /// declarando que não exige Força.
+  final int? armorStrengthRequirement;
+
+  /// Desvantagem em Furtividade própria da peça. Nulo usa o da tabela.
+  final bool? armorStealthDisadvantage;
+
+  /// O `+1`, `+2` ou `+3` da armadura mágica, somado à CA.
+  final int armorMagicBonus;
+
   /// `CharacterWeapons.localId` da arma correspondente.
   ///
   /// Sem `references` de propósito: o vínculo é informativo e a arma pode ser
@@ -9532,6 +10084,10 @@ class CharacterInventoryItem extends DataClass
     required this.grantedAtCreation,
     this.grantedQuantity,
     required this.manuallyEdited,
+    this.grantRef,
+    this.armorStrengthRequirement,
+    this.armorStealthDisadvantage,
+    required this.armorMagicBonus,
     this.linkedWeaponLocalId,
     this.linkedMagicItemLocalId,
   });
@@ -9565,6 +10121,20 @@ class CharacterInventoryItem extends DataClass
       map['granted_quantity'] = Variable<int>(grantedQuantity);
     }
     map['manually_edited'] = Variable<bool>(manuallyEdited);
+    if (!nullToAbsent || grantRef != null) {
+      map['grant_ref'] = Variable<String>(grantRef);
+    }
+    if (!nullToAbsent || armorStrengthRequirement != null) {
+      map['armor_strength_requirement'] = Variable<int>(
+        armorStrengthRequirement,
+      );
+    }
+    if (!nullToAbsent || armorStealthDisadvantage != null) {
+      map['armor_stealth_disadvantage'] = Variable<bool>(
+        armorStealthDisadvantage,
+      );
+    }
+    map['armor_magic_bonus'] = Variable<int>(armorMagicBonus);
     if (!nullToAbsent || linkedWeaponLocalId != null) {
       map['linked_weapon_local_id'] = Variable<int>(linkedWeaponLocalId);
     }
@@ -9604,6 +10174,19 @@ class CharacterInventoryItem extends DataClass
               ? const Value.absent()
               : Value(grantedQuantity),
       manuallyEdited: Value(manuallyEdited),
+      grantRef:
+          grantRef == null && nullToAbsent
+              ? const Value.absent()
+              : Value(grantRef),
+      armorStrengthRequirement:
+          armorStrengthRequirement == null && nullToAbsent
+              ? const Value.absent()
+              : Value(armorStrengthRequirement),
+      armorStealthDisadvantage:
+          armorStealthDisadvantage == null && nullToAbsent
+              ? const Value.absent()
+              : Value(armorStealthDisadvantage),
+      armorMagicBonus: Value(armorMagicBonus),
       linkedWeaponLocalId:
           linkedWeaponLocalId == null && nullToAbsent
               ? const Value.absent()
@@ -9638,6 +10221,14 @@ class CharacterInventoryItem extends DataClass
       grantedAtCreation: serializer.fromJson<bool>(json['grantedAtCreation']),
       grantedQuantity: serializer.fromJson<int?>(json['grantedQuantity']),
       manuallyEdited: serializer.fromJson<bool>(json['manuallyEdited']),
+      grantRef: serializer.fromJson<String?>(json['grantRef']),
+      armorStrengthRequirement: serializer.fromJson<int?>(
+        json['armorStrengthRequirement'],
+      ),
+      armorStealthDisadvantage: serializer.fromJson<bool?>(
+        json['armorStealthDisadvantage'],
+      ),
+      armorMagicBonus: serializer.fromJson<int>(json['armorMagicBonus']),
       linkedWeaponLocalId: serializer.fromJson<int?>(
         json['linkedWeaponLocalId'],
       ),
@@ -9667,6 +10258,14 @@ class CharacterInventoryItem extends DataClass
       'grantedAtCreation': serializer.toJson<bool>(grantedAtCreation),
       'grantedQuantity': serializer.toJson<int?>(grantedQuantity),
       'manuallyEdited': serializer.toJson<bool>(manuallyEdited),
+      'grantRef': serializer.toJson<String?>(grantRef),
+      'armorStrengthRequirement': serializer.toJson<int?>(
+        armorStrengthRequirement,
+      ),
+      'armorStealthDisadvantage': serializer.toJson<bool?>(
+        armorStealthDisadvantage,
+      ),
+      'armorMagicBonus': serializer.toJson<int>(armorMagicBonus),
       'linkedWeaponLocalId': serializer.toJson<int?>(linkedWeaponLocalId),
       'linkedMagicItemLocalId': serializer.toJson<int?>(linkedMagicItemLocalId),
     };
@@ -9690,6 +10289,10 @@ class CharacterInventoryItem extends DataClass
     bool? grantedAtCreation,
     Value<int?> grantedQuantity = const Value.absent(),
     bool? manuallyEdited,
+    Value<String?> grantRef = const Value.absent(),
+    Value<int?> armorStrengthRequirement = const Value.absent(),
+    Value<bool?> armorStealthDisadvantage = const Value.absent(),
+    int? armorMagicBonus,
     Value<int?> linkedWeaponLocalId = const Value.absent(),
     Value<int?> linkedMagicItemLocalId = const Value.absent(),
   }) => CharacterInventoryItem(
@@ -9711,6 +10314,16 @@ class CharacterInventoryItem extends DataClass
     grantedQuantity:
         grantedQuantity.present ? grantedQuantity.value : this.grantedQuantity,
     manuallyEdited: manuallyEdited ?? this.manuallyEdited,
+    grantRef: grantRef.present ? grantRef.value : this.grantRef,
+    armorStrengthRequirement:
+        armorStrengthRequirement.present
+            ? armorStrengthRequirement.value
+            : this.armorStrengthRequirement,
+    armorStealthDisadvantage:
+        armorStealthDisadvantage.present
+            ? armorStealthDisadvantage.value
+            : this.armorStealthDisadvantage,
+    armorMagicBonus: armorMagicBonus ?? this.armorMagicBonus,
     linkedWeaponLocalId:
         linkedWeaponLocalId.present
             ? linkedWeaponLocalId.value
@@ -9754,6 +10367,19 @@ class CharacterInventoryItem extends DataClass
           data.manuallyEdited.present
               ? data.manuallyEdited.value
               : this.manuallyEdited,
+      grantRef: data.grantRef.present ? data.grantRef.value : this.grantRef,
+      armorStrengthRequirement:
+          data.armorStrengthRequirement.present
+              ? data.armorStrengthRequirement.value
+              : this.armorStrengthRequirement,
+      armorStealthDisadvantage:
+          data.armorStealthDisadvantage.present
+              ? data.armorStealthDisadvantage.value
+              : this.armorStealthDisadvantage,
+      armorMagicBonus:
+          data.armorMagicBonus.present
+              ? data.armorMagicBonus.value
+              : this.armorMagicBonus,
       linkedWeaponLocalId:
           data.linkedWeaponLocalId.present
               ? data.linkedWeaponLocalId.value
@@ -9785,6 +10411,10 @@ class CharacterInventoryItem extends DataClass
           ..write('grantedAtCreation: $grantedAtCreation, ')
           ..write('grantedQuantity: $grantedQuantity, ')
           ..write('manuallyEdited: $manuallyEdited, ')
+          ..write('grantRef: $grantRef, ')
+          ..write('armorStrengthRequirement: $armorStrengthRequirement, ')
+          ..write('armorStealthDisadvantage: $armorStealthDisadvantage, ')
+          ..write('armorMagicBonus: $armorMagicBonus, ')
           ..write('linkedWeaponLocalId: $linkedWeaponLocalId, ')
           ..write('linkedMagicItemLocalId: $linkedMagicItemLocalId')
           ..write(')'))
@@ -9792,7 +10422,7 @@ class CharacterInventoryItem extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     localId,
     characterId,
     itemId,
@@ -9810,9 +10440,13 @@ class CharacterInventoryItem extends DataClass
     grantedAtCreation,
     grantedQuantity,
     manuallyEdited,
+    grantRef,
+    armorStrengthRequirement,
+    armorStealthDisadvantage,
+    armorMagicBonus,
     linkedWeaponLocalId,
     linkedMagicItemLocalId,
-  );
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -9834,6 +10468,10 @@ class CharacterInventoryItem extends DataClass
           other.grantedAtCreation == this.grantedAtCreation &&
           other.grantedQuantity == this.grantedQuantity &&
           other.manuallyEdited == this.manuallyEdited &&
+          other.grantRef == this.grantRef &&
+          other.armorStrengthRequirement == this.armorStrengthRequirement &&
+          other.armorStealthDisadvantage == this.armorStealthDisadvantage &&
+          other.armorMagicBonus == this.armorMagicBonus &&
           other.linkedWeaponLocalId == this.linkedWeaponLocalId &&
           other.linkedMagicItemLocalId == this.linkedMagicItemLocalId);
 }
@@ -9857,6 +10495,10 @@ class CharacterInventoryItemsCompanion
   final Value<bool> grantedAtCreation;
   final Value<int?> grantedQuantity;
   final Value<bool> manuallyEdited;
+  final Value<String?> grantRef;
+  final Value<int?> armorStrengthRequirement;
+  final Value<bool?> armorStealthDisadvantage;
+  final Value<int> armorMagicBonus;
   final Value<int?> linkedWeaponLocalId;
   final Value<int?> linkedMagicItemLocalId;
   const CharacterInventoryItemsCompanion({
@@ -9877,6 +10519,10 @@ class CharacterInventoryItemsCompanion
     this.grantedAtCreation = const Value.absent(),
     this.grantedQuantity = const Value.absent(),
     this.manuallyEdited = const Value.absent(),
+    this.grantRef = const Value.absent(),
+    this.armorStrengthRequirement = const Value.absent(),
+    this.armorStealthDisadvantage = const Value.absent(),
+    this.armorMagicBonus = const Value.absent(),
     this.linkedWeaponLocalId = const Value.absent(),
     this.linkedMagicItemLocalId = const Value.absent(),
   });
@@ -9898,6 +10544,10 @@ class CharacterInventoryItemsCompanion
     this.grantedAtCreation = const Value.absent(),
     this.grantedQuantity = const Value.absent(),
     this.manuallyEdited = const Value.absent(),
+    this.grantRef = const Value.absent(),
+    this.armorStrengthRequirement = const Value.absent(),
+    this.armorStealthDisadvantage = const Value.absent(),
+    this.armorMagicBonus = const Value.absent(),
     this.linkedWeaponLocalId = const Value.absent(),
     this.linkedMagicItemLocalId = const Value.absent(),
   }) : characterId = Value(characterId),
@@ -9920,6 +10570,10 @@ class CharacterInventoryItemsCompanion
     Expression<bool>? grantedAtCreation,
     Expression<int>? grantedQuantity,
     Expression<bool>? manuallyEdited,
+    Expression<String>? grantRef,
+    Expression<int>? armorStrengthRequirement,
+    Expression<bool>? armorStealthDisadvantage,
+    Expression<int>? armorMagicBonus,
     Expression<int>? linkedWeaponLocalId,
     Expression<int>? linkedMagicItemLocalId,
   }) {
@@ -9941,6 +10595,12 @@ class CharacterInventoryItemsCompanion
       if (grantedAtCreation != null) 'granted_at_creation': grantedAtCreation,
       if (grantedQuantity != null) 'granted_quantity': grantedQuantity,
       if (manuallyEdited != null) 'manually_edited': manuallyEdited,
+      if (grantRef != null) 'grant_ref': grantRef,
+      if (armorStrengthRequirement != null)
+        'armor_strength_requirement': armorStrengthRequirement,
+      if (armorStealthDisadvantage != null)
+        'armor_stealth_disadvantage': armorStealthDisadvantage,
+      if (armorMagicBonus != null) 'armor_magic_bonus': armorMagicBonus,
       if (linkedWeaponLocalId != null)
         'linked_weapon_local_id': linkedWeaponLocalId,
       if (linkedMagicItemLocalId != null)
@@ -9966,6 +10626,10 @@ class CharacterInventoryItemsCompanion
     Value<bool>? grantedAtCreation,
     Value<int?>? grantedQuantity,
     Value<bool>? manuallyEdited,
+    Value<String?>? grantRef,
+    Value<int?>? armorStrengthRequirement,
+    Value<bool?>? armorStealthDisadvantage,
+    Value<int>? armorMagicBonus,
     Value<int?>? linkedWeaponLocalId,
     Value<int?>? linkedMagicItemLocalId,
   }) {
@@ -9987,6 +10651,12 @@ class CharacterInventoryItemsCompanion
       grantedAtCreation: grantedAtCreation ?? this.grantedAtCreation,
       grantedQuantity: grantedQuantity ?? this.grantedQuantity,
       manuallyEdited: manuallyEdited ?? this.manuallyEdited,
+      grantRef: grantRef ?? this.grantRef,
+      armorStrengthRequirement:
+          armorStrengthRequirement ?? this.armorStrengthRequirement,
+      armorStealthDisadvantage:
+          armorStealthDisadvantage ?? this.armorStealthDisadvantage,
+      armorMagicBonus: armorMagicBonus ?? this.armorMagicBonus,
       linkedWeaponLocalId: linkedWeaponLocalId ?? this.linkedWeaponLocalId,
       linkedMagicItemLocalId:
           linkedMagicItemLocalId ?? this.linkedMagicItemLocalId,
@@ -10047,6 +10717,22 @@ class CharacterInventoryItemsCompanion
     if (manuallyEdited.present) {
       map['manually_edited'] = Variable<bool>(manuallyEdited.value);
     }
+    if (grantRef.present) {
+      map['grant_ref'] = Variable<String>(grantRef.value);
+    }
+    if (armorStrengthRequirement.present) {
+      map['armor_strength_requirement'] = Variable<int>(
+        armorStrengthRequirement.value,
+      );
+    }
+    if (armorStealthDisadvantage.present) {
+      map['armor_stealth_disadvantage'] = Variable<bool>(
+        armorStealthDisadvantage.value,
+      );
+    }
+    if (armorMagicBonus.present) {
+      map['armor_magic_bonus'] = Variable<int>(armorMagicBonus.value);
+    }
     if (linkedWeaponLocalId.present) {
       map['linked_weapon_local_id'] = Variable<int>(linkedWeaponLocalId.value);
     }
@@ -10078,6 +10764,10 @@ class CharacterInventoryItemsCompanion
           ..write('grantedAtCreation: $grantedAtCreation, ')
           ..write('grantedQuantity: $grantedQuantity, ')
           ..write('manuallyEdited: $manuallyEdited, ')
+          ..write('grantRef: $grantRef, ')
+          ..write('armorStrengthRequirement: $armorStrengthRequirement, ')
+          ..write('armorStealthDisadvantage: $armorStealthDisadvantage, ')
+          ..write('armorMagicBonus: $armorMagicBonus, ')
           ..write('linkedWeaponLocalId: $linkedWeaponLocalId, ')
           ..write('linkedMagicItemLocalId: $linkedMagicItemLocalId')
           ..write(')'))
@@ -14687,11 +15377,19 @@ typedef $$CharacterWeaponsTableCreateCompanionBuilder =
       required String characterId,
       required String weaponId,
       Value<String?> name,
+      Value<int> quantity,
       Value<int> magicBonus,
       Value<String?> chosenAbility,
       Value<bool> twoHanded,
       Value<bool?> proficiencyOverride,
       Value<String> notes,
+      Value<String> source,
+      Value<String?> sourceId,
+      Value<String?> sourceLabel,
+      Value<bool> grantedAtCreation,
+      Value<int?> grantedQuantity,
+      Value<bool> manuallyEdited,
+      Value<String?> grantRef,
     });
 typedef $$CharacterWeaponsTableUpdateCompanionBuilder =
     CharacterWeaponsCompanion Function({
@@ -14699,11 +15397,19 @@ typedef $$CharacterWeaponsTableUpdateCompanionBuilder =
       Value<String> characterId,
       Value<String> weaponId,
       Value<String?> name,
+      Value<int> quantity,
       Value<int> magicBonus,
       Value<String?> chosenAbility,
       Value<bool> twoHanded,
       Value<bool?> proficiencyOverride,
       Value<String> notes,
+      Value<String> source,
+      Value<String?> sourceId,
+      Value<String?> sourceLabel,
+      Value<bool> grantedAtCreation,
+      Value<int?> grantedQuantity,
+      Value<bool> manuallyEdited,
+      Value<String?> grantRef,
     });
 
 final class $$CharacterWeaponsTableReferences
@@ -14759,6 +15465,11 @@ class $$CharacterWeaponsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<int> get quantity => $composableBuilder(
+    column: $table.quantity,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<int> get magicBonus => $composableBuilder(
     column: $table.magicBonus,
     builder: (column) => ColumnFilters(column),
@@ -14781,6 +15492,41 @@ class $$CharacterWeaponsTableFilterComposer
 
   ColumnFilters<String> get notes => $composableBuilder(
     column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceId => $composableBuilder(
+    column: $table.sourceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceLabel => $composableBuilder(
+    column: $table.sourceLabel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get grantedAtCreation => $composableBuilder(
+    column: $table.grantedAtCreation,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get grantedQuantity => $composableBuilder(
+    column: $table.grantedQuantity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get manuallyEdited => $composableBuilder(
+    column: $table.manuallyEdited,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get grantRef => $composableBuilder(
+    column: $table.grantRef,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -14832,6 +15578,11 @@ class $$CharacterWeaponsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get quantity => $composableBuilder(
+    column: $table.quantity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get magicBonus => $composableBuilder(
     column: $table.magicBonus,
     builder: (column) => ColumnOrderings(column),
@@ -14854,6 +15605,41 @@ class $$CharacterWeaponsTableOrderingComposer
 
   ColumnOrderings<String> get notes => $composableBuilder(
     column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceId => $composableBuilder(
+    column: $table.sourceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceLabel => $composableBuilder(
+    column: $table.sourceLabel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get grantedAtCreation => $composableBuilder(
+    column: $table.grantedAtCreation,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get grantedQuantity => $composableBuilder(
+    column: $table.grantedQuantity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get manuallyEdited => $composableBuilder(
+    column: $table.manuallyEdited,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get grantRef => $composableBuilder(
+    column: $table.grantRef,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -14899,6 +15685,9 @@ class $$CharacterWeaponsTableAnnotationComposer
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
 
+  GeneratedColumn<int> get quantity =>
+      $composableBuilder(column: $table.quantity, builder: (column) => column);
+
   GeneratedColumn<int> get magicBonus => $composableBuilder(
     column: $table.magicBonus,
     builder: (column) => column,
@@ -14919,6 +15708,35 @@ class $$CharacterWeaponsTableAnnotationComposer
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceId =>
+      $composableBuilder(column: $table.sourceId, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceLabel => $composableBuilder(
+    column: $table.sourceLabel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get grantedAtCreation => $composableBuilder(
+    column: $table.grantedAtCreation,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get grantedQuantity => $composableBuilder(
+    column: $table.grantedQuantity,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get manuallyEdited => $composableBuilder(
+    column: $table.manuallyEdited,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get grantRef =>
+      $composableBuilder(column: $table.grantRef, builder: (column) => column);
 
   $$CharactersTableAnnotationComposer get characterId {
     final $$CharactersTableAnnotationComposer composer = $composerBuilder(
@@ -14985,21 +15803,37 @@ class $$CharacterWeaponsTableTableManager
                 Value<String> characterId = const Value.absent(),
                 Value<String> weaponId = const Value.absent(),
                 Value<String?> name = const Value.absent(),
+                Value<int> quantity = const Value.absent(),
                 Value<int> magicBonus = const Value.absent(),
                 Value<String?> chosenAbility = const Value.absent(),
                 Value<bool> twoHanded = const Value.absent(),
                 Value<bool?> proficiencyOverride = const Value.absent(),
                 Value<String> notes = const Value.absent(),
+                Value<String> source = const Value.absent(),
+                Value<String?> sourceId = const Value.absent(),
+                Value<String?> sourceLabel = const Value.absent(),
+                Value<bool> grantedAtCreation = const Value.absent(),
+                Value<int?> grantedQuantity = const Value.absent(),
+                Value<bool> manuallyEdited = const Value.absent(),
+                Value<String?> grantRef = const Value.absent(),
               }) => CharacterWeaponsCompanion(
                 localId: localId,
                 characterId: characterId,
                 weaponId: weaponId,
                 name: name,
+                quantity: quantity,
                 magicBonus: magicBonus,
                 chosenAbility: chosenAbility,
                 twoHanded: twoHanded,
                 proficiencyOverride: proficiencyOverride,
                 notes: notes,
+                source: source,
+                sourceId: sourceId,
+                sourceLabel: sourceLabel,
+                grantedAtCreation: grantedAtCreation,
+                grantedQuantity: grantedQuantity,
+                manuallyEdited: manuallyEdited,
+                grantRef: grantRef,
               ),
           createCompanionCallback:
               ({
@@ -15007,21 +15841,37 @@ class $$CharacterWeaponsTableTableManager
                 required String characterId,
                 required String weaponId,
                 Value<String?> name = const Value.absent(),
+                Value<int> quantity = const Value.absent(),
                 Value<int> magicBonus = const Value.absent(),
                 Value<String?> chosenAbility = const Value.absent(),
                 Value<bool> twoHanded = const Value.absent(),
                 Value<bool?> proficiencyOverride = const Value.absent(),
                 Value<String> notes = const Value.absent(),
+                Value<String> source = const Value.absent(),
+                Value<String?> sourceId = const Value.absent(),
+                Value<String?> sourceLabel = const Value.absent(),
+                Value<bool> grantedAtCreation = const Value.absent(),
+                Value<int?> grantedQuantity = const Value.absent(),
+                Value<bool> manuallyEdited = const Value.absent(),
+                Value<String?> grantRef = const Value.absent(),
               }) => CharacterWeaponsCompanion.insert(
                 localId: localId,
                 characterId: characterId,
                 weaponId: weaponId,
                 name: name,
+                quantity: quantity,
                 magicBonus: magicBonus,
                 chosenAbility: chosenAbility,
                 twoHanded: twoHanded,
                 proficiencyOverride: proficiencyOverride,
                 notes: notes,
+                source: source,
+                sourceId: sourceId,
+                sourceLabel: sourceLabel,
+                grantedAtCreation: grantedAtCreation,
+                grantedQuantity: grantedQuantity,
+                manuallyEdited: manuallyEdited,
+                grantRef: grantRef,
               ),
           withReferenceMapper:
               (p0) =>
@@ -16985,6 +17835,10 @@ typedef $$CharacterInventoryItemsTableCreateCompanionBuilder =
       Value<bool> grantedAtCreation,
       Value<int?> grantedQuantity,
       Value<bool> manuallyEdited,
+      Value<String?> grantRef,
+      Value<int?> armorStrengthRequirement,
+      Value<bool?> armorStealthDisadvantage,
+      Value<int> armorMagicBonus,
       Value<int?> linkedWeaponLocalId,
       Value<int?> linkedMagicItemLocalId,
     });
@@ -17007,6 +17861,10 @@ typedef $$CharacterInventoryItemsTableUpdateCompanionBuilder =
       Value<bool> grantedAtCreation,
       Value<int?> grantedQuantity,
       Value<bool> manuallyEdited,
+      Value<String?> grantRef,
+      Value<int?> armorStrengthRequirement,
+      Value<bool?> armorStealthDisadvantage,
+      Value<int> armorMagicBonus,
       Value<int?> linkedWeaponLocalId,
       Value<int?> linkedMagicItemLocalId,
     });
@@ -17136,6 +17994,26 @@ class $$CharacterInventoryItemsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get grantRef => $composableBuilder(
+    column: $table.grantRef,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get armorStrengthRequirement => $composableBuilder(
+    column: $table.armorStrengthRequirement,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get armorStealthDisadvantage => $composableBuilder(
+    column: $table.armorStealthDisadvantage,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get armorMagicBonus => $composableBuilder(
+    column: $table.armorMagicBonus,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<int> get linkedWeaponLocalId => $composableBuilder(
     column: $table.linkedWeaponLocalId,
     builder: (column) => ColumnFilters(column),
@@ -17259,6 +18137,26 @@ class $$CharacterInventoryItemsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get grantRef => $composableBuilder(
+    column: $table.grantRef,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get armorStrengthRequirement => $composableBuilder(
+    column: $table.armorStrengthRequirement,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get armorStealthDisadvantage => $composableBuilder(
+    column: $table.armorStealthDisadvantage,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get armorMagicBonus => $composableBuilder(
+    column: $table.armorMagicBonus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get linkedWeaponLocalId => $composableBuilder(
     column: $table.linkedWeaponLocalId,
     builder: (column) => ColumnOrderings(column),
@@ -17362,6 +18260,24 @@ class $$CharacterInventoryItemsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get grantRef =>
+      $composableBuilder(column: $table.grantRef, builder: (column) => column);
+
+  GeneratedColumn<int> get armorStrengthRequirement => $composableBuilder(
+    column: $table.armorStrengthRequirement,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get armorStealthDisadvantage => $composableBuilder(
+    column: $table.armorStealthDisadvantage,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get armorMagicBonus => $composableBuilder(
+    column: $table.armorMagicBonus,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<int> get linkedWeaponLocalId => $composableBuilder(
     column: $table.linkedWeaponLocalId,
     builder: (column) => column,
@@ -17452,6 +18368,10 @@ class $$CharacterInventoryItemsTableTableManager
                 Value<bool> grantedAtCreation = const Value.absent(),
                 Value<int?> grantedQuantity = const Value.absent(),
                 Value<bool> manuallyEdited = const Value.absent(),
+                Value<String?> grantRef = const Value.absent(),
+                Value<int?> armorStrengthRequirement = const Value.absent(),
+                Value<bool?> armorStealthDisadvantage = const Value.absent(),
+                Value<int> armorMagicBonus = const Value.absent(),
                 Value<int?> linkedWeaponLocalId = const Value.absent(),
                 Value<int?> linkedMagicItemLocalId = const Value.absent(),
               }) => CharacterInventoryItemsCompanion(
@@ -17472,6 +18392,10 @@ class $$CharacterInventoryItemsTableTableManager
                 grantedAtCreation: grantedAtCreation,
                 grantedQuantity: grantedQuantity,
                 manuallyEdited: manuallyEdited,
+                grantRef: grantRef,
+                armorStrengthRequirement: armorStrengthRequirement,
+                armorStealthDisadvantage: armorStealthDisadvantage,
+                armorMagicBonus: armorMagicBonus,
                 linkedWeaponLocalId: linkedWeaponLocalId,
                 linkedMagicItemLocalId: linkedMagicItemLocalId,
               ),
@@ -17494,6 +18418,10 @@ class $$CharacterInventoryItemsTableTableManager
                 Value<bool> grantedAtCreation = const Value.absent(),
                 Value<int?> grantedQuantity = const Value.absent(),
                 Value<bool> manuallyEdited = const Value.absent(),
+                Value<String?> grantRef = const Value.absent(),
+                Value<int?> armorStrengthRequirement = const Value.absent(),
+                Value<bool?> armorStealthDisadvantage = const Value.absent(),
+                Value<int> armorMagicBonus = const Value.absent(),
                 Value<int?> linkedWeaponLocalId = const Value.absent(),
                 Value<int?> linkedMagicItemLocalId = const Value.absent(),
               }) => CharacterInventoryItemsCompanion.insert(
@@ -17514,6 +18442,10 @@ class $$CharacterInventoryItemsTableTableManager
                 grantedAtCreation: grantedAtCreation,
                 grantedQuantity: grantedQuantity,
                 manuallyEdited: manuallyEdited,
+                grantRef: grantRef,
+                armorStrengthRequirement: armorStrengthRequirement,
+                armorStealthDisadvantage: armorStealthDisadvantage,
+                armorMagicBonus: armorMagicBonus,
                 linkedWeaponLocalId: linkedWeaponLocalId,
                 linkedMagicItemLocalId: linkedMagicItemLocalId,
               ),

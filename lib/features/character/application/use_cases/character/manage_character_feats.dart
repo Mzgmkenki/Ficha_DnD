@@ -1,6 +1,7 @@
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_feat.dart';
 import 'package:dnd_ficha_app/features/character/domain/repositories/character_repository.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/armor_requirements.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/granted_ability_increases.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/granted_skills.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
@@ -148,9 +149,9 @@ class ManageCharacterFeats {
     // razão das perícias: a tela filtra, mas um import poderia trazer outra.
     final pickedAbility =
         chosenAbility != null &&
-            feat.abilityIncreaseOptions.contains(chosenAbility.name)
-        ? chosenAbility
-        : null;
+                feat.abilityIncreaseOptions.contains(chosenAbility.name)
+            ? chosenAbility
+            : null;
 
     // O que o talento pede versus o que cabe: atributo no teto de 20 rende
     // zero, e é o valor que cabe que fica guardado, para a remoção devolver
@@ -170,9 +171,12 @@ class ManageCharacterFeats {
           featId: feat.id,
           classId: classId,
           level: level,
-          chosenSkillIds: picks.map((skill) => skill.id).toList(growable: false),
-          grantedSkillIds:
-              newlyGranted.map((skill) => skill.id).toList(growable: false),
+          chosenSkillIds: picks
+              .map((skill) => skill.id)
+              .toList(growable: false),
+          grantedSkillIds: newlyGranted
+              .map((skill) => skill.id)
+              .toList(growable: false),
           chosenAbility: pickedAbility,
           appliedAbilityIncreases: applied,
         ),
@@ -192,7 +196,10 @@ class ManageCharacterFeats {
   }
 
   /// Remove o talento e devolve só as perícias que ele havia concedido.
-  Future<void> removeFeat({
+  ///
+  /// Devolve um aviso quando a queda de atributo obrigou a desequipar armadura,
+  /// ou `null` quando não houve nada a avisar.
+  Future<String?> removeFeat({
     required String characterId,
     required int localId,
   }) async {
@@ -207,7 +214,7 @@ class ManageCharacterFeats {
         .cast<CharacterFeat?>()
         .firstWhere((item) => item != null, orElse: () => null);
 
-    if (target == null) return;
+    if (target == null) return null;
 
     final updated = character.copyWith(
       feats: character.feats
@@ -224,6 +231,13 @@ class ManageCharacterFeats {
       updatedAt: DateTime.now(),
     );
 
-    await _repository.update(updated);
+    // Remover um talento pode DERRUBAR a Força, e com ela o direito de usar a
+    // armadura que estava vestida. Mesma regra da edição manual de atributos,
+    // pelo mesmo serviço.
+    final armor = ArmorRequirements.apply(updated);
+
+    await _repository.update(armor.character);
+
+    return armor.notice;
   }
 }

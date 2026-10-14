@@ -231,6 +231,14 @@ class CharacterWeapons extends Table {
   /// uma espada longa.
   TextColumn get name => text().nullable()();
 
+  /// Quantas unidades iguais o personagem carrega.
+  ///
+  /// Uma linha com quantidade em vez de várias linhas idênticas: os dez dardos
+  /// do Monge são o mesmo ataque repetido, e dez linhas iguais na seção de
+  /// Armas atrapalhariam a leitura em mesa. Não entra em conta de ataque nem
+  /// de dano.
+  IntColumn get quantity => integer().withDefault(const Constant(1))();
+
   /// Bônus mágico da arma: o `+1`, `+2` ou `+3`.
   ///
   /// Soma nas jogadas de ataque E nas de dano daquela arma, que é o que a
@@ -260,6 +268,37 @@ class CharacterWeapons extends Table {
   BoolColumn get proficiencyOverride => boolean().nullable()();
 
   TextColumn get notes => text().withDefault(const Constant(''))();
+
+  // ------------------------------------------------------------------ origem
+  //
+  // Irmão do bloco de origem de [CharacterInventoryItems], e existe pelo mesmo
+  // motivo: o equipamento inicial da classe manda arma para cá, e trocar a
+  // classe tem que remover só o que aquela classe concedeu — preservando a
+  // arma cadastrada à mão e a que veio de outra fonte. Sem estas colunas a
+  // remoção seletiva teria que comparar nomes, e nome é editável.
+
+  /// Id de `GrantSource`. `manual` é o padrão e nunca é removido por
+  /// recálculo, o que mantém compatível toda arma cadastrada antes disto.
+  TextColumn get source => text().withDefault(const Constant('manual'))();
+
+  /// Id da fonte (`fighter` para o equipamento inicial do Guerreiro).
+  TextColumn get sourceId => text().nullable()();
+
+  /// Rótulo da fonte, já pronto para exibir.
+  TextColumn get sourceLabel => text().nullable()();
+
+  BoolColumn get grantedAtCreation =>
+      boolean().withDefault(const Constant(false))();
+
+  /// Quantidade originalmente concedida. Nula em arma manual.
+  IntColumn get grantedQuantity => integer().nullable()();
+
+  BoolColumn get manuallyEdited =>
+      boolean().withDefault(const Constant(false))();
+
+  /// Grupo e alternativa que concederam a arma (`martial|two_martial`), ou
+  /// `fixed` no equipamento automático.
+  TextColumn get grantRef => text().nullable()();
 }
 
 class CharacterMagicItems extends Table {
@@ -473,6 +512,28 @@ class CharacterInventoryItems extends Table {
 
   BoolColumn get manuallyEdited =>
       boolean().withDefault(const Constant(false))();
+
+  /// Grupo e alternativa da fonte que concederam o item
+  /// (`armor|leather_longbow`), ou `fixed` no que vem automático.
+  ///
+  /// Nulo quando a fonte não tem grupos de escolha, como o antecedente.
+  TextColumn get grantRef => text().nullable()();
+
+  // ------------------------------------------------- exceções de armadura
+  //
+  // Preenchidas só no item que é armadura ou escudo, e só quando a peça
+  // diverge da tabela. Nulo significa "usa o que a tabela diz", que é o valor
+  // de toda linha gravada antes destas colunas existirem.
+
+  /// Requisito de Força próprio da peça. Nulo usa o da tabela; zero é a peça
+  /// declarando que não exige Força.
+  IntColumn get armorStrengthRequirement => integer().nullable()();
+
+  /// Desvantagem em Furtividade própria da peça. Nulo usa o da tabela.
+  BoolColumn get armorStealthDisadvantage => boolean().nullable()();
+
+  /// O `+1`, `+2` ou `+3` da armadura mágica, somado à CA.
+  IntColumn get armorMagicBonus => integer().withDefault(const Constant(0))();
 
   /// `CharacterWeapons.localId` da arma correspondente.
   ///

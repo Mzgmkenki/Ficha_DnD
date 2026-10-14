@@ -32,6 +32,10 @@ class InventoryMapper {
       grantedAtCreation: row.grantedAtCreation,
       grantedQuantity: row.grantedQuantity,
       manuallyEdited: row.manuallyEdited,
+      grantRef: row.grantRef,
+      armorStrengthRequirement: row.armorStrengthRequirement,
+      armorStealthDisadvantage: row.armorStealthDisadvantage,
+      armorMagicBonus: row.armorMagicBonus,
       linkedWeaponLocalId: row.linkedWeaponLocalId,
       linkedMagicItemLocalId: row.linkedMagicItemLocalId,
     );
@@ -58,6 +62,10 @@ class InventoryMapper {
       grantedAtCreation: drift.Value(item.grantedAtCreation),
       grantedQuantity: drift.Value(item.grantedQuantity),
       manuallyEdited: drift.Value(item.manuallyEdited),
+      grantRef: drift.Value(item.grantRef),
+      armorStrengthRequirement: drift.Value(item.armorStrengthRequirement),
+      armorStealthDisadvantage: drift.Value(item.armorStealthDisadvantage),
+      armorMagicBonus: drift.Value(item.armorMagicBonus),
       linkedWeaponLocalId: drift.Value(item.linkedWeaponLocalId),
       linkedMagicItemLocalId: drift.Value(item.linkedMagicItemLocalId),
     );
@@ -83,6 +91,10 @@ class InventoryMapper {
       grantedAtCreation: drift.Value(item.grantedAtCreation),
       grantedQuantity: drift.Value(item.grantedQuantity),
       manuallyEdited: drift.Value(item.manuallyEdited),
+      grantRef: drift.Value(item.grantRef),
+      armorStrengthRequirement: drift.Value(item.armorStrengthRequirement),
+      armorStealthDisadvantage: drift.Value(item.armorStealthDisadvantage),
+      armorMagicBonus: drift.Value(item.armorMagicBonus),
       linkedWeaponLocalId: drift.Value(item.linkedWeaponLocalId),
       linkedMagicItemLocalId: drift.Value(item.linkedMagicItemLocalId),
     );

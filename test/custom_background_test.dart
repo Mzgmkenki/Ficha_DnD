@@ -76,6 +76,10 @@ Future<_FakeCharacterRepository> _pumpCreationPage(WidgetTester tester) async {
         classEntriesProvider.overrideWith((ref) => const [_fighter]),
         raceEntriesProvider.overrideWith((ref) => const [_human]),
         backgroundEntriesProvider.overrideWith((ref) => _backgrounds),
+        // Classe sem equipamento inicial cadastrado: este teste é sobre o
+        // antecedente, e com o asset real o Guerreiro traria quatro grupos de
+        // escolha obrigatória que impediriam a criação de concluir.
+        classEquipmentProvider.overrideWith((ref) => const []),
       ],
       child: MaterialApp(
         home: const CharacterCreationPage(),

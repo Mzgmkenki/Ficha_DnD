@@ -2,12 +2,14 @@ import 'package:dnd_ficha_app/core/utils/html_text.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/currency.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/item_category.dart';
 import 'package:dnd_ficha_app/features/compendium/data/sources/srd_asset_source.dart';
+import 'package:dnd_ficha_app/features/compendium/data/spell_assets.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/ability_bonus_mode.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_choices.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_equipment.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_personality.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/class_equipment.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_prerequisite.dart';
@@ -31,127 +33,139 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
   Future<List<ClassEntry>> loadClasses() async {
     final items = await _source.loadJsonList('assets/data/srd/classes.json');
 
-    return items.map((item) {
-      final skillOptionsRaw =
-          item['skill_options'] as List<dynamic>? ?? const [];
-      final savingThrowsRaw =
-          item['saving_throws'] as List<dynamic>? ?? const [];
-      final featLevelsRaw = _asList(item['feat_levels'])
-          .map(_asInt)
-          .whereType<int>()
-          .where((level) => level > 0)
-          .toList(growable: false);
+    return items
+        .map((item) {
+          final skillOptionsRaw =
+              item['skill_options'] as List<dynamic>? ?? const [];
+          final savingThrowsRaw =
+              item['saving_throws'] as List<dynamic>? ?? const [];
+          final featLevelsRaw = _asList(item['feat_levels'])
+              .map(_asInt)
+              .whereType<int>()
+              .where((level) => level > 0)
+              .toList(growable: false);
 
-      return ClassEntry(
-        id: item['id'] as String,
-        name: item['name'] as String,
-        hitDie: item['hit_die'] as String,
-        primaryAbility: item['primary_ability'] as String?,
-        spellcastingType: item['spellcasting_type'] as String?,
-        spellcastingAbility: item['spellcasting_ability'] as String?,
-        subclassLevel: _asInt(item['subclass_level']),
-        subclassLabel: item['subclass_label'] as String?,
-        // Ausente no JSON cai no padrão 4/8/12/16/19, que vale para quase
-        // todas as classes; só Guerreiro e Ladino precisam declarar.
-        featLevels: featLevelsRaw.isEmpty
-            ? ClassEntry.defaultFeatLevels
-            : featLevelsRaw,
-        variantOf: item['variant_of'] as String?,
-        source: item['source'] as String? ?? 'srd',
-        skillOptions: skillOptionsRaw
-            .map((e) => e.toString())
-            .toList(growable: false),
-        // Zero quando o asset não declara: a tela não impõe limite nesse caso,
-        // em vez de travar o jogador em zero perícias.
-        skillChoices: _asInt(item['skill_choices']) ?? 0,
-        weaponProficiencies: WeaponProficiencies.tryParse(
-          item['weapon_proficiencies'],
-        ),
-        savingThrows: savingThrowsRaw
-            .map((e) => e.toString())
-            .toList(growable: false),
-      );
-    }).toList(growable: false);
+          return ClassEntry(
+            id: item['id'] as String,
+            name: item['name'] as String,
+            hitDie: item['hit_die'] as String,
+            primaryAbility: item['primary_ability'] as String?,
+            spellcastingType: item['spellcasting_type'] as String?,
+            spellcastingAbility: item['spellcasting_ability'] as String?,
+            subclassLevel: _asInt(item['subclass_level']),
+            subclassLabel: item['subclass_label'] as String?,
+            // Ausente no JSON cai no padrão 4/8/12/16/19, que vale para quase
+            // todas as classes; só Guerreiro e Ladino precisam declarar.
+            featLevels:
+                featLevelsRaw.isEmpty
+                    ? ClassEntry.defaultFeatLevels
+                    : featLevelsRaw,
+            variantOf: item['variant_of'] as String?,
+            source: item['source'] as String? ?? 'srd',
+            skillOptions: skillOptionsRaw
+                .map((e) => e.toString())
+                .toList(growable: false),
+            // Zero quando o asset não declara: a tela não impõe limite nesse caso,
+            // em vez de travar o jogador em zero perícias.
+            skillChoices: _asInt(item['skill_choices']) ?? 0,
+            weaponProficiencies: WeaponProficiencies.tryParse(
+              item['weapon_proficiencies'],
+            ),
+            savingThrows: savingThrowsRaw
+                .map((e) => e.toString())
+                .toList(growable: false),
+          );
+        })
+        .toList(growable: false);
   }
 
   @override
   Future<List<RaceEntry>> loadRaces() async {
     final items = await _source.loadJsonList('assets/data/srd/races.json');
 
-    return items.map((item) {
-      final rawBonuses = _asMap(item['fixed_ability_bonuses']);
-      final rawTraits = _asList(item['traits']);
-      final rawSizeOptions = _asList(item['size_options']);
-      final rawLanguages = _asList(item['languages']);
-      final rawGrantedSkills = _asList(item['granted_skills']);
-      final rawChoiceGroups = _asList(item['choice_groups']);
-      final rawTags = _asList(item['tags']);
-      final rawSkillChoice = item['skill_choice'];
+    return items
+        .map((item) {
+          final rawBonuses = _asMap(item['fixed_ability_bonuses']);
+          final rawTraits = _asList(item['traits']);
+          final rawSizeOptions = _asList(item['size_options']);
+          final rawLanguages = _asList(item['languages']);
+          final rawGrantedSkills = _asList(item['granted_skills']);
+          final rawChoiceGroups = _asList(item['choice_groups']);
+          final rawTags = _asList(item['tags']);
+          final rawSkillChoice = item['skill_choice'];
 
-      return RaceEntry(
-        id: item['id'] as String,
-        name: item['name'] as String,
-        source: item['source'] as String? ?? 'srd',
+          return RaceEntry(
+            id: item['id'] as String,
+            name: item['name'] as String,
+            source: item['source'] as String? ?? 'srd',
 
-        size: item['size'] as String?,
-        speed: _asDouble(item['speed']),
-        allowsCustomOrigin: _asBool(item['allows_custom_origin'], fallback: true),
-        abilityBonusMode: AbilityBonusMode.fromId(
-          item['ability_bonus_mode'] as String?,
-        ),
-        fixedAbilityBonuses: rawBonuses.map(
-          (key, value) => MapEntry(key, _asInt(value) ?? 0),
-        ),
-        abilityBonusChoices: _asList(item['ability_bonus_choices'])
-            .map((e) => _asInt(e) ?? 0)
-            .where((value) => value > 0)
-            .toList(growable: false),
-        grantsFeat: _asBool(item['grants_feat']),
-        grantedSkills: rawGrantedSkills
-            .map((e) => e.toString())
-            .toList(growable: false),
-        skillChoice: rawSkillChoice is Map
-            ? _parseRaceSkillChoice(Map<String, dynamic>.from(rawSkillChoice))
-            : null,
-        traits: rawTraits
-            .map((e) {
-              if (e is String) return e;
-              if (e is Map<String, dynamic>) {
-                return e['description']?.toString() ?? '';
-              }
-              if (e is Map) {
-                return e['description']?.toString() ?? '';
-              }
-              return e.toString();
-            })
-            .where((e) => e.trim().isNotEmpty)
-            .toList(growable: false),
-        initiative: InitiativeRule.tryParse(item['initiative']),
+            size: item['size'] as String?,
+            speed: _asDouble(item['speed']),
+            allowsCustomOrigin: _asBool(
+              item['allows_custom_origin'],
+              fallback: true,
+            ),
+            abilityBonusMode: AbilityBonusMode.fromId(
+              item['ability_bonus_mode'] as String?,
+            ),
+            fixedAbilityBonuses: rawBonuses.map(
+              (key, value) => MapEntry(key, _asInt(value) ?? 0),
+            ),
+            abilityBonusChoices: _asList(item['ability_bonus_choices'])
+                .map((e) => _asInt(e) ?? 0)
+                .where((value) => value > 0)
+                .toList(growable: false),
+            grantsFeat: _asBool(item['grants_feat']),
+            grantedSkills: rawGrantedSkills
+                .map((e) => e.toString())
+                .toList(growable: false),
+            skillChoice:
+                rawSkillChoice is Map
+                    ? _parseRaceSkillChoice(
+                      Map<String, dynamic>.from(rawSkillChoice),
+                    )
+                    : null,
+            traits: rawTraits
+                .map((e) {
+                  if (e is String) return e;
+                  if (e is Map<String, dynamic>) {
+                    return e['description']?.toString() ?? '';
+                  }
+                  if (e is Map) {
+                    return e['description']?.toString() ?? '';
+                  }
+                  return e.toString();
+                })
+                .where((e) => e.trim().isNotEmpty)
+                .toList(growable: false),
+            initiative: InitiativeRule.tryParse(item['initiative']),
 
-        parentRaceId: item['parent_race_id'] as String?,
-        isSubrace: _asBool(item['is_subrace']),
-        description: item['description'] as String?,
-        sizeOptions: rawSizeOptions
-            .map((e) => e.toString())
-            .toList(growable: false),
-        creatureType: item['creature_type'] as String?,
-        darkvision: _asInt(item['darkvision']),
-        languages: rawLanguages
-            .map((e) => e.toString())
-            .toList(growable: false),
-        choiceGroups: rawChoiceGroups
-            .whereType<Map>()
-            .map((e) => _parseRaceChoiceGroup(Map<String, dynamic>.from(e)))
-            .toList(growable: false),
-        tags: rawTags.map((e) => e.toString()).toList(growable: false),
-      );
-    }).toList(growable: false);
+            parentRaceId: item['parent_race_id'] as String?,
+            isSubrace: _asBool(item['is_subrace']),
+            description: item['description'] as String?,
+            sizeOptions: rawSizeOptions
+                .map((e) => e.toString())
+                .toList(growable: false),
+            creatureType: item['creature_type'] as String?,
+            darkvision: _asInt(item['darkvision']),
+            languages: rawLanguages
+                .map((e) => e.toString())
+                .toList(growable: false),
+            choiceGroups: rawChoiceGroups
+                .whereType<Map>()
+                .map((e) => _parseRaceChoiceGroup(Map<String, dynamic>.from(e)))
+                .toList(growable: false),
+            tags: rawTags.map((e) => e.toString()).toList(growable: false),
+          );
+        })
+        .toList(growable: false);
   }
 
   @override
   Future<List<BackgroundEntry>> loadBackgrounds() async {
-    final items =
-        await _source.loadJsonList('assets/data/srd/backgrounds.json');
+    final items = await _source.loadJsonList(
+      'assets/data/srd/backgrounds.json',
+    );
 
     // Primeira passada: só as tabelas narrativas de quem as declara.
     //
@@ -170,50 +184,54 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
       if (tables != null) tablesByOwner[ownerId] = tables;
     }
 
-    final entries = items.map((raw) {
-      final item = _asMap(raw);
-      final id = item['id'] as String;
-      final inheritFrom = (item['personality_from'] as String?)?.trim();
+    final entries =
+        items.map((raw) {
+          final item = _asMap(raw);
+          final id = item['id'] as String;
+          final inheritFrom = (item['personality_from'] as String?)?.trim();
 
-      // Tabelas próprias quando existem; senão as do antecedente apontado.
-      // Referência quebrada cai em "sem personalidade" em vez de lançar: um
-      // antecedente sem traços continua jogável, e derrubar o compêndio
-      // inteiro por causa de uma linha de dado seria pior.
-      final tables = tablesByOwner[id] ??
-          (inheritFrom == null ? null : tablesByOwner[inheritFrom]);
+          // Tabelas próprias quando existem; senão as do antecedente apontado.
+          // Referência quebrada cai em "sem personalidade" em vez de lançar: um
+          // antecedente sem traços continua jogável, e derrubar o compêndio
+          // inteiro por causa de uma linha de dado seria pior.
+          final tables =
+              tablesByOwner[id] ??
+              (inheritFrom == null ? null : tablesByOwner[inheritFrom]);
 
-      final startingGold = _asInt(item['starting_gold']) ?? 0;
+          final startingGold = _asInt(item['starting_gold']) ?? 0;
 
-      return BackgroundEntry(
-        id: id,
-        name: item['name'] as String,
-        description: item['description'] as String?,
-        skillIds: _asList(item['skills'])
-            .map((e) => e.toString())
-            .toList(growable: false),
-        languages: _asInt(item['languages']) ?? 0,
-        tools: _asList(item['tools'])
-            .map((e) => e.toString())
-            .toList(growable: false),
-        featureName: item['feature_name'] as String?,
-        featureDescription: item['feature_description'] as String?,
-        startingGold: startingGold,
-        source: item['source'] as String? ?? 'phb',
-        variantOf: (item['variant_of'] as String?)?.trim(),
-        personality: _personalityFor(tables, item),
-        startingCurrency: _parseStartingCurrency(item, startingGold),
-        startingEquipment: _parseEquipmentItems(
-          _asList(item['starting_equipment']),
-        ),
-        equipmentChoices: _parseEquipmentChoices(
-          _asList(item['equipment_choices']),
-        ),
-        skillChoice: _parseBackgroundSkillChoice(item['skill_choices']),
-        extraChoices: _parseExtraChoices(_asList(item['extra_choices'])),
-        featureOptions: _parseFeatureOptions(_asList(item['feature_options'])),
-        specialty: (item['specialty'] as String?)?.trim(),
-      );
-    }).toList();
+          return BackgroundEntry(
+            id: id,
+            name: item['name'] as String,
+            description: item['description'] as String?,
+            skillIds: _asList(
+              item['skills'],
+            ).map((e) => e.toString()).toList(growable: false),
+            languages: _asInt(item['languages']) ?? 0,
+            tools: _asList(
+              item['tools'],
+            ).map((e) => e.toString()).toList(growable: false),
+            featureName: item['feature_name'] as String?,
+            featureDescription: item['feature_description'] as String?,
+            startingGold: startingGold,
+            source: item['source'] as String? ?? 'phb',
+            variantOf: (item['variant_of'] as String?)?.trim(),
+            personality: _personalityFor(tables, item),
+            startingCurrency: _parseStartingCurrency(item, startingGold),
+            startingEquipment: _parseEquipmentItems(
+              _asList(item['starting_equipment']),
+            ),
+            equipmentChoices: _parseEquipmentChoices(
+              _asList(item['equipment_choices']),
+            ),
+            skillChoice: _parseBackgroundSkillChoice(item['skill_choices']),
+            extraChoices: _parseExtraChoices(_asList(item['extra_choices'])),
+            featureOptions: _parseFeatureOptions(
+              _asList(item['feature_options']),
+            ),
+            specialty: (item['specialty'] as String?)?.trim(),
+          );
+        }).toList();
 
     // "Antecedente Customizável" não vem do JSON: é uma opção sintética que
     // libera o jogador para montar o próprio antecedente. Fica sempre no fim
@@ -337,8 +355,8 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
       ideals: tables.ideals,
       bonds: tables.bonds,
       flaws: tables.flaws,
-      traitChoiceCount: _asInt(item['personality_trait_choices']) ??
-          tables.traitChoiceCount,
+      traitChoiceCount:
+          _asInt(item['personality_trait_choices']) ?? tables.traitChoiceCount,
       idealChoiceCount:
           _asInt(item['ideal_choices']) ?? tables.idealChoiceCount,
       bondChoiceCount: _asInt(item['bond_choices']) ?? tables.bondChoiceCount,
@@ -348,10 +366,7 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
 
   /// Moedas concedidas. Cai no ouro solto quando o antecedente só declara ele,
   /// que é o formato do compêndio antigo.
-  Currency _parseStartingCurrency(
-    Map<String, dynamic> item,
-    int startingGold,
-  ) {
+  Currency _parseStartingCurrency(Map<String, dynamic> item, int startingGold) {
     final raw = item['starting_currency'];
     if (raw == null) {
       return startingGold > 0 ? Currency(gold: startingGold) : const Currency();
@@ -517,42 +532,45 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
   Future<List<FeatEntry>> loadFeats() async {
     final items = await _source.loadJsonList('assets/data/srd/feats.json');
 
-    return items.map((item) {
-      final rawChoice = _asMap(item['skill_choice']);
-      final rawIncreases = _asMap(item['ability_increases']);
+    return items
+        .map((item) {
+          final rawChoice = _asMap(item['skill_choice']);
+          final rawIncreases = _asMap(item['ability_increases']);
 
-      return FeatEntry(
-        id: item['id'] as String,
-        name: item['name'] as String,
-        nameOriginal: item['name_original'] as String?,
-        description: item['description'] as String?,
-        prerequisite: item['prerequisite'] as String?,
-        requires: _parseFeatPrerequisite(_asMap(item['requires'])),
-        repeatable: _asBool(item['repeatable'], fallback: false),
-        skillIds: _asList(item['skills'])
-            .map((e) => e.toString())
-            .toList(growable: false),
-        // `choose: 0` não é escolha nenhuma, então vira nulo em vez de um
-        // objeto que a tela teria de checar depois.
-        skillChoice: rawChoice.isEmpty || (_asInt(rawChoice['choose']) ?? 0) <= 0
-            ? null
-            : FeatSkillChoice(
-                choose: _asInt(rawChoice['choose']) ?? 0,
-                options: _asList(rawChoice['options'])
-                    .map((e) => e.toString())
-                    .toList(growable: false),
-              ),
-        abilityIncreases: {
-          for (final entry in rawIncreases.entries)
-            if (_asInt(entry.value) case final value?) entry.key: value,
-        },
-        abilityIncreaseOptions: _asList(item['ability_increase_options'])
-            .map((e) => e.toString())
-            .toList(growable: false),
-        initiative: InitiativeRule.tryParse(item['initiative']),
-        source: item['source'] as String? ?? 'phb',
-      );
-    }).toList(growable: false);
+          return FeatEntry(
+            id: item['id'] as String,
+            name: item['name'] as String,
+            nameOriginal: item['name_original'] as String?,
+            description: item['description'] as String?,
+            prerequisite: item['prerequisite'] as String?,
+            requires: _parseFeatPrerequisite(_asMap(item['requires'])),
+            repeatable: _asBool(item['repeatable'], fallback: false),
+            skillIds: _asList(
+              item['skills'],
+            ).map((e) => e.toString()).toList(growable: false),
+            // `choose: 0` não é escolha nenhuma, então vira nulo em vez de um
+            // objeto que a tela teria de checar depois.
+            skillChoice:
+                rawChoice.isEmpty || (_asInt(rawChoice['choose']) ?? 0) <= 0
+                    ? null
+                    : FeatSkillChoice(
+                      choose: _asInt(rawChoice['choose']) ?? 0,
+                      options: _asList(
+                        rawChoice['options'],
+                      ).map((e) => e.toString()).toList(growable: false),
+                    ),
+            abilityIncreases: {
+              for (final entry in rawIncreases.entries)
+                if (_asInt(entry.value) case final value?) entry.key: value,
+            },
+            abilityIncreaseOptions: _asList(
+              item['ability_increase_options'],
+            ).map((e) => e.toString()).toList(growable: false),
+            initiative: InitiativeRule.tryParse(item['initiative']),
+            source: item['source'] as String? ?? 'phb',
+          );
+        })
+        .toList(growable: false);
   }
 
   FeatPrerequisite _parseFeatPrerequisite(Map<String, dynamic> raw) {
@@ -583,21 +601,24 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
 
   @override
   Future<List<ClassFeatureEntry>> loadClassFeatures() async {
-    final items =
-        await _source.loadJsonList('assets/data/srd/class_features.json');
+    final items = await _source.loadJsonList(
+      'assets/data/srd/class_features.json',
+    );
 
-    return items.map((item) {
-      return ClassFeatureEntry(
-        classId: item['class_id'] as String,
-        level: item['level'] as int,
-        // `tryParse` aceita texto e objeto, e descarta entrada sem nome.
-        features: [
-          for (final raw in _asList(item['features']))
-            if (ClassFeature.tryParse(raw) case final feature?) feature,
-        ],
-        source: item['source'] as String? ?? 'srd',
-      );
-    }).toList(growable: false);
+    return items
+        .map((item) {
+          return ClassFeatureEntry(
+            classId: item['class_id'] as String,
+            level: item['level'] as int,
+            // `tryParse` aceita texto e objeto, e descarta entrada sem nome.
+            features: [
+              for (final raw in _asList(item['features']))
+                if (ClassFeature.tryParse(raw) case final feature?) feature,
+            ],
+            source: item['source'] as String? ?? 'srd',
+          );
+        })
+        .toList(growable: false);
   }
 
   @override
@@ -671,74 +692,74 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
 
   @override
   Future<List<SpellSlotProgressionEntry>> loadSpellSlotProgressions() async {
-    final items = await _source.loadJsonList('assets/data/srd/spell_slots.json');
+    final items = await _source.loadJsonList(
+      'assets/data/srd/spell_slots.json',
+    );
 
-    return items.map((item) {
-      return SpellSlotProgressionEntry(
-        tableId: item['table_id'] as String,
-        level: item['level'] as int,
-        first: item['1'] as int? ?? 0,
-        second: item['2'] as int? ?? 0,
-        third: item['3'] as int? ?? 0,
-        fourth: item['4'] as int? ?? 0,
-        fifth: item['5'] as int? ?? 0,
-        sixth: item['6'] as int? ?? 0,
-        seventh: item['7'] as int? ?? 0,
-        eighth: item['8'] as int? ?? 0,
-        ninth: item['9'] as int? ?? 0,
-        pactSlotLevel: item['pact_slot_level'] as int?,
-      );
-    }).toList(growable: false);
+    return items
+        .map((item) {
+          return SpellSlotProgressionEntry(
+            tableId: item['table_id'] as String,
+            level: item['level'] as int,
+            first: item['1'] as int? ?? 0,
+            second: item['2'] as int? ?? 0,
+            third: item['3'] as int? ?? 0,
+            fourth: item['4'] as int? ?? 0,
+            fifth: item['5'] as int? ?? 0,
+            sixth: item['6'] as int? ?? 0,
+            seventh: item['7'] as int? ?? 0,
+            eighth: item['8'] as int? ?? 0,
+            ninth: item['9'] as int? ?? 0,
+            pactSlotLevel: item['pact_slot_level'] as int?,
+          );
+        })
+        .toList(growable: false);
   }
 
   @override
   Future<List<SpellEntry>> loadSpells() async {
-    final files = [
-      'assets/data/spells/magias-livro-do-jogador.json',
-      'assets/data/spells/magias-xanathar-guide.json',
-      'assets/data/spells/magias-tasha-cauldron.json',
-    ];
-
     final List<SpellEntry> allSpells = [];
 
-    for (final path in files) {
+    for (final path in spellAssetPaths) {
       final raw = await _source.loadRawJson(path);
       final dados = raw['dados'] as List<dynamic>? ?? const [];
 
-      final spellsFromFile = dados.map((item) {
-        final spell = Map<String, dynamic>.from(item as Map);
+      final spellsFromFile =
+          dados.map((item) {
+            final spell = Map<String, dynamic>.from(item as Map);
 
-        // Os assets de magia guardam HTML dentro dos campos de texto (`<br>`,
-        // `<b>`, listas e tabelas, além de `&emsp;`). A limpeza fica aqui, na
-        // leitura, porque a descrição é exibida no compêndio e no painel de
-        // magias da ficha, e o painel mostrava o markup literal.
-        String text(String key) => htmlToPlainText(spell[key] as String? ?? '');
+            // Os assets de magia guardam HTML dentro dos campos de texto (`<br>`,
+            // `<b>`, listas e tabelas, além de `&emsp;`). A limpeza fica aqui, na
+            // leitura, porque a descrição é exibida no compêndio e no painel de
+            // magias da ficha, e o painel mostrava o markup literal.
+            String text(String key) =>
+                htmlToPlainText(spell[key] as String? ?? '');
 
-        return SpellEntry(
-          id: spell['id'] as int,
-          namePt: text('nome'),
-          // O campo no asset chama `original`. Lia-se `nome_original`, que não
-          // existe, então o nome em inglês vinha vazio e a busca por ele nunca
-          // achava nada.
-          nameOriginal: text('original'),
-          level: spell['nivel'] as int? ?? 0,
-          school: text('escola'),
-          castingTime: text('tempo'),
-          range: text('alcance'),
-          components: text('componentes'),
-          hasCostlyMaterials: spell['materiaispagos'] as bool? ?? false,
-          duration: text('duracao'),
-          concentration: spell['concentracao'] as bool? ?? false,
-          ritual: spell['ritual'] as bool? ?? false,
-          classes: _parseClasses(spell['classes'] as String?),
-          subclasses: _splitCommaList(spell['subclasses'] as String?),
-          description: text('descricao'),
-          upcast: htmlToPlainTextOrNull(spell['upcast'] as String?),
-          source: spell['fonte'] as String? ?? '',
-          page: spell['pagina'] as String? ?? '',
-          isSrd: spell['srd'] as bool? ?? false,
-        );
-      }).toList();
+            return SpellEntry(
+              id: spell['id'] as int,
+              namePt: text('nome'),
+              // O campo no asset chama `original`. Lia-se `nome_original`, que não
+              // existe, então o nome em inglês vinha vazio e a busca por ele nunca
+              // achava nada.
+              nameOriginal: text('original'),
+              level: spell['nivel'] as int? ?? 0,
+              school: text('escola'),
+              castingTime: text('tempo'),
+              range: text('alcance'),
+              components: text('componentes'),
+              hasCostlyMaterials: spell['materiaispagos'] as bool? ?? false,
+              duration: text('duracao'),
+              concentration: spell['concentracao'] as bool? ?? false,
+              ritual: spell['ritual'] as bool? ?? false,
+              classes: _parseClasses(spell['classes'] as String?),
+              subclasses: _splitCommaList(spell['subclasses'] as String?),
+              description: text('descricao'),
+              upcast: htmlToPlainTextOrNull(spell['upcast'] as String?),
+              source: spell['fonte'] as String? ?? '',
+              page: spell['pagina'] as String? ?? '',
+              isSrd: spell['srd'] as bool? ?? false,
+            );
+          }).toList();
 
       allSpells.addAll(spellsFromFile);
     }
@@ -782,7 +803,8 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
       category: category,
       rangeType: rangeType,
       damage: damage == null || damage.isEmpty ? null : damage,
-      damageType: WeaponDamageType.fromId(item['damage_type'] as String?) ??
+      damageType:
+          WeaponDamageType.fromId(item['damage_type'] as String?) ??
           WeaponDamageType.none,
       properties: [
         for (final raw in _asList(item['properties']))
@@ -791,10 +813,196 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
       ],
       range: WeaponRange.tryParse(item['range']),
       thrownRange: WeaponRange.tryParse(item['thrown_range']),
-      versatileDamage: versatile == null || versatile.isEmpty ? null : versatile,
+      versatileDamage:
+          versatile == null || versatile.isEmpty ? null : versatile,
       special: special == null || special.isEmpty ? null : special,
       source: item['source'] as String? ?? 'phb',
     );
+  }
+
+  @override
+  Future<List<ClassStartingEquipment>> loadClassEquipment() async {
+    final items = await _source.loadJsonList(
+      'assets/data/srd/class_equipment.json',
+    );
+
+    final parsed = <ClassStartingEquipment>[];
+    // Classes que só apontam para outra (`same_as`), resolvidas num segundo
+    // passo: o Patrulheiro Revisado concede o mesmo equipamento do
+    // Patrulheiro, e duplicar o bloco no asset criaria duas verdades.
+    final aliases = <String, String>{};
+    final names = <String, String>{};
+
+    for (final item in items) {
+      final classId = (item['class_id'] as String?)?.trim();
+      if (classId == null || classId.isEmpty) continue;
+
+      final className = (item['class_name'] as String?)?.trim() ?? '';
+      names[classId] = className;
+
+      final sameAs = (item['same_as'] as String?)?.trim();
+      if (sameAs != null && sameAs.isNotEmpty) {
+        aliases[classId] = sameAs;
+        continue;
+      }
+
+      parsed.add(
+        ClassStartingEquipment(
+          classId: classId,
+          className: className,
+          fixedItems: _parseClassEquipmentItems(_asList(item['fixed_items'])),
+          fixedPicks: _parseClassEquipmentPicks(_asList(item['fixed_picks'])),
+          groups: _parseClassEquipmentGroups(_asList(item['groups'])),
+          source: (item['source'] as String?)?.trim() ?? 'phb',
+          edition: (item['edition'] as String?)?.trim() ?? '2014',
+        ),
+      );
+    }
+
+    for (final entry in aliases.entries) {
+      ClassStartingEquipment? target;
+      for (final candidate in parsed) {
+        if (candidate.classId == entry.value) {
+          target = candidate;
+          break;
+        }
+      }
+      // Apontar para uma classe que não existe é dado quebrado, e some em vez
+      // de derrubar a leitura das outras.
+      if (target == null) continue;
+
+      parsed.add(
+        target.copyWith(
+          classId: entry.key,
+          className: names[entry.key] ?? target.className,
+        ),
+      );
+    }
+
+    return List<ClassStartingEquipment>.unmodifiable(parsed);
+  }
+
+  /// Lê os itens de equipamento de classe.
+  ///
+  /// Tolerante como o resto do compêndio: entrada sem id ou sem nome não tem
+  /// como ser rastreada nem exibida, então some da lista em vez de derrubar a
+  /// classe inteira. O teste de asset é quem garante que nenhuma sumiu.
+  List<ClassEquipmentItem> _parseClassEquipmentItems(List<dynamic> raw) {
+    final result = <ClassEquipmentItem>[];
+
+    for (final entry in raw) {
+      final map = _asMap(entry);
+      final id = (map['id'] as String?)?.trim();
+      final name = (map['name'] as String?)?.trim();
+      if (id == null || id.isEmpty) continue;
+      if (name == null || name.isEmpty) continue;
+
+      final quantity = _asInt(map['quantity']) ?? 1;
+      final weaponId = (map['weapon_id'] as String?)?.trim();
+      final armorId = (map['armor_id'] as String?)?.trim();
+
+      result.add(
+        ClassEquipmentItem(
+          id: id,
+          name: name,
+          quantity: quantity < 1 ? 1 : quantity,
+          category: ItemCategory.fromIdOrOther(map['category'] as String?),
+          weaponId: weaponId == null || weaponId.isEmpty ? null : weaponId,
+          armorId: armorId == null || armorId.isEmpty ? null : armorId,
+          isShield: _asBool(map['shield']),
+          description: (map['description'] as String?)?.trim() ?? '',
+        ),
+      );
+    }
+
+    return List<ClassEquipmentItem>.unmodifiable(result);
+  }
+
+  List<ClassEquipmentPick> _parseClassEquipmentPicks(List<dynamic> raw) {
+    final result = <ClassEquipmentPick>[];
+
+    for (final entry in raw) {
+      final map = _asMap(entry);
+      final id = (map['id'] as String?)?.trim();
+      if (id == null || id.isEmpty) continue;
+
+      final count = _asInt(map['count']) ?? 1;
+      final category = WeaponCategory.fromId(map['weapon_category'] as String?);
+      final options = _parseClassEquipmentItems(_asList(map['options']));
+
+      // Sem categoria de arma e sem lista explícita não há o que escolher: a
+      // escolha ficaria eternamente pendente e travaria a criação.
+      if (category == null && options.isEmpty) continue;
+
+      result.add(
+        ClassEquipmentPick(
+          id: id,
+          label: (map['label'] as String?)?.trim() ?? '',
+          count: count < 1 ? 1 : count,
+          allowDuplicates: _asBool(map['allow_duplicates']),
+          weaponCategory: category,
+          rangeType: WeaponRangeType.fromId(map['range_type'] as String?),
+          explicitOptions: options,
+        ),
+      );
+    }
+
+    return List<ClassEquipmentPick>.unmodifiable(result);
+  }
+
+  List<ClassEquipmentGroup> _parseClassEquipmentGroups(List<dynamic> raw) {
+    final result = <ClassEquipmentGroup>[];
+
+    for (final entry in raw) {
+      final map = _asMap(entry);
+      final id = (map['id'] as String?)?.trim();
+      if (id == null || id.isEmpty) continue;
+
+      final options = <ClassEquipmentOption>[];
+      for (final optionRaw in _asList(map['options'])) {
+        final option = _asMap(optionRaw);
+        final optionId = (option['id'] as String?)?.trim();
+        if (optionId == null || optionId.isEmpty) continue;
+
+        final items = _parseClassEquipmentItems(_asList(option['items']));
+        final picks = _parseClassEquipmentPicks(_asList(option['picks']));
+
+        // Alternativa que não entrega nem pede nada não é alternativa.
+        if (items.isEmpty && picks.isEmpty) continue;
+
+        options.add(
+          ClassEquipmentOption(
+            id: optionId,
+            label: (option['label'] as String?)?.trim() ?? optionId,
+            items: items,
+            picks: picks,
+            note: (option['note'] as String?)?.trim() ?? '',
+          ),
+        );
+      }
+
+      if (options.isEmpty) continue;
+
+      final choose = _asInt(map['choose']) ?? 1;
+      final requires = (map['requires_option'] as String?)?.trim();
+
+      result.add(
+        ClassEquipmentGroup(
+          id: id,
+          label: (map['label'] as String?)?.trim() ?? '',
+          // Não faz sentido pedir mais alternativas do que existem.
+          choose:
+              choose < 1
+                  ? 1
+                  : (choose > options.length ? options.length : choose),
+          options: List<ClassEquipmentOption>.unmodifiable(options),
+          requiresOptionId:
+              requires == null || requires.isEmpty ? null : requires,
+        ),
+      );
+    }
+
+    return List<ClassEquipmentGroup>.unmodifiable(result);
   }
 
   SubclassSpellGrant _parseSubclassSpellGrant(Map<String, dynamic> item) {

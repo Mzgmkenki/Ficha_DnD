@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dnd_ficha_app/core/utils/html_text.dart';
+import 'package:dnd_ficha_app/features/compendium/data/spell_assets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Guarda a limpeza do HTML que vem embutido nos assets de magia.
@@ -11,15 +12,12 @@ import 'package:flutter_test/flutter_test.dart';
 /// de Invocar Besta. O markup estava no asset e a tela renderiza com `Text`,
 /// que não interpreta HTML.
 void main() {
-  const spellFiles = [
-    'assets/data/spells/magias-livro-do-jogador.json',
-    'assets/data/spells/magias-xanathar-guide.json',
-    'assets/data/spells/magias-tasha-cauldron.json',
-  ];
+  const spellFiles = spellAssetPaths;
 
   group('htmlToPlainText', () {
     test('texto sem markup passa intacto', () {
-      const raw = 'Você invoca um espírito bestial. Escolha: Ar, Terra ou Água.';
+      const raw =
+          'Você invoca um espírito bestial. Escolha: Ar, Terra ou Água.';
       expect(htmlToPlainText(raw), raw);
     });
 
@@ -53,7 +51,8 @@ void main() {
     });
 
     test('tabela vira linhas com células separadas por barra', () {
-      const raw = '<table class="big">     <tr>         <th>d6</th>         '
+      const raw =
+          '<table class="big">     <tr>         <th>d6</th>         '
           '<th>Demônios Invocados</th>     </tr>     <tr>         '
           '<td class="centernumber" style="width: 15%;">1-2</td>         '
           '<td>Dois demônios de desafio 1 ou menor</td>     </tr> </table>';
@@ -80,7 +79,10 @@ void main() {
 
     test('entidade desconhecida fica visível em vez de sumir', () {
       // Sumir seria pior: ninguém descobriria que falta mapear.
-      expect(htmlToPlainText('valor &naoexiste; aqui'), 'valor &naoexiste; aqui');
+      expect(
+        htmlToPlainText('valor &naoexiste; aqui'),
+        'valor &naoexiste; aqui',
+      );
     });
 
     test('código numérico inválido não estoura', () {
@@ -122,7 +124,9 @@ void main() {
     });
 
     test('o caso de Invocar Besta sai limpo e com o parágrafo separado', () {
-      final spell = spells.firstWhere((item) => item['nome'] == 'Invocar Besta');
+      final spell = spells.firstWhere(
+        (item) => item['nome'] == 'Invocar Besta',
+      );
       final description = htmlToPlainText(spell['descricao'] as String);
 
       expect(

@@ -1,6 +1,7 @@
 import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/class_equipment.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
@@ -65,6 +66,28 @@ final classByIdProvider =
     if (item.id == id) {
       return item;
     }
+  }
+  return null;
+});
+
+/// Equipamento inicial declarado por cada classe.
+final classEquipmentProvider =
+    FutureProvider<List<ClassStartingEquipment>>((ref) async {
+  final repository = ref.watch(compendiumRepositoryProvider);
+  return repository.loadClassEquipment();
+});
+
+/// O equipamento inicial de uma classe, ou `null` quando a classe não declara
+/// nenhum.
+///
+/// Classe sem dado não é erro: a criação segue sem a seção de equipamentos, e
+/// é isso que mantém o fluxo funcionando para conteúdo que ainda não foi
+/// cadastrado.
+final classEquipmentByIdProvider =
+    FutureProvider.family<ClassStartingEquipment?, String>((ref, id) async {
+  final all = await ref.watch(classEquipmentProvider.future);
+  for (final item in all) {
+    if (item.classId == id) return item;
   }
   return null;
 });

@@ -11,6 +11,8 @@ import 'package:dnd_ficha_app/features/character/application/providers/character
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/background_personality_choice.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_weapon.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/class_equipment_selection.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/combat_stats.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/currency.dart';
@@ -21,6 +23,8 @@ import 'package:dnd_ficha_app/features/character/domain/entities/inventory_item.
 import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiency_grant.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/background_grants.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/class_equipment_grants.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/owned_armor.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/standard_array.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/alignment.dart';
@@ -29,17 +33,22 @@ import 'package:dnd_ficha_app/features/character/domain/value_objects/spellcasti
 import 'package:dnd_ficha_app/features/character/presentation/pages/portrait_crop_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/alignment_field.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/background_personality_form.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/class_equipment_form.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/custom_background_form.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/portrait_avatar.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/subclass_summary.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart'
     as compendium_providers;
+import 'package:dnd_ficha_app/features/compendium/application/providers/weapon_providers.dart'
+    as weapon_providers;
 import 'package:dnd_ficha_app/features/compendium/domain/entities/ability_bonus_mode.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/class_equipment.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_skill_choice.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/subclass_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/weapon_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -92,6 +101,27 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
 
   /// Dinheiro concedido pelo antecedente, com a origem registrada.
   List<CurrencyGrant> _grantedCurrency = const [];
+
+  /// Armas concedidas pela classe, com a origem registrada.
+  ///
+  /// Lista separada do inventário porque arma mora na seção de Armas, que
+  /// resolve ataque e dano pelo compêndio. Munição não entra aqui: ela vai
+  /// para o inventário, como item com quantidade.
+  List<CharacterWeapon> _grantedWeapons = const [];
+
+  /// O que o jogador escolheu no equipamento inicial da classe.
+  ///
+  /// Começa vazio: nenhuma alternativa é pré-selecionada, pelo mesmo motivo da
+  /// personalidade — escolher a primeira decidiria pelo jogador.
+  ClassEquipmentSelection _classEquipment = ClassEquipmentSelection.empty;
+
+  /// Classe para a qual o equipamento já foi aplicado.
+  ///
+  /// A classe é auto-selecionada no primeiro build (o dropdown cai na
+  /// primeira da lista) e nesse caso não existe evento de troca para disparar
+  /// a concessão. Este campo é o que permite aplicar uma única vez, sem
+  /// reaplicar a cada reconstrução.
+  String? _classEquipmentSyncedFor;
 
   /// Carteira montada a partir das concessões.
   Currency _wallet = const Currency();
@@ -237,6 +267,16 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
         ref.watch(compendium_providers.subclassEntriesProvider).value ??
         const <SubclassEntry>[];
 
+    // Equipamento inicial e catálogo de armas, também tolerantes: enquanto
+    // não carregam, a seção de equipamentos não aparece e a criação continua
+    // possível. Classe sem equipamento cadastrado passa pelo mesmo caminho.
+    final classEquipment =
+        ref.watch(compendium_providers.classEquipmentProvider).value ??
+        const <ClassStartingEquipment>[];
+    final weaponCatalog =
+        ref.watch(weapon_providers.weaponEntriesProvider).value ??
+        const <WeaponEntry>[];
+
     // Busca tolerante: enquanto os antecedentes carregam (ou se o id salvo
     // sumir da lista) o formulário continua funcionando.
     final selectedBackground = _findBackground(backgrounds);
@@ -321,6 +361,31 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                   setState(() {
                     _useCustomOrigin = false;
                   });
+                });
+              }
+
+              final selectedEquipment = _findClassEquipment(
+                classEquipment,
+                effectiveClassId,
+              );
+
+              // A classe é auto-selecionada no primeiro build, quando ainda
+              // não houve evento de troca: sem isto o equipamento fixo da
+              // primeira classe da lista nunca seria concedido. Roda uma vez
+              // por classe — e o serviço é idempotente, então rolar a tela ou
+              // reconstruir não concede nada de novo.
+              if (classEquipment.isNotEmpty &&
+                  weaponCatalog.isNotEmpty &&
+                  _classEquipmentSyncedFor != effectiveClassId) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (!mounted) return;
+                  _applyClassEquipment(
+                    classId: effectiveClassId,
+                    className: selectedClass.name,
+                    equipment: selectedEquipment,
+                    weaponCatalog: weaponCatalog,
+                    selection: _classEquipment.forClass(effectiveClassId),
+                  );
                 });
               }
 
@@ -459,9 +524,9 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                         BackgroundPersonalityForm(
                           personality: selectedBackground.personality,
                           selection: _personalitySelection,
-                          onChanged: (value) => setState(
-                            () => _personalitySelection = value,
-                          ),
+                          onChanged:
+                              (value) =>
+                                  setState(() => _personalitySelection = value),
                         ),
                       ],
                       if (_isCustomBackground)
@@ -531,6 +596,19 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                       },
                     ),
                     ..._buildSubclassSection(selectedClass, classSubclasses),
+                    ClassEquipmentForm(
+                      equipment: selectedEquipment,
+                      weapons: weaponCatalog,
+                      selection: _classEquipment,
+                      onChanged:
+                          (value) => _applyClassEquipment(
+                            classId: effectiveClassId,
+                            className: selectedClass.name,
+                            equipment: selectedEquipment,
+                            weaponCatalog: weaponCatalog,
+                            selection: value,
+                          ),
+                    ),
                     const SizedBox(height: 20),
                     Text(
                       'Perícias',
@@ -589,10 +667,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
   /// Em particular, escolha de personalidade que continua válida no antecedente
   /// novo é preservada — Criminoso e Espião compartilham as tabelas, e obrigar
   /// a refazer tudo seria trabalho à toa.
-  void _onBackgroundChanged(
-    String? value,
-    List<BackgroundEntry> backgrounds,
-  ) {
+  void _onBackgroundChanged(String? value, List<BackgroundEntry> backgrounds) {
     BackgroundEntry? next;
     for (final item in backgrounds) {
       if (item.id == value) {
@@ -633,6 +708,56 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
       if (item.id == _selectedBackgroundId) return item;
     }
     return null;
+  }
+
+  ClassStartingEquipment? _findClassEquipment(
+    List<ClassStartingEquipment> all,
+    String classId,
+  ) {
+    for (final item in all) {
+      if (item.classId == classId) return item;
+    }
+    return null;
+  }
+
+  /// Reage à escolha de equipamento e à troca de classe.
+  ///
+  /// A decisão do que sai e do que entra é toda do domínio
+  /// (`ClassEquipmentGrants`): aqui só se guarda o resultado e se avisa o
+  /// jogador. Vale para a primeira aplicação, para a troca de alternativa e
+  /// para a troca de classe — os três passam por este mesmo caminho, e é por
+  /// isso que ir e voltar na tela não duplica equipamento.
+  void _applyClassEquipment({
+    required String classId,
+    required String className,
+    required ClassStartingEquipment? equipment,
+    required List<WeaponEntry> weaponCatalog,
+    required ClassEquipmentSelection selection,
+  }) {
+    final result = ClassEquipmentGrants.apply(
+      equipment: equipment,
+      selection: selection.withClassId(classId),
+      weaponCatalog: weaponCatalog,
+      inventory: _grantedInventory,
+      weapons: _grantedWeapons,
+      className: className,
+    );
+
+    setState(() {
+      _classEquipmentSyncedFor = classId;
+      _classEquipment = result.selection;
+      _grantedInventory = result.inventory;
+      _grantedWeapons = result.weapons;
+    });
+
+    // Avisa só quando há o que avisar: trocar de alternativa sem ter mexido em
+    // nada não perde trabalho, e um aviso nesse caso seria ruído.
+    final notice = ClassEquipmentGrants.changeNotice(result);
+    if (notice == null || !mounted) return;
+
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(SnackBar(content: Text(notice)));
   }
 
   String _resolveSelectedClassId(List<ClassEntry> classes) {
@@ -817,13 +942,34 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
     // checada aqui contra o estado. Antecedente sem tabelas devolve `null` e
     // não gera pendência — é o que mantém a criação funcionando para dado
     // incompleto e para o antecedente customizável.
-    final personalityError = background == null
-        ? null
-        : _personalitySelection.validationError(background.personality);
+    final personalityError =
+        background == null
+            ? null
+            : _personalitySelection.validationError(background.personality);
     if (personalityError != null) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(personalityError)));
+      return;
+    }
+
+    // Equipamento da classe: checado aqui contra o estado pelo mesmo motivo do
+    // resto: a seção sai da viewport e o Form não a valida mais. Classe sem
+    // equipamento cadastrado devolve `null` e não gera pendência, o que mantém
+    // a criação funcionando para dado incompleto.
+    final equipmentError = _classEquipment.validationError(
+      _findClassEquipment(
+        ref.read(compendium_providers.classEquipmentProvider).value ??
+            const <ClassStartingEquipment>[],
+        effectiveClassId,
+      ),
+      ref.read(weapon_providers.weaponEntriesProvider).value ??
+          const <WeaponEntry>[],
+    );
+    if (equipmentError != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(equipmentError)));
       return;
     }
 
@@ -844,6 +990,15 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
       );
       final abilityAllocation = _buildAbilityScoreAllocation(selectedRace);
       final finalScores = abilityAllocation.totals();
+
+      // Veste a armadura do equipamento inicial agora, e não ao escolhê-la: a
+      // Força só é definitiva aqui, e armadura com requisito não pode ser
+      // vestida sem ela. Peça que o personagem não tem Força para usar fica
+      // disponível no inventário, não equipada.
+      final startingInventory = OwnedArmor.autoEquipSingle(
+        inventory: _grantedInventory,
+        abilityScores: finalScores,
+      );
       final maxHp = _startingHitPointsForClass(selectedClass, finalScores);
 
       final portraitPath = await _storePortrait(id);
@@ -874,7 +1029,16 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
         ],
         hitPoints: HitPoints(current: maxHp, maximum: maxHp),
         combatStats: CombatStats(
-          armorClass: 10,
+          // CA da armadura e do escudo que o equipamento inicial entregou e
+          // que estão equipados. Sem armadura, dá o 10 + Destreza da regra —
+          // antes era 10 fixo, que estava errado para quem tem Destreza alta.
+          // Só o que está EQUIPADO entra: possuir duas armaduras não soma as
+          // duas (ver `OwnedArmor`).
+          armorClass:
+              OwnedArmor.armorClass(
+                inventory: startingInventory,
+                abilityScores: finalScores,
+              ).total,
           initiativeBonus: 0,
           speedInMeters: selectedRace.speed ?? 9,
         ),
@@ -887,10 +1051,14 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
         // Os três já foram resolvidos na troca de antecedente, com a origem
         // registrada, então aqui é só repassar. Recalcular neste ponto
         // arriscaria aplicar de novo o que já estava aplicado.
-        inventory: _grantedInventory,
+        inventory: startingInventory,
         currency: _wallet,
         currencyGrants: _grantedCurrency,
         backgroundPersonalityChoices: _personalitySelection.choices,
+
+        // Armas do equipamento inicial da classe, com a origem registrada.
+        // Munição não está aqui: foi para o inventário com a quantidade.
+        weapons: _grantedWeapons,
 
         createdAt: now,
         updatedAt: now,

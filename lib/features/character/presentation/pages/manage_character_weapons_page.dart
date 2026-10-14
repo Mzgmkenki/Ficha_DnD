@@ -112,11 +112,13 @@ class _ManageCharacterWeaponsPageState
     final custom = weapon.name?.trim();
     final base = entry?.name ?? weapon.weaponId;
 
-    if (custom == null || custom.isEmpty) {
-      return weapon.magicBonus == 0 ? base : '$base +${weapon.magicBonus}';
-    }
+    final name = (custom == null || custom.isEmpty)
+        ? (weapon.magicBonus == 0 ? base : '$base +${weapon.magicBonus}')
+        : custom;
 
-    return custom;
+    // Quantidade no nome: os dez dardos do Monge são uma linha só, e sem o
+    // "x10" a ficha não diria quantos ele tem.
+    return weapon.quantity > 1 ? '$name (x${weapon.quantity})' : name;
   }
 
   String _subtitle(CharacterWeapon weapon, WeaponEntry? entry) {
@@ -130,6 +132,10 @@ class _ManageCharacterWeaponsPageState
       if (entry.damage case final damage?) '$damage ${entry.damageType.label}',
       if (weapon.magicBonus != 0) 'mágica +${weapon.magicBonus}',
       if (weapon.twoHanded) 'duas mãos',
+      // Procedência: o jogador precisa distinguir a arma que a classe entregou
+      // da que ele cadastrou, porque só a primeira sai sozinha se a classe
+      // mudar.
+      if (weapon.isGranted) weapon.originLabel,
     ];
 
     return parts.join(' • ');

@@ -174,6 +174,10 @@ Future<_FakeCharacterRepository> _pumpCreationPage(
         subclassEntriesProvider.overrideWith(
           (ref) => const [_lifeDomain, _champion],
         ),
+        // Classe sem equipamento inicial cadastrado: este teste é sobre
+        // subclasse, e com o asset real a classe traria grupos de escolha
+        // obrigatória que impediriam a criação de concluir.
+        classEquipmentProvider.overrideWith((ref) => const []),
         // Sem isso o teste tentaria carregar os três arquivos de magia do
         // bundle e o pumpAndSettle nunca assentava.
         spellEntriesProvider.overrideWith((ref) => const [_blessEntry]),

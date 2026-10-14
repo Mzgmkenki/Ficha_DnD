@@ -1,0 +1,1564 @@
+[
+  {
+    "class_id": "artificer",
+    "class_name": "Artífice",
+    "source": "tcoe",
+    "edition": "2014",
+    "fixed_items": [
+      {
+        "id": "light_crossbow",
+        "name": "Besta leve",
+        "weapon_id": "light_crossbow",
+        "category": "weapon"
+      },
+      {
+        "id": "crossbow_bolts",
+        "name": "Virotes",
+        "quantity": 20,
+        "category": "ammunition"
+      },
+      {
+        "id": "thieves_tools",
+        "name": "Ferramentas de ladrão",
+        "category": "tool"
+      },
+      {
+        "id": "dungeoneers_pack",
+        "name": "Pacote de aventureiro",
+        "category": "gear"
+      }
+    ],
+    "fixed_picks": [
+      {
+        "id": "simple_weapons",
+        "label": "Duas armas simples à escolha",
+        "count": 2,
+        "allow_duplicates": true,
+        "weapon_category": "simple"
+      }
+    ],
+    "groups": [
+      {
+        "id": "armor",
+        "label": "Armadura inicial",
+        "choose": 1,
+        "options": [
+          {
+            "id": "studded_leather",
+            "label": "Armadura de couro batido",
+            "items": [
+              {
+                "id": "studded_leather",
+                "name": "Armadura de couro batido",
+                "armor_id": "studded_leather",
+                "category": "armor"
+              }
+            ]
+          },
+          {
+            "id": "scale_mail",
+            "label": "Brunea",
+            "items": [
+              {
+                "id": "scale_mail",
+                "name": "Brunea",
+                "armor_id": "scale_mail",
+                "category": "armor"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "class_id": "barbarian",
+    "class_name": "Bárbaro",
+    "source": "phb",
+    "edition": "2014",
+    "fixed_items": [
+      {
+        "id": "explorers_pack",
+        "name": "Pacote de explorador",
+        "category": "gear"
+      },
+      {
+        "id": "javelin",
+        "name": "Azagaia",
+        "quantity": 4,
+        "weapon_id": "javelin",
+        "category": "weapon"
+      }
+    ],
+    "groups": [
+      {
+        "id": "primary_weapon",
+        "label": "Arma principal",
+        "choose": 1,
+        "options": [
+          {
+            "id": "greataxe",
+            "label": "Machado grande",
+            "items": [
+              {
+                "id": "greataxe",
+                "name": "Machado grande",
+                "weapon_id": "greataxe",
+                "category": "weapon"
+              }
+            ]
+          },
+          {
+            "id": "any_martial_melee",
+            "label": "Qualquer arma marcial corpo a corpo",
+            "picks": [
+              {
+                "id": "martial_melee",
+                "label": "Escolha uma arma marcial corpo a corpo",
+                "count": 1,
+                "weapon_category": "martial",
+                "range_type": "melee"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "secondary_weapon",
+        "label": "Arma secundária",
+        "choose": 1,
+        "options": [
+          {
+            "id": "two_handaxes",
+            "label": "Dois machados de mão",
+            "items": [
+              {
+                "id": "handaxe",
+                "name": "Machado de mão",
+                "quantity": 2,
+                "weapon_id": "handaxe",
+                "category": "weapon"
+              }
+            ]
+          },
+          {
+            "id": "any_simple",
+            "label": "Qualquer arma simples",
+            "picks": [
+              {
+                "id": "simple",
+                "label": "Escolha uma arma simples",
+                "count": 1,
+                "weapon_category": "simple"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "class_id": "bard",
+    "class_name": "Bardo",
+    "source": "phb",
+    "edition": "2014",
+    "fixed_items": [
+      {
+        "id": "leather",
+        "name": "Armadura de couro",
+        "armor_id": "leather",
+        "category": "armor"
+      },
+      {
+        "id": "dagger",
+        "name": "Adaga",
+        "weapon_id": "dagger",
+        "category": "weapon"
+      }
+    ],
+    "groups": [
+      {
+        "id": "weapon",
+        "label": "Arma inicial",
+        "choose": 1,
+        "options": [
+          {
+            "id": "rapier",
+            "label": "Rapieira",
+            "items": [
+              {
+                "id": "rapier",
+                "name": "Rapieira",
+                "weapon_id": "rapier",
+                "category": "weapon"
+              }
+            ]
+          },
+          {
+            "id": "longsword",
+            "label": "Espada longa",
+            "items": [
+              {
+                "id": "longsword",
+                "name": "Espada longa",
+                "weapon_id": "longsword",
+                "category": "weapon"
+              }
+            ]
+          },
+          {
+            "id": "any_simple",
+            "label": "Qualquer arma simples",
+            "picks": [
+              {
+                "id": "simple",
+                "label": "Escolha uma arma simples",
+                "count": 1,
+                "weapon_category": "simple"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "pack",
+        "label": "Pacote de equipamento",
+        "choose": 1,
+        "options": [
+          {
+            "id": "diplomats_pack",
+            "label": "Pacote de diplomata",
+            "items": [
+              {
+                "id": "diplomats_pack",
+                "name": "Pacote de diplomata",
+                "category": "gear"
+              }
+            ]
+          },
+          {
+            "id": "entertainers_pack",
+            "label": "Pacote de artista",
+            "items": [
+              {
+                "id": "entertainers_pack",
+                "name": "Pacote de artista",
+                "category": "gear"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "instrument",
+        "label": "Instrumento musical",
+        "choose": 1,
+        "options": [
+          {
+            "id": "lute",
+            "label": "Alaúde",
+            "items": [
+              {
+                "id": "lute",
+                "name": "Alaúde",
+                "category": "instrument"
+              }
+            ]
+          },
+          {
+            "id": "any_other_instrument",
+            "label": "Qualquer outro instrumento musical",
+            "picks": [
+              {
+                "id": "instrument",
+                "label": "Escolha um instrumento musical",
+                "count": 1,
+                "options": [
+                  {
+                    "id": "bagpipes",
+                    "name": "Gaita de foles",
+                    "category": "instrument"
+                  },
+                  { "id": "drum", "name": "Tambor", "category": "instrument" },
+                  {
+                    "id": "dulcimer",
+                    "name": "Dulcimer",
+                    "category": "instrument"
+                  },
+                  { "id": "flute", "name": "Flauta", "category": "instrument" },
+                  { "id": "lyre", "name": "Lira", "category": "instrument" },
+                  { "id": "horn", "name": "Trompa", "category": "instrument" },
+                  {
+                    "id": "pan_flute",
+                    "name": "Flauta de pã",
+                    "category": "instrument"
+                  },
+                  {
+                    "id": "shawm",
+                    "name": "Charamela",
+                    "category": "instrument"
+                  },
+                  { "id": "viol", "name": "Viola", "category": "instrument" }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "class_id": "cleric",
+    "class_name": "Clérigo",
+    "source": "phb",
+    "edition": "2014",
+    "fixed_items": [
+      {
+        "id": "shield",
+        "name": "Escudo",
+        "shield": true,
+        "category": "armor"
+      }
+    ],
+    "fixed_picks": [
+      {
+        "id": "holy_symbol",
+        "label": "Escolha um símbolo sagrado",
+        "count": 1,
+        "options": [
+          { "id": "amulet", "name": "Amuleto", "category": "gear" },
+          { "id": "emblem", "name": "Emblema", "category": "gear" },
+          { "id": "reliquary", "name": "Relicário", "category": "gear" }
+        ]
+      }
+    ],
+    "groups": [
+      {
+        "id": "weapon",
+        "label": "Arma inicial",
+        "choose": 1,
+        "options": [
+          {
+            "id": "mace",
+            "label": "Maça",
+            "items": [
+              {
+                "id": "mace",
+                "name": "Maça",
+                "weapon_id": "mace",
+                "category": "weapon"
+              }
+            ]
+          },
+          {
+            "id": "warhammer",
+            "label": "Martelo de guerra",
+            "note": "Apenas se você possuir proficiência.",
+            "items": [
+              {
+                "id": "warhammer",
+                "name": "Martelo de guerra",
+                "weapon_id": "warhammer",
+                "category": "weapon"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "armor",
+        "label": "Armadura inicial",
+        "choose": 1,
+        "options": [
+          {
+            "id": "scale_mail",
+            "label": "Brunea",
+            "items": [
+              {
+                "id": "scale_mail",
+                "name": "Brunea",
+                "armor_id": "scale_mail",
+                "category": "armor"
+              }
+            ]
+          },
+          {
+            "id": "leather",
+            "label": "Armadura de couro",
+            "items": [
+              {
+                "id": "leather",
+                "name": "Armadura de couro",
+                "armor_id": "leather",
+                "category": "armor"
+              }
+            ]
+          },
+          {
+            "id": "chain_mail",
+            "label": "Cota de malha",
+            "note": "Apenas se você possuir proficiência com armaduras pesadas.",
+            "items": [
+              {
+                "id": "chain_mail",
+                "name": "Cota de malha",
+                "armor_id": "chain_mail",
+                "category": "armor"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ranged",
+        "label": "Arma secundária",
+        "choose": 1,
+        "options": [
+          {
+            "id": "light_crossbow",
+            "label": "Besta leve com 20 virotes",
+            "items": [
+              {
+                "id": "light_crossbow",
+                "name": "Besta leve",
+                "weapon_id": "light_crossbow",
+                "category": "weapon"
+              },
+              {
+                "id": "crossbow_bolts",
+                "name": "Virotes",
+                "quantity": 20,
+                "category": "ammunition"
+              }
+            ]
+          },
+          {
+            "id": "any_simple",
+            "label": "Qualquer arma simples",
+            "picks": [
+              {
+                "id": "simple",
+                "label": "Escolha uma arma simples",
+                "count": 1,
+                "weapon_category": "simple"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "pack",
+        "label": "Pacote de equipamento",
+        "choose": 1,
+        "options": [
+          {
+            "id": "priests_pack",
+            "label": "Pacote de sacerdote",
+            "items": [
+              {
+                "id": "priests_pack",
+                "name": "Pacote de sacerdote",
+                "category": "gear"
+              }
+            ]
+          },
+          {
+            "id": "explorers_pack",
+            "label": "Pacote de explorador",
+            "items": [
+              {
+                "id": "explorers_pack",
+                "name": "Pacote de explorador",
+                "category": "gear"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "class_id": "druid",
+    "class_name": "Druida",
+    "source": "phb",
+    "edition": "2014",
+    "fixed_items": [
+      {
+        "id": "leather",
+        "name": "Armadura de couro",
+        "armor_id": "leather",
+        "category": "armor"
+      },
+      {
+        "id": "explorers_pack",
+        "name": "Pacote de explorador",
+        "category": "gear"
+      }
+    ],
+    "fixed_picks": [
+      {
+        "id": "druidic_focus",
+        "label": "Escolha um foco druídico",
+        "count": 1,
+        "options": [
+          {
+            "id": "sprig_of_mistletoe",
+            "name": "Ramo de visco",
+            "category": "gear"
+          },
+          { "id": "totem", "name": "Totem", "category": "gear" },
+          { "id": "wooden_staff", "name": "Cajado de madeira", "category": "gear" },
+          { "id": "yew_wand", "name": "Varinha de teixo", "category": "gear" }
+        ]
+      }
+    ],
+    "groups": [
+      {
+        "id": "shield_or_weapon",
+        "label": "Escudo ou arma",
+        "choose": 1,
+        "options": [
+          {
+            "id": "wooden_shield",
+            "label": "Escudo de madeira",
+            "items": [
+              {
+                "id": "shield",
+                "name": "Escudo de madeira",
+                "shield": true,
+                "category": "armor"
+              }
+            ]
+          },
+          {
+            "id": "any_simple",
+            "label": "Qualquer arma simples",
+            "picks": [
+              {
+                "id": "simple",
+                "label": "Escolha uma arma simples",
+                "count": 1,
+                "weapon_category": "simple"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "melee_weapon",
+        "label": "Arma corpo a corpo",
+        "choose": 1,
+        "options": [
+          {
+            "id": "scimitar",
+            "label": "Cimitarra",
+            "items": [
+              {
+                "id": "scimitar",
+                "name": "Cimitarra",
+                "weapon_id": "scimitar",
+                "category": "weapon"
+              }
+            ]
+          },
+          {
+            "id": "any_simple_melee",
+            "label": "Qualquer arma simples corpo a corpo",
+            "picks": [
+              {
+                "id": "simple_melee",
+                "label": "Escolha uma arma simples corpo a corpo",
+                "count": 1,
+                "weapon_category": "simple",
+                "range_type": "melee"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "class_id": "fighter",
+    "class_name": "Guerreiro",
+    "source": "phb",
+    "edition": "2014",
+    "groups": [
+      {
+        "id": "armor",
+        "label": "Armadura inicial",
+        "choose": 1,
+        "options": [
+          {
+            "id": "chain_mail",
+            "label": "Cota de malha",
+            "items": [
+              {
+                "id": "chain_mail",
+                "name": "Cota de malha",
+                "armor_id": "chain_mail",
+                "category": "armor"
+              }
+            ]
+          },
+          {
+            "id": "leather_longbow",
+            "label": "Armadura de couro, arco longo e 20 flechas",
+            "items": [
+              {
+                "id": "leather",
+                "name": "Armadura de couro",
+                "armor_id": "leather",
+                "category": "armor"
+              },
+              {
+                "id": "longbow",
+                "name": "Arco longo",
+                "weapon_id": "longbow",
+                "category": "weapon"
+              },
+              {
+                "id": "arrows",
+                "name": "Flechas",
+                "quantity": 20,
+                "category": "ammunition"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "martial",
+        "label": "Armas marciais",
+        "choose": 1,
+        "options": [
+          {
+            "id": "martial_and_shield",
+            "label": "Uma arma marcial e um escudo",
+            "items": [
+              {
+                "id": "shield",
+                "name": "Escudo",
+                "shield": true,
+                "category": "armor"
+              }
+            ],
+            "picks": [
+              {
+                "id": "martial",
+                "label": "Escolha uma arma marcial",
+                "count": 1,
+                "weapon_category": "martial"
+              }
+            ]
+          },
+          {
+            "id": "two_martial",
+            "label": "Duas armas marciais",
+            "picks": [
+              {
+                "id": "martial",
+                "label": "Escolha duas armas marciais",
+                "count": 2,
+                "allow_duplicates": true,
+                "weapon_category": "martial"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ranged",
+        "label": "Arma secundária",
+        "choose": 1,
+        "options": [
+          {
+            "id": "light_crossbow",
+            "label": "Besta leve e 20 virotes",
+            "items": [
+              {
+                "id": "light_crossbow",
+                "name": "Besta leve",
+                "weapon_id": "light_crossbow",
+                "category": "weapon"
+              },
+              {
+                "id": "crossbow_bolts",
+                "name": "Virotes",
+                "quantity": 20,
+                "category": "ammunition"
+              }
+            ]
+          },
+          {
+            "id": "two_handaxes",
+            "label": "Dois machados de mão",
+            "items": [
+              {
+                "id": "handaxe",
+                "name": "Machado de mão",
+                "quantity": 2,
+                "weapon_id": "handaxe",
+                "category": "weapon"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "pack",
+        "label": "Pacote de equipamento",
+        "choose": 1,
+        "options": [
+          {
+            "id": "dungeoneers_pack",
+            "label": "Pacote de aventureiro",
+            "items": [
+              {
+                "id": "dungeoneers_pack",
+                "name": "Pacote de aventureiro",
+                "category": "gear"
+              }
+            ]
+          },
+          {
+            "id": "explorers_pack",
+            "label": "Pacote de explorador",
+            "items": [
+              {
+                "id": "explorers_pack",
+                "name": "Pacote de explorador",
+                "category": "gear"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "class_id": "monk",
+    "class_name": "Monge",
+    "source": "phb",
+    "edition": "2014",
+    "fixed_items": [
+      {
+        "id": "dart",
+        "name": "Dardo",
+        "quantity": 10,
+        "weapon_id": "dart",
+        "category": "weapon"
+      }
+    ],
+    "groups": [
+      {
+        "id": "weapon",
+        "label": "Arma inicial",
+        "choose": 1,
+        "options": [
+          {
+            "id": "shortsword",
+            "label": "Espada curta",
+            "items": [
+              {
+                "id": "shortsword",
+                "name": "Espada curta",
+                "weapon_id": "shortsword",
+                "category": "weapon"
+              }
+            ]
+          },
+          {
+            "id": "any_simple",
+            "label": "Qualquer arma simples",
+            "picks": [
+              {
+                "id": "simple",
+                "label": "Escolha uma arma simples",
+                "count": 1,
+                "weapon_category": "simple"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "pack",
+        "label": "Pacote de equipamento",
+        "choose": 1,
+        "options": [
+          {
+            "id": "dungeoneers_pack",
+            "label": "Pacote de aventureiro",
+            "items": [
+              {
+                "id": "dungeoneers_pack",
+                "name": "Pacote de aventureiro",
+                "category": "gear"
+              }
+            ]
+          },
+          {
+            "id": "explorers_pack",
+            "label": "Pacote de explorador",
+            "items": [
+              {
+                "id": "explorers_pack",
+                "name": "Pacote de explorador",
+                "category": "gear"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "class_id": "paladin",
+    "class_name": "Paladino",
+    "source": "phb",
+    "edition": "2014",
+    "fixed_items": [
+      {
+        "id": "chain_mail",
+        "name": "Cota de malha",
+        "armor_id": "chain_mail",
+        "category": "armor"
+      }
+    ],
+    "fixed_picks": [
+      {
+        "id": "holy_symbol",
+        "label": "Escolha um símbolo sagrado",
+        "count": 1,
+        "options": [
+          { "id": "amulet", "name": "Amuleto", "category": "gear" },
+          { "id": "emblem", "name": "Emblema", "category": "gear" },
+          { "id": "reliquary", "name": "Relicário", "category": "gear" }
+        ]
+      }
+    ],
+    "groups": [
+      {
+        "id": "martial",
+        "label": "Armas marciais",
+        "choose": 1,
+        "options": [
+          {
+            "id": "martial_and_shield",
+            "label": "Uma arma marcial e um escudo",
+            "items": [
+              {
+                "id": "shield",
+                "name": "Escudo",
+                "shield": true,
+                "category": "armor"
+              }
+            ],
+            "picks": [
+              {
+                "id": "martial",
+                "label": "Escolha uma arma marcial",
+                "count": 1,
+                "weapon_category": "martial"
+              }
+            ]
+          },
+          {
+            "id": "two_martial",
+            "label": "Duas armas marciais",
+            "picks": [
+              {
+                "id": "martial",
+                "label": "Escolha duas armas marciais",
+                "count": 2,
+                "allow_duplicates": true,
+                "weapon_category": "martial"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "secondary",
+        "label": "Arma secundária",
+        "choose": 1,
+        "options": [
+          {
+            "id": "five_javelins",
+            "label": "Cinco azagaias",
+            "items": [
+              {
+                "id": "javelin",
+                "name": "Azagaia",
+                "quantity": 5,
+                "weapon_id": "javelin",
+                "category": "weapon"
+              }
+            ]
+          },
+          {
+            "id": "any_simple_melee",
+            "label": "Qualquer arma simples corpo a corpo",
+            "picks": [
+              {
+                "id": "simple_melee",
+                "label": "Escolha uma arma simples corpo a corpo",
+                "count": 1,
+                "weapon_category": "simple",
+                "range_type": "melee"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "pack",
+        "label": "Pacote de equipamento",
+        "choose": 1,
+        "options": [
+          {
+            "id": "priests_pack",
+            "label": "Pacote de sacerdote",
+            "items": [
+              {
+                "id": "priests_pack",
+                "name": "Pacote de sacerdote",
+                "category": "gear"
+              }
+            ]
+          },
+          {
+            "id": "explorers_pack",
+            "label": "Pacote de explorador",
+            "items": [
+              {
+                "id": "explorers_pack",
+                "name": "Pacote de explorador",
+                "category": "gear"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "class_id": "ranger",
+    "class_name": "Patrulheiro",
+    "source": "phb",
+    "edition": "2014",
+    "fixed_items": [
+      {
+        "id": "longbow",
+        "name": "Arco longo",
+        "weapon_id": "longbow",
+        "category": "weapon"
+      },
+      { "id": "quiver", "name": "Aljava", "category": "gear" },
+      {
+        "id": "arrows",
+        "name": "Flechas",
+        "quantity": 20,
+        "category": "ammunition"
+      }
+    ],
+    "groups": [
+      {
+        "id": "armor",
+        "label": "Armadura inicial",
+        "choose": 1,
+        "options": [
+          {
+            "id": "scale_mail",
+            "label": "Brunea",
+            "items": [
+              {
+                "id": "scale_mail",
+                "name": "Brunea",
+                "armor_id": "scale_mail",
+                "category": "armor"
+              }
+            ]
+          },
+          {
+            "id": "leather",
+            "label": "Armadura de couro",
+            "items": [
+              {
+                "id": "leather",
+                "name": "Armadura de couro",
+                "armor_id": "leather",
+                "category": "armor"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "melee",
+        "label": "Armas corpo a corpo",
+        "choose": 1,
+        "options": [
+          {
+            "id": "two_shortswords",
+            "label": "Duas espadas curtas",
+            "items": [
+              {
+                "id": "shortsword",
+                "name": "Espada curta",
+                "quantity": 2,
+                "weapon_id": "shortsword",
+                "category": "weapon"
+              }
+            ]
+          },
+          {
+            "id": "two_simple_melee",
+            "label": "Duas armas simples corpo a corpo",
+            "picks": [
+              {
+                "id": "simple_melee",
+                "label": "Escolha duas armas simples corpo a corpo",
+                "count": 2,
+                "allow_duplicates": true,
+                "weapon_category": "simple",
+                "range_type": "melee"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "pack",
+        "label": "Pacote de equipamento",
+        "choose": 1,
+        "options": [
+          {
+            "id": "dungeoneers_pack",
+            "label": "Pacote de aventureiro",
+            "items": [
+              {
+                "id": "dungeoneers_pack",
+                "name": "Pacote de aventureiro",
+                "category": "gear"
+              }
+            ]
+          },
+          {
+            "id": "explorers_pack",
+            "label": "Pacote de explorador",
+            "items": [
+              {
+                "id": "explorers_pack",
+                "name": "Pacote de explorador",
+                "category": "gear"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "class_id": "ranger_tcoe",
+    "class_name": "Patrulheiro Revisado",
+    "same_as": "ranger"
+  },
+  {
+    "class_id": "rogue",
+    "class_name": "Ladino",
+    "source": "phb",
+    "edition": "2014",
+    "fixed_items": [
+      {
+        "id": "leather",
+        "name": "Armadura de couro",
+        "armor_id": "leather",
+        "category": "armor"
+      },
+      {
+        "id": "dagger",
+        "name": "Adaga",
+        "quantity": 2,
+        "weapon_id": "dagger",
+        "category": "weapon"
+      },
+      {
+        "id": "thieves_tools",
+        "name": "Ferramentas de ladrão",
+        "category": "tool"
+      }
+    ],
+    "groups": [
+      {
+        "id": "primary_weapon",
+        "label": "Arma principal",
+        "choose": 1,
+        "options": [
+          {
+            "id": "rapier",
+            "label": "Rapieira",
+            "items": [
+              {
+                "id": "rapier",
+                "name": "Rapieira",
+                "weapon_id": "rapier",
+                "category": "weapon"
+              }
+            ]
+          },
+          {
+            "id": "shortsword",
+            "label": "Espada curta",
+            "items": [
+              {
+                "id": "shortsword",
+                "name": "Espada curta",
+                "weapon_id": "shortsword",
+                "category": "weapon"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "secondary_weapon",
+        "label": "Arma secundária",
+        "choose": 1,
+        "options": [
+          {
+            "id": "shortbow",
+            "label": "Arco curto com aljava e 20 flechas",
+            "items": [
+              {
+                "id": "shortbow",
+                "name": "Arco curto",
+                "weapon_id": "shortbow",
+                "category": "weapon"
+              },
+              { "id": "quiver", "name": "Aljava", "category": "gear" },
+              {
+                "id": "arrows",
+                "name": "Flechas",
+                "quantity": 20,
+                "category": "ammunition"
+              }
+            ]
+          },
+          {
+            "id": "second_shortsword",
+            "label": "Uma segunda espada curta",
+            "items": [
+              {
+                "id": "shortsword",
+                "name": "Espada curta",
+                "weapon_id": "shortsword",
+                "category": "weapon"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "pack",
+        "label": "Pacote de equipamento",
+        "choose": 1,
+        "options": [
+          {
+            "id": "burglars_pack",
+            "label": "Pacote de assaltante",
+            "items": [
+              {
+                "id": "burglars_pack",
+                "name": "Pacote de assaltante",
+                "category": "gear"
+              }
+            ]
+          },
+          {
+            "id": "dungeoneers_pack",
+            "label": "Pacote de aventureiro",
+            "items": [
+              {
+                "id": "dungeoneers_pack",
+                "name": "Pacote de aventureiro",
+                "category": "gear"
+              }
+            ]
+          },
+          {
+            "id": "explorers_pack",
+            "label": "Pacote de explorador",
+            "items": [
+              {
+                "id": "explorers_pack",
+                "name": "Pacote de explorador",
+                "category": "gear"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "class_id": "sorcerer",
+    "class_name": "Feiticeiro",
+    "source": "phb",
+    "edition": "2014",
+    "fixed_items": [
+      {
+        "id": "dagger",
+        "name": "Adaga",
+        "quantity": 2,
+        "weapon_id": "dagger",
+        "category": "weapon"
+      }
+    ],
+    "groups": [
+      {
+        "id": "weapon",
+        "label": "Arma inicial",
+        "choose": 1,
+        "options": [
+          {
+            "id": "light_crossbow",
+            "label": "Besta leve com 20 virotes",
+            "items": [
+              {
+                "id": "light_crossbow",
+                "name": "Besta leve",
+                "weapon_id": "light_crossbow",
+                "category": "weapon"
+              },
+              {
+                "id": "crossbow_bolts",
+                "name": "Virotes",
+                "quantity": 20,
+                "category": "ammunition"
+              }
+            ]
+          },
+          {
+            "id": "any_simple",
+            "label": "Qualquer arma simples",
+            "picks": [
+              {
+                "id": "simple",
+                "label": "Escolha uma arma simples",
+                "count": 1,
+                "weapon_category": "simple"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "focus",
+        "label": "Foco de conjuração",
+        "choose": 1,
+        "options": [
+          {
+            "id": "component_pouch",
+            "label": "Bolsa de componentes",
+            "items": [
+              {
+                "id": "component_pouch",
+                "name": "Bolsa de componentes",
+                "category": "gear"
+              }
+            ]
+          },
+          {
+            "id": "arcane_focus",
+            "label": "Foco arcano",
+            "picks": [
+              {
+                "id": "arcane_focus",
+                "label": "Escolha um foco arcano",
+                "count": 1,
+                "options": [
+                  { "id": "crystal", "name": "Cristal", "category": "gear" },
+                  { "id": "orb", "name": "Orbe", "category": "gear" },
+                  { "id": "rod", "name": "Bastão", "category": "gear" },
+                  { "id": "staff", "name": "Cajado", "category": "gear" },
+                  { "id": "wand", "name": "Varinha", "category": "gear" }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "pack",
+        "label": "Pacote de equipamento",
+        "choose": 1,
+        "options": [
+          {
+            "id": "dungeoneers_pack",
+            "label": "Pacote de aventureiro",
+            "items": [
+              {
+                "id": "dungeoneers_pack",
+                "name": "Pacote de aventureiro",
+                "category": "gear"
+              }
+            ]
+          },
+          {
+            "id": "explorers_pack",
+            "label": "Pacote de explorador",
+            "items": [
+              {
+                "id": "explorers_pack",
+                "name": "Pacote de explorador",
+                "category": "gear"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "class_id": "warlock",
+    "class_name": "Bruxo",
+    "source": "phb",
+    "edition": "2014",
+    "fixed_items": [
+      {
+        "id": "leather",
+        "name": "Armadura de couro",
+        "armor_id": "leather",
+        "category": "armor"
+      },
+      {
+        "id": "dagger",
+        "name": "Adaga",
+        "quantity": 2,
+        "weapon_id": "dagger",
+        "category": "weapon"
+      }
+    ],
+    "fixed_picks": [
+      {
+        "id": "simple_weapon",
+        "label": "Escolha outra arma simples",
+        "count": 1,
+        "weapon_category": "simple"
+      }
+    ],
+    "groups": [
+      {
+        "id": "weapon",
+        "label": "Arma inicial",
+        "choose": 1,
+        "options": [
+          {
+            "id": "light_crossbow",
+            "label": "Besta leve com 20 virotes",
+            "items": [
+              {
+                "id": "light_crossbow",
+                "name": "Besta leve",
+                "weapon_id": "light_crossbow",
+                "category": "weapon"
+              },
+              {
+                "id": "crossbow_bolts",
+                "name": "Virotes",
+                "quantity": 20,
+                "category": "ammunition"
+              }
+            ]
+          },
+          {
+            "id": "any_simple",
+            "label": "Qualquer arma simples",
+            "picks": [
+              {
+                "id": "simple",
+                "label": "Escolha uma arma simples",
+                "count": 1,
+                "weapon_category": "simple"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "focus",
+        "label": "Foco de conjuração",
+        "choose": 1,
+        "options": [
+          {
+            "id": "component_pouch",
+            "label": "Bolsa de componentes",
+            "items": [
+              {
+                "id": "component_pouch",
+                "name": "Bolsa de componentes",
+                "category": "gear"
+              }
+            ]
+          },
+          {
+            "id": "arcane_focus",
+            "label": "Foco arcano",
+            "picks": [
+              {
+                "id": "arcane_focus",
+                "label": "Escolha um foco arcano",
+                "count": 1,
+                "options": [
+                  { "id": "crystal", "name": "Cristal", "category": "gear" },
+                  { "id": "orb", "name": "Orbe", "category": "gear" },
+                  { "id": "rod", "name": "Bastão", "category": "gear" },
+                  { "id": "staff", "name": "Cajado", "category": "gear" },
+                  { "id": "wand", "name": "Varinha", "category": "gear" }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "pack",
+        "label": "Pacote de equipamento",
+        "choose": 1,
+        "options": [
+          {
+            "id": "scholars_pack",
+            "label": "Pacote de estudioso",
+            "items": [
+              {
+                "id": "scholars_pack",
+                "name": "Pacote de estudioso",
+                "category": "gear"
+              }
+            ]
+          },
+          {
+            "id": "dungeoneers_pack",
+            "label": "Pacote de aventureiro",
+            "items": [
+              {
+                "id": "dungeoneers_pack",
+                "name": "Pacote de aventureiro",
+                "category": "gear"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "class_id": "wizard",
+    "class_name": "Mago",
+    "source": "phb",
+    "edition": "2014",
+    "fixed_items": [
+      { "id": "spellbook", "name": "Grimório", "category": "book" }
+    ],
+    "groups": [
+      {
+        "id": "weapon",
+        "label": "Arma inicial",
+        "choose": 1,
+        "options": [
+          {
+            "id": "quarterstaff",
+            "label": "Bordão",
+            "items": [
+              {
+                "id": "quarterstaff",
+                "name": "Bordão",
+                "weapon_id": "quarterstaff",
+                "category": "weapon"
+              }
+            ]
+          },
+          {
+            "id": "dagger",
+            "label": "Adaga",
+            "items": [
+              {
+                "id": "dagger",
+                "name": "Adaga",
+                "weapon_id": "dagger",
+                "category": "weapon"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "focus",
+        "label": "Foco de conjuração",
+        "choose": 1,
+        "options": [
+          {
+            "id": "component_pouch",
+            "label": "Bolsa de componentes",
+            "items": [
+              {
+                "id": "component_pouch",
+                "name": "Bolsa de componentes",
+                "category": "gear"
+              }
+            ]
+          },
+          {
+            "id": "arcane_focus",
+            "label": "Foco arcano",
+            "picks": [
+              {
+                "id": "arcane_focus",
+                "label": "Escolha um foco arcano",
+                "count": 1,
+                "options": [
+                  { "id": "crystal", "name": "Cristal", "category": "gear" },
+                  { "id": "orb", "name": "Orbe", "category": "gear" },
+                  { "id": "rod", "name": "Bastão", "category": "gear" },
+                  { "id": "staff", "name": "Cajado", "category": "gear" },
+                  { "id": "wand", "name": "Varinha", "category": "gear" }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "pack",
+        "label": "Pacote de equipamento",
+        "choose": 1,
+        "options": [
+          {
+            "id": "scholars_pack",
+            "label": "Pacote de estudioso",
+            "items": [
+              {
+                "id": "scholars_pack",
+                "name": "Pacote de estudioso",
+                "category": "gear"
+              }
+            ]
+          },
+          {
+            "id": "explorers_pack",
+            "label": "Pacote de explorador",
+            "items": [
+              {
+                "id": "explorers_pack",
+                "name": "Pacote de explorador",
+                "category": "gear"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -5,10 +5,20 @@
 /// mágico soma continua vindo do próprio item mágico.
 ///
 /// O [id] é persistido, então renomear um valor existente invalidaria itens já
-/// gravados. Para acrescentar categoria, adicione um valor novo no fim.
+/// gravados. Acrescentar categoria é seguro em qualquer posição — a gravação
+/// usa o [id], nunca o índice do enum —, e a ordem aqui é só a ordem em que os
+/// filtros aparecem na ficha.
 enum ItemCategory {
   weapon('weapon', 'Arma'),
   armor('armor', 'Armadura'),
+
+  /// Flechas, virotes e balas de funda.
+  ///
+  /// Separada de [consumable] porque munição não é tratada como arma nem como
+  /// poção: ela vive no inventário com a quantidade, e é a quantidade que o
+  /// jogador consulta em mesa.
+  ammunition('ammunition', 'Munição'),
+
   tool('tool', 'Ferramenta'),
   clothing('clothing', 'Vestuário'),
   gear('gear', 'Equipamento'),

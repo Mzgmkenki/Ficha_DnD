@@ -30,6 +30,10 @@ class InventoryItem {
     this.grantedAtCreation = false,
     this.grantedQuantity,
     this.manuallyEdited = false,
+    this.grantRef,
+    this.armorStrengthRequirement,
+    this.armorStealthDisadvantage,
+    this.armorMagicBonus = 0,
     this.linkedWeaponLocalId,
     this.linkedMagicItemLocalId,
   });
@@ -98,6 +102,39 @@ class InventoryItem {
   /// Marcado pela edição, não deduzido: renomear ou mudar a descrição também
   /// conta, e isso não aparece na comparação de quantidade.
   final bool manuallyEdited;
+
+  /// Qual grupo e qual alternativa da fonte concederam este item
+  /// (`armor|leather_longbow`), ou `fixed` no que vem automático.
+  ///
+  /// Nulo quando a fonte não tem grupos de escolha — é o caso do antecedente,
+  /// cujo equipamento é uma lista única. Guardado para a ficha conseguir
+  /// explicar a procedência depois da criação, quando a seleção em memória já
+  /// não existe mais.
+  final String? grantRef;
+
+  // ------------------------------------------------- exceções de armadura
+  //
+  // Só fazem sentido no item que É uma armadura ou escudo. Existem para a peça
+  // mágica ou especial divergir da tabela SEM alterar a armadura básica: umas
+  // Placas Adamantinas que dispensam Força, ou uma Brunea Élfica sem
+  // desvantagem em Furtividade, são exceção desta peça. Nulo em ambos os casos
+  // significa "usa o que a tabela diz", que é o padrão seguro para todo item
+  // já gravado.
+
+  /// Requisito de Força próprio desta peça. Nulo usa o da tabela.
+  ///
+  /// Zero é significativo: é como uma peça declara "não exige Força".
+  final int? armorStrengthRequirement;
+
+  /// Desvantagem em Furtividade própria desta peça. Nulo usa o da tabela.
+  final bool? armorStealthDisadvantage;
+
+  /// O `+1`, `+2` ou `+3` da armadura (ou escudo) mágica.
+  ///
+  /// Soma na CA. Fica no item, e não no registro de item mágico, porque é a
+  /// peça de armadura possuída que entra no cálculo — e é ela que o jogador
+  /// equipa.
+  final int armorMagicBonus;
 
   // --------------------------------------------------------------- vínculos
 
@@ -183,6 +220,10 @@ class InventoryItem {
     bool? grantedAtCreation,
     Object? grantedQuantity = _sentinel,
     bool? manuallyEdited,
+    Object? grantRef = _sentinel,
+    Object? armorStrengthRequirement = _sentinel,
+    Object? armorStealthDisadvantage = _sentinel,
+    int? armorMagicBonus,
     Object? linkedWeaponLocalId = _sentinel,
     Object? linkedMagicItemLocalId = _sentinel,
   }) {
@@ -204,16 +245,29 @@ class InventoryItem {
       sourceLabel:
           sourceLabel == _sentinel ? this.sourceLabel : sourceLabel as String?,
       grantedAtCreation: grantedAtCreation ?? this.grantedAtCreation,
-      grantedQuantity: grantedQuantity == _sentinel
-          ? this.grantedQuantity
-          : grantedQuantity as int?,
+      grantedQuantity:
+          grantedQuantity == _sentinel
+              ? this.grantedQuantity
+              : grantedQuantity as int?,
       manuallyEdited: manuallyEdited ?? this.manuallyEdited,
-      linkedWeaponLocalId: linkedWeaponLocalId == _sentinel
-          ? this.linkedWeaponLocalId
-          : linkedWeaponLocalId as int?,
-      linkedMagicItemLocalId: linkedMagicItemLocalId == _sentinel
-          ? this.linkedMagicItemLocalId
-          : linkedMagicItemLocalId as int?,
+      grantRef: grantRef == _sentinel ? this.grantRef : grantRef as String?,
+      armorStrengthRequirement:
+          armorStrengthRequirement == _sentinel
+              ? this.armorStrengthRequirement
+              : armorStrengthRequirement as int?,
+      armorStealthDisadvantage:
+          armorStealthDisadvantage == _sentinel
+              ? this.armorStealthDisadvantage
+              : armorStealthDisadvantage as bool?,
+      armorMagicBonus: armorMagicBonus ?? this.armorMagicBonus,
+      linkedWeaponLocalId:
+          linkedWeaponLocalId == _sentinel
+              ? this.linkedWeaponLocalId
+              : linkedWeaponLocalId as int?,
+      linkedMagicItemLocalId:
+          linkedMagicItemLocalId == _sentinel
+              ? this.linkedMagicItemLocalId
+              : linkedMagicItemLocalId as int?,
     );
   }
 
