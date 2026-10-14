@@ -16,7 +16,7 @@
       { "id": "guild_letter", "name": "Carta de referência da sua guilda", "quantity": 1, "category": "gear" },
       { "id": "travelers_clothes", "name": "Roupas de viajante", "quantity": 1, "category": "clothing" }
     ],
-    "personality_trait_choices": 2,
+    "personality_trait_choices": 1,
     "ideal_choices": 1,
     "bond_choices": 1,
     "flaw_choices": 1,
@@ -115,7 +115,7 @@
       { "id": "vestments", "name": "Vestimentas", "quantity": 1, "category": "clothing" },
       { "id": "common_clothes", "name": "Roupas comuns", "quantity": 1, "category": "clothing" }
     ],
-    "personality_trait_choices": 2,
+    "personality_trait_choices": 1,
     "ideal_choices": 1,
     "bond_choices": 1,
     "flaw_choices": 1,
@@ -183,7 +183,7 @@
       { "id": "disguise_kit", "name": "Um kit de disfarce", "quantity": 1, "category": "tool" },
       { "id": "con_tools", "name": "As ferramentas de seu golpe favorito", "quantity": 1, "category": "gear" }
     ],
-    "personality_trait_choices": 2,
+    "personality_trait_choices": 1,
     "ideal_choices": 1,
     "bond_choices": 1,
     "flaw_choices": 1,
@@ -265,7 +265,7 @@
       { "id": "crowbar", "name": "Um pé de cabra", "quantity": 1, "category": "gear" },
       { "id": "dark_hooded_clothes", "name": "Roupas comuns com capuz", "quantity": 1, "category": "clothing" }
     ],
-    "personality_trait_choices": 2,
+    "personality_trait_choices": 1,
     "ideal_choices": 1,
     "bond_choices": 1,
     "flaw_choices": 1,
@@ -350,7 +350,7 @@
       { "id": "admirer_favor", "name": "Um item de um admirador", "quantity": 1, "category": "trinket" },
       { "id": "costume", "name": "Uma fantasia", "quantity": 1, "category": "clothing" }
     ],
-    "personality_trait_choices": 2,
+    "personality_trait_choices": 1,
     "ideal_choices": 1,
     "bond_choices": 1,
     "flaw_choices": 1,
@@ -438,7 +438,7 @@
       { "id": "common_clothes", "name": "Roupas comuns", "quantity": 1, "category": "clothing" },
       { "id": "herbalism_kit", "name": "Kit de herbalista", "quantity": 1, "category": "tool" }
     ],
-    "personality_trait_choices": 2,
+    "personality_trait_choices": 1,
     "ideal_choices": 1,
     "bond_choices": 1,
     "flaw_choices": 1,
@@ -524,7 +524,7 @@
       { "id": "quarry_trophy", "name": "Um troféu de uma presa", "quantity": 1, "category": "trinket" },
       { "id": "travelers_clothes", "name": "Roupas de viajante", "quantity": 1, "category": "clothing" }
     ],
-    "personality_trait_choices": 2,
+    "personality_trait_choices": 1,
     "ideal_choices": 1,
     "bond_choices": 1,
     "flaw_choices": 1,
@@ -612,7 +612,7 @@
       { "id": "iron_pot", "name": "Uma panela de ferro", "quantity": 1, "category": "gear" },
       { "id": "common_clothes", "name": "Roupas comuns", "quantity": 1, "category": "clothing" }
     ],
-    "personality_trait_choices": 2,
+    "personality_trait_choices": 1,
     "ideal_choices": 1,
     "bond_choices": 1,
     "flaw_choices": 1,
@@ -699,7 +699,7 @@
       { "id": "signet_ring", "name": "Um anel de sinete", "quantity": 1, "category": "trinket" },
       { "id": "pedigree_scroll", "name": "Um documento de linhagem", "quantity": 1, "category": "gear" }
     ],
-    "personality_trait_choices": 2,
+    "personality_trait_choices": 1,
     "ideal_choices": 1,
     "bond_choices": 1,
     "flaw_choices": 1,
@@ -781,7 +781,7 @@
       { "id": "unanswered_letter", "name": "Uma carta com uma pergunta que ainda não conseguiu responder", "quantity": 1, "category": "gear" },
       { "id": "common_clothes", "name": "Roupas comuns", "quantity": 1, "category": "clothing" }
     ],
-    "personality_trait_choices": 2,
+    "personality_trait_choices": 1,
     "ideal_choices": 1,
     "bond_choices": 1,
     "flaw_choices": 1,
@@ -867,7 +867,7 @@
       { "id": "lucky_charm", "name": "Um amuleto da sorte", "quantity": 1, "category": "trinket" },
       { "id": "common_clothes", "name": "Roupas comuns", "quantity": 1, "category": "clothing" }
     ],
-    "personality_trait_choices": 2,
+    "personality_trait_choices": 1,
     "ideal_choices": 1,
     "bond_choices": 1,
     "flaw_choices": 1,
@@ -948,7 +948,7 @@
       { "id": "gaming_set", "name": "Um tipo de jogo", "quantity": 1, "category": "tool" },
       { "id": "common_clothes", "name": "Roupas comuns", "quantity": 1, "category": "clothing" }
     ],
-    "personality_trait_choices": 2,
+    "personality_trait_choices": 1,
     "ideal_choices": 1,
     "bond_choices": 1,
     "flaw_choices": 1,
@@ -1035,7 +1035,7 @@
       { "id": "parents_token", "name": "Uma lembrança de seus parentes", "quantity": 1, "category": "trinket" },
       { "id": "common_clothes", "name": "Roupas comuns", "quantity": 1, "category": "clothing" }
     ],
-    "personality_trait_choices": 2,
+    "personality_trait_choices": 1,
     "ideal_choices": 1,
     "bond_choices": 1,
     "flaw_choices": 1,
@@ -1104,7 +1104,7 @@
       { "id": "homeland_maps", "name": "Mapas rudimentares da terra natal que mostram onde você está em Faerûn", "quantity": 1, "category": "gear" },
       { "id": "homeland_jewel", "name": "Uma joia de fabricação natal no valor de 10 po", "quantity": 1, "category": "trinket" }
     ],
-    "personality_trait_choices": 2,
+    "personality_trait_choices": 1,
     "ideal_choices": 1,
     "bond_choices": 1,
     "flaw_choices": 1,

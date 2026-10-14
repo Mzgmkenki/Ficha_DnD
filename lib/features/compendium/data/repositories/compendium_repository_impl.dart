@@ -340,9 +340,9 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
   /// de escolha.
   ///
   /// A entrada que usa as tabelas pode declarar as próprias contagens; quando
-  /// não declara, herda as do dono das tabelas. É isso que faz o Espião pedir
-  /// dois traços sem ter que repetir o número: o livro manda a variante seguir
-  /// a regra do antecedente-base.
+  /// não declara, herda as do dono das tabelas. É isso que faz o Espião seguir
+  /// a contagem do Criminoso sem repetir o número: o livro manda a variante
+  /// seguir a regra do antecedente-base.
   BackgroundPersonality _personalityFor(
     BackgroundPersonality? tables,
     Map<String, dynamic> item,

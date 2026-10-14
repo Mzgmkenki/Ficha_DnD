@@ -56,25 +56,28 @@ class BackgroundPersonalityForm extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 12),
             child: _PersonalityField(
-              // A chave inclui a categoria e a posição para os dois campos de
-              // traço serem alvos distintos em teste.
+              // A chave inclui a categoria e a posição: uma categoria que
+              // pedisse mais de uma escolha renderiza vários campos, e eles
+              // precisam ser alvos distintos em teste.
               key: ValueKey('personality-${category.id}-$index'),
-              label: count == 1
-                  ? category.label
-                  : '${category.label} ${index + 1}',
+              label:
+                  count == 1
+                      ? category.label
+                      : '${category.label} ${index + 1}',
               table: table,
               choice: current,
               // Impede escolher a mesma opção duas vezes na mesma categoria:
               // as já usadas nas OUTRAS posições saem da lista.
               blockedKeys: _blockedKeysFor(category, index),
               allowCustom: allowCustom,
-              onChanged: (choice) => onChanged(
-                selection.replaceAt(
-                  category: category,
-                  index: index,
-                  choice: choice,
-                ),
-              ),
+              onChanged:
+                  (choice) => onChanged(
+                    selection.replaceAt(
+                      category: category,
+                      index: index,
+                      choice: choice,
+                    ),
+                  ),
             ),
           ),
         );
@@ -147,11 +150,12 @@ class _PersonalityField extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     final selected = choice;
 
-    final display = selected == null
-        ? null
-        : (selected.isCustom
-            ? selected.customText
-            : table.optionById(selected.optionId)?.displayText);
+    final display =
+        selected == null
+            ? null
+            : (selected.isCustom
+                ? selected.customText
+                : table.optionById(selected.optionId)?.displayText);
 
     return InkWell(
       onTap: () => _open(context),
@@ -162,23 +166,22 @@ class _PersonalityField extends StatelessWidget {
           // `alignLabelWithHint` mantém o rótulo no topo quando o conteúdo tem
           // várias linhas, em vez de centralizá-lo ao lado do parágrafo.
           alignLabelWithHint: true,
-          suffixIcon: selected == null
-              ? const Icon(Icons.arrow_drop_down)
-              : IconButton(
-                  tooltip: 'Limpar',
-                  icon: const Icon(Icons.close, size: 18),
-                  onPressed: () => onChanged(null),
-                ),
+          suffixIcon:
+              selected == null
+                  ? const Icon(Icons.arrow_drop_down)
+                  : IconButton(
+                    tooltip: 'Limpar',
+                    icon: const Icon(Icons.close, size: 18),
+                    onPressed: () => onChanged(null),
+                  ),
         ),
         isEmpty: selected == null,
-        child: display == null
-            ? null
-            // Sem `maxLines`: o texto completo é o que o jogador precisa ver, e
-            // truncar aqui esconderia metade da escolha.
-            : Text(
-                display,
-                style: text.bodyMedium,
-              ),
+        child:
+            display == null
+                ? null
+                // Sem `maxLines`: o texto completo é o que o jogador precisa ver, e
+                // truncar aqui esconderia metade da escolha.
+                : Text(display, style: text.bodyMedium),
       ),
     );
   }
@@ -189,13 +192,14 @@ class _PersonalityField extends StatelessWidget {
       isScrollControlled: true,
       // Folha rolável em vez de menu: a lista tem até 20 parágrafos, e com
       // `isScrollControlled` ela aproveita a altura toda em tela pequena.
-      builder: (sheetContext) => _PersonalitySheet(
-        label: label,
-        table: table,
-        choice: choice,
-        blockedKeys: blockedKeys,
-        allowCustom: allowCustom,
-      ),
+      builder:
+          (sheetContext) => _PersonalitySheet(
+            label: label,
+            table: table,
+            choice: choice,
+            blockedKeys: blockedKeys,
+            allowCustom: allowCustom,
+          ),
     );
 
     if (result == null) return;
@@ -247,9 +251,9 @@ class _PersonalitySheetState extends State<_PersonalitySheet> {
   }
 
   void _pick(PersonalityOption option) {
-    Navigator.of(context).pop(
-      _FieldResult(BackgroundPersonalityChoice.fromOption(option)),
-    );
+    Navigator.of(
+      context,
+    ).pop(_FieldResult(BackgroundPersonalityChoice.fromOption(option)));
   }
 
   void _saveCustom() {

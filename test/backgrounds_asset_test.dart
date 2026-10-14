@@ -51,15 +51,17 @@ void main() {
     final decoded = jsonDecode(file.readAsStringSync());
     expect(decoded, isA<List<dynamic>>());
 
-    backgrounds = (decoded as List<dynamic>)
-        .map((e) => Map<String, dynamic>.from(e as Map))
-        .toList();
+    backgrounds =
+        (decoded as List<dynamic>)
+            .map((e) => Map<String, dynamic>.from(e as Map))
+            .toList();
 
     ids = backgrounds.map((item) => item['id'] as String).toSet();
-    tableOwners = backgrounds
-        .where((item) => item.containsKey('personality_traits'))
-        .map((item) => item['id'] as String)
-        .toSet();
+    tableOwners =
+        backgrounds
+            .where((item) => item.containsKey('personality_traits'))
+            .map((item) => item['id'] as String)
+            .toSet();
   });
 
   test('ids são únicos', () {
@@ -162,9 +164,10 @@ void main() {
 
         final table = Map<String, dynamic>.from(raw as Map);
         final die = table['die'] as String;
-        final options = (table['options'] as List<dynamic>)
-            .map((e) => Map<String, dynamic>.from(e as Map))
-            .toList();
+        final options =
+            (table['options'] as List<dynamic>)
+                .map((e) => Map<String, dynamic>.from(e as Map))
+                .toList();
 
         final faces = int.parse(die.substring(1));
         expect(
@@ -189,7 +192,11 @@ void main() {
     }
   });
 
-  test('o padrão 2014 pede dois traços, um ideal, um vínculo e um defeito', () {
+  test('cada antecedente pede um traço, um ideal, um vínculo e um defeito', () {
+    // Uma escolha por categoria é decisão de produto deste app. O Livro do
+    // Jogador pede dois traços de personalidade; aqui é um só, e o número vem
+    // do asset justamente para essa escolha ficar num lugar.
+    //
     // Quem é dono das tabelas declara as contagens. Quem reaproveita as
     // tabelas de outro herda as contagens do dono no carregamento, então não
     // precisa repeti-las — mas se repetir, tem que bater com o padrão.
@@ -200,19 +207,20 @@ void main() {
       if (!owns && !inherits) continue;
 
       if (owns) {
-        expect(item['personality_trait_choices'], 2, reason: '$id: traços');
+        expect(item['personality_trait_choices'], 1, reason: '$id: traços');
         expect(item['ideal_choices'], 1, reason: '$id: ideal');
         expect(item['bond_choices'], 1, reason: '$id: vínculo');
         expect(item['flaw_choices'], 1, reason: '$id: defeito');
         continue;
       }
 
-      for (final entry in const {
-        'personality_trait_choices': 2,
-        'ideal_choices': 1,
-        'bond_choices': 1,
-        'flaw_choices': 1,
-      }.entries) {
+      for (final entry
+          in const {
+            'personality_trait_choices': 1,
+            'ideal_choices': 1,
+            'bond_choices': 1,
+            'flaw_choices': 1,
+          }.entries) {
         final declared = item[entry.key];
         if (declared == null) continue;
         expect(declared, entry.value, reason: '$id: ${entry.key}');

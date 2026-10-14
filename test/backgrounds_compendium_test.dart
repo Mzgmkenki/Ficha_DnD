@@ -21,9 +21,8 @@ void main() {
   late List<BackgroundEntry> backgrounds;
 
   setUp(() async {
-    backgrounds = await CompendiumRepositoryImpl(
-      SrdAssetSource(),
-    ).loadBackgrounds();
+    backgrounds =
+        await CompendiumRepositoryImpl(SrdAssetSource()).loadBackgrounds();
   });
 
   testWidgets('carrega os 28 antecedentes mais a opção customizável', (
@@ -58,7 +57,10 @@ void main() {
     expect(personality.bonds.options, hasLength(6));
     expect(personality.flaws.options, hasLength(6));
 
-    expect(personality.choiceCountFor(PersonalityCategory.trait), 2);
+    // Uma escolha por categoria, inclusive no traço: decisão de produto deste
+    // app, mais enxuta que os dois traços do Livro do Jogador. A tabela segue
+    // com as 8 opções; o que mudou é quantas o jogador marca.
+    expect(personality.choiceCountFor(PersonalityCategory.trait), 1);
     expect(personality.choiceCountFor(PersonalityCategory.ideal), 1);
     expect(personality.choiceCountFor(PersonalityCategory.bond), 1);
     expect(personality.choiceCountFor(PersonalityCategory.flaw), 1);
@@ -92,7 +94,7 @@ void main() {
 
       expect(agent.personality.sourceId, 'acolyte');
       expect(agent.personality.traits.options, hasLength(8));
-      expect(agent.personality.choiceCountFor(PersonalityCategory.trait), 2);
+      expect(agent.personality.choiceCountFor(PersonalityCategory.trait), 1);
 
       // Mesmos ids dos dois lados: é o que permite trocar entre eles sem
       // invalidar a escolha já feita.
@@ -114,9 +116,7 @@ void main() {
       };
 
       for (final entry in expected.entries) {
-        final variant = backgrounds.firstWhere(
-          (item) => item.id == entry.key,
-        );
+        final variant = backgrounds.firstWhere((item) => item.id == entry.key);
 
         expect(variant.isVariant, isTrue, reason: entry.key);
         expect(variant.variantOf, entry.value, reason: entry.key);
@@ -127,8 +127,8 @@ void main() {
         );
         expect(
           variant.personality.choiceCountFor(PersonalityCategory.trait),
-          2,
-          reason: '${entry.key} precisa pedir os dois traços',
+          1,
+          reason: '${entry.key} precisa herdar a contagem de traços do dono',
         );
       }
     });

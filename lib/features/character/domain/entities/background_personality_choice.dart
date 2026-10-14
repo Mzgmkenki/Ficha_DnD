@@ -96,7 +96,8 @@ class BackgroundPersonalityChoice {
   }
 
   @override
-  String toString() => 'BackgroundPersonalityChoice(${category.id}, $dedupeKey)';
+  String toString() =>
+      'BackgroundPersonalityChoice(${category.id}, $dedupeKey)';
 }
 
 /// O conjunto de escolhas narrativas do personagem, com as regras de validação.
@@ -106,9 +107,9 @@ class BackgroundPersonalityChoice {
 /// pergunta, não decide.
 class BackgroundPersonalitySelection {
   BackgroundPersonalitySelection(Iterable<BackgroundPersonalityChoice> choices)
-      : choices = List<BackgroundPersonalityChoice>.unmodifiable(
-          choices.where((choice) => !choice.isEmpty),
-        );
+    : choices = List<BackgroundPersonalityChoice>.unmodifiable(
+        choices.where((choice) => !choice.isEmpty),
+      );
 
   static final BackgroundPersonalitySelection empty =
       BackgroundPersonalitySelection(const []);
@@ -190,9 +191,9 @@ class BackgroundPersonalitySelection {
 
       final chosen = countFor(category);
       if (chosen < required) {
-        // O aviso conta o que ainda falta, não o total da categoria: com um
-        // dos dois traços já escolhido, pedir "2 traços" manda o jogador
-        // refazer o que já está feito.
+        // O aviso conta o que ainda falta, não o total da categoria. Numa
+        // categoria que pede duas escolhas, com uma já feita, pedir "2" manda
+        // o jogador refazer o que já está pronto.
         final remaining = required - chosen;
         missing.add(
           remaining == 1
@@ -212,8 +213,10 @@ class BackgroundPersonalitySelection {
 
   /// Troca o que foi escolhido numa posição de uma categoria.
   ///
-  /// A posição importa porque o padrão 2014 pede dois traços, e os dois são
-  /// campos independentes na tela.
+  /// A posição existe porque a contagem vem do antecedente e pode ser maior
+  /// que um — cada posição é um campo independente na tela. Hoje o app pede
+  /// uma escolha por categoria, mas a posição também preserva a ficha antiga,
+  /// criada quando o traço pedia duas: editar a primeira não apaga a segunda.
   BackgroundPersonalitySelection replaceAt({
     required PersonalityCategory category,
     required int index,
@@ -225,9 +228,7 @@ class BackgroundPersonalitySelection {
     final sameCategory = forCategory(category).toList(growable: true);
 
     while (sameCategory.length <= index) {
-      sameCategory.add(
-        BackgroundPersonalityChoice(category: category),
-      );
+      sameCategory.add(BackgroundPersonalityChoice(category: category));
     }
 
     if (choice == null) {
