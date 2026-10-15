@@ -309,6 +309,15 @@
     ],
     "skill_choices": 2,
     "weapon_proficiencies": { "categories": ["simple"] },
+    "invocations_known": {
+      "2": 2,
+      "5": 3,
+      "7": 4,
+      "9": 5,
+      "12": 6,
+      "15": 7,
+      "18": 8
+    },
     "source": "srd"
   },
   {

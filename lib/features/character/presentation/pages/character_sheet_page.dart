@@ -1,6 +1,7 @@
 ﻿import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
 import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
+import 'package:dnd_ficha_app/features/character/application/providers/invocation_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/level_up_character_class.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/subclass_choice.dart';
@@ -16,6 +17,7 @@ import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/comb
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/combat_summary_card.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/currency_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/death_saves_panel.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/eldritch_invocations_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/feats_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/inventory_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/languages_panel.dart';
@@ -484,6 +486,12 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                   const SizedBox(height: 8),
                   LanguagesPanel(character: character),
 
+                  // Só aparece para quem tem a característica: o filtro é o
+                  // limite de invocações do nível de Bruxo, mais a seleção já
+                  // gravada. Guerreiro nenhum vê esta seção, e um Bruxo de 1º
+                  // nível também não — ele só alcança as invocações no 2º.
+                  _EldritchInvocationsSection(character: character),
+
                   const SizedBox(height: 16),
                   CollapsibleSection(
                     id: 'racial_traits',
@@ -643,6 +651,13 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
           spellIndex: spellIndex,
         );
       }
+
+      // Invocação depois da subclasse, e nesta ordem de propósito: metade do
+      // catálogo depende do patrono, então perguntar a invocação primeiro
+      // ofereceria uma lista mais pobre do que a real.
+      if (outcome.needsInvocationChoice && mounted) {
+        await _promptInvocations(outcome.pendingInvocations);
+      }
     } catch (error, stackTrace) {
       debugPrint('Falha ao subir de nível: $error');
       debugPrintStack(stackTrace: stackTrace);
@@ -658,6 +673,48 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
         });
       }
     }
+  }
+
+  /// Oferece a seleção de Invocações Místicas quando a subida abriu vaga.
+  ///
+  /// Pergunta antes de abrir a tela em vez de empurrar o jogador para dentro
+  /// dela: ele acabou de subir de nível e pode querer resolver outra coisa
+  /// primeiro. Recusar não perde nada — a vaga continua em aberto, a ficha
+  /// mostra quantas são, e a seção de Invocações Místicas leva para a mesma
+  /// tela.
+  Future<void> _promptInvocations(int pending) async {
+    if (!mounted) return;
+
+    final open = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Invocações Místicas'),
+          content: Text(
+            pending == 1
+                ? 'Você pode escolher 1 nova Invocação Mística.'
+                : 'Você pode escolher $pending novas Invocações Místicas.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Depois'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('Escolher agora'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (open != true || !mounted) return;
+
+    await AppNavigator.toManageEldritchInvocations(
+      context,
+      characterId: widget.characterId,
+    );
   }
 
   /// Abre a escolha de subclasse e grava o que o jogador decidir.
@@ -781,6 +838,69 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
       }
     }
     return classId;
+  }
+}
+
+/// A seção recolhível de Invocações Místicas, quando o personagem tem a
+/// característica.
+///
+/// Fica num widget próprio porque a decisão de MOSTRAR depende do resolvedor,
+/// que é assíncrono: embutir o `when` no meio do `ListView` da ficha faria a
+/// lista inteira reconstruir a cada estado de carregamento.
+///
+/// Enquanto carrega não mostra nada. É o comportamento certo aqui: um
+/// esqueleto de seção que some em quem não é Bruxo pisca na ficha de todo
+/// mundo.
+class _EldritchInvocationsSection extends ConsumerStatefulWidget {
+  const _EldritchInvocationsSection({required this.character});
+
+  final Character character;
+
+  @override
+  ConsumerState<_EldritchInvocationsSection> createState() =>
+      _EldritchInvocationsSectionState();
+}
+
+class _EldritchInvocationsSectionState
+    extends ConsumerState<_EldritchInvocationsSection> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final resolved = ref
+        .watch(resolvedInvocationsProvider(widget.character))
+        .value;
+
+    if (resolved == null) return const SizedBox.shrink();
+
+    // Tem a característica (limite > 0) ou tem seleção gravada. O segundo caso
+    // cobre quem perdeu nível de Bruxo: a escolha continua visível, marcada
+    // como inválida, em vez de desaparecer.
+    final shouldShow = resolved.limit > 0 || resolved.selected.isNotEmpty;
+    if (!shouldShow) return const SizedBox.shrink();
+
+    return Column(
+      children: [
+        const SizedBox(height: 16),
+        CollapsibleSection(
+          id: 'eldritch_invocations',
+          title: 'Invocações Místicas',
+          summary: resolved.countLabel,
+          badge: switch (resolved) {
+            final it when it.hasInvalid => 'invocação inválida',
+            final it when it.overLimit > 0 => 'acima do limite',
+            final it when it.hasPendingSlots =>
+              it.freeSlots == 1
+                  ? '1 vaga em aberto'
+                  : '${it.freeSlots} vagas em aberto',
+            _ => null,
+          },
+          isExpanded: _expanded,
+          onExpansionChanged: (value) => setState(() => _expanded = value),
+          child: EldritchInvocationsPanel(character: widget.character),
+        ),
+      ],
+    );
   }
 }
 

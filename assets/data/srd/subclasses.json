@@ -3964,7 +3964,7 @@
         "description": "Quando a criatura sob sua Maldição da Lâmina morre, pode aplicar a maldição em outra criatura visível a até 9 m, sem gastar usos, mantendo os benefícios até a duração original acabar."
       }
     ],
-    "tags": ["xge", "lamina", "combate"]
+    "tags": ["xge", "lamina", "combate", "maldicao"]
   },
   {
     "id": "warlock_celestial",

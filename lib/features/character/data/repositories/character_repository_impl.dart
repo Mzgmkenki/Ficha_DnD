@@ -257,6 +257,20 @@ class CharacterRepositoryImpl implements CharacterRepository {
             );
       }
 
+      for (final invocation in character.eldritchInvocations) {
+        await _database.into(_database.characterEldritchInvocations).insert(
+              db.CharacterEldritchInvocationsCompanion.insert(
+                characterId: character.id,
+                invocationId: invocation.invocationId,
+                chosenAtLevel: drift.Value(invocation.chosenAtLevel),
+                replacedInvocationId: drift.Value(
+                  invocation.replacedInvocationId,
+                ),
+                replacedAtLevel: drift.Value(invocation.replacedAtLevel),
+              ),
+            );
+      }
+
       for (final weapon in character.weapons) {
         await _database.into(_database.characterWeapons).insert(
               WeaponMapper.toInsert(
@@ -358,6 +372,10 @@ class CharacterRepositoryImpl implements CharacterRepository {
             ..where((tbl) => tbl.characterId.equals(id)))
           .go();
 
+      await (_database.delete(_database.characterEldritchInvocations)
+            ..where((tbl) => tbl.characterId.equals(id)))
+          .go();
+
       await (_database.delete(_database.characterInventoryItems)
             ..where((tbl) => tbl.characterId.equals(id)))
           .go();
@@ -419,6 +437,11 @@ class CharacterRepositoryImpl implements CharacterRepository {
           ..where((tbl) => tbl.characterId.equals(id)))
         .get();
 
+    final invocationRows =
+        await (_database.select(_database.characterEldritchInvocations)
+              ..where((tbl) => tbl.characterId.equals(id)))
+            .get();
+
     final inventoryRows =
         await (_database.select(_database.characterInventoryItems)
               ..where((tbl) => tbl.characterId.equals(id)))
@@ -461,6 +484,7 @@ class CharacterRepositoryImpl implements CharacterRepository {
       abilityImprovements: improvementRows,
       featureStates: featureStateRows,
       languages: languageRows,
+      eldritchInvocations: invocationRows,
     );
 
     return mapped.copyWith(
@@ -540,6 +564,7 @@ class CharacterRepositoryImpl implements CharacterRepository {
       _database.characterAbilityImprovements,
       _database.characterFeatureStates,
       _database.characterLanguages,
+      _database.characterEldritchInvocations,
       _database.characterInventoryItems,
       _database.characterCurrencyGrants,
     ]);
@@ -810,6 +835,33 @@ class CharacterRepositoryImpl implements CharacterRepository {
                 slotId: drift.Value(language.slotId),
                 sourceId: drift.Value(language.sourceId),
                 sourceLabel: drift.Value(language.sourceLabel),
+              ),
+            );
+      }
+
+      // Invocações Místicas: apaga e reinsere, como as listas acima. Quem
+      // decide o que entra, o que sai e o que virou substituição é
+      // `ManageEldritchInvocations`, no domínio — esta camada só grava o que
+      // chegou no agregado. A reinserção descarta id repetido pela mesma
+      // razão: id duplicado gastaria duas vagas sem o jogador ter escolhido
+      // duas invocações.
+      await (_database.delete(_database.characterEldritchInvocations)
+            ..where((tbl) => tbl.characterId.equals(character.id)))
+          .go();
+
+      final insertedInvocations = <String>{};
+      for (final invocation in character.eldritchInvocations) {
+        if (!insertedInvocations.add(invocation.invocationId)) continue;
+
+        await _database.into(_database.characterEldritchInvocations).insert(
+              db.CharacterEldritchInvocationsCompanion.insert(
+                characterId: character.id,
+                invocationId: invocation.invocationId,
+                chosenAtLevel: drift.Value(invocation.chosenAtLevel),
+                replacedInvocationId: drift.Value(
+                  invocation.replacedInvocationId,
+                ),
+                replacedAtLevel: drift.Value(invocation.replacedAtLevel),
               ),
             );
       }

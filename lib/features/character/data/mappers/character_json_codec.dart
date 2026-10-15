@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_score_improvement.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_eldritch_invocation.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_feat.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_feature_state.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_language.dart';
@@ -329,6 +330,19 @@ class CharacterJsonCodec {
             'sourceLabel': language.sourceLabel,
           },
       ],
+      // Invocações Místicas: só o id escolhido e o histórico da troca. Nome,
+      // pré-requisito e efeito vêm do catálogo na importação, como na leitura
+      // do banco — exportá-los faria uma ficha importada manter o texto antigo
+      // depois de o catálogo ser corrigido.
+      'eldritchInvocations': [
+        for (final invocation in character.eldritchInvocations)
+          <String, dynamic>{
+            'invocationId': invocation.invocationId,
+            'chosenAtLevel': invocation.chosenAtLevel,
+            'replacedInvocationId': invocation.replacedInvocationId,
+            'replacedAtLevel': invocation.replacedAtLevel,
+          },
+      ],
       'armorClassFormulaId': character.armorClassFormulaId,
       'armorClassOtherBonus': character.armorClassOtherBonus,
       'inspiration': character.inspiration,
@@ -421,6 +435,9 @@ class CharacterJsonCodec {
       ),
       featureStates: _parseFeatureStates(map['featureStates']),
       languages: _parseLanguages(map['languages']),
+      eldritchInvocations: _parseEldritchInvocations(
+        map['eldritchInvocations'],
+      ),
       armorClassFormulaId: _asString(map['armorClassFormulaId']),
       armorClassOtherBonus:
           (_asInt(map['armorClassOtherBonus']) ?? 0).clamp(-20, 20),
@@ -702,6 +719,42 @@ class CharacterJsonCodec {
           usesSpent: (_asInt(map['usesSpent']) ?? 0).clamp(0, 999),
           isActive: _asBool(map['isActive']),
           choiceOptionId: choice == null || choice.isEmpty ? null : choice,
+        ),
+      );
+    }
+
+    return result;
+  }
+
+  static List<CharacterEldritchInvocation> _parseEldritchInvocations(
+    Object? raw,
+  ) {
+    final result = <CharacterEldritchInvocation>[];
+    final seen = <String>{};
+
+    for (final item in _asList(raw)) {
+      final map = _asMap(item);
+      final invocationId = _asString(map['invocationId'])?.trim();
+      // Sem id não há invocação: o nome traduzido do arquivo não serve de
+      // identificador, então o registro é descartado em vez de adivinhado.
+      if (invocationId == null || invocationId.isEmpty) continue;
+
+      // Duplicata no arquivo entra uma vez só — é o que impede um import
+      // repetido de gastar duas vagas com a mesma invocação.
+      if (!seen.add(invocationId)) continue;
+
+      final replaced = _asString(map['replacedInvocationId'])?.trim();
+
+      result.add(
+        CharacterEldritchInvocation(
+          invocationId: invocationId,
+          // Clamp: nível negativo num arquivo editado à mão viraria histórico
+          // sem sentido na ficha.
+          chosenAtLevel: (_asInt(map['chosenAtLevel']) ?? 0).clamp(0, 20),
+          replacedInvocationId: replaced == null || replaced.isEmpty
+              ? null
+              : replaced,
+          replacedAtLevel: _asInt(map['replacedAtLevel']),
         ),
       );
     }

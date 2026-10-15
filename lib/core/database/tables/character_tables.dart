@@ -579,6 +579,44 @@ class CharacterLanguages extends Table {
   TextColumn get sourceLabel => text().nullable()();
 }
 
+/// Invocações Místicas que o Bruxo escolheu.
+///
+/// Guarda só a ESCOLHA, pela mesma razão de [CharacterFeatureStates]: nome,
+/// descrição, pré-requisito e efeito continuam no catálogo e são resolvidos a
+/// cada leitura. Corrigir o catálogo corrige todas as fichas, e perder nível
+/// de Bruxo simplesmente faz a invocação aparecer como inválida — sem rotina
+/// de limpeza e sem apagar a decisão do jogador em silêncio.
+///
+/// Tabela filha, e não CSV numa coluna, porque cada linha carrega histórico
+/// próprio: o nível em que foi escolhida e qual invocação ela substituiu.
+class CharacterEldritchInvocations extends Table {
+  IntColumn get localId => integer().autoIncrement()();
+  TextColumn get characterId => text().references(Characters, #id)();
+
+  /// Id da invocação no catálogo (`agonizing_blast`, `thirsting_blade`).
+  ///
+  /// Id, nunca nome: corrigir a tradução de "Rajada Agonizante" no catálogo
+  /// não pode fazer o personagem perder a invocação.
+  TextColumn get invocationId => text()();
+
+  /// Nível NA CLASSE BRUXO em que a invocação foi escolhida.
+  ///
+  /// Zero é "não registrado", o que acontece em ficha importada sem este dado.
+  /// Serve para o histórico, não para a validação — quem valida usa o nível
+  /// atual.
+  IntColumn get chosenAtLevel => integer().withDefault(const Constant(0))();
+
+  /// Id da invocação que esta substituiu, quando houve substituição.
+  ///
+  /// O histórico fica na própria linha porque a pergunta da ficha é sempre
+  /// "esta veio de uma troca?", e isso é um campo, não uma consulta a uma
+  /// tabela de eventos.
+  TextColumn get replacedInvocationId => text().nullable()();
+
+  /// Nível de Bruxo em que a substituição aconteceu.
+  IntColumn get replacedAtLevel => integer().nullable()();
+}
+
 class CharacterSpellSlotsUsage extends Table {
   IntColumn get localId => integer().autoIncrement()();
   TextColumn get characterId => text().references(Characters, #id)();

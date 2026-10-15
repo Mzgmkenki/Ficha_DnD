@@ -2,6 +2,7 @@ import 'package:dnd_ficha_app/features/compendium/domain/entities/background_ent
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_equipment.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/eldritch_invocation_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/language_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
@@ -16,6 +17,7 @@ abstract class CompendiumRepository {
   Future<List<BackgroundEntry>> loadBackgrounds();
   Future<List<FeatEntry>> loadFeats();
   Future<List<LanguageEntry>> loadLanguages();
+  Future<List<EldritchInvocationEntry>> loadEldritchInvocations();
   Future<List<ClassFeatureEntry>> loadClassFeatures();
   Future<List<ClassStartingEquipment>> loadClassEquipment();
   Future<List<SubclassEntry>> loadSubclasses();

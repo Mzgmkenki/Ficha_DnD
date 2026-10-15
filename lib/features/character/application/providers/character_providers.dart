@@ -2,6 +2,7 @@ import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/core/utils/dice_roller.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/feature_providers.dart';
+import 'package:dnd_ficha_app/features/character/application/providers/invocation_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/choose_subclass.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/create_character.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/export_character.dart';
@@ -339,10 +340,28 @@ Future<Set<String>> _featureIdsRestoredBy(
       resolvedFeaturesProvider(character).future,
     );
 
-    return FeatureResources.featureIdsRestoredBy(
-      features: features,
-      recharges: recharges,
+    final result = <String>{
+      ...FeatureResources.featureIdsRestoredBy(
+        features: features,
+        recharges: recharges,
+      ),
+    };
+
+    // As invocações com usos limitados entram pela mesma porta: elas declaram
+    // o mesmo bloco `action`, e um descanso curto tem de devolver Tumba de
+    // Levistus junto com o resto.
+    final invocations = await ref.read(
+      resolvedInvocationsProvider(character).future,
     );
+
+    result.addAll(
+      FeatureResources.featureIdsRestoredBy(
+        features: invocations.asFeatures,
+        recharges: recharges,
+      ),
+    );
+
+    return result;
   } catch (error) {
     // Só a mensagem: `SrdAssetSource` já imprime arquivo e stack quando a
     // leitura falha, e repetir aqui enterra o resto do log.

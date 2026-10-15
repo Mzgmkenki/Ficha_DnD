@@ -1,4 +1,5 @@
 import 'package:dnd_ficha_app/core/di/providers.dart';
+import 'package:dnd_ficha_app/features/character/application/providers/invocation_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/manage_ability_score_improvements.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/armor_class_options.dart';
@@ -51,15 +52,30 @@ final armorClassSelectionProvider = FutureProvider.family
 });
 
 /// Os recursos limitados que as características concedem.
+///
+/// Inclui as Invocações Místicas com usos limitados: elas declaram o mesmo
+/// bloco `action` das características, e o jogador não tem motivo para
+/// procurar "Tumba de Levistus" numa segunda lista de recursos.
 final featureResourcesProvider = FutureProvider.family
     .autoDispose<List<FeatureResource>, Character>((ref, character) async {
   final features = await ref.watch(resolvedFeaturesProvider(character).future);
 
-  return FeatureResources.from(
+  final fromFeatures = FeatureResources.from(
     character: character,
     features: features,
     context: FeatureFormulaContext.fromCharacter(character),
   );
+
+  final fromInvocations = await ref.watch(
+    invocationResourcesProvider(character).future,
+  );
+
+  if (fromInvocations.isEmpty) return fromFeatures;
+
+  return List<FeatureResource>.unmodifiable([
+    ...fromFeatures,
+    ...fromInvocations,
+  ]);
 });
 
 /// O teto de cada atributo, já com as exceções declaradas por característica.

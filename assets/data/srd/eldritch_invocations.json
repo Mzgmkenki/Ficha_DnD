@@ -1,0 +1,826 @@
+[
+  {
+    "id": "agonizing_blast",
+    "name": "Rajada Agonizante",
+    "name_original": "Agonizing Blast",
+    "source": "phb",
+    "description": "Quando você conjura Rajada Mística, soma seu modificador de Carisma ao dano causado em cada acerto.",
+    "prerequisites": { "cantrip": "eldritch_blast" },
+    "blast": { "damage_bonus": "mod.charisma" },
+    "tags": ["rajada_mistica"]
+  },
+  {
+    "id": "armor_of_shadows",
+    "name": "Armadura das Sombras",
+    "name_original": "Armor of Shadows",
+    "source": "phb",
+    "description": "Você pode conjurar Armadura Arcana em si mesmo à vontade, sem gastar espaço de magia nem componentes materiais.",
+    "grants_spells": [
+      {
+        "spell": "mage armor",
+        "name_pt": "Armadura Arcana",
+        "mode": "at_will",
+        "self_only": true
+      }
+    ],
+    "tags": ["magia_concedida"]
+  },
+  {
+    "id": "ascendant_step",
+    "name": "Passo Ascendente",
+    "name_original": "Ascendant Step",
+    "source": "phb",
+    "description": "Você pode conjurar Levitação em si mesmo à vontade, sem gastar espaço de magia nem componentes materiais.",
+    "prerequisites": { "warlock_level": 9 },
+    "grants_spells": [
+      {
+        "spell": "levitate",
+        "name_pt": "Levitação",
+        "mode": "at_will",
+        "self_only": true
+      }
+    ],
+    "tags": ["magia_concedida"]
+  },
+  {
+    "id": "beast_speech",
+    "name": "Fala Bestial",
+    "name_original": "Beast Speech",
+    "source": "phb",
+    "description": "Você pode conjurar Falar com Animais à vontade, sem gastar espaço de magia.",
+    "grants_spells": [
+      {
+        "spell": "speak with animals",
+        "name_pt": "Falar com Animais",
+        "mode": "at_will"
+      }
+    ],
+    "tags": ["magia_concedida"]
+  },
+  {
+    "id": "beguiling_influence",
+    "name": "Influência Encantadora",
+    "name_original": "Beguiling Influence",
+    "source": "phb",
+    "description": "Você ganha proficiência nas perícias Enganação e Persuasão.",
+    "skill_proficiencies": ["deception", "persuasion"],
+    "tags": ["passivo", "pericia"]
+  },
+  {
+    "id": "bewitching_whispers",
+    "name": "Sussurros Enfeitiçadores",
+    "name_original": "Bewitching Whispers",
+    "source": "phb",
+    "description": "Você pode conjurar Compulsão uma vez, gastando um espaço de Magia de Pacto, e não pode fazê-lo de novo até terminar um descanso longo.",
+    "prerequisites": { "warlock_level": 7 },
+    "grants_spells": [
+      {
+        "spell": "compulsion",
+        "name_pt": "Compulsão",
+        "mode": "once_per_long_rest",
+        "uses_pact_slot": true
+      }
+    ],
+    "action": {
+      "type": "action",
+      "uses": 1,
+      "recharge": "long",
+      "cost": "um espaço de Magia de Pacto",
+      "label": "Sussurros Enfeitiçadores (Compulsão)"
+    },
+    "tags": ["magia_concedida", "recurso"]
+  },
+  {
+    "id": "book_of_ancient_secrets",
+    "name": "Livro dos Segredos Antigos",
+    "name_original": "Book of Ancient Secrets",
+    "source": "phb",
+    "description": "Você inscreve dois rituais de 1º círculo de qualquer lista no seu Livro das Sombras e pode conjurá-los como ritual, sem que contem entre as suas magias conhecidas. Pode copiar outros rituais ao encontrá-los, gastando 50 po e 2 horas por círculo da magia.",
+    "prerequisites": { "pact_boon": "pact_of_the_tome" },
+    "tags": ["passivo", "ritual"]
+  },
+  {
+    "id": "chains_of_carceri",
+    "name": "Correntes de Carceri",
+    "name_original": "Chains of Carceri",
+    "source": "phb",
+    "description": "Você pode conjurar Imobilizar Monstro à vontade, sem gastar espaço de magia nem componentes materiais, contra um celestial, um elemental ou um corruptor. Não pode usar de novo na mesma criatura até terminar um descanso longo.",
+    "prerequisites": { "warlock_level": 15, "pact_boon": "pact_of_the_chain" },
+    "grants_spells": [
+      {
+        "spell": "hold monster",
+        "name_pt": "Imobilizar Monstro",
+        "mode": "at_will",
+        "note": "Só contra celestial, elemental ou corruptor, e uma vez por criatura por descanso longo."
+      }
+    ],
+    "tags": ["magia_concedida"]
+  },
+  {
+    "id": "devils_sight",
+    "name": "Visão do Diabo",
+    "name_original": "Devil's Sight",
+    "source": "phb",
+    "description": "Você vê normalmente na escuridão, mágica ou não, até 36 m de distância.",
+    "tags": ["passivo", "sentido"]
+  },
+  {
+    "id": "dreadful_word",
+    "name": "Palavra Terrível",
+    "name_original": "Dreadful Word",
+    "source": "phb",
+    "description": "Você pode conjurar Confusão uma vez, gastando um espaço de Magia de Pacto, e não pode fazê-lo de novo até terminar um descanso longo.",
+    "prerequisites": { "warlock_level": 7 },
+    "grants_spells": [
+      {
+        "spell": "confusion",
+        "name_pt": "Confusão",
+        "mode": "once_per_long_rest",
+        "uses_pact_slot": true
+      }
+    ],
+    "action": {
+      "type": "action",
+      "uses": 1,
+      "recharge": "long",
+      "cost": "um espaço de Magia de Pacto",
+      "label": "Palavra Terrível (Confusão)"
+    },
+    "tags": ["magia_concedida", "recurso"]
+  },
+  {
+    "id": "eldritch_sight",
+    "name": "Visão Mística",
+    "name_original": "Eldritch Sight",
+    "source": "phb",
+    "description": "Você pode conjurar Detectar Magia à vontade, sem gastar espaço de magia.",
+    "grants_spells": [
+      {
+        "spell": "detect magic",
+        "name_pt": "Detectar Magia",
+        "mode": "at_will"
+      }
+    ],
+    "tags": ["magia_concedida"]
+  },
+  {
+    "id": "eldritch_spear",
+    "name": "Lança Mística",
+    "name_original": "Eldritch Spear",
+    "source": "phb",
+    "description": "Quando você conjura Rajada Mística, o alcance dela passa a ser 90 m.",
+    "prerequisites": { "cantrip": "eldritch_blast" },
+    "blast": { "range_meters": 90 },
+    "tags": ["rajada_mistica"]
+  },
+  {
+    "id": "eyes_of_the_rune_keeper",
+    "name": "Olhos do Guardião das Runas",
+    "name_original": "Eyes of the Rune Keeper",
+    "source": "phb",
+    "description": "Você consegue ler qualquer escrita.",
+    "tags": ["passivo"]
+  },
+  {
+    "id": "fiendish_vigor",
+    "name": "Vigor Diabólico",
+    "name_original": "Fiendish Vigor",
+    "source": "phb",
+    "description": "Você pode conjurar Vida Falsa em si mesmo à vontade, como magia de 1º círculo, sem gastar espaço de magia nem componentes materiais.",
+    "grants_spells": [
+      {
+        "spell": "false life",
+        "name_pt": "Vida Falsa",
+        "mode": "at_will",
+        "self_only": true,
+        "note": "Sempre na versão de 1º círculo."
+      }
+    ],
+    "tags": ["magia_concedida"]
+  },
+  {
+    "id": "gaze_of_two_minds",
+    "name": "Olhar das Duas Mentes",
+    "name_original": "Gaze of Two Minds",
+    "source": "phb",
+    "description": "Como ação, você toca um humanoide voluntário e percebe pelos sentidos dele até o fim do seu próximo turno. Enquanto a criatura estiver no mesmo plano, você pode gastar a ação nos turnos seguintes para manter o vínculo. Enquanto percebe pelos sentidos dela, você fica cego e surdo para os seus próprios.",
+    "action": {
+      "type": "action",
+      "label": "Olhar das Duas Mentes"
+    },
+    "tags": ["acao"]
+  },
+  {
+    "id": "lifedrinker",
+    "name": "Bebedor de Vida",
+    "name_original": "Lifedrinker",
+    "source": "phb",
+    "description": "Quando você acerta uma criatura com a sua arma de pacto, ela sofre dano necrótico extra igual ao seu modificador de Carisma, no mínimo 1.",
+    "prerequisites": { "warlock_level": 12, "pact_boon": "pact_of_the_blade" },
+    "pact_weapon": {
+      "damage_bonus": "mod.charisma",
+      "damage_type": "necrótico",
+      "damage_minimum": 1
+    },
+    "tags": ["arma_de_pacto"]
+  },
+  {
+    "id": "mask_of_many_faces",
+    "name": "Máscara de Muitas Faces",
+    "name_original": "Mask of Many Faces",
+    "source": "phb",
+    "description": "Você pode conjurar Disfarçar-se à vontade, sem gastar espaço de magia.",
+    "grants_spells": [
+      {
+        "spell": "disguise self",
+        "name_pt": "Disfarçar-se",
+        "mode": "at_will"
+      }
+    ],
+    "tags": ["magia_concedida"]
+  },
+  {
+    "id": "master_of_myriad_forms",
+    "name": "Mestre das Miríades de Formas",
+    "name_original": "Master of Myriad Forms",
+    "source": "phb",
+    "description": "Você pode conjurar Alterar-se à vontade, sem gastar espaço de magia.",
+    "prerequisites": { "warlock_level": 15 },
+    "grants_spells": [
+      {
+        "spell": "alter self",
+        "name_pt": "Alterar-se",
+        "mode": "at_will"
+      }
+    ],
+    "tags": ["magia_concedida"]
+  },
+  {
+    "id": "minions_of_chaos",
+    "name": "Lacaios do Caos",
+    "name_original": "Minions of Chaos",
+    "source": "phb",
+    "description": "Você pode conjurar Invocar Elemental uma vez, gastando um espaço de Magia de Pacto, e não pode fazê-lo de novo até terminar um descanso longo.",
+    "prerequisites": { "warlock_level": 9 },
+    "grants_spells": [
+      {
+        "spell": "conjure elemental",
+        "name_pt": "Invocar Elemental",
+        "mode": "once_per_long_rest",
+        "uses_pact_slot": true
+      }
+    ],
+    "action": {
+      "type": "action",
+      "uses": 1,
+      "recharge": "long",
+      "cost": "um espaço de Magia de Pacto",
+      "label": "Lacaios do Caos (Invocar Elemental)"
+    },
+    "tags": ["magia_concedida", "recurso"]
+  },
+  {
+    "id": "mire_the_mind",
+    "name": "Atolar a Mente",
+    "name_original": "Mire the Mind",
+    "source": "phb",
+    "description": "Você pode conjurar Lentidão uma vez, gastando um espaço de Magia de Pacto, e não pode fazê-lo de novo até terminar um descanso longo.",
+    "prerequisites": { "warlock_level": 5 },
+    "grants_spells": [
+      {
+        "spell": "slow",
+        "name_pt": "Lentidão",
+        "mode": "once_per_long_rest",
+        "uses_pact_slot": true
+      }
+    ],
+    "action": {
+      "type": "action",
+      "uses": 1,
+      "recharge": "long",
+      "cost": "um espaço de Magia de Pacto",
+      "label": "Atolar a Mente (Lentidão)"
+    },
+    "tags": ["magia_concedida", "recurso"]
+  },
+  {
+    "id": "misty_visions",
+    "name": "Visões Enevoadas",
+    "name_original": "Misty Visions",
+    "source": "phb",
+    "description": "Você pode conjurar Imagem Silenciosa à vontade, sem gastar espaço de magia nem componentes materiais.",
+    "grants_spells": [
+      {
+        "spell": "silent image",
+        "name_pt": "Imagem Silenciosa",
+        "mode": "at_will"
+      }
+    ],
+    "tags": ["magia_concedida"]
+  },
+  {
+    "id": "one_with_shadows",
+    "name": "Um com as Sombras",
+    "name_original": "One with Shadows",
+    "source": "phb",
+    "description": "Em área de luz fraca ou escuridão, você pode gastar uma ação para ficar invisível até se mover ou executar uma ação ou reação.",
+    "prerequisites": { "warlock_level": 5 },
+    "action": {
+      "type": "action",
+      "label": "Um com as Sombras",
+      "requires": "estar em luz fraca ou escuridão"
+    },
+    "tags": ["acao"]
+  },
+  {
+    "id": "otherworldly_leap",
+    "name": "Salto Sobrenatural",
+    "name_original": "Otherworldly Leap",
+    "source": "phb",
+    "description": "Você pode conjurar Saltar em si mesmo à vontade, sem gastar espaço de magia nem componentes materiais.",
+    "prerequisites": { "warlock_level": 9 },
+    "grants_spells": [
+      {
+        "spell": "jump",
+        "name_pt": "Saltar",
+        "mode": "at_will",
+        "self_only": true
+      }
+    ],
+    "tags": ["magia_concedida"]
+  },
+  {
+    "id": "repelling_blast",
+    "name": "Rajada Repelente",
+    "name_original": "Repelling Blast",
+    "source": "phb",
+    "description": "Quando você acerta uma criatura com Rajada Mística, pode empurrá-la até 3 m para longe de você em linha reta.",
+    "prerequisites": { "cantrip": "eldritch_blast" },
+    "blast": { "push_meters": 3 },
+    "tags": ["rajada_mistica"]
+  },
+  {
+    "id": "sculptor_of_flesh",
+    "name": "Escultor de Carne",
+    "name_original": "Sculptor of Flesh",
+    "source": "phb",
+    "description": "Você pode conjurar Metamorfose uma vez, gastando um espaço de Magia de Pacto, e não pode fazê-lo de novo até terminar um descanso longo.",
+    "prerequisites": { "warlock_level": 7 },
+    "grants_spells": [
+      {
+        "spell": "polymorph",
+        "name_pt": "Metamorfose",
+        "mode": "once_per_long_rest",
+        "uses_pact_slot": true
+      }
+    ],
+    "action": {
+      "type": "action",
+      "uses": 1,
+      "recharge": "long",
+      "cost": "um espaço de Magia de Pacto",
+      "label": "Escultor de Carne (Metamorfose)"
+    },
+    "tags": ["magia_concedida", "recurso"]
+  },
+  {
+    "id": "sign_of_ill_omen",
+    "name": "Sinal de Mau Agouro",
+    "name_original": "Sign of Ill Omen",
+    "source": "phb",
+    "description": "Você pode conjurar Conceder Maldição uma vez, gastando um espaço de Magia de Pacto, e não pode fazê-lo de novo até terminar um descanso longo.",
+    "prerequisites": { "warlock_level": 5 },
+    "grants_spells": [
+      {
+        "spell": "bestow curse",
+        "name_pt": "Conceder Maldição",
+        "mode": "once_per_long_rest",
+        "uses_pact_slot": true
+      }
+    ],
+    "action": {
+      "type": "action",
+      "uses": 1,
+      "recharge": "long",
+      "cost": "um espaço de Magia de Pacto",
+      "label": "Sinal de Mau Agouro (Conceder Maldição)"
+    },
+    "tags": ["magia_concedida", "recurso"]
+  },
+  {
+    "id": "thief_of_five_fates",
+    "name": "Ladrão dos Cinco Destinos",
+    "name_original": "Thief of Five Fates",
+    "source": "phb",
+    "description": "Você pode conjurar Ruína uma vez, gastando um espaço de Magia de Pacto, e não pode fazê-lo de novo até terminar um descanso longo.",
+    "grants_spells": [
+      {
+        "spell": "bane",
+        "name_pt": "Ruína",
+        "mode": "once_per_long_rest",
+        "uses_pact_slot": true
+      }
+    ],
+    "action": {
+      "type": "action",
+      "uses": 1,
+      "recharge": "long",
+      "cost": "um espaço de Magia de Pacto",
+      "label": "Ladrão dos Cinco Destinos (Ruína)"
+    },
+    "tags": ["magia_concedida", "recurso"]
+  },
+  {
+    "id": "thirsting_blade",
+    "name": "Lâmina Sedenta",
+    "name_original": "Thirsting Blade",
+    "source": "phb",
+    "description": "Você pode atacar duas vezes com a sua arma de pacto, em vez de uma, sempre que usa a ação de Atacar no seu turno.",
+    "prerequisites": { "warlock_level": 5, "pact_boon": "pact_of_the_blade" },
+    "pact_weapon": { "attacks": 2 },
+    "tags": ["arma_de_pacto"]
+  },
+  {
+    "id": "visions_of_distant_realms",
+    "name": "Visões de Reinos Distantes",
+    "name_original": "Visions of Distant Realms",
+    "source": "phb",
+    "description": "Você pode conjurar Olho Arcano à vontade, sem gastar espaço de magia.",
+    "prerequisites": { "warlock_level": 15 },
+    "grants_spells": [
+      {
+        "spell": "arcane eye",
+        "name_pt": "Olho Arcano",
+        "mode": "at_will"
+      }
+    ],
+    "tags": ["magia_concedida"]
+  },
+  {
+    "id": "voice_of_the_chain_master",
+    "name": "Voz do Mestre das Correntes",
+    "name_original": "Voice of the Chain Master",
+    "source": "phb",
+    "description": "Você percebe pelos sentidos do seu familiar, se comunica telepaticamente com ele e fala pela boca dele a qualquer distância, desde que estejam no mesmo plano.",
+    "prerequisites": { "pact_boon": "pact_of_the_chain" },
+    "tags": ["passivo", "familiar"]
+  },
+  {
+    "id": "whispers_of_the_grave",
+    "name": "Sussurros do Túmulo",
+    "name_original": "Whispers of the Grave",
+    "source": "phb",
+    "description": "Você pode conjurar Falar com os Mortos à vontade, sem gastar espaço de magia.",
+    "prerequisites": { "warlock_level": 9 },
+    "grants_spells": [
+      {
+        "spell": "speak with dead",
+        "name_pt": "Falar com os Mortos",
+        "mode": "at_will"
+      }
+    ],
+    "tags": ["magia_concedida"]
+  },
+  {
+    "id": "witch_sight",
+    "name": "Visão de Bruxa",
+    "name_original": "Witch Sight",
+    "source": "phb",
+    "description": "Você vê a forma verdadeira de qualquer metamorfo e de qualquer criatura escondida por ilusão ou transmutação, se ela estiver a até 9 m e na sua linha de visão.",
+    "prerequisites": { "warlock_level": 15 },
+    "tags": ["passivo", "sentido"]
+  },
+
+  {
+    "id": "aspect_of_the_moon",
+    "name": "Aspecto da Lua",
+    "name_original": "Aspect of the Moon",
+    "source": "xge",
+    "description": "Você não precisa mais dormir e não pode ser forçado a dormir por nenhum meio. Para ganhar os benefícios de um descanso longo, basta passar 8 horas em atividade leve, lendo o seu Livro das Sombras e mantendo vigília.",
+    "prerequisites": { "pact_boon": "pact_of_the_tome" },
+    "tags": ["passivo"]
+  },
+  {
+    "id": "cloak_of_flies",
+    "name": "Manto de Moscas",
+    "name_original": "Cloak of Flies",
+    "source": "xge",
+    "description": "Como ação bônus, você se envolve numa aura de moscas de 1,5 m de raio por 1 minuto. Você tem desvantagem em testes de Carisma que não sejam Intimidação, e qualquer outra criatura que comece o turno na aura sofre dano de veneno igual ao seu modificador de Carisma. Pode encerrar a aura como ação bônus e só volta a usá-la após um descanso curto ou longo.",
+    "prerequisites": { "warlock_level": 5 },
+    "action": {
+      "type": "bonus",
+      "uses": 1,
+      "recharge": "short",
+      "label": "Manto de Moscas"
+    },
+    "tags": ["acao", "recurso"]
+  },
+  {
+    "id": "eldritch_smite",
+    "name": "Golpe Místico",
+    "name_original": "Eldritch Smite",
+    "source": "xge",
+    "description": "Uma vez por turno, ao acertar com a sua arma de pacto, você pode gastar um espaço de Magia de Pacto para causar 1d8 de dano de força extra, mais 1d8 por círculo do espaço acima do 1º, e derrubar o alvo se ele for Enorme ou menor.",
+    "prerequisites": { "warlock_level": 5, "pact_boon": "pact_of_the_blade" },
+    "pact_weapon": {
+      "extra_damage_dice": "1d8 por círculo do espaço + 1d8",
+      "damage_type": "força"
+    },
+    "action": {
+      "type": "special",
+      "cost": "um espaço de Magia de Pacto",
+      "label": "Golpe Místico",
+      "requires": "acertar um ataque com a arma de pacto"
+    },
+    "tags": ["arma_de_pacto"]
+  },
+  {
+    "id": "ghostly_gaze",
+    "name": "Olhar Fantasmagórico",
+    "name_original": "Ghostly Gaze",
+    "source": "xge",
+    "description": "Como ação, você ganha visão no escuro de 9 m e enxerga através de objetos com até 1 m de espessura por 1 minuto, mantendo concentração. O que está além conta como coberto por penumbra. Só volta a usar após um descanso curto ou longo.",
+    "prerequisites": { "warlock_level": 7 },
+    "action": {
+      "type": "action",
+      "uses": 1,
+      "recharge": "short",
+      "label": "Olhar Fantasmagórico"
+    },
+    "tags": ["acao", "recurso", "sentido"]
+  },
+  {
+    "id": "gift_of_the_depths",
+    "name": "Dádiva das Profundezas",
+    "name_original": "Gift of the Depths",
+    "source": "xge",
+    "description": "Você respira debaixo da água e ganha deslocamento de natação igual ao seu deslocamento terrestre. Também pode conjurar Respirar na Água uma vez por descanso longo, sem gastar espaço de magia.",
+    "prerequisites": { "warlock_level": 5 },
+    "grants_spells": [
+      {
+        "spell": "water breathing",
+        "name_pt": "Respirar na Água",
+        "mode": "once_per_long_rest"
+      }
+    ],
+    "action": {
+      "type": "action",
+      "uses": 1,
+      "recharge": "long",
+      "label": "Dádiva das Profundezas (Respirar na Água)"
+    },
+    "tags": ["passivo", "magia_concedida", "recurso"]
+  },
+  {
+    "id": "gift_of_the_ever_living_ones",
+    "name": "Dádiva dos Sempre-Vivos",
+    "name_original": "Gift of the Ever-Living Ones",
+    "source": "xge",
+    "description": "Sempre que você recupera pontos de vida por uma magia ou efeito mágico e o seu familiar está a até 30 m, você recupera o máximo possível de cada dado de cura.",
+    "prerequisites": { "pact_boon": "pact_of_the_chain" },
+    "tags": ["passivo", "familiar"]
+  },
+  {
+    "id": "grasp_of_hadar",
+    "name": "Garra de Hadar",
+    "name_original": "Grasp of Hadar",
+    "source": "xge",
+    "description": "Uma vez por turno, ao acertar uma criatura com Rajada Mística, você pode puxá-la até 3 m em linha reta para mais perto de você.",
+    "prerequisites": { "cantrip": "eldritch_blast" },
+    "blast": { "pull_meters": 3, "once_per_turn": true },
+    "tags": ["rajada_mistica"]
+  },
+  {
+    "id": "improved_pact_weapon",
+    "name": "Arma de Pacto Aprimorada",
+    "name_original": "Improved Pact Weapon",
+    "source": "xge",
+    "description": "A arma que você invoca com o Pacto da Lâmina serve de foco de conjuração e ganha +1 em jogadas de ataque e de dano, a não ser que já seja mágica com bônus próprio. Você também pode invocar arco curto, arco longo, besta leve ou besta pesada.",
+    "prerequisites": { "pact_boon": "pact_of_the_blade" },
+    "pact_weapon": {
+      "attack_bonus": 1,
+      "damage_bonus_flat": 1,
+      "spellcasting_focus": true,
+      "allows_ranged": true
+    },
+    "tags": ["arma_de_pacto"]
+  },
+  {
+    "id": "lance_of_lethargy",
+    "name": "Lança de Letargia",
+    "name_original": "Lance of Lethargy",
+    "source": "xge",
+    "description": "Uma vez por turno, ao acertar uma criatura com Rajada Mística, você pode reduzir o deslocamento dela em 3 m até o fim do seu próximo turno.",
+    "prerequisites": { "cantrip": "eldritch_blast" },
+    "blast": { "slow_meters": 3, "once_per_turn": true },
+    "tags": ["rajada_mistica"]
+  },
+  {
+    "id": "maddening_hex",
+    "name": "Maldição Enlouquecedora",
+    "name_original": "Maddening Hex",
+    "source": "xge",
+    "description": "Como ação bônus, você faz a sua maldição ecoar: a criatura amaldiçoada e cada criatura à sua escolha que esteja a até 1,5 m dela sofrem dano psíquico igual ao seu modificador de Carisma. O alvo da maldição precisa estar a até 9 m de você.",
+    "prerequisites": { "warlock_level": 5, "curse_source": true },
+    "action": {
+      "type": "bonus",
+      "label": "Maldição Enlouquecedora",
+      "requires": "ter uma criatura amaldiçoada por você a até 9 m"
+    },
+    "tags": ["acao", "maldicao"]
+  },
+  {
+    "id": "relentless_hex",
+    "name": "Maldição Implacável",
+    "name_original": "Relentless Hex",
+    "source": "xge",
+    "description": "Como ação bônus, você se teleporta até 9 m para um espaço livre que esteja a até 1,5 m da criatura amaldiçoada por você.",
+    "prerequisites": { "warlock_level": 7, "curse_source": true },
+    "action": {
+      "type": "bonus",
+      "label": "Maldição Implacável",
+      "requires": "ter uma criatura amaldiçoada por você a até 9 m"
+    },
+    "tags": ["acao", "maldicao"]
+  },
+  {
+    "id": "shroud_of_shadow",
+    "name": "Mortalha das Sombras",
+    "name_original": "Shroud of Shadow",
+    "source": "xge",
+    "description": "Você pode conjurar Invisibilidade à vontade, sem gastar espaço de magia.",
+    "prerequisites": { "warlock_level": 15 },
+    "grants_spells": [
+      {
+        "spell": "invisibility",
+        "name_pt": "Invisibilidade",
+        "mode": "at_will"
+      }
+    ],
+    "tags": ["magia_concedida"]
+  },
+  {
+    "id": "tomb_of_levistus",
+    "name": "Tumba de Levistus",
+    "name_original": "Tomb of Levistus",
+    "source": "xge",
+    "description": "Como reação ao sofrer dano, você se encerra em gelo e ganha pontos de vida temporários iguais a 10 vezes o seu nível de Bruxo, que duram até o fim do seu próximo turno. Enquanto estiverem valendo, você fica impedido e com deslocamento 0, e sofre 1d6 de dano de frio no fim do seu turno. Só volta a usar após um descanso curto ou longo.",
+    "prerequisites": { "warlock_level": 5 },
+    "action": {
+      "type": "reaction",
+      "uses": 1,
+      "recharge": "short",
+      "label": "Tumba de Levistus",
+      "trigger": "quando você sofre dano"
+    },
+    "tags": ["reacao", "recurso"]
+  },
+  {
+    "id": "tricksters_escape",
+    "name": "Fuga do Trapaceiro",
+    "name_original": "Trickster's Escape",
+    "source": "xge",
+    "description": "Você pode conjurar Liberdade de Movimento em si mesmo uma vez por descanso longo, sem gastar espaço de magia.",
+    "prerequisites": { "warlock_level": 7 },
+    "grants_spells": [
+      {
+        "spell": "freedom of movement",
+        "name_pt": "Liberdade de Movimento",
+        "mode": "once_per_long_rest",
+        "self_only": true
+      }
+    ],
+    "action": {
+      "type": "action",
+      "uses": 1,
+      "recharge": "long",
+      "label": "Fuga do Trapaceiro (Liberdade de Movimento)"
+    },
+    "tags": ["magia_concedida", "recurso"]
+  },
+
+  {
+    "id": "bond_of_the_talisman",
+    "name": "Vínculo do Talismã",
+    "name_original": "Bond of the Talisman",
+    "source": "tcoe",
+    "description": "Como ação, quem usa o seu talismã pode se teleportar para um espaço livre a até 1,5 m de você, e você pode se teleportar para perto de quem o usa, desde que estejam no mesmo plano. O número de usos por descanso longo é igual ao seu bônus de proficiência.",
+    "prerequisites": {
+      "warlock_level": 12,
+      "pact_boon": "pact_of_the_talisman"
+    },
+    "action": {
+      "type": "action",
+      "uses_formula": "proficiency",
+      "recharge": "long",
+      "label": "Vínculo do Talismã"
+    },
+    "tags": ["acao", "recurso", "talisma"]
+  },
+  {
+    "id": "eldritch_mind",
+    "name": "Mente Mística",
+    "name_original": "Eldritch Mind",
+    "source": "tcoe",
+    "description": "Você tem vantagem em testes de resistência de Constituição feitos para manter a concentração numa magia.",
+    "tags": ["passivo"]
+  },
+  {
+    "id": "far_scribe",
+    "name": "Escriba Distante",
+    "name_original": "Far Scribe",
+    "source": "tcoe",
+    "description": "Uma página nova aparece no seu Livro das Sombras. Com o consentimento da criatura, você escreve o nome dela ali, até o limite do seu bônus de proficiência, e pode conjurar Mensagem Longa contra qualquer nome da página sem gastar espaço de magia nem componentes materiais. Pode apagar um nome gastando 1 minuto.",
+    "prerequisites": { "warlock_level": 5, "pact_boon": "pact_of_the_tome" },
+    "grants_spells": [
+      {
+        "spell": "sending",
+        "name_pt": "Mensagem Longa",
+        "mode": "at_will",
+        "note": "Só contra nomes escritos na página do Livro das Sombras."
+      }
+    ],
+    "tags": ["magia_concedida", "tomo"]
+  },
+  {
+    "id": "gift_of_the_protectors",
+    "name": "Dádiva dos Protetores",
+    "name_original": "Gift of the Protectors",
+    "source": "tcoe",
+    "description": "Uma página nova aparece no seu Livro das Sombras. Com o consentimento da criatura, você escreve o nome dela ali, até o limite do seu bônus de proficiência. Quando uma criatura nomeada ali for reduzida a 0 pontos de vida, ela fica com 1 ponto de vida em vez disso. Um uso por descanso longo.",
+    "prerequisites": { "warlock_level": 9, "pact_boon": "pact_of_the_tome" },
+    "action": {
+      "type": "special",
+      "uses": 1,
+      "recharge": "long",
+      "label": "Dádiva dos Protetores",
+      "trigger": "quando uma criatura nomeada cai a 0 pontos de vida"
+    },
+    "tags": ["recurso", "tomo"]
+  },
+  {
+    "id": "investment_of_the_chain_master",
+    "name": "Investidura do Mestre das Correntes",
+    "name_original": "Investment of the Chain Master",
+    "source": "tcoe",
+    "description": "O familiar do seu pacto ganha deslocamento de voo ou de natação de 12 m, à sua escolha. Você pode comandá-lo a atacar como ação bônus. Os ataques dele contam como mágicos e, quando ele força um teste de resistência, usa a CD das suas magias. Quando ele sofre dano, você pode usar a reação para dar a ele resistência àquele dano.",
+    "prerequisites": { "pact_boon": "pact_of_the_chain" },
+    "action": {
+      "type": "bonus",
+      "label": "Comandar o familiar a atacar"
+    },
+    "tags": ["passivo", "familiar", "acao"]
+  },
+  {
+    "id": "protection_of_the_talisman",
+    "name": "Proteção do Talismã",
+    "name_original": "Protection of the Talisman",
+    "source": "tcoe",
+    "description": "Quem usa o seu talismã falha num teste de resistência pode somar 1d4 ao resultado. O número de usos por descanso longo é igual ao seu bônus de proficiência.",
+    "prerequisites": { "warlock_level": 7, "pact_boon": "pact_of_the_talisman" },
+    "action": {
+      "type": "special",
+      "uses_formula": "proficiency",
+      "recharge": "long",
+      "label": "Proteção do Talismã",
+      "trigger": "quando quem usa o talismã falha num teste de resistência"
+    },
+    "tags": ["recurso", "talisma"]
+  },
+  {
+    "id": "rebuke_of_the_talisman",
+    "name": "Repreensão do Talismã",
+    "name_original": "Rebuke of the Talisman",
+    "source": "tcoe",
+    "description": "Quando quem usa o seu talismã é acertado por um ataque, você pode usar a reação para causar dano psíquico igual ao seu modificador de Carisma ao atacante e empurrá-lo até 3 m, se ele estiver a até 9 m de você.",
+    "prerequisites": { "pact_boon": "pact_of_the_talisman" },
+    "action": {
+      "type": "reaction",
+      "label": "Repreensão do Talismã",
+      "trigger": "quando quem usa o talismã é acertado por um ataque"
+    },
+    "tags": ["reacao", "talisma"]
+  },
+  {
+    "id": "undying_servitude",
+    "name": "Servidão Imortal",
+    "name_original": "Undying Servitude",
+    "source": "tcoe",
+    "description": "Você pode conjurar Animar Mortos uma vez por descanso longo, sem gastar espaço de magia.",
+    "prerequisites": { "warlock_level": 5 },
+    "grants_spells": [
+      {
+        "spell": "animate dead",
+        "name_pt": "Animar Mortos",
+        "mode": "once_per_long_rest"
+      }
+    ],
+    "action": {
+      "type": "action",
+      "uses": 1,
+      "recharge": "long",
+      "label": "Servidão Imortal (Animar Mortos)"
+    },
+    "tags": ["magia_concedida", "recurso"]
+  }
+]

@@ -97,6 +97,17 @@ class AppNavigator {
     );
   }
 
+  /// Abre a seleção de Invocações Místicas do Bruxo.
+  static Future<void> toManageEldritchInvocations(
+    BuildContext context, {
+    required String characterId,
+  }) {
+    return Navigator.of(context).pushNamed(
+      AppRoutes.eldritchInvocations,
+      arguments: ManageEldritchInvocationsArgs(characterId: characterId),
+    );
+  }
+
   static Future<void> toEditInitiative(
     BuildContext context, {
     required Character character,

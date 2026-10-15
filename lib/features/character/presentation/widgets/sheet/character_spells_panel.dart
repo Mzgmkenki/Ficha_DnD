@@ -1,5 +1,6 @@
 ﻿import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
+import 'package:dnd_ficha_app/features/character/application/use_cases/character/sync_invocation_spells.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/sync_subclass_spells.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
@@ -10,6 +11,7 @@ import 'package:dnd_ficha_app/features/character/domain/services/spell_slot_calc
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/spell_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/eldritch_invocation_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_slot_progression_entry.dart';
 import 'package:flutter/material.dart';
@@ -74,6 +76,7 @@ class _CharacterSpellsPanelState extends ConsumerState<CharacterSpellsPanel> {
 
                         final classSpells = <CharacterSpell>[];
                         final subclassSpells = <CharacterSpell>[];
+                        final invocationSpells = <CharacterSpell>[];
                         final grimorioSpells = <CharacterSpell>[];
                         final raceSpells = <CharacterSpell>[];
                         final featSpells = <CharacterSpell>[];
@@ -88,6 +91,9 @@ class _CharacterSpellsPanelState extends ConsumerState<CharacterSpellsPanel> {
                               break;
                             case subclassSpellSource:
                               subclassSpells.add(spell);
+                              break;
+                            case invocationSpellSource:
+                              invocationSpells.add(spell);
                               break;
                             case 'grimorio':
                               grimorioSpells.add(spell);
@@ -131,6 +137,19 @@ class _CharacterSpellsPanelState extends ConsumerState<CharacterSpellsPanel> {
                               _OriginSection(
                                 title: 'Magias de Subclasse',
                                 spells: subclassSpells,
+                                spellEntries: spellEntries,
+                                character: character,
+                                slotSummary: slotSummary,
+                                usedSlots: usedSlots,
+                              ),
+                            // Seção própria, e não "Outras Origens": o custo
+                            // delas é declarado pela invocação (à vontade, uma
+                            // vez por descanso, com ou sem espaço de pacto) e
+                            // fica na observação de cada linha.
+                            if (invocationSpells.isNotEmpty)
+                              _OriginSection(
+                                title: 'Magias de Invocação Mística',
+                                spells: invocationSpells,
                                 spellEntries: spellEntries,
                                 character: character,
                                 slotSummary: slotSummary,
@@ -526,6 +545,23 @@ class _CastSpellButton extends ConsumerWidget {
       return;
     }
 
+    // Magia de Invocação Mística concedida À VONTADE não gasta espaço nenhum,
+    // mesmo tendo círculo. A pergunta é respondida pelo catálogo, pelo id da
+    // invocação de origem, e não pelo texto da observação.
+    if (spellData.sourceType == invocationSpellSource &&
+        await _isGrantedAtWill(ref)) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${spellData.spell.namePt} conjurada à vontade, sem gastar '
+            'espaço de magia.',
+          ),
+        ),
+      );
+      return;
+    }
+
     if (spellData.spell.level == 0) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -548,6 +584,8 @@ class _CastSpellButton extends ConsumerWidget {
       );
       return;
     }
+
+    if (!context.mounted) return;
 
     final chosen = await showDialog<_CastOption>(
       context: context,
@@ -588,6 +626,38 @@ class _CastSpellButton extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  /// Se a invocação de origem concede esta magia à vontade.
+  ///
+  /// Best-effort: catálogo que não carrega devolve `false`, e a conjuração cai
+  /// no caminho normal de gastar espaço. Errar para o lado de cobrar o espaço
+  /// é melhor que dar conjuração gratuita por causa de falha de leitura.
+  Future<bool> _isGrantedAtWill(WidgetRef ref) async {
+    try {
+      final catalog = await ref.read(
+        eldritchInvocationCatalogProvider.future,
+      );
+
+      final invocation = catalog.byId(spellData.sourceId);
+      if (invocation == null) return false;
+
+      final names = {
+        EldritchInvocationEntry.normalizeName(spellData.spell.nameOriginal),
+        EldritchInvocationEntry.normalizeName(spellData.spell.namePt),
+      };
+
+      return invocation.spellGrants.any(
+        (grant) =>
+            grant.mode == InvocationSpellMode.atWill &&
+            grant.isFree &&
+            names.contains(
+              EldritchInvocationEntry.normalizeName(grant.spellName),
+            ),
+      );
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<void> _handleItemCast(BuildContext context, WidgetRef ref) async {

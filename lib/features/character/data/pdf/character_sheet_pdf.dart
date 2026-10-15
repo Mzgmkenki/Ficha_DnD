@@ -1,6 +1,7 @@
 import 'package:dnd_ficha_app/core/branding/app_branding.dart';
 import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/core/utils/distance_format.dart';
+import 'package:dnd_ficha_app/features/character/application/use_cases/character/sync_invocation_spells.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/sync_subclass_spells.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
@@ -1238,6 +1239,7 @@ class CharacterSheetPdf {
   static const Map<String, String> _sourceLabels = {
     'class': 'Classe',
     subclassSpellSource: 'Subclasse',
+    invocationSpellSource: 'Invocação Mística',
     'grimorio': 'Grimório',
     'race': 'Raça',
     'feat': 'Talento',

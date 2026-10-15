@@ -2265,8 +2265,8 @@
     "level": 2,
     "features": [
       {
-        "name": "Invocações Místicas (2)",
-        "description": "Você aprende fragmentos de conhecimento proibido que concedem habilidades permanentes, escolhendo duas invocações. Algumas exigem nível mínimo ou uma Dádiva do Pacto específica. Ao subir de nível você pode substituir uma invocação conhecida por outra para a qual seja elegível, e o total cresce até 8 no 18º nível."
+        "name": "Invocações Místicas",
+        "description": "Você aprende fragmentos de conhecimento proibido que concedem habilidades permanentes. Começa com duas invocações e o total cresce para 3 no 5º nível, 4 no 7º, 5 no 9º, 6 no 12º, 7 no 15º e 8 no 18º. Algumas exigem nível mínimo de Bruxo ou uma Dádiva do Pacto específica. Ao subir de nível você pode substituir uma invocação conhecida por outra para a qual seja elegível."
       }
     ],
     "source": "phb"
@@ -2277,7 +2277,34 @@
     "features": [
       {
         "name": "Dádiva do Pacto",
-        "description": "Seu patrono entrega um presente. Pacto da Corrente dá um familiar que pode assumir formas especiais e atacar com a reação dele; Pacto da Lâmina permite criar uma arma corpo a corpo mágica na mão vazia; Pacto do Tomo dá o Livro das Sombras com três truques de qualquer lista; e o Pacto do Talismã, de Tasha, dá um amuleto que soma 1d4 a testes falhados de quem o usa."
+        "description": "Seu patrono entrega um presente. Pacto da Corrente dá um familiar que pode assumir formas especiais e atacar com a reação dele; Pacto da Lâmina permite criar uma arma corpo a corpo mágica na mão vazia; Pacto do Tomo dá o Livro das Sombras com três truques de qualquer lista; e o Pacto do Talismã, de Tasha, dá um amuleto que soma 1d4 a testes falhados de quem o usa.",
+        "choice": {
+          "id": "warlock.pact_boon",
+          "prompt": "Escolha a sua Dádiva do Pacto",
+          "required": true,
+          "options": [
+            {
+              "id": "pact_of_the_blade",
+              "label": "Pacto da Lâmina",
+              "description": "Como ação, você cria uma arma corpo a corpo mágica na mão vazia, com a forma que quiser, e tem proficiência com ela. Pode usar Carisma no lugar de Força ou Destreza para atacar e, como alternativa, ritualizar uma arma mágica para que ela se torne a sua arma de pacto."
+            },
+            {
+              "id": "pact_of_the_chain",
+              "label": "Pacto da Corrente",
+              "description": "Você aprende Encontrar Familiar como ritual e pode escolher, além das formas normais, imp, quasit, pseudodragão ou sprite. Quando gasta a sua ação para atacar, pode abrir mão de um dos seus ataques para o familiar atacar com a reação dele."
+            },
+            {
+              "id": "pact_of_the_tome",
+              "label": "Pacto do Tomo",
+              "description": "Seu patrono entrega o Livro das Sombras com três truques de qualquer lista de classe, que você pode conjurar à vontade e que não contam entre os seus truques conhecidos. Perder o livro permite fazer uma cerimônia de 1 hora para receber outro."
+            },
+            {
+              "id": "pact_of_the_talisman",
+              "label": "Pacto do Talismã",
+              "description": "Seu patrono entrega um amuleto. Quem o usa pode somar 1d4 a um teste de atributo falhado, uma vez por descanso curto ou longo. Perder o talismã permite fazer uma cerimônia de 1 hora para receber outro."
+            }
+          ]
+        }
       }
     ],
     "source": "phb"

@@ -1,6 +1,8 @@
+import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
 import 'package:dnd_ficha_app/core/theme/app_colors.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
+import 'package:dnd_ficha_app/features/character/application/providers/invocation_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/hit_points_calculator.dart';
@@ -10,6 +12,7 @@ import 'package:dnd_ficha_app/features/character/domain/value_objects/spellcasti
 import 'package:dnd_ficha_app/features/character/presentation/widgets/subclass_choice_dialog.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/subclass_summary.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
+import 'package:dnd_ficha_app/features/compendium/application/providers/spell_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/subclass_entry.dart';
 import 'package:flutter/material.dart';
@@ -604,6 +607,49 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
           ),
         );
       }
+    }
+
+    await _syncInvocationSpells();
+  }
+
+  /// Reconcilia as magias concedidas pelas Invocações Místicas.
+  ///
+  /// Precisa rodar aqui porque esta tela é o único caminho que faz o nível de
+  /// Bruxo CAIR: perder níveis invalida invocação, e a magia da invocação
+  /// inválida tem de sair do livro — enquanto a escolha em si continua
+  /// gravada, visível e marcada, esperando substituição.
+  ///
+  /// Best-effort como a de subclasse: falhar aqui não desfaz o nível salvo.
+  Future<void> _syncInvocationSpells() async {
+    try {
+      final character = await ref
+          .read(characterRepositoryProvider)
+          .findById(widget.characterId);
+      if (character == null) return;
+
+      final resolved = await ref.read(
+        resolvedInvocationsProvider(character).future,
+      );
+      if (resolved.options.isEmpty) return;
+
+      final catalog = await ref.read(
+        eldritchInvocationCatalogProvider.future,
+      );
+      final classes = await ref.read(classEntriesProvider.future);
+      final subclasses = await ref.read(subclassEntriesProvider.future);
+      final spells = await ref.read(spellEntriesProvider.future);
+      final spellIndex = await ref.read(spellNameIndexProvider.future);
+
+      await ref.read(syncInvocationSpellsProvider)(
+        characterId: widget.characterId,
+        catalog: catalog,
+        classes: classes,
+        subclasses: subclasses,
+        spells: spells,
+        spellIndex: spellIndex,
+      );
+    } catch (error) {
+      debugPrint('Falha ao sincronizar magias de invocação: $error');
     }
   }
 

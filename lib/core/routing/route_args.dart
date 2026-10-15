@@ -69,6 +69,14 @@ class EditProficienciesArgs {
   final SkillProficiencies skills;
 }
 
+class ManageEldritchInvocationsArgs {
+  const ManageEldritchInvocationsArgs({required this.characterId});
+
+  /// Só o id: a tela grava a cada escolha e precisa recontar as vagas, então
+  /// uma cópia do personagem ficaria velha no primeiro toque.
+  final String characterId;
+}
+
 class EditLanguagesArgs {
   const EditLanguagesArgs({required this.character});
 

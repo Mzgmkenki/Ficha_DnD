@@ -21,6 +21,7 @@ class LevelUpOutcome {
     required this.totalLevel,
     this.pendingSubclassLabel,
     this.grantsFeat = false,
+    this.pendingInvocations = 0,
     this.spellSyncError,
   });
 
@@ -48,6 +49,15 @@ class LevelUpOutcome {
   /// nível alcançado — quem chega ao 8º ganha um, independente do que fez no 4º.
   final bool grantsFeat;
 
+  /// Quantas Invocações Místicas ficaram em aberto depois da subida.
+  ///
+  /// Mesma ideia de [pendingSubclassLabel] e [grantsFeat]: subir de nível não
+  /// escolhe a invocação pelo jogador. Aqui a conta é por VAGA em aberto, e não
+  /// pela transição exata do nível, porque quem passou do 5º sem escolher
+  /// continua devendo a escolha — é o mesmo raciocínio que corrigiu a pendência
+  /// de subclasse.
+  final int pendingInvocations;
+
   /// O nível foi gravado, mas a reconciliação das magias de subclasse falhou.
   ///
   /// Fica aqui em vez de virar exceção porque a subida em si deu certo: perder
@@ -55,6 +65,8 @@ class LevelUpOutcome {
   final Object? spellSyncError;
 
   bool get needsSubclassChoice => pendingSubclassLabel != null;
+
+  bool get needsInvocationChoice => pendingInvocations > 0;
 }
 
 /// Sobe um nível numa das classes que o personagem já tem.
@@ -143,8 +155,33 @@ class LevelUpCharacterClass {
         currentSubclassId: target.subclassId,
       ),
       grantsFeat: classEntry?.grantsFeatAt(newLevel) ?? false,
+      pendingInvocations: _pendingInvocations(
+        classEntry: classEntry,
+        newLevel: newLevel,
+        alreadyChosen: character.eldritchInvocations.length,
+      ),
       spellSyncError: syncError,
     );
+  }
+
+  /// Quantas invocações ficaram em aberto no novo nível.
+  ///
+  /// Conta contra o que JÁ está escolhido, não contra o degrau: um Bruxo que
+  /// chega ao 5º nível com duas invocações deve uma; um que chega ao 5º sem
+  /// nenhuma deve três.
+  ///
+  /// Zero para qualquer classe que não declare a progressão, o que mantém o
+  /// Bruxo como exceção declarada no asset em vez de um `if` por id de classe.
+  int _pendingInvocations({
+    required ClassEntry? classEntry,
+    required int newLevel,
+    required int alreadyChosen,
+  }) {
+    if (classEntry == null) return 0;
+    if (!classEntry.grantsEldritchInvocations) return 0;
+
+    final free = classEntry.invocationsKnownAt(newLevel) - alreadyChosen;
+    return free < 0 ? 0 : free;
   }
 
   /// Rótulo da subclasse quando o nível alcançado deixa a escolha em aberto.

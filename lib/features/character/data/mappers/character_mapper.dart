@@ -6,6 +6,8 @@ import 'package:dnd_ficha_app/features/character/domain/entities/ability_score_i
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart'
     as domain;
+import 'package:dnd_ficha_app/features/character/domain/entities/character_eldritch_invocation.dart'
+    as domain_invocations;
 import 'package:dnd_ficha_app/features/character/domain/entities/character_feat.dart'
     as domain_feats;
 import 'package:dnd_ficha_app/features/character/domain/entities/character_feature_state.dart'
@@ -37,6 +39,7 @@ class CharacterMapper {
     List<CharacterAbilityImprovement> abilityImprovements = const [],
     List<CharacterFeatureState> featureStates = const [],
     List<CharacterLanguage> languages = const [],
+    List<CharacterEldritchInvocation> eldritchInvocations = const [],
   }) {
     return domain.Character(
       id: character.id,
@@ -204,6 +207,20 @@ class CharacterMapper {
               slotId: row.slotId,
               sourceId: row.sourceId,
               sourceLabel: row.sourceLabel,
+            ),
+          )
+          .toList(growable: false),
+
+      eldritchInvocations: eldritchInvocations
+          .map(
+            (row) => domain_invocations.CharacterEldritchInvocation(
+              localId: row.localId,
+              invocationId: row.invocationId,
+              // Clamp na leitura: nível negativo em base editada à mão viraria
+              // histórico sem sentido na ficha.
+              chosenAtLevel: row.chosenAtLevel < 0 ? 0 : row.chosenAtLevel,
+              replacedInvocationId: row.replacedInvocationId,
+              replacedAtLevel: row.replacedAtLevel,
             ),
           )
           .toList(growable: false),

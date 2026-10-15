@@ -1,6 +1,7 @@
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_score_improvement.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/background_personality_choice.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_eldritch_invocation.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_feat.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_feature_state.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_language.dart';
@@ -65,6 +66,7 @@ class Character {
     this.abilityImprovements = const [],
     this.featureStates = const [],
     this.languages = const [],
+    this.eldritchInvocations = const [],
     this.armorClassFormulaId,
     this.armorClassOtherBonus = 0,
   });
@@ -139,6 +141,18 @@ class Character {
   /// ao schema 21 chega com a lista vazia, e isso é um estado válido: ele
   /// nunca teve idioma gravado, e os automáticos aparecem resolvidos.
   final List<CharacterLanguage> languages;
+
+  /// Invocações Místicas escolhidas, pelo id do catálogo.
+  ///
+  /// Só a ESCOLHA: nome, pré-requisito e efeito vêm do catálogo a cada
+  /// leitura, por `EldritchInvocationResolver` — mesma razão de
+  /// [featureStates]. O limite por nível também não está aqui, porque é
+  /// derivado do nível na classe Bruxo.
+  ///
+  /// Personagem que não é Bruxo chega com a lista vazia, e isso é o estado
+  /// normal. Personagem anterior ao schema 23 também: ele nunca teve invocação
+  /// gravada, e a seção simplesmente não aparece na ficha.
+  final List<CharacterEldritchInvocation> eldritchInvocations;
 
   /// Fórmula de CA-base que o jogador escolheu usar.
   ///
@@ -323,6 +337,7 @@ class Character {
     List<AbilityScoreImprovement>? abilityImprovements,
     List<CharacterFeatureState>? featureStates,
     List<CharacterLanguage>? languages,
+    List<CharacterEldritchInvocation>? eldritchInvocations,
     Object? armorClassFormulaId = _sentinel,
     int? armorClassOtherBonus,
     bool? inspiration,
@@ -379,6 +394,8 @@ class Character {
       abilityImprovements: abilityImprovements ?? this.abilityImprovements,
       featureStates: featureStates ?? this.featureStates,
       languages: languages ?? this.languages,
+      // Sem sentinela: limpar é passar lista vazia, não null.
+      eldritchInvocations: eldritchInvocations ?? this.eldritchInvocations,
       // Sentinela é obrigatória: voltar para "nunca escolheu" é setar null, e
       // com `?? this.armorClassFormulaId` isso seria impossível — a troca de
       // classe precisa poder soltar uma fórmula que não existe mais.

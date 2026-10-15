@@ -15,6 +15,7 @@ import 'package:dnd_ficha_app/features/character/presentation/pages/edit_profici
 import 'package:dnd_ficha_app/features/character/presentation/pages/manage_character_magic_items_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/manage_character_spells_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/manage_character_weapons_page.dart';
+import 'package:dnd_ficha_app/features/character/presentation/pages/manage_eldritch_invocations_page.dart';
 import 'package:dnd_ficha_app/features/compendium/presentation/pages/spell_compendium_page.dart';
 import 'package:dnd_ficha_app/features/compendium/presentation/pages/spell_detail_page.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +31,7 @@ class AppRoutes {
   static const String editHitPoints = '/character/hit-points';
   static const String editArmorClass = '/character/armor-class';
   static const String editLanguages = '/character/languages';
+  static const String eldritchInvocations = '/character/eldritch-invocations';
   static const String editInitiative = '/character/initiative';
   static const String combatPanel = '/character/combat-panel';
   static const String editClassLevels = '/character/class-levels';
@@ -105,6 +107,13 @@ class AppRouter {
         return _withArgs<EditLanguagesArgs>(
           settings,
           (args) => EditLanguagesPage(character: args.character),
+        );
+
+      case AppRoutes.eldritchInvocations:
+        return _withArgs<ManageEldritchInvocationsArgs>(
+          settings,
+          (args) =>
+              ManageEldritchInvocationsPage(characterId: args.characterId),
         );
 
       case AppRoutes.editArmorClass:

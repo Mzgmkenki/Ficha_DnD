@@ -16,6 +16,7 @@ class ClassEntry {
     this.subclassLevel,
     this.subclassLabel,
     this.featLevels = defaultFeatLevels,
+    this.invocationsKnown = const {},
     this.variantOf,
   });
 
@@ -71,6 +72,46 @@ class ClassEntry {
   /// falta escolher um sem depender de saber em qual nível cada um foi pego.
   int featsGrantedUpTo(int level) {
     return featLevels.where((item) => item <= level).length;
+  }
+
+  /// Quantas Invocações Místicas a classe conhece em cada nível em que o
+  /// total MUDA, por nível de classe.
+  ///
+  /// Declarado no asset, e não no código, pelo mesmo motivo de [featLevels]: é
+  /// tabela de classe, muda por conteúdo e não por regra geral. Só o Bruxo
+  /// preenche; nas outras classes o mapa fica vazio, e vazio significa "esta
+  /// classe não concede invocação" — não "concede zero por engano".
+  ///
+  /// Guarda os DEGRAUS, não um valor por nível: a tabela de 2014 sobe em 2, 5,
+  /// 7, 9, 12, 15 e 18, e repetir o mesmo número nos níveis intermediários
+  /// seria vinte linhas dizendo a mesma coisa.
+  final Map<int, int> invocationsKnown;
+
+  /// Se a classe concede Invocações Místicas.
+  bool get grantsEldritchInvocations => invocationsKnown.isNotEmpty;
+
+  /// Quantas invocações o personagem conhece com [level] níveis NESTA classe.
+  ///
+  /// Vale o maior degrau já alcançado, e não o degrau exato: um Bruxo de 6º
+  /// nível conhece as 3 do 5º. Zero antes do primeiro degrau.
+  int invocationsKnownAt(int level) {
+    var result = 0;
+
+    for (final entry in invocationsKnown.entries) {
+      if (entry.key > level) continue;
+      if (entry.value > result) result = entry.value;
+    }
+
+    return result;
+  }
+
+  /// O nível desta classe em que a primeira invocação é concedida.
+  ///
+  /// Nulo quando a classe não concede nenhuma.
+  int? get firstInvocationLevel {
+    if (invocationsKnown.isEmpty) return null;
+
+    return invocationsKnown.keys.reduce((a, b) => a < b ? a : b);
   }
 
   /// Atributo usado para conjurar. Não confundir com [primaryAbility]: o

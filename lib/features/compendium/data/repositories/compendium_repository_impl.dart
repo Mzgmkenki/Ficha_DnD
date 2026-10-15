@@ -11,6 +11,7 @@ import 'package:dnd_ficha_app/features/compendium/domain/entities/background_per
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_equipment.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/eldritch_invocation_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_prerequisite.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/feature_effect.dart';
@@ -48,6 +49,17 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
               .where((level) => level > 0)
               .toList(growable: false);
 
+          // Degraus de Invocação Mística: nível de classe -> total conhecido.
+          // Só o Bruxo declara, e ausência significa "não concede nenhuma".
+          final invocationsKnown = <int, int>{};
+          for (final entry in _asMap(item['invocations_known']).entries) {
+            final level = _asInt(entry.key);
+            final known = _asInt(entry.value);
+            if (level == null || known == null) continue;
+            if (level <= 0 || known <= 0) continue;
+            invocationsKnown[level] = known;
+          }
+
           return ClassEntry(
             id: item['id'] as String,
             name: item['name'] as String,
@@ -63,6 +75,9 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
                 featLevelsRaw.isEmpty
                     ? ClassEntry.defaultFeatLevels
                     : featLevelsRaw,
+            invocationsKnown: invocationsKnown.isEmpty
+                ? const {}
+                : Map<int, int>.unmodifiable(invocationsKnown),
             variantOf: item['variant_of'] as String?,
             source: item['source'] as String? ?? 'srd',
             skillOptions: skillOptionsRaw
@@ -259,6 +274,18 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
     final items = await _source.loadJsonList('assets/data/srd/languages.json');
 
     return LanguageEntry.parseList(items);
+  }
+
+  @override
+  Future<List<EldritchInvocationEntry>> loadEldritchInvocations() async {
+    final items = await _source.loadJsonList(
+      'assets/data/srd/eldritch_invocations.json',
+    );
+
+    return [
+      for (final item in items)
+        if (EldritchInvocationEntry.tryParse(item) case final entry?) entry,
+    ];
   }
 
   /// Lê as quatro tabelas narrativas declaradas pelo próprio antecedente.

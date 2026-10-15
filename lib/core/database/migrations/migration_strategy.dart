@@ -609,6 +609,28 @@ MigrationStrategy buildMigrationStrategy(AppDatabase db) {
           db.characters.armorClassOtherBonus,
         );
       }
+
+      if (from < 23) {
+        // Invocações Místicas do Bruxo.
+        //
+        // A tabela nasce VAZIA, e isso não perde nada: até aqui o app nunca
+        // gravou invocação. A característica "Invocações Místicas" existia só
+        // como texto do compêndio, sem escolha, sem limite e sem efeito, então
+        // não existe seleção antiga para preservar, deduplicar ou revalidar.
+        //
+        // O que o Bruxo antigo ganha ao abrir depois desta versão: as vagas do
+        // nível dele ficam disponíveis, o catálogo inteiro aparece com o que
+        // está disponível e o que está bloqueado, e a Dádiva do Pacto passa a
+        // ser uma escolha gravada em vez de texto.
+        //
+        // O que ele NÃO ganha: invocação escolhida por conta própria. Deduzir
+        // quais o jogador teria pego é impossível — são 54 opções e a decisão é
+        // dele. A ficha mostra "0 de N selecionadas" e pede a escolha.
+        //
+        // Idempotente pelo mesmo mecanismo do resto do arquivo: `CREATE TABLE`
+        // repetido devolve "already exists", que `_tryCreateTable` engole.
+        await _tryCreateTable(m, db.characterEldritchInvocations);
+      }
     },
     beforeOpen: (details) async {
       // Roda fora da transação de migração, então aqui é seguro usar `db`.

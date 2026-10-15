@@ -3,11 +3,13 @@ import 'package:dnd_ficha_app/features/compendium/domain/entities/background_ent
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_equipment.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/eldritch_invocation_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/language_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_slot_progression_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/subclass_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/services/eldritch_invocation_catalog.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/services/language_catalog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -55,6 +57,23 @@ final languageEntriesProvider =
 final languageCatalogProvider = FutureProvider<LanguageCatalog>((ref) async {
   final entries = await ref.watch(languageEntriesProvider.future);
   return LanguageCatalog.from(entries);
+});
+
+final eldritchInvocationEntriesProvider =
+    FutureProvider<List<EldritchInvocationEntry>>((ref) async {
+  final repository = ref.watch(compendiumRepositoryProvider);
+  return repository.loadEldritchInvocations();
+});
+
+/// O catálogo de Invocações Místicas já montado, sem duplicatas.
+///
+/// Mesmo papel do catálogo de idiomas: a tela de seleção, a ficha e o
+/// validador de pré-requisitos leem daqui, então não há como divergirem na
+/// resolução de id nem na normalização de nome para busca.
+final eldritchInvocationCatalogProvider =
+    FutureProvider<EldritchInvocationCatalog>((ref) async {
+  final entries = await ref.watch(eldritchInvocationEntriesProvider.future);
+  return EldritchInvocationCatalog.from(entries);
 });
 
 final backgroundByIdProvider =

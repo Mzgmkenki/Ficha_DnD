@@ -11,7 +11,17 @@ import 'package:dnd_ficha_app/features/compendium/domain/entities/subclass_entry
 /// De onde a característica veio.
 enum FeatureOrigin {
   classFeature('class', 'Classe'),
-  subclassFeature('subclass', 'Subclasse');
+  subclassFeature('subclass', 'Subclasse'),
+
+  /// Invocação Mística do Bruxo.
+  ///
+  /// Entra no enum para as invocações com usos limitados poderem ser
+  /// apresentadas pelo mesmo `FeatureResources` das características de classe,
+  /// em vez de um segundo contador paralelo. `SpecialFeatureResolver.resolve`
+  /// NÃO produz este valor: quem monta as invocações é
+  /// `EldritchInvocationResolver`, e é por isso que elas não aparecem
+  /// duplicadas na seção de características de classe.
+  invocation('invocation', 'Invocação Mística');
 
   const FeatureOrigin(this.id, this.label);
 

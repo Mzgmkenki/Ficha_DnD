@@ -10928,6 +10928,493 @@ class CharacterLanguagesCompanion extends UpdateCompanion<CharacterLanguage> {
   }
 }
 
+class $CharacterEldritchInvocationsTable extends CharacterEldritchInvocations
+    with
+        TableInfo<
+          $CharacterEldritchInvocationsTable,
+          CharacterEldritchInvocation
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CharacterEldritchInvocationsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _localIdMeta = const VerificationMeta(
+    'localId',
+  );
+  @override
+  late final GeneratedColumn<int> localId = GeneratedColumn<int>(
+    'local_id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _characterIdMeta = const VerificationMeta(
+    'characterId',
+  );
+  @override
+  late final GeneratedColumn<String> characterId = GeneratedColumn<String>(
+    'character_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES characters (id)',
+    ),
+  );
+  static const VerificationMeta _invocationIdMeta = const VerificationMeta(
+    'invocationId',
+  );
+  @override
+  late final GeneratedColumn<String> invocationId = GeneratedColumn<String>(
+    'invocation_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _chosenAtLevelMeta = const VerificationMeta(
+    'chosenAtLevel',
+  );
+  @override
+  late final GeneratedColumn<int> chosenAtLevel = GeneratedColumn<int>(
+    'chosen_at_level',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _replacedInvocationIdMeta =
+      const VerificationMeta('replacedInvocationId');
+  @override
+  late final GeneratedColumn<String> replacedInvocationId =
+      GeneratedColumn<String>(
+        'replaced_invocation_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _replacedAtLevelMeta = const VerificationMeta(
+    'replacedAtLevel',
+  );
+  @override
+  late final GeneratedColumn<int> replacedAtLevel = GeneratedColumn<int>(
+    'replaced_at_level',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    localId,
+    characterId,
+    invocationId,
+    chosenAtLevel,
+    replacedInvocationId,
+    replacedAtLevel,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'character_eldritch_invocations';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CharacterEldritchInvocation> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('local_id')) {
+      context.handle(
+        _localIdMeta,
+        localId.isAcceptableOrUnknown(data['local_id']!, _localIdMeta),
+      );
+    }
+    if (data.containsKey('character_id')) {
+      context.handle(
+        _characterIdMeta,
+        characterId.isAcceptableOrUnknown(
+          data['character_id']!,
+          _characterIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_characterIdMeta);
+    }
+    if (data.containsKey('invocation_id')) {
+      context.handle(
+        _invocationIdMeta,
+        invocationId.isAcceptableOrUnknown(
+          data['invocation_id']!,
+          _invocationIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_invocationIdMeta);
+    }
+    if (data.containsKey('chosen_at_level')) {
+      context.handle(
+        _chosenAtLevelMeta,
+        chosenAtLevel.isAcceptableOrUnknown(
+          data['chosen_at_level']!,
+          _chosenAtLevelMeta,
+        ),
+      );
+    }
+    if (data.containsKey('replaced_invocation_id')) {
+      context.handle(
+        _replacedInvocationIdMeta,
+        replacedInvocationId.isAcceptableOrUnknown(
+          data['replaced_invocation_id']!,
+          _replacedInvocationIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('replaced_at_level')) {
+      context.handle(
+        _replacedAtLevelMeta,
+        replacedAtLevel.isAcceptableOrUnknown(
+          data['replaced_at_level']!,
+          _replacedAtLevelMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {localId};
+  @override
+  CharacterEldritchInvocation map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CharacterEldritchInvocation(
+      localId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}local_id'],
+          )!,
+      characterId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}character_id'],
+          )!,
+      invocationId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}invocation_id'],
+          )!,
+      chosenAtLevel:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}chosen_at_level'],
+          )!,
+      replacedInvocationId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}replaced_invocation_id'],
+      ),
+      replacedAtLevel: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}replaced_at_level'],
+      ),
+    );
+  }
+
+  @override
+  $CharacterEldritchInvocationsTable createAlias(String alias) {
+    return $CharacterEldritchInvocationsTable(attachedDatabase, alias);
+  }
+}
+
+class CharacterEldritchInvocation extends DataClass
+    implements Insertable<CharacterEldritchInvocation> {
+  final int localId;
+  final String characterId;
+
+  /// Id da invocação no catálogo (`agonizing_blast`, `thirsting_blade`).
+  ///
+  /// Id, nunca nome: corrigir a tradução de "Rajada Agonizante" no catálogo
+  /// não pode fazer o personagem perder a invocação.
+  final String invocationId;
+
+  /// Nível NA CLASSE BRUXO em que a invocação foi escolhida.
+  ///
+  /// Zero é "não registrado", o que acontece em ficha importada sem este dado.
+  /// Serve para o histórico, não para a validação — quem valida usa o nível
+  /// atual.
+  final int chosenAtLevel;
+
+  /// Id da invocação que esta substituiu, quando houve substituição.
+  ///
+  /// O histórico fica na própria linha porque a pergunta da ficha é sempre
+  /// "esta veio de uma troca?", e isso é um campo, não uma consulta a uma
+  /// tabela de eventos.
+  final String? replacedInvocationId;
+
+  /// Nível de Bruxo em que a substituição aconteceu.
+  final int? replacedAtLevel;
+  const CharacterEldritchInvocation({
+    required this.localId,
+    required this.characterId,
+    required this.invocationId,
+    required this.chosenAtLevel,
+    this.replacedInvocationId,
+    this.replacedAtLevel,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['local_id'] = Variable<int>(localId);
+    map['character_id'] = Variable<String>(characterId);
+    map['invocation_id'] = Variable<String>(invocationId);
+    map['chosen_at_level'] = Variable<int>(chosenAtLevel);
+    if (!nullToAbsent || replacedInvocationId != null) {
+      map['replaced_invocation_id'] = Variable<String>(replacedInvocationId);
+    }
+    if (!nullToAbsent || replacedAtLevel != null) {
+      map['replaced_at_level'] = Variable<int>(replacedAtLevel);
+    }
+    return map;
+  }
+
+  CharacterEldritchInvocationsCompanion toCompanion(bool nullToAbsent) {
+    return CharacterEldritchInvocationsCompanion(
+      localId: Value(localId),
+      characterId: Value(characterId),
+      invocationId: Value(invocationId),
+      chosenAtLevel: Value(chosenAtLevel),
+      replacedInvocationId:
+          replacedInvocationId == null && nullToAbsent
+              ? const Value.absent()
+              : Value(replacedInvocationId),
+      replacedAtLevel:
+          replacedAtLevel == null && nullToAbsent
+              ? const Value.absent()
+              : Value(replacedAtLevel),
+    );
+  }
+
+  factory CharacterEldritchInvocation.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CharacterEldritchInvocation(
+      localId: serializer.fromJson<int>(json['localId']),
+      characterId: serializer.fromJson<String>(json['characterId']),
+      invocationId: serializer.fromJson<String>(json['invocationId']),
+      chosenAtLevel: serializer.fromJson<int>(json['chosenAtLevel']),
+      replacedInvocationId: serializer.fromJson<String?>(
+        json['replacedInvocationId'],
+      ),
+      replacedAtLevel: serializer.fromJson<int?>(json['replacedAtLevel']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'localId': serializer.toJson<int>(localId),
+      'characterId': serializer.toJson<String>(characterId),
+      'invocationId': serializer.toJson<String>(invocationId),
+      'chosenAtLevel': serializer.toJson<int>(chosenAtLevel),
+      'replacedInvocationId': serializer.toJson<String?>(replacedInvocationId),
+      'replacedAtLevel': serializer.toJson<int?>(replacedAtLevel),
+    };
+  }
+
+  CharacterEldritchInvocation copyWith({
+    int? localId,
+    String? characterId,
+    String? invocationId,
+    int? chosenAtLevel,
+    Value<String?> replacedInvocationId = const Value.absent(),
+    Value<int?> replacedAtLevel = const Value.absent(),
+  }) => CharacterEldritchInvocation(
+    localId: localId ?? this.localId,
+    characterId: characterId ?? this.characterId,
+    invocationId: invocationId ?? this.invocationId,
+    chosenAtLevel: chosenAtLevel ?? this.chosenAtLevel,
+    replacedInvocationId:
+        replacedInvocationId.present
+            ? replacedInvocationId.value
+            : this.replacedInvocationId,
+    replacedAtLevel:
+        replacedAtLevel.present ? replacedAtLevel.value : this.replacedAtLevel,
+  );
+  CharacterEldritchInvocation copyWithCompanion(
+    CharacterEldritchInvocationsCompanion data,
+  ) {
+    return CharacterEldritchInvocation(
+      localId: data.localId.present ? data.localId.value : this.localId,
+      characterId:
+          data.characterId.present ? data.characterId.value : this.characterId,
+      invocationId:
+          data.invocationId.present
+              ? data.invocationId.value
+              : this.invocationId,
+      chosenAtLevel:
+          data.chosenAtLevel.present
+              ? data.chosenAtLevel.value
+              : this.chosenAtLevel,
+      replacedInvocationId:
+          data.replacedInvocationId.present
+              ? data.replacedInvocationId.value
+              : this.replacedInvocationId,
+      replacedAtLevel:
+          data.replacedAtLevel.present
+              ? data.replacedAtLevel.value
+              : this.replacedAtLevel,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CharacterEldritchInvocation(')
+          ..write('localId: $localId, ')
+          ..write('characterId: $characterId, ')
+          ..write('invocationId: $invocationId, ')
+          ..write('chosenAtLevel: $chosenAtLevel, ')
+          ..write('replacedInvocationId: $replacedInvocationId, ')
+          ..write('replacedAtLevel: $replacedAtLevel')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    localId,
+    characterId,
+    invocationId,
+    chosenAtLevel,
+    replacedInvocationId,
+    replacedAtLevel,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CharacterEldritchInvocation &&
+          other.localId == this.localId &&
+          other.characterId == this.characterId &&
+          other.invocationId == this.invocationId &&
+          other.chosenAtLevel == this.chosenAtLevel &&
+          other.replacedInvocationId == this.replacedInvocationId &&
+          other.replacedAtLevel == this.replacedAtLevel);
+}
+
+class CharacterEldritchInvocationsCompanion
+    extends UpdateCompanion<CharacterEldritchInvocation> {
+  final Value<int> localId;
+  final Value<String> characterId;
+  final Value<String> invocationId;
+  final Value<int> chosenAtLevel;
+  final Value<String?> replacedInvocationId;
+  final Value<int?> replacedAtLevel;
+  const CharacterEldritchInvocationsCompanion({
+    this.localId = const Value.absent(),
+    this.characterId = const Value.absent(),
+    this.invocationId = const Value.absent(),
+    this.chosenAtLevel = const Value.absent(),
+    this.replacedInvocationId = const Value.absent(),
+    this.replacedAtLevel = const Value.absent(),
+  });
+  CharacterEldritchInvocationsCompanion.insert({
+    this.localId = const Value.absent(),
+    required String characterId,
+    required String invocationId,
+    this.chosenAtLevel = const Value.absent(),
+    this.replacedInvocationId = const Value.absent(),
+    this.replacedAtLevel = const Value.absent(),
+  }) : characterId = Value(characterId),
+       invocationId = Value(invocationId);
+  static Insertable<CharacterEldritchInvocation> custom({
+    Expression<int>? localId,
+    Expression<String>? characterId,
+    Expression<String>? invocationId,
+    Expression<int>? chosenAtLevel,
+    Expression<String>? replacedInvocationId,
+    Expression<int>? replacedAtLevel,
+  }) {
+    return RawValuesInsertable({
+      if (localId != null) 'local_id': localId,
+      if (characterId != null) 'character_id': characterId,
+      if (invocationId != null) 'invocation_id': invocationId,
+      if (chosenAtLevel != null) 'chosen_at_level': chosenAtLevel,
+      if (replacedInvocationId != null)
+        'replaced_invocation_id': replacedInvocationId,
+      if (replacedAtLevel != null) 'replaced_at_level': replacedAtLevel,
+    });
+  }
+
+  CharacterEldritchInvocationsCompanion copyWith({
+    Value<int>? localId,
+    Value<String>? characterId,
+    Value<String>? invocationId,
+    Value<int>? chosenAtLevel,
+    Value<String?>? replacedInvocationId,
+    Value<int?>? replacedAtLevel,
+  }) {
+    return CharacterEldritchInvocationsCompanion(
+      localId: localId ?? this.localId,
+      characterId: characterId ?? this.characterId,
+      invocationId: invocationId ?? this.invocationId,
+      chosenAtLevel: chosenAtLevel ?? this.chosenAtLevel,
+      replacedInvocationId: replacedInvocationId ?? this.replacedInvocationId,
+      replacedAtLevel: replacedAtLevel ?? this.replacedAtLevel,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (localId.present) {
+      map['local_id'] = Variable<int>(localId.value);
+    }
+    if (characterId.present) {
+      map['character_id'] = Variable<String>(characterId.value);
+    }
+    if (invocationId.present) {
+      map['invocation_id'] = Variable<String>(invocationId.value);
+    }
+    if (chosenAtLevel.present) {
+      map['chosen_at_level'] = Variable<int>(chosenAtLevel.value);
+    }
+    if (replacedInvocationId.present) {
+      map['replaced_invocation_id'] = Variable<String>(
+        replacedInvocationId.value,
+      );
+    }
+    if (replacedAtLevel.present) {
+      map['replaced_at_level'] = Variable<int>(replacedAtLevel.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CharacterEldritchInvocationsCompanion(')
+          ..write('localId: $localId, ')
+          ..write('characterId: $characterId, ')
+          ..write('invocationId: $invocationId, ')
+          ..write('chosenAtLevel: $chosenAtLevel, ')
+          ..write('replacedInvocationId: $replacedInvocationId, ')
+          ..write('replacedAtLevel: $replacedAtLevel')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $CharacterInventoryItemsTable extends CharacterInventoryItems
     with TableInfo<$CharacterInventoryItemsTable, CharacterInventoryItem> {
   @override
@@ -13419,6 +13906,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $CharacterFeatureStatesTable(this);
   late final $CharacterLanguagesTable characterLanguages =
       $CharacterLanguagesTable(this);
+  late final $CharacterEldritchInvocationsTable characterEldritchInvocations =
+      $CharacterEldritchInvocationsTable(this);
   late final $CharacterInventoryItemsTable characterInventoryItems =
       $CharacterInventoryItemsTable(this);
   late final $CharacterCurrencyGrantsTable characterCurrencyGrants =
@@ -13440,6 +13929,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     characterAbilityImprovements,
     characterFeatureStates,
     characterLanguages,
+    characterEldritchInvocations,
     characterInventoryItems,
     characterCurrencyGrants,
     classEntries,
@@ -13853,6 +14343,34 @@ final class $$CharactersTableReferences
 
     final cache = $_typedResult.readTableOrNull(
       _characterLanguagesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $CharacterEldritchInvocationsTable,
+    List<CharacterEldritchInvocation>
+  >
+  _characterEldritchInvocationsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.characterEldritchInvocations,
+        aliasName: $_aliasNameGenerator(
+          db.characters.id,
+          db.characterEldritchInvocations.characterId,
+        ),
+      );
+
+  $$CharacterEldritchInvocationsTableProcessedTableManager
+  get characterEldritchInvocationsRefs {
+    final manager = $$CharacterEldritchInvocationsTableTableManager(
+      $_db,
+      $_db.characterEldritchInvocations,
+    ).filter((f) => f.characterId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _characterEldritchInvocationsRefsTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -14579,6 +15097,35 @@ class $$CharactersTableFilterComposer
                 $removeJoinBuilderFromRootComposer,
           ),
     );
+    return f(composer);
+  }
+
+  Expression<bool> characterEldritchInvocationsRefs(
+    Expression<bool> Function(
+      $$CharacterEldritchInvocationsTableFilterComposer f,
+    )
+    f,
+  ) {
+    final $$CharacterEldritchInvocationsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.characterEldritchInvocations,
+          getReferencedColumn: (t) => t.characterId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CharacterEldritchInvocationsTableFilterComposer(
+                $db: $db,
+                $table: $db.characterEldritchInvocations,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
     return f(composer);
   }
 
@@ -15713,6 +16260,35 @@ class $$CharactersTableAnnotationComposer
     return f(composer);
   }
 
+  Expression<T> characterEldritchInvocationsRefs<T extends Object>(
+    Expression<T> Function(
+      $$CharacterEldritchInvocationsTableAnnotationComposer a,
+    )
+    f,
+  ) {
+    final $$CharacterEldritchInvocationsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.characterEldritchInvocations,
+          getReferencedColumn: (t) => t.characterId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CharacterEldritchInvocationsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.characterEldritchInvocations,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
   Expression<T> characterInventoryItemsRefs<T extends Object>(
     Expression<T> Function($$CharacterInventoryItemsTableAnnotationComposer a)
     f,
@@ -15791,6 +16367,7 @@ class $$CharactersTableTableManager
             bool characterAbilityImprovementsRefs,
             bool characterFeatureStatesRefs,
             bool characterLanguagesRefs,
+            bool characterEldritchInvocationsRefs,
             bool characterInventoryItemsRefs,
             bool characterCurrencyGrantsRefs,
           })
@@ -16180,6 +16757,7 @@ class $$CharactersTableTableManager
             characterAbilityImprovementsRefs = false,
             characterFeatureStatesRefs = false,
             characterLanguagesRefs = false,
+            characterEldritchInvocationsRefs = false,
             characterInventoryItemsRefs = false,
             characterCurrencyGrantsRefs = false,
           }) {
@@ -16196,6 +16774,8 @@ class $$CharactersTableTableManager
                   db.characterAbilityImprovements,
                 if (characterFeatureStatesRefs) db.characterFeatureStates,
                 if (characterLanguagesRefs) db.characterLanguages,
+                if (characterEldritchInvocationsRefs)
+                  db.characterEldritchInvocations,
                 if (characterInventoryItemsRefs) db.characterInventoryItems,
                 if (characterCurrencyGrantsRefs) db.characterCurrencyGrants,
               ],
@@ -16400,6 +16980,28 @@ class $$CharactersTableTableManager
                           ),
                       typedResults: items,
                     ),
+                  if (characterEldritchInvocationsRefs)
+                    await $_getPrefetchedData<
+                      Character,
+                      $CharactersTable,
+                      CharacterEldritchInvocation
+                    >(
+                      currentTable: table,
+                      referencedTable: $$CharactersTableReferences
+                          ._characterEldritchInvocationsRefsTable(db),
+                      managerFromTypedResult:
+                          (p0) =>
+                              $$CharactersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).characterEldritchInvocationsRefs,
+                      referencedItemsForCurrentItem:
+                          (item, referencedItems) => referencedItems.where(
+                            (e) => e.characterId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
                   if (characterInventoryItemsRefs)
                     await $_getPrefetchedData<
                       Character,
@@ -16474,6 +17076,7 @@ typedef $$CharactersTableProcessedTableManager =
         bool characterAbilityImprovementsRefs,
         bool characterFeatureStatesRefs,
         bool characterLanguagesRefs,
+        bool characterEldritchInvocationsRefs,
         bool characterInventoryItemsRefs,
         bool characterCurrencyGrantsRefs,
       })
@@ -20852,6 +21455,382 @@ typedef $$CharacterLanguagesTableProcessedTableManager =
       CharacterLanguage,
       PrefetchHooks Function({bool characterId})
     >;
+typedef $$CharacterEldritchInvocationsTableCreateCompanionBuilder =
+    CharacterEldritchInvocationsCompanion Function({
+      Value<int> localId,
+      required String characterId,
+      required String invocationId,
+      Value<int> chosenAtLevel,
+      Value<String?> replacedInvocationId,
+      Value<int?> replacedAtLevel,
+    });
+typedef $$CharacterEldritchInvocationsTableUpdateCompanionBuilder =
+    CharacterEldritchInvocationsCompanion Function({
+      Value<int> localId,
+      Value<String> characterId,
+      Value<String> invocationId,
+      Value<int> chosenAtLevel,
+      Value<String?> replacedInvocationId,
+      Value<int?> replacedAtLevel,
+    });
+
+final class $$CharacterEldritchInvocationsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $CharacterEldritchInvocationsTable,
+          CharacterEldritchInvocation
+        > {
+  $$CharacterEldritchInvocationsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $CharactersTable _characterIdTable(_$AppDatabase db) =>
+      db.characters.createAlias(
+        $_aliasNameGenerator(
+          db.characterEldritchInvocations.characterId,
+          db.characters.id,
+        ),
+      );
+
+  $$CharactersTableProcessedTableManager get characterId {
+    final $_column = $_itemColumn<String>('character_id')!;
+
+    final manager = $$CharactersTableTableManager(
+      $_db,
+      $_db.characters,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_characterIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$CharacterEldritchInvocationsTableFilterComposer
+    extends Composer<_$AppDatabase, $CharacterEldritchInvocationsTable> {
+  $$CharacterEldritchInvocationsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get invocationId => $composableBuilder(
+    column: $table.invocationId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get chosenAtLevel => $composableBuilder(
+    column: $table.chosenAtLevel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get replacedInvocationId => $composableBuilder(
+    column: $table.replacedInvocationId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get replacedAtLevel => $composableBuilder(
+    column: $table.replacedAtLevel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CharactersTableFilterComposer get characterId {
+    final $$CharactersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableFilterComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterEldritchInvocationsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CharacterEldritchInvocationsTable> {
+  $$CharacterEldritchInvocationsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get invocationId => $composableBuilder(
+    column: $table.invocationId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get chosenAtLevel => $composableBuilder(
+    column: $table.chosenAtLevel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get replacedInvocationId => $composableBuilder(
+    column: $table.replacedInvocationId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get replacedAtLevel => $composableBuilder(
+    column: $table.replacedAtLevel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CharactersTableOrderingComposer get characterId {
+    final $$CharactersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableOrderingComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterEldritchInvocationsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CharacterEldritchInvocationsTable> {
+  $$CharacterEldritchInvocationsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get localId =>
+      $composableBuilder(column: $table.localId, builder: (column) => column);
+
+  GeneratedColumn<String> get invocationId => $composableBuilder(
+    column: $table.invocationId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get chosenAtLevel => $composableBuilder(
+    column: $table.chosenAtLevel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get replacedInvocationId => $composableBuilder(
+    column: $table.replacedInvocationId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get replacedAtLevel => $composableBuilder(
+    column: $table.replacedAtLevel,
+    builder: (column) => column,
+  );
+
+  $$CharactersTableAnnotationComposer get characterId {
+    final $$CharactersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterEldritchInvocationsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CharacterEldritchInvocationsTable,
+          CharacterEldritchInvocation,
+          $$CharacterEldritchInvocationsTableFilterComposer,
+          $$CharacterEldritchInvocationsTableOrderingComposer,
+          $$CharacterEldritchInvocationsTableAnnotationComposer,
+          $$CharacterEldritchInvocationsTableCreateCompanionBuilder,
+          $$CharacterEldritchInvocationsTableUpdateCompanionBuilder,
+          (
+            CharacterEldritchInvocation,
+            $$CharacterEldritchInvocationsTableReferences,
+          ),
+          CharacterEldritchInvocation,
+          PrefetchHooks Function({bool characterId})
+        > {
+  $$CharacterEldritchInvocationsTableTableManager(
+    _$AppDatabase db,
+    $CharacterEldritchInvocationsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer:
+              () => $$CharacterEldritchInvocationsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer:
+              () => $$CharacterEldritchInvocationsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer:
+              () => $$CharacterEldritchInvocationsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> localId = const Value.absent(),
+                Value<String> characterId = const Value.absent(),
+                Value<String> invocationId = const Value.absent(),
+                Value<int> chosenAtLevel = const Value.absent(),
+                Value<String?> replacedInvocationId = const Value.absent(),
+                Value<int?> replacedAtLevel = const Value.absent(),
+              }) => CharacterEldritchInvocationsCompanion(
+                localId: localId,
+                characterId: characterId,
+                invocationId: invocationId,
+                chosenAtLevel: chosenAtLevel,
+                replacedInvocationId: replacedInvocationId,
+                replacedAtLevel: replacedAtLevel,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> localId = const Value.absent(),
+                required String characterId,
+                required String invocationId,
+                Value<int> chosenAtLevel = const Value.absent(),
+                Value<String?> replacedInvocationId = const Value.absent(),
+                Value<int?> replacedAtLevel = const Value.absent(),
+              }) => CharacterEldritchInvocationsCompanion.insert(
+                localId: localId,
+                characterId: characterId,
+                invocationId: invocationId,
+                chosenAtLevel: chosenAtLevel,
+                replacedInvocationId: replacedInvocationId,
+                replacedAtLevel: replacedAtLevel,
+              ),
+          withReferenceMapper:
+              (p0) =>
+                  p0
+                      .map(
+                        (e) => (
+                          e.readTable(table),
+                          $$CharacterEldritchInvocationsTableReferences(
+                            db,
+                            table,
+                            e,
+                          ),
+                        ),
+                      )
+                      .toList(),
+          prefetchHooksCallback: ({characterId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                T extends TableManagerState<
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic
+                >
+              >(state) {
+                if (characterId) {
+                  state =
+                      state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.characterId,
+                            referencedTable:
+                                $$CharacterEldritchInvocationsTableReferences
+                                    ._characterIdTable(db),
+                            referencedColumn:
+                                $$CharacterEldritchInvocationsTableReferences
+                                    ._characterIdTable(db)
+                                    .id,
+                          )
+                          as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$CharacterEldritchInvocationsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CharacterEldritchInvocationsTable,
+      CharacterEldritchInvocation,
+      $$CharacterEldritchInvocationsTableFilterComposer,
+      $$CharacterEldritchInvocationsTableOrderingComposer,
+      $$CharacterEldritchInvocationsTableAnnotationComposer,
+      $$CharacterEldritchInvocationsTableCreateCompanionBuilder,
+      $$CharacterEldritchInvocationsTableUpdateCompanionBuilder,
+      (
+        CharacterEldritchInvocation,
+        $$CharacterEldritchInvocationsTableReferences,
+      ),
+      CharacterEldritchInvocation,
+      PrefetchHooks Function({bool characterId})
+    >;
 typedef $$CharacterInventoryItemsTableCreateCompanionBuilder =
     CharacterInventoryItemsCompanion Function({
       Value<int> localId,
@@ -22279,6 +23258,12 @@ class $AppDatabaseManager {
       );
   $$CharacterLanguagesTableTableManager get characterLanguages =>
       $$CharacterLanguagesTableTableManager(_db, _db.characterLanguages);
+  $$CharacterEldritchInvocationsTableTableManager
+  get characterEldritchInvocations =>
+      $$CharacterEldritchInvocationsTableTableManager(
+        _db,
+        _db.characterEldritchInvocations,
+      );
   $$CharacterInventoryItemsTableTableManager get characterInventoryItems =>
       $$CharacterInventoryItemsTableTableManager(
         _db,
