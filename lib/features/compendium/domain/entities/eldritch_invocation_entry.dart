@@ -67,7 +67,7 @@ class InvocationSpellGrant {
   /// Como a ficha resume o custo: `à vontade, sem gastar espaço de magia`.
   String get costLabel {
     final base = mode.label;
-    if (usesPactSlot) return '$base, gastando um espaço de Magia de Pacto';
+    if (usesPactSlot) return '$base, gastando um espaço de magia de Bruxo';
     return '$base, sem gastar espaço de magia';
   }
 
@@ -371,6 +371,7 @@ class EldritchInvocationEntry {
     this.blast,
     this.pactWeapon,
     this.skillProficiencies = const [],
+    this.isCurseSource = false,
     this.tags = const [],
   });
 
@@ -406,6 +407,16 @@ class EldritchInvocationEntry {
 
   /// Perícias em que a invocação concede proficiência, por id de perícia.
   final List<String> skillProficiencies;
+
+  /// Se ESTA invocação amaldiçoa um alvo, e portanto satisfaz o pré-requisito
+  /// de Maldição Enlouquecedora e Maldição Implacável.
+  ///
+  /// Existe porque o compêndio de referência cita Sinal de Mau Agouro ao lado
+  /// de Maldição da Lâmina como fonte válida: a maldição não vem só da magia
+  /// Hex nem só de uma característica de subclasse, e uma invocação pode
+  /// habilitar outra. Fica declarado no asset, e não numa lista de ids no
+  /// código, pelo mesmo motivo da etiqueta na subclasse.
+  final bool isCurseSource;
 
   final List<String> tags;
 
@@ -527,6 +538,7 @@ class EldritchInvocationEntry {
       skillProficiencies: skills.isEmpty
           ? const []
           : List<String>.unmodifiable(skills),
+      isCurseSource: raw['curse_source'] == true,
       tags: tags.isEmpty ? const [] : List<String>.unmodifiable(tags),
     );
   }

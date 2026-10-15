@@ -135,6 +135,86 @@ void main() {
       expect(bySource['tcoe'], 8);
     });
 
+    test('5a. os nomes batem com o compêndio de referência', () {
+      // Existe porque os nomes JÁ divergiram uma vez: "Fala Bestial" em vez de
+      // "Fala das Feras", "Visão do Diabo" em vez de "Visão Diabólica", e
+      // outras treze. Nome traduzido não é usado como chave em lugar nenhum,
+      // mas é o que o jogador procura na busca — e um nome que não bate com a
+      // mesa é um nome que ele não encontra.
+      const expected = <String, String>{
+        'agonizing_blast': 'Rajada Agonizante',
+        'armor_of_shadows': 'Armadura das Sombras',
+        'ascendant_step': 'Passo Ascendente',
+        'beast_speech': 'Fala das Feras',
+        'beguiling_influence': 'Influência Sedutora',
+        'bewitching_whispers': 'Sussurros Encantadores',
+        'book_of_ancient_secrets': 'Livro dos Segredos Antigos',
+        'chains_of_carceri': 'Correntes de Cárceri',
+        'devils_sight': 'Visão Diabólica',
+        'dreadful_word': 'Palavra Terrível',
+        'eldritch_sight': 'Visão Mística',
+        'eldritch_spear': 'Lança Mística',
+        'eyes_of_the_rune_keeper': 'Olhos do Guardião das Runas',
+        'fiendish_vigor': 'Vigor Ínfero',
+        'gaze_of_two_minds': 'Olhar de Duas Mentes',
+        'lifedrinker': 'Bebedor de Vida',
+        'mask_of_many_faces': 'Máscara de Muitas Faces',
+        'master_of_myriad_forms': 'Mestre das Inúmeras Formas',
+        'minions_of_chaos': 'Servos do Caos',
+        'mire_the_mind': 'Atolar a Mente',
+        'misty_visions': 'Visões Enevoadas',
+        'one_with_shadows': 'Uno com as Sombras',
+        'otherworldly_leap': 'Salto Sobrenatural',
+        'repelling_blast': 'Rajada Repulsiva',
+        'sculptor_of_flesh': 'Escultor da Carne',
+        'sign_of_ill_omen': 'Sinal de Mau Agouro',
+        'thief_of_five_fates': 'Ladrão dos Cinco Destinos',
+        'thirsting_blade': 'Lâmina Sedenta',
+        'visions_of_distant_realms': 'Visões de Reinos Distantes',
+        'voice_of_the_chain_master': 'Voz do Mestre da Corrente',
+        'whispers_of_the_grave': 'Sussurros da Sepultura',
+        'witch_sight': 'Visão de Bruxa',
+        'aspect_of_the_moon': 'Aspecto da Lua',
+        'cloak_of_flies': 'Manto de Moscas',
+        'eldritch_smite': 'Golpe Místico',
+        'ghostly_gaze': 'Olhar Fantasmagórico',
+        'gift_of_the_depths': 'Dádiva das Profundezas',
+        'gift_of_the_ever_living_ones': 'Dádiva dos Sempre-Vivos',
+        'grasp_of_hadar': 'Garra de Hadar',
+        'improved_pact_weapon': 'Arma de Pacto Aprimorada',
+        'lance_of_lethargy': 'Lança da Letargia',
+        'maddening_hex': 'Maldição Enlouquecedora',
+        'relentless_hex': 'Maldição Implacável',
+        'shroud_of_shadow': 'Manto de Sombras',
+        'tomb_of_levistus': 'Tumba de Levistus',
+        'tricksters_escape': 'Fuga do Trapaceiro',
+        'bond_of_the_talisman': 'Vínculo do Talismã',
+        'eldritch_mind': 'Mente Mística',
+        'far_scribe': 'Escriba Distante',
+        'gift_of_the_protectors': 'Dádiva dos Protetores',
+        'investment_of_the_chain_master': 'Investimento do Mestre da Corrente',
+        'protection_of_the_talisman': 'Proteção do Talismã',
+        'rebuke_of_the_talisman': 'Repreensão do Talismã',
+        'undying_servitude': 'Servidão Imortal',
+      };
+
+      expect(expected.length, 54);
+
+      for (final item in expected.entries) {
+        expect(
+          catalog.byId(item.key)?.name,
+          item.value,
+          reason: 'nome divergente em ${item.key}',
+        );
+      }
+
+      // E nenhum id sobrando no catálogo que a tabela não conheça.
+      expect(
+        catalog.all.map((entry) => entry.id).toSet(),
+        expected.keys.toSet(),
+      );
+    });
+
     test(
       '6. a dádiva exigida é id estruturado, nunca texto livre',
       () {
@@ -175,7 +255,7 @@ void main() {
       );
 
       expect(catalog.resolve('Agonizing Blast')?.id, 'agonizing_blast');
-      expect(catalog.resolve('Visão do Diabo')?.id, 'devils_sight');
+      expect(catalog.resolve('Visão Diabólica')?.id, 'devils_sight');
       expect(catalog.search('').length, 54);
     });
   });
@@ -331,24 +411,72 @@ void main() {
       );
     });
 
-    test('16. truque Rajada Mística exigido bloqueia quem não o conhece', () {
+    test('16a. nenhuma invocação de 2014 exige truque', () {
+      // O TXT de referência lista "Magia referenciada: eldritch blast" como
+      // campo próprio, separado de "Pré-requisitos: Nenhum". A dependência é
+      // de REFERÊNCIA, não de porta: Rajada Agonizante, Lança Mística, Rajada
+      // Repulsiva, Garra de Hadar e Lança da Letargia não exigem o truque.
+      //
+      // Este teste existe porque o erro inverso já foi cometido aqui: as cinco
+      // vinham com `cantrip: eldritch_blast` e apareciam bloqueadas para um
+      // Bruxo de 2º nível que podia escolhê-las.
+      for (final entry in entries) {
+        expect(
+          entry.prerequisites.cantrip,
+          isNull,
+          reason: '${entry.id} declara pré-requisito de truque',
+        );
+      }
+
       final resolved = _resolve(_warlock(level: 2));
-      final item = resolved.byId('agonizing_blast')!;
+      for (final id in const [
+        'agonizing_blast',
+        'eldritch_spear',
+        'repelling_blast',
+        'grasp_of_hadar',
+        'lance_of_lethargy',
+      ]) {
+        expect(
+          resolved.byId(id)!.availability,
+          InvocationAvailability.available,
+          reason: '$id deveria estar disponível no 2º nível',
+        );
+      }
+    });
 
-      expect(item.availability, InvocationAvailability.blocked);
-      expect(
-        item.blocks.single.kind,
-        InvocationBlockKind.cantrip,
-      );
-      expect(item.blockReason, 'Requer o truque Rajada Mística.');
+    test('16b. o validador suporta e redige o pré-requisito de truque', () {
+      // A mensagem é exigida pela especificação e o modelo tem a chave, mas o
+      // catálogo de 2014 não a usa. Entrada sintética é a única forma de
+      // provar o comportamento sem inventar regra no asset.
+      final synthetic = EldritchInvocationCatalog.from([
+        _syntheticEntry(
+          id: 'needs_cantrip',
+          name: 'Exige Truque',
+          prerequisites: const InvocationPrerequisites(
+            cantrip: 'eldritch_blast',
+          ),
+        ),
+        _syntheticEntry(id: 'filler', name: 'Entrada de Apoio'),
+      ]);
 
-      final withCantrip = _resolve(
-        _warlock(level: 2, knownSpellIds: const [_eldritchBlastId]),
+      final blocks = EldritchInvocationPrerequisites.evaluate(
+        invocation: synthetic.byId('needs_cantrip')!,
+        profile: const WarlockProfile(warlockLevel: 2),
+        catalog: synthetic,
       );
-      expect(
-        withCantrip.byId('agonizing_blast')!.availability,
-        InvocationAvailability.available,
+
+      expect(blocks.single.kind, InvocationBlockKind.cantrip);
+      expect(blocks.single.message, 'Requer o truque Rajada Mística.');
+
+      final met = EldritchInvocationPrerequisites.evaluate(
+        invocation: synthetic.byId('needs_cantrip')!,
+        profile: const WarlockProfile(
+          warlockLevel: 2,
+          knownSpellKeys: {'eldritch blast'},
+        ),
+        catalog: synthetic,
       );
+      expect(met, isEmpty);
     });
 
     test('17. Hex OU característica que amaldiçoa libera a maldição', () {
@@ -377,6 +505,32 @@ void main() {
       expect(
         hexblade.byId('relentless_hex')!.availability,
         InvocationAvailability.available,
+      );
+    });
+
+    test('17a. Sinal de Mau Agouro também é fonte de maldição', () {
+      // O compêndio de referência cita Sinal de Mau Agouro ao lado de Maldição
+      // da Lâmina. É o terceiro caminho: uma invocação habilitando outra.
+      expect(catalog.byId('sign_of_ill_omen')!.isCurseSource, isTrue);
+
+      final withOmen = _resolve(
+        _warlock(level: 7, invocations: const ['sign_of_ill_omen']),
+      );
+
+      expect(withOmen.profile.hasCurseFeature, isTrue);
+      expect(
+        withOmen.byId('maddening_hex')!.availability,
+        InvocationAvailability.available,
+      );
+      expect(
+        withOmen.byId('relentless_hex')!.availability,
+        InvocationAvailability.available,
+      );
+
+      // E é a única invocação do catálogo que amaldiçoa.
+      expect(
+        entries.where((entry) => entry.isCurseSource).map((e) => e.id),
+        ['sign_of_ill_omen'],
       );
     });
 
@@ -788,7 +942,7 @@ void main() {
       expect(grant.isFree, isFalse);
       expect(
         grant.costLabel,
-        'uma vez por descanso longo, gastando um espaço de Magia de Pacto',
+        'uma vez por descanso longo, gastando um espaço de magia de Bruxo',
       );
 
       // Servidão Imortal é o caso oposto: uma vez por descanso longo e SEM

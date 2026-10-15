@@ -388,6 +388,7 @@ class EldritchInvocationResolver {
     final profile = profileFor(
       character: character,
       classes: classes,
+      catalog: catalog,
       subclasses: subclasses,
       spells: spells,
     );
@@ -483,6 +484,7 @@ class EldritchInvocationResolver {
   static WarlockProfile profileFor({
     required Character character,
     required List<ClassEntry> classes,
+    EldritchInvocationCatalog? catalog,
     List<SubclassEntry> subclasses = const [],
     List<SpellEntry> spells = const [],
   }) {
@@ -493,7 +495,9 @@ class EldritchInvocationResolver {
       warlockLevel: line.level,
       pactBoon: pactBoonOf(character),
       knownSpellKeys: _knownSpellKeys(character, spells),
-      hasCurseFeature: _hasCurseFeature(character, subclasses),
+      hasCurseFeature:
+          _hasCurseFeature(character, subclasses) ||
+          _hasCurseInvocation(character, catalog),
       selectedInvocationIds: {
         for (final item in character.eldritchInvocations) item.invocationId,
       },
@@ -704,6 +708,25 @@ class EldritchInvocationResolver {
     }
 
     return keys;
+  }
+
+  /// Se alguma invocação JÁ SELECIONADA amaldiçoa um alvo.
+  ///
+  /// É o terceiro caminho da fonte de maldição, ao lado da magia Hex e da
+  /// característica de subclasse: Sinal de Mau Agouro habilita Maldição
+  /// Enlouquecedora e Maldição Implacável. Quem declara isso é o catálogo, no
+  /// campo `curse_source`.
+  static bool _hasCurseInvocation(
+    Character character,
+    EldritchInvocationCatalog? catalog,
+  ) {
+    if (catalog == null || character.eldritchInvocations.isEmpty) return false;
+
+    for (final item in character.eldritchInvocations) {
+      if (catalog.byId(item.invocationId)?.isCurseSource ?? false) return true;
+    }
+
+    return false;
   }
 
   /// Se alguma subclasse de Bruxo do personagem declara característica que
