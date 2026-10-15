@@ -256,6 +256,17 @@ class $CharactersTable extends Characters
     requiredDuringInsert: false,
     defaultValue: const Constant(10),
   );
+  static const VerificationMeta _armorClassFormulaIdMeta =
+      const VerificationMeta('armorClassFormulaId');
+  @override
+  late final GeneratedColumn<String> armorClassFormulaId =
+      GeneratedColumn<String>(
+        'armor_class_formula_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _initiativeBonusMeta = const VerificationMeta(
     'initiativeBonus',
   );
@@ -1077,6 +1088,7 @@ class $CharactersTable extends Characters
     skillProficiencyGrants,
     backgroundPersonalityChoices,
     armorClass,
+    armorClassFormulaId,
     initiativeBonus,
     speed,
     speedMeters,
@@ -1315,6 +1327,15 @@ class $CharactersTable extends Characters
       context.handle(
         _armorClassMeta,
         armorClass.isAcceptableOrUnknown(data['armor_class']!, _armorClassMeta),
+      );
+    }
+    if (data.containsKey('armor_class_formula_id')) {
+      context.handle(
+        _armorClassFormulaIdMeta,
+        armorClassFormulaId.isAcceptableOrUnknown(
+          data['armor_class_formula_id']!,
+          _armorClassFormulaIdMeta,
+        ),
       );
     }
     if (data.containsKey('initiative_bonus')) {
@@ -1945,6 +1966,10 @@ class $CharactersTable extends Characters
             DriftSqlType.int,
             data['${effectivePrefix}armor_class'],
           )!,
+      armorClassFormulaId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}armor_class_formula_id'],
+      ),
       initiativeBonus:
           attachedDatabase.typeMapping.read(
             DriftSqlType.int,
@@ -2312,6 +2337,18 @@ class Character extends DataClass implements Insertable<Character> {
   /// personagem. Ver `BackgroundPersonalityChoice`.
   final String backgroundPersonalityChoices;
   final int armorClass;
+
+  /// Id da fórmula de CA-base que o jogador escolheu.
+  ///
+  /// Nulo é "nunca escolheu", e não "usa o equipamento": a fórmula do
+  /// equipamento tem id próprio (`equipment`). A distinção importa porque sem
+  /// ela não há como saber se o jogador preferiu a armadura ou apenas nunca
+  /// abriu a tela — e o padrão, nesse caso, é a melhor fórmula válida.
+  ///
+  /// Guarda a PREFERÊNCIA, não o resultado. Vestir armadura invalida a Defesa
+  /// sem Armadura, mas não apaga a escolha: tirar a armadura volta a valer o
+  /// que o jogador havia decidido.
+  final String? armorClassFormulaId;
   final int initiativeBonus;
 
   /// Deslocamento em metros, arredondado. Legado: a coluna é inteira e não
@@ -2423,6 +2460,7 @@ class Character extends DataClass implements Insertable<Character> {
     required this.skillProficiencyGrants,
     required this.backgroundPersonalityChoices,
     required this.armorClass,
+    this.armorClassFormulaId,
     required this.initiativeBonus,
     required this.speed,
     this.speedMeters,
@@ -2530,6 +2568,9 @@ class Character extends DataClass implements Insertable<Character> {
       backgroundPersonalityChoices,
     );
     map['armor_class'] = Variable<int>(armorClass);
+    if (!nullToAbsent || armorClassFormulaId != null) {
+      map['armor_class_formula_id'] = Variable<String>(armorClassFormulaId);
+    }
     map['initiative_bonus'] = Variable<int>(initiativeBonus);
     map['speed'] = Variable<int>(speed);
     if (!nullToAbsent || speedMeters != null) {
@@ -2644,6 +2685,10 @@ class Character extends DataClass implements Insertable<Character> {
       skillProficiencyGrants: Value(skillProficiencyGrants),
       backgroundPersonalityChoices: Value(backgroundPersonalityChoices),
       armorClass: Value(armorClass),
+      armorClassFormulaId:
+          armorClassFormulaId == null && nullToAbsent
+              ? const Value.absent()
+              : Value(armorClassFormulaId),
       initiativeBonus: Value(initiativeBonus),
       speed: Value(speed),
       speedMeters:
@@ -2753,6 +2798,9 @@ class Character extends DataClass implements Insertable<Character> {
         json['backgroundPersonalityChoices'],
       ),
       armorClass: serializer.fromJson<int>(json['armorClass']),
+      armorClassFormulaId: serializer.fromJson<String?>(
+        json['armorClassFormulaId'],
+      ),
       initiativeBonus: serializer.fromJson<int>(json['initiativeBonus']),
       speed: serializer.fromJson<int>(json['speed']),
       speedMeters: serializer.fromJson<double?>(json['speedMeters']),
@@ -2852,6 +2900,7 @@ class Character extends DataClass implements Insertable<Character> {
         backgroundPersonalityChoices,
       ),
       'armorClass': serializer.toJson<int>(armorClass),
+      'armorClassFormulaId': serializer.toJson<String?>(armorClassFormulaId),
       'initiativeBonus': serializer.toJson<int>(initiativeBonus),
       'speed': serializer.toJson<int>(speed),
       'speedMeters': serializer.toJson<double?>(speedMeters),
@@ -2939,6 +2988,7 @@ class Character extends DataClass implements Insertable<Character> {
     String? skillProficiencyGrants,
     String? backgroundPersonalityChoices,
     int? armorClass,
+    Value<String?> armorClassFormulaId = const Value.absent(),
     int? initiativeBonus,
     int? speed,
     Value<double?> speedMeters = const Value.absent(),
@@ -3036,6 +3086,10 @@ class Character extends DataClass implements Insertable<Character> {
     backgroundPersonalityChoices:
         backgroundPersonalityChoices ?? this.backgroundPersonalityChoices,
     armorClass: armorClass ?? this.armorClass,
+    armorClassFormulaId:
+        armorClassFormulaId.present
+            ? armorClassFormulaId.value
+            : this.armorClassFormulaId,
     initiativeBonus: initiativeBonus ?? this.initiativeBonus,
     speed: speed ?? this.speed,
     speedMeters: speedMeters.present ? speedMeters.value : this.speedMeters,
@@ -3157,6 +3211,10 @@ class Character extends DataClass implements Insertable<Character> {
               : this.backgroundPersonalityChoices,
       armorClass:
           data.armorClass.present ? data.armorClass.value : this.armorClass,
+      armorClassFormulaId:
+          data.armorClassFormulaId.present
+              ? data.armorClassFormulaId.value
+              : this.armorClassFormulaId,
       initiativeBonus:
           data.initiativeBonus.present
               ? data.initiativeBonus.value
@@ -3386,6 +3444,7 @@ class Character extends DataClass implements Insertable<Character> {
             'backgroundPersonalityChoices: $backgroundPersonalityChoices, ',
           )
           ..write('armorClass: $armorClass, ')
+          ..write('armorClassFormulaId: $armorClassFormulaId, ')
           ..write('initiativeBonus: $initiativeBonus, ')
           ..write('speed: $speed, ')
           ..write('speedMeters: $speedMeters, ')
@@ -3475,6 +3534,7 @@ class Character extends DataClass implements Insertable<Character> {
     skillProficiencyGrants,
     backgroundPersonalityChoices,
     armorClass,
+    armorClassFormulaId,
     initiativeBonus,
     speed,
     speedMeters,
@@ -3564,6 +3624,7 @@ class Character extends DataClass implements Insertable<Character> {
           other.backgroundPersonalityChoices ==
               this.backgroundPersonalityChoices &&
           other.armorClass == this.armorClass &&
+          other.armorClassFormulaId == this.armorClassFormulaId &&
           other.initiativeBonus == this.initiativeBonus &&
           other.speed == this.speed &&
           other.speedMeters == this.speedMeters &&
@@ -3650,6 +3711,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
   final Value<String> skillProficiencyGrants;
   final Value<String> backgroundPersonalityChoices;
   final Value<int> armorClass;
+  final Value<String?> armorClassFormulaId;
   final Value<int> initiativeBonus;
   final Value<int> speed;
   final Value<double?> speedMeters;
@@ -3735,6 +3797,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.skillProficiencyGrants = const Value.absent(),
     this.backgroundPersonalityChoices = const Value.absent(),
     this.armorClass = const Value.absent(),
+    this.armorClassFormulaId = const Value.absent(),
     this.initiativeBonus = const Value.absent(),
     this.speed = const Value.absent(),
     this.speedMeters = const Value.absent(),
@@ -3821,6 +3884,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.skillProficiencyGrants = const Value.absent(),
     this.backgroundPersonalityChoices = const Value.absent(),
     this.armorClass = const Value.absent(),
+    this.armorClassFormulaId = const Value.absent(),
     this.initiativeBonus = const Value.absent(),
     this.speed = const Value.absent(),
     this.speedMeters = const Value.absent(),
@@ -3910,6 +3974,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Expression<String>? skillProficiencyGrants,
     Expression<String>? backgroundPersonalityChoices,
     Expression<int>? armorClass,
+    Expression<String>? armorClassFormulaId,
     Expression<int>? initiativeBonus,
     Expression<int>? speed,
     Expression<double>? speedMeters,
@@ -4002,6 +4067,8 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       if (backgroundPersonalityChoices != null)
         'background_personality_choices': backgroundPersonalityChoices,
       if (armorClass != null) 'armor_class': armorClass,
+      if (armorClassFormulaId != null)
+        'armor_class_formula_id': armorClassFormulaId,
       if (initiativeBonus != null) 'initiative_bonus': initiativeBonus,
       if (speed != null) 'speed': speed,
       if (speedMeters != null) 'speed_meters': speedMeters,
@@ -4094,6 +4161,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Value<String>? skillProficiencyGrants,
     Value<String>? backgroundPersonalityChoices,
     Value<int>? armorClass,
+    Value<String?>? armorClassFormulaId,
     Value<int>? initiativeBonus,
     Value<int>? speed,
     Value<double?>? speedMeters,
@@ -4184,6 +4252,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       backgroundPersonalityChoices:
           backgroundPersonalityChoices ?? this.backgroundPersonalityChoices,
       armorClass: armorClass ?? this.armorClass,
+      armorClassFormulaId: armorClassFormulaId ?? this.armorClassFormulaId,
       initiativeBonus: initiativeBonus ?? this.initiativeBonus,
       speed: speed ?? this.speed,
       speedMeters: speedMeters ?? this.speedMeters,
@@ -4329,6 +4398,11 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     }
     if (armorClass.present) {
       map['armor_class'] = Variable<int>(armorClass.value);
+    }
+    if (armorClassFormulaId.present) {
+      map['armor_class_formula_id'] = Variable<String>(
+        armorClassFormulaId.value,
+      );
     }
     if (initiativeBonus.present) {
       map['initiative_bonus'] = Variable<int>(initiativeBonus.value);
@@ -4546,6 +4620,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
             'backgroundPersonalityChoices: $backgroundPersonalityChoices, ',
           )
           ..write('armorClass: $armorClass, ')
+          ..write('armorClassFormulaId: $armorClassFormulaId, ')
           ..write('initiativeBonus: $initiativeBonus, ')
           ..write('speed: $speed, ')
           ..write('speedMeters: $speedMeters, ')
@@ -9377,6 +9452,1416 @@ class CharacterFeatsCompanion extends UpdateCompanion<CharacterFeat> {
   }
 }
 
+class $CharacterAbilityImprovementsTable extends CharacterAbilityImprovements
+    with
+        TableInfo<
+          $CharacterAbilityImprovementsTable,
+          CharacterAbilityImprovement
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CharacterAbilityImprovementsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _localIdMeta = const VerificationMeta(
+    'localId',
+  );
+  @override
+  late final GeneratedColumn<int> localId = GeneratedColumn<int>(
+    'local_id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _characterIdMeta = const VerificationMeta(
+    'characterId',
+  );
+  @override
+  late final GeneratedColumn<String> characterId = GeneratedColumn<String>(
+    'character_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES characters (id)',
+    ),
+  );
+  static const VerificationMeta _classIdMeta = const VerificationMeta(
+    'classId',
+  );
+  @override
+  late final GeneratedColumn<String> classId = GeneratedColumn<String>(
+    'class_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _classLevelMeta = const VerificationMeta(
+    'classLevel',
+  );
+  @override
+  late final GeneratedColumn<int> classLevel = GeneratedColumn<int>(
+    'class_level',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _progressionIdMeta = const VerificationMeta(
+    'progressionId',
+  );
+  @override
+  late final GeneratedColumn<String> progressionId = GeneratedColumn<String>(
+    'progression_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _appliedIncreasesMeta = const VerificationMeta(
+    'appliedIncreases',
+  );
+  @override
+  late final GeneratedColumn<String> appliedIncreases = GeneratedColumn<String>(
+    'applied_increases',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    localId,
+    characterId,
+    classId,
+    classLevel,
+    progressionId,
+    appliedIncreases,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'character_ability_improvements';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CharacterAbilityImprovement> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('local_id')) {
+      context.handle(
+        _localIdMeta,
+        localId.isAcceptableOrUnknown(data['local_id']!, _localIdMeta),
+      );
+    }
+    if (data.containsKey('character_id')) {
+      context.handle(
+        _characterIdMeta,
+        characterId.isAcceptableOrUnknown(
+          data['character_id']!,
+          _characterIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_characterIdMeta);
+    }
+    if (data.containsKey('class_id')) {
+      context.handle(
+        _classIdMeta,
+        classId.isAcceptableOrUnknown(data['class_id']!, _classIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_classIdMeta);
+    }
+    if (data.containsKey('class_level')) {
+      context.handle(
+        _classLevelMeta,
+        classLevel.isAcceptableOrUnknown(data['class_level']!, _classLevelMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_classLevelMeta);
+    }
+    if (data.containsKey('progression_id')) {
+      context.handle(
+        _progressionIdMeta,
+        progressionId.isAcceptableOrUnknown(
+          data['progression_id']!,
+          _progressionIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_progressionIdMeta);
+    }
+    if (data.containsKey('applied_increases')) {
+      context.handle(
+        _appliedIncreasesMeta,
+        appliedIncreases.isAcceptableOrUnknown(
+          data['applied_increases']!,
+          _appliedIncreasesMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {localId};
+  @override
+  CharacterAbilityImprovement map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CharacterAbilityImprovement(
+      localId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}local_id'],
+          )!,
+      characterId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}character_id'],
+          )!,
+      classId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}class_id'],
+          )!,
+      classLevel:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}class_level'],
+          )!,
+      progressionId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}progression_id'],
+          )!,
+      appliedIncreases:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}applied_increases'],
+          )!,
+    );
+  }
+
+  @override
+  $CharacterAbilityImprovementsTable createAlias(String alias) {
+    return $CharacterAbilityImprovementsTable(attachedDatabase, alias);
+  }
+}
+
+class CharacterAbilityImprovement extends DataClass
+    implements Insertable<CharacterAbilityImprovement> {
+  final int localId;
+  final String characterId;
+
+  /// Classe que concedeu a escolha.
+  ///
+  /// Não é anulável: no multiclasse a escolha vem do nível DA CLASSE, e sem
+  /// esse dado não há como dizer qual progressão foi gasta.
+  final String classId;
+
+  /// Nível NA CLASSE, não o nível total do personagem.
+  final int classLevel;
+
+  /// Id da progressão que concedeu a escolha (`asi.fighter.4`).
+  ///
+  /// Redundante com classe + nível hoje, e de propósito: é o que permite uma
+  /// fonte futura de incremento (raça, item) coexistir sem remodelar a tabela.
+  final String progressionId;
+
+  /// Quanto este incremento somou em cada atributo, como CSV `atributo:valor`.
+  final String appliedIncreases;
+  const CharacterAbilityImprovement({
+    required this.localId,
+    required this.characterId,
+    required this.classId,
+    required this.classLevel,
+    required this.progressionId,
+    required this.appliedIncreases,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['local_id'] = Variable<int>(localId);
+    map['character_id'] = Variable<String>(characterId);
+    map['class_id'] = Variable<String>(classId);
+    map['class_level'] = Variable<int>(classLevel);
+    map['progression_id'] = Variable<String>(progressionId);
+    map['applied_increases'] = Variable<String>(appliedIncreases);
+    return map;
+  }
+
+  CharacterAbilityImprovementsCompanion toCompanion(bool nullToAbsent) {
+    return CharacterAbilityImprovementsCompanion(
+      localId: Value(localId),
+      characterId: Value(characterId),
+      classId: Value(classId),
+      classLevel: Value(classLevel),
+      progressionId: Value(progressionId),
+      appliedIncreases: Value(appliedIncreases),
+    );
+  }
+
+  factory CharacterAbilityImprovement.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CharacterAbilityImprovement(
+      localId: serializer.fromJson<int>(json['localId']),
+      characterId: serializer.fromJson<String>(json['characterId']),
+      classId: serializer.fromJson<String>(json['classId']),
+      classLevel: serializer.fromJson<int>(json['classLevel']),
+      progressionId: serializer.fromJson<String>(json['progressionId']),
+      appliedIncreases: serializer.fromJson<String>(json['appliedIncreases']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'localId': serializer.toJson<int>(localId),
+      'characterId': serializer.toJson<String>(characterId),
+      'classId': serializer.toJson<String>(classId),
+      'classLevel': serializer.toJson<int>(classLevel),
+      'progressionId': serializer.toJson<String>(progressionId),
+      'appliedIncreases': serializer.toJson<String>(appliedIncreases),
+    };
+  }
+
+  CharacterAbilityImprovement copyWith({
+    int? localId,
+    String? characterId,
+    String? classId,
+    int? classLevel,
+    String? progressionId,
+    String? appliedIncreases,
+  }) => CharacterAbilityImprovement(
+    localId: localId ?? this.localId,
+    characterId: characterId ?? this.characterId,
+    classId: classId ?? this.classId,
+    classLevel: classLevel ?? this.classLevel,
+    progressionId: progressionId ?? this.progressionId,
+    appliedIncreases: appliedIncreases ?? this.appliedIncreases,
+  );
+  CharacterAbilityImprovement copyWithCompanion(
+    CharacterAbilityImprovementsCompanion data,
+  ) {
+    return CharacterAbilityImprovement(
+      localId: data.localId.present ? data.localId.value : this.localId,
+      characterId:
+          data.characterId.present ? data.characterId.value : this.characterId,
+      classId: data.classId.present ? data.classId.value : this.classId,
+      classLevel:
+          data.classLevel.present ? data.classLevel.value : this.classLevel,
+      progressionId:
+          data.progressionId.present
+              ? data.progressionId.value
+              : this.progressionId,
+      appliedIncreases:
+          data.appliedIncreases.present
+              ? data.appliedIncreases.value
+              : this.appliedIncreases,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CharacterAbilityImprovement(')
+          ..write('localId: $localId, ')
+          ..write('characterId: $characterId, ')
+          ..write('classId: $classId, ')
+          ..write('classLevel: $classLevel, ')
+          ..write('progressionId: $progressionId, ')
+          ..write('appliedIncreases: $appliedIncreases')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    localId,
+    characterId,
+    classId,
+    classLevel,
+    progressionId,
+    appliedIncreases,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CharacterAbilityImprovement &&
+          other.localId == this.localId &&
+          other.characterId == this.characterId &&
+          other.classId == this.classId &&
+          other.classLevel == this.classLevel &&
+          other.progressionId == this.progressionId &&
+          other.appliedIncreases == this.appliedIncreases);
+}
+
+class CharacterAbilityImprovementsCompanion
+    extends UpdateCompanion<CharacterAbilityImprovement> {
+  final Value<int> localId;
+  final Value<String> characterId;
+  final Value<String> classId;
+  final Value<int> classLevel;
+  final Value<String> progressionId;
+  final Value<String> appliedIncreases;
+  const CharacterAbilityImprovementsCompanion({
+    this.localId = const Value.absent(),
+    this.characterId = const Value.absent(),
+    this.classId = const Value.absent(),
+    this.classLevel = const Value.absent(),
+    this.progressionId = const Value.absent(),
+    this.appliedIncreases = const Value.absent(),
+  });
+  CharacterAbilityImprovementsCompanion.insert({
+    this.localId = const Value.absent(),
+    required String characterId,
+    required String classId,
+    required int classLevel,
+    required String progressionId,
+    this.appliedIncreases = const Value.absent(),
+  }) : characterId = Value(characterId),
+       classId = Value(classId),
+       classLevel = Value(classLevel),
+       progressionId = Value(progressionId);
+  static Insertable<CharacterAbilityImprovement> custom({
+    Expression<int>? localId,
+    Expression<String>? characterId,
+    Expression<String>? classId,
+    Expression<int>? classLevel,
+    Expression<String>? progressionId,
+    Expression<String>? appliedIncreases,
+  }) {
+    return RawValuesInsertable({
+      if (localId != null) 'local_id': localId,
+      if (characterId != null) 'character_id': characterId,
+      if (classId != null) 'class_id': classId,
+      if (classLevel != null) 'class_level': classLevel,
+      if (progressionId != null) 'progression_id': progressionId,
+      if (appliedIncreases != null) 'applied_increases': appliedIncreases,
+    });
+  }
+
+  CharacterAbilityImprovementsCompanion copyWith({
+    Value<int>? localId,
+    Value<String>? characterId,
+    Value<String>? classId,
+    Value<int>? classLevel,
+    Value<String>? progressionId,
+    Value<String>? appliedIncreases,
+  }) {
+    return CharacterAbilityImprovementsCompanion(
+      localId: localId ?? this.localId,
+      characterId: characterId ?? this.characterId,
+      classId: classId ?? this.classId,
+      classLevel: classLevel ?? this.classLevel,
+      progressionId: progressionId ?? this.progressionId,
+      appliedIncreases: appliedIncreases ?? this.appliedIncreases,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (localId.present) {
+      map['local_id'] = Variable<int>(localId.value);
+    }
+    if (characterId.present) {
+      map['character_id'] = Variable<String>(characterId.value);
+    }
+    if (classId.present) {
+      map['class_id'] = Variable<String>(classId.value);
+    }
+    if (classLevel.present) {
+      map['class_level'] = Variable<int>(classLevel.value);
+    }
+    if (progressionId.present) {
+      map['progression_id'] = Variable<String>(progressionId.value);
+    }
+    if (appliedIncreases.present) {
+      map['applied_increases'] = Variable<String>(appliedIncreases.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CharacterAbilityImprovementsCompanion(')
+          ..write('localId: $localId, ')
+          ..write('characterId: $characterId, ')
+          ..write('classId: $classId, ')
+          ..write('classLevel: $classLevel, ')
+          ..write('progressionId: $progressionId, ')
+          ..write('appliedIncreases: $appliedIncreases')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CharacterFeatureStatesTable extends CharacterFeatureStates
+    with TableInfo<$CharacterFeatureStatesTable, CharacterFeatureState> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CharacterFeatureStatesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _localIdMeta = const VerificationMeta(
+    'localId',
+  );
+  @override
+  late final GeneratedColumn<int> localId = GeneratedColumn<int>(
+    'local_id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _characterIdMeta = const VerificationMeta(
+    'characterId',
+  );
+  @override
+  late final GeneratedColumn<String> characterId = GeneratedColumn<String>(
+    'character_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES characters (id)',
+    ),
+  );
+  static const VerificationMeta _featureIdMeta = const VerificationMeta(
+    'featureId',
+  );
+  @override
+  late final GeneratedColumn<String> featureId = GeneratedColumn<String>(
+    'feature_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _usesSpentMeta = const VerificationMeta(
+    'usesSpent',
+  );
+  @override
+  late final GeneratedColumn<int> usesSpent = GeneratedColumn<int>(
+    'uses_spent',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _isActiveMeta = const VerificationMeta(
+    'isActive',
+  );
+  @override
+  late final GeneratedColumn<bool> isActive = GeneratedColumn<bool>(
+    'is_active',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_active" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _choiceOptionIdMeta = const VerificationMeta(
+    'choiceOptionId',
+  );
+  @override
+  late final GeneratedColumn<String> choiceOptionId = GeneratedColumn<String>(
+    'choice_option_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    localId,
+    characterId,
+    featureId,
+    usesSpent,
+    isActive,
+    choiceOptionId,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'character_feature_states';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CharacterFeatureState> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('local_id')) {
+      context.handle(
+        _localIdMeta,
+        localId.isAcceptableOrUnknown(data['local_id']!, _localIdMeta),
+      );
+    }
+    if (data.containsKey('character_id')) {
+      context.handle(
+        _characterIdMeta,
+        characterId.isAcceptableOrUnknown(
+          data['character_id']!,
+          _characterIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_characterIdMeta);
+    }
+    if (data.containsKey('feature_id')) {
+      context.handle(
+        _featureIdMeta,
+        featureId.isAcceptableOrUnknown(data['feature_id']!, _featureIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_featureIdMeta);
+    }
+    if (data.containsKey('uses_spent')) {
+      context.handle(
+        _usesSpentMeta,
+        usesSpent.isAcceptableOrUnknown(data['uses_spent']!, _usesSpentMeta),
+      );
+    }
+    if (data.containsKey('is_active')) {
+      context.handle(
+        _isActiveMeta,
+        isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta),
+      );
+    }
+    if (data.containsKey('choice_option_id')) {
+      context.handle(
+        _choiceOptionIdMeta,
+        choiceOptionId.isAcceptableOrUnknown(
+          data['choice_option_id']!,
+          _choiceOptionIdMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {localId};
+  @override
+  CharacterFeatureState map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CharacterFeatureState(
+      localId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}local_id'],
+          )!,
+      characterId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}character_id'],
+          )!,
+      featureId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}feature_id'],
+          )!,
+      usesSpent:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}uses_spent'],
+          )!,
+      isActive:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.bool,
+            data['${effectivePrefix}is_active'],
+          )!,
+      choiceOptionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}choice_option_id'],
+      ),
+    );
+  }
+
+  @override
+  $CharacterFeatureStatesTable createAlias(String alias) {
+    return $CharacterFeatureStatesTable(attachedDatabase, alias);
+  }
+}
+
+class CharacterFeatureState extends DataClass
+    implements Insertable<CharacterFeatureState> {
+  final int localId;
+  final String characterId;
+
+  /// Id estável da característica, montado por
+  /// `SpecialFeatureResolver.featureId` (`class.barbarian.1.furia`).
+  final String featureId;
+
+  /// Usos GASTOS desde a última recarga, não os restantes.
+  ///
+  /// O máximo é derivado de nível e atributo, então muda sozinho quando o
+  /// personagem evolui. Guardar os restantes deixaria o número defasado sem
+  /// ninguém mexer nele; guardar o gasto mantém `restante = máximo - gasto`
+  /// sempre correto.
+  final int usesSpent;
+
+  /// Se o estado ativável está ligado.
+  final bool isActive;
+
+  /// Opção escolhida dentro da característica, pelo id da opção.
+  ///
+  /// Guarda o identificador, não o rótulo: corrigir o texto do compêndio não
+  /// pode invalidar a escolha do jogador.
+  final String? choiceOptionId;
+  const CharacterFeatureState({
+    required this.localId,
+    required this.characterId,
+    required this.featureId,
+    required this.usesSpent,
+    required this.isActive,
+    this.choiceOptionId,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['local_id'] = Variable<int>(localId);
+    map['character_id'] = Variable<String>(characterId);
+    map['feature_id'] = Variable<String>(featureId);
+    map['uses_spent'] = Variable<int>(usesSpent);
+    map['is_active'] = Variable<bool>(isActive);
+    if (!nullToAbsent || choiceOptionId != null) {
+      map['choice_option_id'] = Variable<String>(choiceOptionId);
+    }
+    return map;
+  }
+
+  CharacterFeatureStatesCompanion toCompanion(bool nullToAbsent) {
+    return CharacterFeatureStatesCompanion(
+      localId: Value(localId),
+      characterId: Value(characterId),
+      featureId: Value(featureId),
+      usesSpent: Value(usesSpent),
+      isActive: Value(isActive),
+      choiceOptionId:
+          choiceOptionId == null && nullToAbsent
+              ? const Value.absent()
+              : Value(choiceOptionId),
+    );
+  }
+
+  factory CharacterFeatureState.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CharacterFeatureState(
+      localId: serializer.fromJson<int>(json['localId']),
+      characterId: serializer.fromJson<String>(json['characterId']),
+      featureId: serializer.fromJson<String>(json['featureId']),
+      usesSpent: serializer.fromJson<int>(json['usesSpent']),
+      isActive: serializer.fromJson<bool>(json['isActive']),
+      choiceOptionId: serializer.fromJson<String?>(json['choiceOptionId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'localId': serializer.toJson<int>(localId),
+      'characterId': serializer.toJson<String>(characterId),
+      'featureId': serializer.toJson<String>(featureId),
+      'usesSpent': serializer.toJson<int>(usesSpent),
+      'isActive': serializer.toJson<bool>(isActive),
+      'choiceOptionId': serializer.toJson<String?>(choiceOptionId),
+    };
+  }
+
+  CharacterFeatureState copyWith({
+    int? localId,
+    String? characterId,
+    String? featureId,
+    int? usesSpent,
+    bool? isActive,
+    Value<String?> choiceOptionId = const Value.absent(),
+  }) => CharacterFeatureState(
+    localId: localId ?? this.localId,
+    characterId: characterId ?? this.characterId,
+    featureId: featureId ?? this.featureId,
+    usesSpent: usesSpent ?? this.usesSpent,
+    isActive: isActive ?? this.isActive,
+    choiceOptionId:
+        choiceOptionId.present ? choiceOptionId.value : this.choiceOptionId,
+  );
+  CharacterFeatureState copyWithCompanion(
+    CharacterFeatureStatesCompanion data,
+  ) {
+    return CharacterFeatureState(
+      localId: data.localId.present ? data.localId.value : this.localId,
+      characterId:
+          data.characterId.present ? data.characterId.value : this.characterId,
+      featureId: data.featureId.present ? data.featureId.value : this.featureId,
+      usesSpent: data.usesSpent.present ? data.usesSpent.value : this.usesSpent,
+      isActive: data.isActive.present ? data.isActive.value : this.isActive,
+      choiceOptionId:
+          data.choiceOptionId.present
+              ? data.choiceOptionId.value
+              : this.choiceOptionId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CharacterFeatureState(')
+          ..write('localId: $localId, ')
+          ..write('characterId: $characterId, ')
+          ..write('featureId: $featureId, ')
+          ..write('usesSpent: $usesSpent, ')
+          ..write('isActive: $isActive, ')
+          ..write('choiceOptionId: $choiceOptionId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    localId,
+    characterId,
+    featureId,
+    usesSpent,
+    isActive,
+    choiceOptionId,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CharacterFeatureState &&
+          other.localId == this.localId &&
+          other.characterId == this.characterId &&
+          other.featureId == this.featureId &&
+          other.usesSpent == this.usesSpent &&
+          other.isActive == this.isActive &&
+          other.choiceOptionId == this.choiceOptionId);
+}
+
+class CharacterFeatureStatesCompanion
+    extends UpdateCompanion<CharacterFeatureState> {
+  final Value<int> localId;
+  final Value<String> characterId;
+  final Value<String> featureId;
+  final Value<int> usesSpent;
+  final Value<bool> isActive;
+  final Value<String?> choiceOptionId;
+  const CharacterFeatureStatesCompanion({
+    this.localId = const Value.absent(),
+    this.characterId = const Value.absent(),
+    this.featureId = const Value.absent(),
+    this.usesSpent = const Value.absent(),
+    this.isActive = const Value.absent(),
+    this.choiceOptionId = const Value.absent(),
+  });
+  CharacterFeatureStatesCompanion.insert({
+    this.localId = const Value.absent(),
+    required String characterId,
+    required String featureId,
+    this.usesSpent = const Value.absent(),
+    this.isActive = const Value.absent(),
+    this.choiceOptionId = const Value.absent(),
+  }) : characterId = Value(characterId),
+       featureId = Value(featureId);
+  static Insertable<CharacterFeatureState> custom({
+    Expression<int>? localId,
+    Expression<String>? characterId,
+    Expression<String>? featureId,
+    Expression<int>? usesSpent,
+    Expression<bool>? isActive,
+    Expression<String>? choiceOptionId,
+  }) {
+    return RawValuesInsertable({
+      if (localId != null) 'local_id': localId,
+      if (characterId != null) 'character_id': characterId,
+      if (featureId != null) 'feature_id': featureId,
+      if (usesSpent != null) 'uses_spent': usesSpent,
+      if (isActive != null) 'is_active': isActive,
+      if (choiceOptionId != null) 'choice_option_id': choiceOptionId,
+    });
+  }
+
+  CharacterFeatureStatesCompanion copyWith({
+    Value<int>? localId,
+    Value<String>? characterId,
+    Value<String>? featureId,
+    Value<int>? usesSpent,
+    Value<bool>? isActive,
+    Value<String?>? choiceOptionId,
+  }) {
+    return CharacterFeatureStatesCompanion(
+      localId: localId ?? this.localId,
+      characterId: characterId ?? this.characterId,
+      featureId: featureId ?? this.featureId,
+      usesSpent: usesSpent ?? this.usesSpent,
+      isActive: isActive ?? this.isActive,
+      choiceOptionId: choiceOptionId ?? this.choiceOptionId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (localId.present) {
+      map['local_id'] = Variable<int>(localId.value);
+    }
+    if (characterId.present) {
+      map['character_id'] = Variable<String>(characterId.value);
+    }
+    if (featureId.present) {
+      map['feature_id'] = Variable<String>(featureId.value);
+    }
+    if (usesSpent.present) {
+      map['uses_spent'] = Variable<int>(usesSpent.value);
+    }
+    if (isActive.present) {
+      map['is_active'] = Variable<bool>(isActive.value);
+    }
+    if (choiceOptionId.present) {
+      map['choice_option_id'] = Variable<String>(choiceOptionId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CharacterFeatureStatesCompanion(')
+          ..write('localId: $localId, ')
+          ..write('characterId: $characterId, ')
+          ..write('featureId: $featureId, ')
+          ..write('usesSpent: $usesSpent, ')
+          ..write('isActive: $isActive, ')
+          ..write('choiceOptionId: $choiceOptionId')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CharacterLanguagesTable extends CharacterLanguages
+    with TableInfo<$CharacterLanguagesTable, CharacterLanguage> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CharacterLanguagesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _localIdMeta = const VerificationMeta(
+    'localId',
+  );
+  @override
+  late final GeneratedColumn<int> localId = GeneratedColumn<int>(
+    'local_id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _characterIdMeta = const VerificationMeta(
+    'characterId',
+  );
+  @override
+  late final GeneratedColumn<String> characterId = GeneratedColumn<String>(
+    'character_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES characters (id)',
+    ),
+  );
+  static const VerificationMeta _languageIdMeta = const VerificationMeta(
+    'languageId',
+  );
+  @override
+  late final GeneratedColumn<String> languageId = GeneratedColumn<String>(
+    'language_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('choice'),
+  );
+  static const VerificationMeta _slotIdMeta = const VerificationMeta('slotId');
+  @override
+  late final GeneratedColumn<String> slotId = GeneratedColumn<String>(
+    'slot_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sourceIdMeta = const VerificationMeta(
+    'sourceId',
+  );
+  @override
+  late final GeneratedColumn<String> sourceId = GeneratedColumn<String>(
+    'source_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sourceLabelMeta = const VerificationMeta(
+    'sourceLabel',
+  );
+  @override
+  late final GeneratedColumn<String> sourceLabel = GeneratedColumn<String>(
+    'source_label',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    localId,
+    characterId,
+    languageId,
+    kind,
+    slotId,
+    sourceId,
+    sourceLabel,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'character_languages';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CharacterLanguage> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('local_id')) {
+      context.handle(
+        _localIdMeta,
+        localId.isAcceptableOrUnknown(data['local_id']!, _localIdMeta),
+      );
+    }
+    if (data.containsKey('character_id')) {
+      context.handle(
+        _characterIdMeta,
+        characterId.isAcceptableOrUnknown(
+          data['character_id']!,
+          _characterIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_characterIdMeta);
+    }
+    if (data.containsKey('language_id')) {
+      context.handle(
+        _languageIdMeta,
+        languageId.isAcceptableOrUnknown(data['language_id']!, _languageIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_languageIdMeta);
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+        _kindMeta,
+        kind.isAcceptableOrUnknown(data['kind']!, _kindMeta),
+      );
+    }
+    if (data.containsKey('slot_id')) {
+      context.handle(
+        _slotIdMeta,
+        slotId.isAcceptableOrUnknown(data['slot_id']!, _slotIdMeta),
+      );
+    }
+    if (data.containsKey('source_id')) {
+      context.handle(
+        _sourceIdMeta,
+        sourceId.isAcceptableOrUnknown(data['source_id']!, _sourceIdMeta),
+      );
+    }
+    if (data.containsKey('source_label')) {
+      context.handle(
+        _sourceLabelMeta,
+        sourceLabel.isAcceptableOrUnknown(
+          data['source_label']!,
+          _sourceLabelMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {localId};
+  @override
+  CharacterLanguage map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CharacterLanguage(
+      localId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}local_id'],
+          )!,
+      characterId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}character_id'],
+          )!,
+      languageId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}language_id'],
+          )!,
+      kind:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}kind'],
+          )!,
+      slotId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}slot_id'],
+      ),
+      sourceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_id'],
+      ),
+      sourceLabel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_label'],
+      ),
+    );
+  }
+
+  @override
+  $CharacterLanguagesTable createAlias(String alias) {
+    return $CharacterLanguagesTable(attachedDatabase, alias);
+  }
+}
+
+class CharacterLanguage extends DataClass
+    implements Insertable<CharacterLanguage> {
+  final int localId;
+  final String characterId;
+
+  /// Id do idioma no catálogo (`elvish`, `thieves_cant`).
+  ///
+  /// Id, nunca nome: renomear "Leonino" para "Leonin" no compêndio não pode
+  /// fazer o personagem perder o idioma.
+  final String languageId;
+
+  /// Id de `LanguageOriginKind`: `choice`, `manual` ou `legacy`.
+  ///
+  /// Texto em vez de inteiro para a ordem do enum poder mudar sem
+  /// reinterpretar dado gravado.
+  final String kind;
+
+  /// Id da vaga que permitiu a escolha.
+  ///
+  /// É o que permite remover só o que perdeu a origem: trocar a raça apaga as
+  /// vagas dela, e a escolha que apontava para uma dessas vagas cai, enquanto
+  /// a escolha do antecedente continua. Nulo em idioma manual ou legado.
+  final String? slotId;
+
+  /// Id da fonte que abriu a vaga (`elf_phb`, `acolyte`, `linguist`).
+  final String? sourceId;
+
+  /// Rótulo da fonte, já pronto para exibir.
+  ///
+  /// Persistido em vez de remontado na leitura, igual ao inventário: o
+  /// compêndio pode mudar de nome, e a ficha deve continuar dizendo de onde o
+  /// idioma veio.
+  final String? sourceLabel;
+  const CharacterLanguage({
+    required this.localId,
+    required this.characterId,
+    required this.languageId,
+    required this.kind,
+    this.slotId,
+    this.sourceId,
+    this.sourceLabel,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['local_id'] = Variable<int>(localId);
+    map['character_id'] = Variable<String>(characterId);
+    map['language_id'] = Variable<String>(languageId);
+    map['kind'] = Variable<String>(kind);
+    if (!nullToAbsent || slotId != null) {
+      map['slot_id'] = Variable<String>(slotId);
+    }
+    if (!nullToAbsent || sourceId != null) {
+      map['source_id'] = Variable<String>(sourceId);
+    }
+    if (!nullToAbsent || sourceLabel != null) {
+      map['source_label'] = Variable<String>(sourceLabel);
+    }
+    return map;
+  }
+
+  CharacterLanguagesCompanion toCompanion(bool nullToAbsent) {
+    return CharacterLanguagesCompanion(
+      localId: Value(localId),
+      characterId: Value(characterId),
+      languageId: Value(languageId),
+      kind: Value(kind),
+      slotId:
+          slotId == null && nullToAbsent ? const Value.absent() : Value(slotId),
+      sourceId:
+          sourceId == null && nullToAbsent
+              ? const Value.absent()
+              : Value(sourceId),
+      sourceLabel:
+          sourceLabel == null && nullToAbsent
+              ? const Value.absent()
+              : Value(sourceLabel),
+    );
+  }
+
+  factory CharacterLanguage.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CharacterLanguage(
+      localId: serializer.fromJson<int>(json['localId']),
+      characterId: serializer.fromJson<String>(json['characterId']),
+      languageId: serializer.fromJson<String>(json['languageId']),
+      kind: serializer.fromJson<String>(json['kind']),
+      slotId: serializer.fromJson<String?>(json['slotId']),
+      sourceId: serializer.fromJson<String?>(json['sourceId']),
+      sourceLabel: serializer.fromJson<String?>(json['sourceLabel']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'localId': serializer.toJson<int>(localId),
+      'characterId': serializer.toJson<String>(characterId),
+      'languageId': serializer.toJson<String>(languageId),
+      'kind': serializer.toJson<String>(kind),
+      'slotId': serializer.toJson<String?>(slotId),
+      'sourceId': serializer.toJson<String?>(sourceId),
+      'sourceLabel': serializer.toJson<String?>(sourceLabel),
+    };
+  }
+
+  CharacterLanguage copyWith({
+    int? localId,
+    String? characterId,
+    String? languageId,
+    String? kind,
+    Value<String?> slotId = const Value.absent(),
+    Value<String?> sourceId = const Value.absent(),
+    Value<String?> sourceLabel = const Value.absent(),
+  }) => CharacterLanguage(
+    localId: localId ?? this.localId,
+    characterId: characterId ?? this.characterId,
+    languageId: languageId ?? this.languageId,
+    kind: kind ?? this.kind,
+    slotId: slotId.present ? slotId.value : this.slotId,
+    sourceId: sourceId.present ? sourceId.value : this.sourceId,
+    sourceLabel: sourceLabel.present ? sourceLabel.value : this.sourceLabel,
+  );
+  CharacterLanguage copyWithCompanion(CharacterLanguagesCompanion data) {
+    return CharacterLanguage(
+      localId: data.localId.present ? data.localId.value : this.localId,
+      characterId:
+          data.characterId.present ? data.characterId.value : this.characterId,
+      languageId:
+          data.languageId.present ? data.languageId.value : this.languageId,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      slotId: data.slotId.present ? data.slotId.value : this.slotId,
+      sourceId: data.sourceId.present ? data.sourceId.value : this.sourceId,
+      sourceLabel:
+          data.sourceLabel.present ? data.sourceLabel.value : this.sourceLabel,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CharacterLanguage(')
+          ..write('localId: $localId, ')
+          ..write('characterId: $characterId, ')
+          ..write('languageId: $languageId, ')
+          ..write('kind: $kind, ')
+          ..write('slotId: $slotId, ')
+          ..write('sourceId: $sourceId, ')
+          ..write('sourceLabel: $sourceLabel')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    localId,
+    characterId,
+    languageId,
+    kind,
+    slotId,
+    sourceId,
+    sourceLabel,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CharacterLanguage &&
+          other.localId == this.localId &&
+          other.characterId == this.characterId &&
+          other.languageId == this.languageId &&
+          other.kind == this.kind &&
+          other.slotId == this.slotId &&
+          other.sourceId == this.sourceId &&
+          other.sourceLabel == this.sourceLabel);
+}
+
+class CharacterLanguagesCompanion extends UpdateCompanion<CharacterLanguage> {
+  final Value<int> localId;
+  final Value<String> characterId;
+  final Value<String> languageId;
+  final Value<String> kind;
+  final Value<String?> slotId;
+  final Value<String?> sourceId;
+  final Value<String?> sourceLabel;
+  const CharacterLanguagesCompanion({
+    this.localId = const Value.absent(),
+    this.characterId = const Value.absent(),
+    this.languageId = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.slotId = const Value.absent(),
+    this.sourceId = const Value.absent(),
+    this.sourceLabel = const Value.absent(),
+  });
+  CharacterLanguagesCompanion.insert({
+    this.localId = const Value.absent(),
+    required String characterId,
+    required String languageId,
+    this.kind = const Value.absent(),
+    this.slotId = const Value.absent(),
+    this.sourceId = const Value.absent(),
+    this.sourceLabel = const Value.absent(),
+  }) : characterId = Value(characterId),
+       languageId = Value(languageId);
+  static Insertable<CharacterLanguage> custom({
+    Expression<int>? localId,
+    Expression<String>? characterId,
+    Expression<String>? languageId,
+    Expression<String>? kind,
+    Expression<String>? slotId,
+    Expression<String>? sourceId,
+    Expression<String>? sourceLabel,
+  }) {
+    return RawValuesInsertable({
+      if (localId != null) 'local_id': localId,
+      if (characterId != null) 'character_id': characterId,
+      if (languageId != null) 'language_id': languageId,
+      if (kind != null) 'kind': kind,
+      if (slotId != null) 'slot_id': slotId,
+      if (sourceId != null) 'source_id': sourceId,
+      if (sourceLabel != null) 'source_label': sourceLabel,
+    });
+  }
+
+  CharacterLanguagesCompanion copyWith({
+    Value<int>? localId,
+    Value<String>? characterId,
+    Value<String>? languageId,
+    Value<String>? kind,
+    Value<String?>? slotId,
+    Value<String?>? sourceId,
+    Value<String?>? sourceLabel,
+  }) {
+    return CharacterLanguagesCompanion(
+      localId: localId ?? this.localId,
+      characterId: characterId ?? this.characterId,
+      languageId: languageId ?? this.languageId,
+      kind: kind ?? this.kind,
+      slotId: slotId ?? this.slotId,
+      sourceId: sourceId ?? this.sourceId,
+      sourceLabel: sourceLabel ?? this.sourceLabel,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (localId.present) {
+      map['local_id'] = Variable<int>(localId.value);
+    }
+    if (characterId.present) {
+      map['character_id'] = Variable<String>(characterId.value);
+    }
+    if (languageId.present) {
+      map['language_id'] = Variable<String>(languageId.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (slotId.present) {
+      map['slot_id'] = Variable<String>(slotId.value);
+    }
+    if (sourceId.present) {
+      map['source_id'] = Variable<String>(sourceId.value);
+    }
+    if (sourceLabel.present) {
+      map['source_label'] = Variable<String>(sourceLabel.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CharacterLanguagesCompanion(')
+          ..write('localId: $localId, ')
+          ..write('characterId: $characterId, ')
+          ..write('languageId: $languageId, ')
+          ..write('kind: $kind, ')
+          ..write('slotId: $slotId, ')
+          ..write('sourceId: $sourceId, ')
+          ..write('sourceLabel: $sourceLabel')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $CharacterInventoryItemsTable extends CharacterInventoryItems
     with TableInfo<$CharacterInventoryItemsTable, CharacterInventoryItem> {
   @override
@@ -11862,6 +13347,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $CharacterSpellSlotsUsageTable characterSpellSlotsUsage =
       $CharacterSpellSlotsUsageTable(this);
   late final $CharacterFeatsTable characterFeats = $CharacterFeatsTable(this);
+  late final $CharacterAbilityImprovementsTable characterAbilityImprovements =
+      $CharacterAbilityImprovementsTable(this);
+  late final $CharacterFeatureStatesTable characterFeatureStates =
+      $CharacterFeatureStatesTable(this);
+  late final $CharacterLanguagesTable characterLanguages =
+      $CharacterLanguagesTable(this);
   late final $CharacterInventoryItemsTable characterInventoryItems =
       $CharacterInventoryItemsTable(this);
   late final $CharacterCurrencyGrantsTable characterCurrencyGrants =
@@ -11880,6 +13371,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     characterMagicItemSpells,
     characterSpellSlotsUsage,
     characterFeats,
+    characterAbilityImprovements,
+    characterFeatureStates,
+    characterLanguages,
     characterInventoryItems,
     characterCurrencyGrants,
     classEntries,
@@ -11910,6 +13404,7 @@ typedef $$CharactersTableCreateCompanionBuilder =
       Value<String> skillProficiencyGrants,
       Value<String> backgroundPersonalityChoices,
       Value<int> armorClass,
+      Value<String?> armorClassFormulaId,
       Value<int> initiativeBonus,
       Value<int> speed,
       Value<double?> speedMeters,
@@ -11997,6 +13492,7 @@ typedef $$CharactersTableUpdateCompanionBuilder =
       Value<String> skillProficiencyGrants,
       Value<String> backgroundPersonalityChoices,
       Value<int> armorClass,
+      Value<String?> armorClassFormulaId,
       Value<int> initiativeBonus,
       Value<int> speed,
       Value<double?> speedMeters,
@@ -12216,6 +13712,86 @@ final class $$CharactersTableReferences
   }
 
   static MultiTypedResultKey<
+    $CharacterAbilityImprovementsTable,
+    List<CharacterAbilityImprovement>
+  >
+  _characterAbilityImprovementsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.characterAbilityImprovements,
+        aliasName: $_aliasNameGenerator(
+          db.characters.id,
+          db.characterAbilityImprovements.characterId,
+        ),
+      );
+
+  $$CharacterAbilityImprovementsTableProcessedTableManager
+  get characterAbilityImprovementsRefs {
+    final manager = $$CharacterAbilityImprovementsTableTableManager(
+      $_db,
+      $_db.characterAbilityImprovements,
+    ).filter((f) => f.characterId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _characterAbilityImprovementsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $CharacterFeatureStatesTable,
+    List<CharacterFeatureState>
+  >
+  _characterFeatureStatesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.characterFeatureStates,
+        aliasName: $_aliasNameGenerator(
+          db.characters.id,
+          db.characterFeatureStates.characterId,
+        ),
+      );
+
+  $$CharacterFeatureStatesTableProcessedTableManager
+  get characterFeatureStatesRefs {
+    final manager = $$CharacterFeatureStatesTableTableManager(
+      $_db,
+      $_db.characterFeatureStates,
+    ).filter((f) => f.characterId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _characterFeatureStatesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$CharacterLanguagesTable, List<CharacterLanguage>>
+  _characterLanguagesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.characterLanguages,
+        aliasName: $_aliasNameGenerator(
+          db.characters.id,
+          db.characterLanguages.characterId,
+        ),
+      );
+
+  $$CharacterLanguagesTableProcessedTableManager get characterLanguagesRefs {
+    final manager = $$CharacterLanguagesTableTableManager(
+      $_db,
+      $_db.characterLanguages,
+    ).filter((f) => f.characterId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _characterLanguagesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
     $CharacterInventoryItemsTable,
     List<CharacterInventoryItem>
   >
@@ -12388,6 +13964,11 @@ class $$CharactersTableFilterComposer
 
   ColumnFilters<int> get armorClass => $composableBuilder(
     column: $table.armorClass,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get armorClassFormulaId => $composableBuilder(
+    column: $table.armorClassFormulaId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -12848,6 +14429,86 @@ class $$CharactersTableFilterComposer
     return f(composer);
   }
 
+  Expression<bool> characterAbilityImprovementsRefs(
+    Expression<bool> Function(
+      $$CharacterAbilityImprovementsTableFilterComposer f,
+    )
+    f,
+  ) {
+    final $$CharacterAbilityImprovementsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.characterAbilityImprovements,
+          getReferencedColumn: (t) => t.characterId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CharacterAbilityImprovementsTableFilterComposer(
+                $db: $db,
+                $table: $db.characterAbilityImprovements,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<bool> characterFeatureStatesRefs(
+    Expression<bool> Function($$CharacterFeatureStatesTableFilterComposer f) f,
+  ) {
+    final $$CharacterFeatureStatesTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.characterFeatureStates,
+          getReferencedColumn: (t) => t.characterId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CharacterFeatureStatesTableFilterComposer(
+                $db: $db,
+                $table: $db.characterFeatureStates,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<bool> characterLanguagesRefs(
+    Expression<bool> Function($$CharacterLanguagesTableFilterComposer f) f,
+  ) {
+    final $$CharacterLanguagesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.characterLanguages,
+      getReferencedColumn: (t) => t.characterId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharacterLanguagesTableFilterComposer(
+            $db: $db,
+            $table: $db.characterLanguages,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<bool> characterInventoryItemsRefs(
     Expression<bool> Function($$CharacterInventoryItemsTableFilterComposer f) f,
   ) {
@@ -13018,6 +14679,11 @@ class $$CharactersTableOrderingComposer
 
   ColumnOrderings<int> get armorClass => $composableBuilder(
     column: $table.armorClass,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get armorClassFormulaId => $composableBuilder(
+    column: $table.armorClassFormulaId,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -13426,6 +15092,11 @@ class $$CharactersTableAnnotationComposer
 
   GeneratedColumn<int> get armorClass => $composableBuilder(
     column: $table.armorClass,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get armorClassFormulaId => $composableBuilder(
+    column: $table.armorClassFormulaId,
     builder: (column) => column,
   );
 
@@ -13878,6 +15549,87 @@ class $$CharactersTableAnnotationComposer
     return f(composer);
   }
 
+  Expression<T> characterAbilityImprovementsRefs<T extends Object>(
+    Expression<T> Function(
+      $$CharacterAbilityImprovementsTableAnnotationComposer a,
+    )
+    f,
+  ) {
+    final $$CharacterAbilityImprovementsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.characterAbilityImprovements,
+          getReferencedColumn: (t) => t.characterId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CharacterAbilityImprovementsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.characterAbilityImprovements,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<T> characterFeatureStatesRefs<T extends Object>(
+    Expression<T> Function($$CharacterFeatureStatesTableAnnotationComposer a) f,
+  ) {
+    final $$CharacterFeatureStatesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.characterFeatureStates,
+          getReferencedColumn: (t) => t.characterId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CharacterFeatureStatesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.characterFeatureStates,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<T> characterLanguagesRefs<T extends Object>(
+    Expression<T> Function($$CharacterLanguagesTableAnnotationComposer a) f,
+  ) {
+    final $$CharacterLanguagesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.characterLanguages,
+          getReferencedColumn: (t) => t.characterId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CharacterLanguagesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.characterLanguages,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
   Expression<T> characterInventoryItemsRefs<T extends Object>(
     Expression<T> Function($$CharacterInventoryItemsTableAnnotationComposer a)
     f,
@@ -13953,6 +15705,9 @@ class $$CharactersTableTableManager
             bool characterMagicItemsRefs,
             bool characterSpellSlotsUsageRefs,
             bool characterFeatsRefs,
+            bool characterAbilityImprovementsRefs,
+            bool characterFeatureStatesRefs,
+            bool characterLanguagesRefs,
             bool characterInventoryItemsRefs,
             bool characterCurrencyGrantsRefs,
           })
@@ -13993,6 +15748,7 @@ class $$CharactersTableTableManager
                 Value<String> backgroundPersonalityChoices =
                     const Value.absent(),
                 Value<int> armorClass = const Value.absent(),
+                Value<String?> armorClassFormulaId = const Value.absent(),
                 Value<int> initiativeBonus = const Value.absent(),
                 Value<int> speed = const Value.absent(),
                 Value<double?> speedMeters = const Value.absent(),
@@ -14078,6 +15834,7 @@ class $$CharactersTableTableManager
                 skillProficiencyGrants: skillProficiencyGrants,
                 backgroundPersonalityChoices: backgroundPersonalityChoices,
                 armorClass: armorClass,
+                armorClassFormulaId: armorClassFormulaId,
                 initiativeBonus: initiativeBonus,
                 speed: speed,
                 speedMeters: speedMeters,
@@ -14166,6 +15923,7 @@ class $$CharactersTableTableManager
                 Value<String> backgroundPersonalityChoices =
                     const Value.absent(),
                 Value<int> armorClass = const Value.absent(),
+                Value<String?> armorClassFormulaId = const Value.absent(),
                 Value<int> initiativeBonus = const Value.absent(),
                 Value<int> speed = const Value.absent(),
                 Value<double?> speedMeters = const Value.absent(),
@@ -14251,6 +16009,7 @@ class $$CharactersTableTableManager
                 skillProficiencyGrants: skillProficiencyGrants,
                 backgroundPersonalityChoices: backgroundPersonalityChoices,
                 armorClass: armorClass,
+                armorClassFormulaId: armorClassFormulaId,
                 initiativeBonus: initiativeBonus,
                 speed: speed,
                 speedMeters: speedMeters,
@@ -14331,6 +16090,9 @@ class $$CharactersTableTableManager
             characterMagicItemsRefs = false,
             characterSpellSlotsUsageRefs = false,
             characterFeatsRefs = false,
+            characterAbilityImprovementsRefs = false,
+            characterFeatureStatesRefs = false,
+            characterLanguagesRefs = false,
             characterInventoryItemsRefs = false,
             characterCurrencyGrantsRefs = false,
           }) {
@@ -14343,6 +16105,10 @@ class $$CharactersTableTableManager
                 if (characterMagicItemsRefs) db.characterMagicItems,
                 if (characterSpellSlotsUsageRefs) db.characterSpellSlotsUsage,
                 if (characterFeatsRefs) db.characterFeats,
+                if (characterAbilityImprovementsRefs)
+                  db.characterAbilityImprovements,
+                if (characterFeatureStatesRefs) db.characterFeatureStates,
+                if (characterLanguagesRefs) db.characterLanguages,
                 if (characterInventoryItemsRefs) db.characterInventoryItems,
                 if (characterCurrencyGrantsRefs) db.characterCurrencyGrants,
               ],
@@ -14481,6 +16247,72 @@ class $$CharactersTableTableManager
                           ),
                       typedResults: items,
                     ),
+                  if (characterAbilityImprovementsRefs)
+                    await $_getPrefetchedData<
+                      Character,
+                      $CharactersTable,
+                      CharacterAbilityImprovement
+                    >(
+                      currentTable: table,
+                      referencedTable: $$CharactersTableReferences
+                          ._characterAbilityImprovementsRefsTable(db),
+                      managerFromTypedResult:
+                          (p0) =>
+                              $$CharactersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).characterAbilityImprovementsRefs,
+                      referencedItemsForCurrentItem:
+                          (item, referencedItems) => referencedItems.where(
+                            (e) => e.characterId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
+                  if (characterFeatureStatesRefs)
+                    await $_getPrefetchedData<
+                      Character,
+                      $CharactersTable,
+                      CharacterFeatureState
+                    >(
+                      currentTable: table,
+                      referencedTable: $$CharactersTableReferences
+                          ._characterFeatureStatesRefsTable(db),
+                      managerFromTypedResult:
+                          (p0) =>
+                              $$CharactersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).characterFeatureStatesRefs,
+                      referencedItemsForCurrentItem:
+                          (item, referencedItems) => referencedItems.where(
+                            (e) => e.characterId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
+                  if (characterLanguagesRefs)
+                    await $_getPrefetchedData<
+                      Character,
+                      $CharactersTable,
+                      CharacterLanguage
+                    >(
+                      currentTable: table,
+                      referencedTable: $$CharactersTableReferences
+                          ._characterLanguagesRefsTable(db),
+                      managerFromTypedResult:
+                          (p0) =>
+                              $$CharactersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).characterLanguagesRefs,
+                      referencedItemsForCurrentItem:
+                          (item, referencedItems) => referencedItems.where(
+                            (e) => e.characterId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
                   if (characterInventoryItemsRefs)
                     await $_getPrefetchedData<
                       Character,
@@ -14552,6 +16384,9 @@ typedef $$CharactersTableProcessedTableManager =
         bool characterMagicItemsRefs,
         bool characterSpellSlotsUsageRefs,
         bool characterFeatsRefs,
+        bool characterAbilityImprovementsRefs,
+        bool characterFeatureStatesRefs,
+        bool characterLanguagesRefs,
         bool characterInventoryItemsRefs,
         bool characterCurrencyGrantsRefs,
       })
@@ -17816,6 +19651,1120 @@ typedef $$CharacterFeatsTableProcessedTableManager =
       CharacterFeat,
       PrefetchHooks Function({bool characterId})
     >;
+typedef $$CharacterAbilityImprovementsTableCreateCompanionBuilder =
+    CharacterAbilityImprovementsCompanion Function({
+      Value<int> localId,
+      required String characterId,
+      required String classId,
+      required int classLevel,
+      required String progressionId,
+      Value<String> appliedIncreases,
+    });
+typedef $$CharacterAbilityImprovementsTableUpdateCompanionBuilder =
+    CharacterAbilityImprovementsCompanion Function({
+      Value<int> localId,
+      Value<String> characterId,
+      Value<String> classId,
+      Value<int> classLevel,
+      Value<String> progressionId,
+      Value<String> appliedIncreases,
+    });
+
+final class $$CharacterAbilityImprovementsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $CharacterAbilityImprovementsTable,
+          CharacterAbilityImprovement
+        > {
+  $$CharacterAbilityImprovementsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $CharactersTable _characterIdTable(_$AppDatabase db) =>
+      db.characters.createAlias(
+        $_aliasNameGenerator(
+          db.characterAbilityImprovements.characterId,
+          db.characters.id,
+        ),
+      );
+
+  $$CharactersTableProcessedTableManager get characterId {
+    final $_column = $_itemColumn<String>('character_id')!;
+
+    final manager = $$CharactersTableTableManager(
+      $_db,
+      $_db.characters,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_characterIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$CharacterAbilityImprovementsTableFilterComposer
+    extends Composer<_$AppDatabase, $CharacterAbilityImprovementsTable> {
+  $$CharacterAbilityImprovementsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get classId => $composableBuilder(
+    column: $table.classId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get classLevel => $composableBuilder(
+    column: $table.classLevel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get progressionId => $composableBuilder(
+    column: $table.progressionId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get appliedIncreases => $composableBuilder(
+    column: $table.appliedIncreases,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CharactersTableFilterComposer get characterId {
+    final $$CharactersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableFilterComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterAbilityImprovementsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CharacterAbilityImprovementsTable> {
+  $$CharacterAbilityImprovementsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get classId => $composableBuilder(
+    column: $table.classId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get classLevel => $composableBuilder(
+    column: $table.classLevel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get progressionId => $composableBuilder(
+    column: $table.progressionId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get appliedIncreases => $composableBuilder(
+    column: $table.appliedIncreases,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CharactersTableOrderingComposer get characterId {
+    final $$CharactersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableOrderingComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterAbilityImprovementsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CharacterAbilityImprovementsTable> {
+  $$CharacterAbilityImprovementsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get localId =>
+      $composableBuilder(column: $table.localId, builder: (column) => column);
+
+  GeneratedColumn<String> get classId =>
+      $composableBuilder(column: $table.classId, builder: (column) => column);
+
+  GeneratedColumn<int> get classLevel => $composableBuilder(
+    column: $table.classLevel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get progressionId => $composableBuilder(
+    column: $table.progressionId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get appliedIncreases => $composableBuilder(
+    column: $table.appliedIncreases,
+    builder: (column) => column,
+  );
+
+  $$CharactersTableAnnotationComposer get characterId {
+    final $$CharactersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterAbilityImprovementsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CharacterAbilityImprovementsTable,
+          CharacterAbilityImprovement,
+          $$CharacterAbilityImprovementsTableFilterComposer,
+          $$CharacterAbilityImprovementsTableOrderingComposer,
+          $$CharacterAbilityImprovementsTableAnnotationComposer,
+          $$CharacterAbilityImprovementsTableCreateCompanionBuilder,
+          $$CharacterAbilityImprovementsTableUpdateCompanionBuilder,
+          (
+            CharacterAbilityImprovement,
+            $$CharacterAbilityImprovementsTableReferences,
+          ),
+          CharacterAbilityImprovement,
+          PrefetchHooks Function({bool characterId})
+        > {
+  $$CharacterAbilityImprovementsTableTableManager(
+    _$AppDatabase db,
+    $CharacterAbilityImprovementsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer:
+              () => $$CharacterAbilityImprovementsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer:
+              () => $$CharacterAbilityImprovementsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer:
+              () => $$CharacterAbilityImprovementsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> localId = const Value.absent(),
+                Value<String> characterId = const Value.absent(),
+                Value<String> classId = const Value.absent(),
+                Value<int> classLevel = const Value.absent(),
+                Value<String> progressionId = const Value.absent(),
+                Value<String> appliedIncreases = const Value.absent(),
+              }) => CharacterAbilityImprovementsCompanion(
+                localId: localId,
+                characterId: characterId,
+                classId: classId,
+                classLevel: classLevel,
+                progressionId: progressionId,
+                appliedIncreases: appliedIncreases,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> localId = const Value.absent(),
+                required String characterId,
+                required String classId,
+                required int classLevel,
+                required String progressionId,
+                Value<String> appliedIncreases = const Value.absent(),
+              }) => CharacterAbilityImprovementsCompanion.insert(
+                localId: localId,
+                characterId: characterId,
+                classId: classId,
+                classLevel: classLevel,
+                progressionId: progressionId,
+                appliedIncreases: appliedIncreases,
+              ),
+          withReferenceMapper:
+              (p0) =>
+                  p0
+                      .map(
+                        (e) => (
+                          e.readTable(table),
+                          $$CharacterAbilityImprovementsTableReferences(
+                            db,
+                            table,
+                            e,
+                          ),
+                        ),
+                      )
+                      .toList(),
+          prefetchHooksCallback: ({characterId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                T extends TableManagerState<
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic
+                >
+              >(state) {
+                if (characterId) {
+                  state =
+                      state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.characterId,
+                            referencedTable:
+                                $$CharacterAbilityImprovementsTableReferences
+                                    ._characterIdTable(db),
+                            referencedColumn:
+                                $$CharacterAbilityImprovementsTableReferences
+                                    ._characterIdTable(db)
+                                    .id,
+                          )
+                          as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$CharacterAbilityImprovementsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CharacterAbilityImprovementsTable,
+      CharacterAbilityImprovement,
+      $$CharacterAbilityImprovementsTableFilterComposer,
+      $$CharacterAbilityImprovementsTableOrderingComposer,
+      $$CharacterAbilityImprovementsTableAnnotationComposer,
+      $$CharacterAbilityImprovementsTableCreateCompanionBuilder,
+      $$CharacterAbilityImprovementsTableUpdateCompanionBuilder,
+      (
+        CharacterAbilityImprovement,
+        $$CharacterAbilityImprovementsTableReferences,
+      ),
+      CharacterAbilityImprovement,
+      PrefetchHooks Function({bool characterId})
+    >;
+typedef $$CharacterFeatureStatesTableCreateCompanionBuilder =
+    CharacterFeatureStatesCompanion Function({
+      Value<int> localId,
+      required String characterId,
+      required String featureId,
+      Value<int> usesSpent,
+      Value<bool> isActive,
+      Value<String?> choiceOptionId,
+    });
+typedef $$CharacterFeatureStatesTableUpdateCompanionBuilder =
+    CharacterFeatureStatesCompanion Function({
+      Value<int> localId,
+      Value<String> characterId,
+      Value<String> featureId,
+      Value<int> usesSpent,
+      Value<bool> isActive,
+      Value<String?> choiceOptionId,
+    });
+
+final class $$CharacterFeatureStatesTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $CharacterFeatureStatesTable,
+          CharacterFeatureState
+        > {
+  $$CharacterFeatureStatesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $CharactersTable _characterIdTable(_$AppDatabase db) =>
+      db.characters.createAlias(
+        $_aliasNameGenerator(
+          db.characterFeatureStates.characterId,
+          db.characters.id,
+        ),
+      );
+
+  $$CharactersTableProcessedTableManager get characterId {
+    final $_column = $_itemColumn<String>('character_id')!;
+
+    final manager = $$CharactersTableTableManager(
+      $_db,
+      $_db.characters,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_characterIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$CharacterFeatureStatesTableFilterComposer
+    extends Composer<_$AppDatabase, $CharacterFeatureStatesTable> {
+  $$CharacterFeatureStatesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get featureId => $composableBuilder(
+    column: $table.featureId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get usesSpent => $composableBuilder(
+    column: $table.usesSpent,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isActive => $composableBuilder(
+    column: $table.isActive,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get choiceOptionId => $composableBuilder(
+    column: $table.choiceOptionId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CharactersTableFilterComposer get characterId {
+    final $$CharactersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableFilterComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterFeatureStatesTableOrderingComposer
+    extends Composer<_$AppDatabase, $CharacterFeatureStatesTable> {
+  $$CharacterFeatureStatesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get featureId => $composableBuilder(
+    column: $table.featureId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get usesSpent => $composableBuilder(
+    column: $table.usesSpent,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isActive => $composableBuilder(
+    column: $table.isActive,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get choiceOptionId => $composableBuilder(
+    column: $table.choiceOptionId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CharactersTableOrderingComposer get characterId {
+    final $$CharactersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableOrderingComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterFeatureStatesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CharacterFeatureStatesTable> {
+  $$CharacterFeatureStatesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get localId =>
+      $composableBuilder(column: $table.localId, builder: (column) => column);
+
+  GeneratedColumn<String> get featureId =>
+      $composableBuilder(column: $table.featureId, builder: (column) => column);
+
+  GeneratedColumn<int> get usesSpent =>
+      $composableBuilder(column: $table.usesSpent, builder: (column) => column);
+
+  GeneratedColumn<bool> get isActive =>
+      $composableBuilder(column: $table.isActive, builder: (column) => column);
+
+  GeneratedColumn<String> get choiceOptionId => $composableBuilder(
+    column: $table.choiceOptionId,
+    builder: (column) => column,
+  );
+
+  $$CharactersTableAnnotationComposer get characterId {
+    final $$CharactersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterFeatureStatesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CharacterFeatureStatesTable,
+          CharacterFeatureState,
+          $$CharacterFeatureStatesTableFilterComposer,
+          $$CharacterFeatureStatesTableOrderingComposer,
+          $$CharacterFeatureStatesTableAnnotationComposer,
+          $$CharacterFeatureStatesTableCreateCompanionBuilder,
+          $$CharacterFeatureStatesTableUpdateCompanionBuilder,
+          (CharacterFeatureState, $$CharacterFeatureStatesTableReferences),
+          CharacterFeatureState,
+          PrefetchHooks Function({bool characterId})
+        > {
+  $$CharacterFeatureStatesTableTableManager(
+    _$AppDatabase db,
+    $CharacterFeatureStatesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer:
+              () => $$CharacterFeatureStatesTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer:
+              () => $$CharacterFeatureStatesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer:
+              () => $$CharacterFeatureStatesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> localId = const Value.absent(),
+                Value<String> characterId = const Value.absent(),
+                Value<String> featureId = const Value.absent(),
+                Value<int> usesSpent = const Value.absent(),
+                Value<bool> isActive = const Value.absent(),
+                Value<String?> choiceOptionId = const Value.absent(),
+              }) => CharacterFeatureStatesCompanion(
+                localId: localId,
+                characterId: characterId,
+                featureId: featureId,
+                usesSpent: usesSpent,
+                isActive: isActive,
+                choiceOptionId: choiceOptionId,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> localId = const Value.absent(),
+                required String characterId,
+                required String featureId,
+                Value<int> usesSpent = const Value.absent(),
+                Value<bool> isActive = const Value.absent(),
+                Value<String?> choiceOptionId = const Value.absent(),
+              }) => CharacterFeatureStatesCompanion.insert(
+                localId: localId,
+                characterId: characterId,
+                featureId: featureId,
+                usesSpent: usesSpent,
+                isActive: isActive,
+                choiceOptionId: choiceOptionId,
+              ),
+          withReferenceMapper:
+              (p0) =>
+                  p0
+                      .map(
+                        (e) => (
+                          e.readTable(table),
+                          $$CharacterFeatureStatesTableReferences(db, table, e),
+                        ),
+                      )
+                      .toList(),
+          prefetchHooksCallback: ({characterId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                T extends TableManagerState<
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic
+                >
+              >(state) {
+                if (characterId) {
+                  state =
+                      state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.characterId,
+                            referencedTable:
+                                $$CharacterFeatureStatesTableReferences
+                                    ._characterIdTable(db),
+                            referencedColumn:
+                                $$CharacterFeatureStatesTableReferences
+                                    ._characterIdTable(db)
+                                    .id,
+                          )
+                          as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$CharacterFeatureStatesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CharacterFeatureStatesTable,
+      CharacterFeatureState,
+      $$CharacterFeatureStatesTableFilterComposer,
+      $$CharacterFeatureStatesTableOrderingComposer,
+      $$CharacterFeatureStatesTableAnnotationComposer,
+      $$CharacterFeatureStatesTableCreateCompanionBuilder,
+      $$CharacterFeatureStatesTableUpdateCompanionBuilder,
+      (CharacterFeatureState, $$CharacterFeatureStatesTableReferences),
+      CharacterFeatureState,
+      PrefetchHooks Function({bool characterId})
+    >;
+typedef $$CharacterLanguagesTableCreateCompanionBuilder =
+    CharacterLanguagesCompanion Function({
+      Value<int> localId,
+      required String characterId,
+      required String languageId,
+      Value<String> kind,
+      Value<String?> slotId,
+      Value<String?> sourceId,
+      Value<String?> sourceLabel,
+    });
+typedef $$CharacterLanguagesTableUpdateCompanionBuilder =
+    CharacterLanguagesCompanion Function({
+      Value<int> localId,
+      Value<String> characterId,
+      Value<String> languageId,
+      Value<String> kind,
+      Value<String?> slotId,
+      Value<String?> sourceId,
+      Value<String?> sourceLabel,
+    });
+
+final class $$CharacterLanguagesTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $CharacterLanguagesTable,
+          CharacterLanguage
+        > {
+  $$CharacterLanguagesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $CharactersTable _characterIdTable(_$AppDatabase db) =>
+      db.characters.createAlias(
+        $_aliasNameGenerator(
+          db.characterLanguages.characterId,
+          db.characters.id,
+        ),
+      );
+
+  $$CharactersTableProcessedTableManager get characterId {
+    final $_column = $_itemColumn<String>('character_id')!;
+
+    final manager = $$CharactersTableTableManager(
+      $_db,
+      $_db.characters,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_characterIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$CharacterLanguagesTableFilterComposer
+    extends Composer<_$AppDatabase, $CharacterLanguagesTable> {
+  $$CharacterLanguagesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get languageId => $composableBuilder(
+    column: $table.languageId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get slotId => $composableBuilder(
+    column: $table.slotId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceId => $composableBuilder(
+    column: $table.sourceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceLabel => $composableBuilder(
+    column: $table.sourceLabel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CharactersTableFilterComposer get characterId {
+    final $$CharactersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableFilterComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterLanguagesTableOrderingComposer
+    extends Composer<_$AppDatabase, $CharacterLanguagesTable> {
+  $$CharacterLanguagesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get languageId => $composableBuilder(
+    column: $table.languageId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get slotId => $composableBuilder(
+    column: $table.slotId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceId => $composableBuilder(
+    column: $table.sourceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceLabel => $composableBuilder(
+    column: $table.sourceLabel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CharactersTableOrderingComposer get characterId {
+    final $$CharactersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableOrderingComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterLanguagesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CharacterLanguagesTable> {
+  $$CharacterLanguagesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get localId =>
+      $composableBuilder(column: $table.localId, builder: (column) => column);
+
+  GeneratedColumn<String> get languageId => $composableBuilder(
+    column: $table.languageId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get slotId =>
+      $composableBuilder(column: $table.slotId, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceId =>
+      $composableBuilder(column: $table.sourceId, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceLabel => $composableBuilder(
+    column: $table.sourceLabel,
+    builder: (column) => column,
+  );
+
+  $$CharactersTableAnnotationComposer get characterId {
+    final $$CharactersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterLanguagesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CharacterLanguagesTable,
+          CharacterLanguage,
+          $$CharacterLanguagesTableFilterComposer,
+          $$CharacterLanguagesTableOrderingComposer,
+          $$CharacterLanguagesTableAnnotationComposer,
+          $$CharacterLanguagesTableCreateCompanionBuilder,
+          $$CharacterLanguagesTableUpdateCompanionBuilder,
+          (CharacterLanguage, $$CharacterLanguagesTableReferences),
+          CharacterLanguage,
+          PrefetchHooks Function({bool characterId})
+        > {
+  $$CharacterLanguagesTableTableManager(
+    _$AppDatabase db,
+    $CharacterLanguagesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer:
+              () => $$CharacterLanguagesTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer:
+              () => $$CharacterLanguagesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer:
+              () => $$CharacterLanguagesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> localId = const Value.absent(),
+                Value<String> characterId = const Value.absent(),
+                Value<String> languageId = const Value.absent(),
+                Value<String> kind = const Value.absent(),
+                Value<String?> slotId = const Value.absent(),
+                Value<String?> sourceId = const Value.absent(),
+                Value<String?> sourceLabel = const Value.absent(),
+              }) => CharacterLanguagesCompanion(
+                localId: localId,
+                characterId: characterId,
+                languageId: languageId,
+                kind: kind,
+                slotId: slotId,
+                sourceId: sourceId,
+                sourceLabel: sourceLabel,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> localId = const Value.absent(),
+                required String characterId,
+                required String languageId,
+                Value<String> kind = const Value.absent(),
+                Value<String?> slotId = const Value.absent(),
+                Value<String?> sourceId = const Value.absent(),
+                Value<String?> sourceLabel = const Value.absent(),
+              }) => CharacterLanguagesCompanion.insert(
+                localId: localId,
+                characterId: characterId,
+                languageId: languageId,
+                kind: kind,
+                slotId: slotId,
+                sourceId: sourceId,
+                sourceLabel: sourceLabel,
+              ),
+          withReferenceMapper:
+              (p0) =>
+                  p0
+                      .map(
+                        (e) => (
+                          e.readTable(table),
+                          $$CharacterLanguagesTableReferences(db, table, e),
+                        ),
+                      )
+                      .toList(),
+          prefetchHooksCallback: ({characterId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                T extends TableManagerState<
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic
+                >
+              >(state) {
+                if (characterId) {
+                  state =
+                      state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.characterId,
+                            referencedTable: $$CharacterLanguagesTableReferences
+                                ._characterIdTable(db),
+                            referencedColumn:
+                                $$CharacterLanguagesTableReferences
+                                    ._characterIdTable(db)
+                                    .id,
+                          )
+                          as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$CharacterLanguagesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CharacterLanguagesTable,
+      CharacterLanguage,
+      $$CharacterLanguagesTableFilterComposer,
+      $$CharacterLanguagesTableOrderingComposer,
+      $$CharacterLanguagesTableAnnotationComposer,
+      $$CharacterLanguagesTableCreateCompanionBuilder,
+      $$CharacterLanguagesTableUpdateCompanionBuilder,
+      (CharacterLanguage, $$CharacterLanguagesTableReferences),
+      CharacterLanguage,
+      PrefetchHooks Function({bool characterId})
+    >;
 typedef $$CharacterInventoryItemsTableCreateCompanionBuilder =
     CharacterInventoryItemsCompanion Function({
       Value<int> localId,
@@ -19230,6 +22179,19 @@ class $AppDatabaseManager {
       );
   $$CharacterFeatsTableTableManager get characterFeats =>
       $$CharacterFeatsTableTableManager(_db, _db.characterFeats);
+  $$CharacterAbilityImprovementsTableTableManager
+  get characterAbilityImprovements =>
+      $$CharacterAbilityImprovementsTableTableManager(
+        _db,
+        _db.characterAbilityImprovements,
+      );
+  $$CharacterFeatureStatesTableTableManager get characterFeatureStates =>
+      $$CharacterFeatureStatesTableTableManager(
+        _db,
+        _db.characterFeatureStates,
+      );
+  $$CharacterLanguagesTableTableManager get characterLanguages =>
+      $$CharacterLanguagesTableTableManager(_db, _db.characterLanguages);
   $$CharacterInventoryItemsTableTableManager get characterInventoryItems =>
       $$CharacterInventoryItemsTableTableManager(
         _db,

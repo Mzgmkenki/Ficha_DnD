@@ -13,7 +13,10 @@ import 'package:dnd_ficha_app/features/compendium/domain/entities/class_equipmen
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_prerequisite.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/feature_effect.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/initiative_rule.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/language_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/language_grant.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_choice_group.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_skill_choice.dart';
@@ -151,6 +154,10 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
             languages: rawLanguages
                 .map((e) => e.toString())
                 .toList(growable: false),
+            languageGrants: LanguageGrant.parseList(
+              item['language_grants'],
+              idPrefix: 'race.${item['id']}',
+            ),
             choiceGroups: rawChoiceGroups
                 .whereType<Map>()
                 .map((e) => _parseRaceChoiceGroup(Map<String, dynamic>.from(e)))
@@ -208,6 +215,10 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
               item['skills'],
             ).map((e) => e.toString()).toList(growable: false),
             languages: _asInt(item['languages']) ?? 0,
+            languageGrants: LanguageGrant.parseList(
+              item['language_grants'],
+              idPrefix: 'background.$id',
+            ),
             tools: _asList(
               item['tools'],
             ).map((e) => e.toString()).toList(growable: false),
@@ -241,6 +252,13 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
     }
 
     return List<BackgroundEntry>.unmodifiable(entries);
+  }
+
+  @override
+  Future<List<LanguageEntry>> loadLanguages() async {
+    final items = await _source.loadJsonList('assets/data/srd/languages.json');
+
+    return LanguageEntry.parseList(items);
   }
 
   /// Lê as quatro tabelas narrativas declaradas pelo próprio antecedente.
@@ -567,6 +585,10 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
               item['ability_increase_options'],
             ).map((e) => e.toString()).toList(growable: false),
             initiative: InitiativeRule.tryParse(item['initiative']),
+            languageGrants: LanguageGrant.parseList(
+              item['language_grants'],
+              idPrefix: 'feat.${item['id']}',
+            ),
             source: item['source'] as String? ?? 'phb',
           );
         })
@@ -1021,6 +1043,14 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
       description: item['description'] as String? ?? '',
       action: FeatureAction.tryParse(item['action']),
       initiative: InitiativeRule.tryParse(item['initiative']),
+      effects: FeatureEffect.parseList(item['effects']),
+      choice: FeatureChoice.tryParse(item['choice']),
+      languageGrants: LanguageGrant.parseList(
+        item['language_grants'],
+        idPrefix: 'feature.${LanguageEntry.normalizeName(
+          item['name'] as String? ?? '',
+        )}',
+      ),
     );
   }
 

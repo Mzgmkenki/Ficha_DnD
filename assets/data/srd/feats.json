@@ -165,6 +165,13 @@
     "description": "Inteligência +1. Aprende 3 idiomas. Cria cifras escritas que exigem Inteligência contra CD igual ao seu valor de Inteligência + Bônus de Proficiência.",
     "prerequisite": "Nenhum",
     "ability_increases": { "intelligence": 1 },
+    "language_grants": [
+      {
+        "id": "feat.linguist.choice",
+        "choose": 3,
+        "label": "Idiomas do talento Linguista"
+      }
+    ],
     "source": "phb"
   },
   {

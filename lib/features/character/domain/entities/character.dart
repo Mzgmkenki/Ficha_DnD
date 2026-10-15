@@ -1,6 +1,9 @@
+import 'package:dnd_ficha_app/features/character/domain/entities/ability_score_improvement.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/background_personality_choice.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_feat.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_feature_state.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_language.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_weapon.dart';
@@ -59,6 +62,10 @@ class Character {
     this.inventory = const [],
     this.currencyGrants = const [],
     this.backgroundPersonalityChoices = const [],
+    this.abilityImprovements = const [],
+    this.featureStates = const [],
+    this.languages = const [],
+    this.armorClassFormulaId,
   });
 
   final String id;
@@ -106,6 +113,43 @@ class Character {
 
   /// Talentos escolhidos nos níveis em que a classe permite.
   final List<CharacterFeat> feats;
+
+  /// Incrementos no Valor de Atributo escolhidos nos níveis de progressão.
+  ///
+  /// Lista separada de [feats] de propósito: as duas gastam a mesma escolha de
+  /// nível, mas um incremento não é um talento, e guardá-lo como tal faria a
+  /// ficha listar um talento que não existe no compêndio. Personagem anterior
+  /// ao schema 20 chega com a lista vazia, e isso é um estado válido: quem
+  /// distribuiu os pontos à mão continua com os atributos que já tinha.
+  final List<AbilityScoreImprovement> abilityImprovements;
+
+  /// Usos gastos, estado ativo e escolhas internas das características.
+  ///
+  /// Só o que é decisão do jogador. A característica em si é derivada de
+  /// classe, subclasse e nível a cada leitura — ver `SpecialFeatureResolver`.
+  final List<CharacterFeatureState> featureStates;
+
+  /// Idiomas que não dão para derivar: escolhas do jogador, concessões à mão
+  /// e dados legados de ficha importada.
+  ///
+  /// Os idiomas AUTOMÁTICOS não estão aqui. Eles saem de raça, sub-raça,
+  /// classe, subclasse, antecedente e talento a cada leitura, por
+  /// `LanguageResolver` — mesma razão de [featureStates]. Personagem anterior
+  /// ao schema 21 chega com a lista vazia, e isso é um estado válido: ele
+  /// nunca teve idioma gravado, e os automáticos aparecem resolvidos.
+  final List<CharacterLanguage> languages;
+
+  /// Fórmula de CA-base que o jogador escolheu usar.
+  ///
+  /// Nula é "nunca escolheu", e nesse caso o cálculo usa a melhor fórmula
+  /// válida. Guardar a preferência importa porque a decisão é do jogador: um
+  /// Monge pode querer a CA da armadura que achou, e recalcular "a melhor" a
+  /// cada abertura apagaria essa escolha sem avisar.
+  ///
+  /// A preferência também NÃO é apagada quando deixa de valer: vestir armadura
+  /// derruba a Defesa sem Armadura, e tirá-la volta a valer a escolha
+  /// original. Ver `ArmorClassOptions`.
+  final String? armorClassFormulaId;
 
   /// Inspiração heroica concedida pelo mestre.
   final bool inspiration;
@@ -196,17 +240,53 @@ class Character {
     return 2;
   }
 
-  /// Bônus permanentes posteriores à criação. Hoje são os aumentos realmente
-  /// aplicados pelos talentos, que já ficam persistidos junto a cada talento.
+  /// Bônus permanentes posteriores à criação: o que talentos e Incrementos no
+  /// Valor de Atributo realmente aplicaram.
+  ///
+  /// Os dois entram aqui porque os dois são a mesma coisa para quem decompõe o
+  /// total: ganho posterior à criação, já persistido junto com a fonte que o
+  /// concedeu. Deixar o incremento de fora faria a tela de atributos apresentar
+  /// como "valor base" um número que inclui pontos de nível.
   Map<Ability, int> get otherPermanentAbilityBonuses {
     final result = <Ability, int>{};
-    for (final feat in feats) {
-      for (final entry in feat.appliedAbilityIncreases.entries) {
+
+    void addAll(Map<String, int> increases) {
+      for (final entry in increases.entries) {
         final ability = Ability.fromName(entry.key);
         if (ability == null) continue;
         result[ability] = (result[ability] ?? 0) + entry.value;
       }
     }
+
+    for (final feat in feats) {
+      addAll(feat.appliedAbilityIncreases);
+    }
+    for (final improvement in abilityImprovements) {
+      addAll(improvement.appliedIncreases);
+    }
+
+    return result;
+  }
+
+  /// Estado persistido de uma característica, se houver algum.
+  CharacterFeatureState? featureStateFor(String featureId) {
+    for (final state in featureStates) {
+      if (state.featureId == featureId) return state;
+    }
+    return null;
+  }
+
+  /// As escolhas internas de característica já feitas, por id de
+  /// característica. É o formato que `ResolvedFeatures.pendingChoices` espera.
+  Map<String, String> get featureChoiceSelections {
+    final result = <String, String>{};
+
+    for (final state in featureStates) {
+      final option = state.choiceOptionId;
+      if (option == null || option.isEmpty) continue;
+      result[state.featureId] = option;
+    }
+
     return result;
   }
 
@@ -231,6 +311,10 @@ class Character {
     List<CharacterWeapon>? weapons,
     List<CharacterMagicItem>? magicItems,
     List<CharacterFeat>? feats,
+    List<AbilityScoreImprovement>? abilityImprovements,
+    List<CharacterFeatureState>? featureStates,
+    List<CharacterLanguage>? languages,
+    Object? armorClassFormulaId = _sentinel,
     bool? inspiration,
     int? exhaustion,
     Set<Condition>? conditions,
@@ -281,6 +365,16 @@ class Character {
       weapons: weapons ?? this.weapons,
       magicItems: magicItems ?? this.magicItems,
       feats: feats ?? this.feats,
+      // Sem sentinela nas duas listas: limpar é passar lista vazia.
+      abilityImprovements: abilityImprovements ?? this.abilityImprovements,
+      featureStates: featureStates ?? this.featureStates,
+      languages: languages ?? this.languages,
+      // Sentinela é obrigatória: voltar para "nunca escolheu" é setar null, e
+      // com `?? this.armorClassFormulaId` isso seria impossível — a troca de
+      // classe precisa poder soltar uma fórmula que não existe mais.
+      armorClassFormulaId: armorClassFormulaId == _sentinel
+          ? this.armorClassFormulaId
+          : armorClassFormulaId as String?,
       inspiration: inspiration ?? this.inspiration,
       exhaustion: exhaustion ?? this.exhaustion,
       // Sem sentinela: limpar as condições é passar um conjunto vazio, não

@@ -1,6 +1,7 @@
 import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/core/utils/dice_roller.dart';
+import 'package:dnd_ficha_app/features/character/application/providers/feature_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/choose_subclass.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/create_character.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/export_character.dart';
@@ -22,12 +23,15 @@ import 'package:dnd_ficha_app/features/character/domain/entities/character_spell
 import 'package:dnd_ficha_app/features/character/domain/entities/death_saves.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/active_effects.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/death_save_service.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/feature_resources.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/rest_service.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/combat_action_type.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/spell_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/weapon_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/services/spell_name_index.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final charactersProvider = StreamProvider<List<Character>>((ref) {
@@ -315,6 +319,38 @@ final characterUsedSpellSlotsProvider =
   return repository.watchUsedSpellSlots(characterId);
 });
 
+/// As características cujos usos voltam com estas recargas.
+///
+/// Best-effort de propósito: se o compêndio não carregar, o descanso acontece
+/// sem renovar usos de característica em vez de falhar. Perder PV e espaços de
+/// magia por causa de uma falha de leitura de asset seria pior que a renovação
+/// que o jogador pode devolver à mão.
+Future<Set<String>> _featureIdsRestoredBy(
+  Ref ref,
+  Character character,
+  Set<ActionRecharge> recharges,
+) async {
+  // Sem estado gravado não há gasto para zerar, e resolver o compêndio seria
+  // leitura de asset para nada. Vale para a maioria dos descansos.
+  if (character.featureStates.isEmpty) return const {};
+
+  try {
+    final features = await ref.read(
+      resolvedFeaturesProvider(character).future,
+    );
+
+    return FeatureResources.featureIdsRestoredBy(
+      features: features,
+      recharges: recharges,
+    );
+  } catch (error) {
+    // Só a mensagem: `SrdAssetSource` já imprime arquivo e stack quando a
+    // leitura falha, e repetir aqui enterra o resto do log.
+    debugPrint('Falha ao resolver características no descanso: $error');
+    return const {};
+  }
+}
+
 /// Aplica um descanso longo: PV cheios, espaços de magia renovados, cargas
 /// dos itens mágicos recarregadas, metade dos dados de vida recuperados e 1
 /// nível de exaustão removido.
@@ -329,6 +365,11 @@ final longRestProvider = Provider<
     final outcome = RestService.longRest(
       character: character,
       totalHitDice: totalHitDice,
+      restoredFeatureIds: await _featureIdsRestoredBy(
+        ref,
+        character,
+        FeatureResources.longRestRecharges,
+      ),
     );
 
     await repository.update(outcome.character);
@@ -364,6 +405,11 @@ final shortRestProvider = Provider<
     final outcome = RestService.shortRest(
       character: character,
       pactSlotUsageKeys: pactSlotUsageKeys,
+      restoredFeatureIds: await _featureIdsRestoredBy(
+        ref,
+        character,
+        FeatureResources.shortRestRecharges,
+      ),
     );
 
     await repository.update(outcome.character);

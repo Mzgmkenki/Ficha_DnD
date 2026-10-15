@@ -1,5 +1,6 @@
 import 'package:dnd_ficha_app/features/compendium/domain/entities/ability_bonus_mode.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/initiative_rule.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/language_grant.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_choice_group.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_skill_choice.dart';
 
@@ -26,6 +27,7 @@ class RaceEntry {
     this.creatureType,
     this.darkvision,
     this.languages = const [],
+    this.languageGrants = const [],
     this.choiceGroups = const [],
     this.tags = const [],
   });
@@ -89,7 +91,20 @@ class RaceEntry {
   /// Alcance da visão no escuro, em metros.
   final int? darkvision;
 
+  /// Idiomas em texto livre, como o livro escreve.
+  ///
+  /// Continua existindo para o resumo da raça e o PDF, que mostram a frase
+  /// pronta. Quem decide o que o personagem RECEBE é [languageGrants]: texto
+  /// livre não tem id estável e não dá para validar escolha contra ele.
   final List<String> languages;
+
+  /// O que a raça concede em idiomas, em forma estruturada.
+  ///
+  /// Vazio significa "a raça não declara concessão" — e aí nada é inferido do
+  /// texto de [languages], porque adivinhar produziria idioma que a regra não
+  /// dá. Sub-raça costuma vir vazia e herdar a da raça base.
+  final List<LanguageGrant> languageGrants;
+
   final List<RaceChoiceGroup> choiceGroups;
   final List<String> tags;
 
@@ -123,6 +138,7 @@ class RaceEntry {
     String? creatureType,
     int? darkvision,
     List<String>? languages,
+    List<LanguageGrant>? languageGrants,
     List<RaceChoiceGroup>? choiceGroups,
     List<String>? tags,
   }) {
@@ -148,6 +164,7 @@ class RaceEntry {
       creatureType: creatureType ?? this.creatureType,
       darkvision: darkvision ?? this.darkvision,
       languages: languages ?? this.languages,
+      languageGrants: languageGrants ?? this.languageGrants,
       choiceGroups: choiceGroups ?? this.choiceGroups,
       tags: tags ?? this.tags,
     );

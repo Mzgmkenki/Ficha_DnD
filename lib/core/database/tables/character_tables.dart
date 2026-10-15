@@ -66,6 +66,19 @@ class Characters extends Table {
       text().withDefault(const Constant('[]'))();
 
   IntColumn get armorClass => integer().withDefault(const Constant(10))();
+
+  /// Id da fórmula de CA-base que o jogador escolheu.
+  ///
+  /// Nulo é "nunca escolheu", e não "usa o equipamento": a fórmula do
+  /// equipamento tem id próprio (`equipment`). A distinção importa porque sem
+  /// ela não há como saber se o jogador preferiu a armadura ou apenas nunca
+  /// abriu a tela — e o padrão, nesse caso, é a melhor fórmula válida.
+  ///
+  /// Guarda a PREFERÊNCIA, não o resultado. Vestir armadura invalida a Defesa
+  /// sem Armadura, mas não apaga a escolha: tirar a armadura volta a valer o
+  /// que o jogador havia decidido.
+  TextColumn get armorClassFormulaId => text().nullable()();
+
   IntColumn get initiativeBonus => integer().withDefault(const Constant(0))();
 
   /// Deslocamento em metros, arredondado. Legado: a coluna é inteira e não
@@ -437,6 +450,122 @@ class CharacterFeats extends Table {
   /// de 20 não aparece aqui.
   TextColumn get appliedAbilityIncreases =>
       text().withDefault(const Constant(''))();
+}
+
+/// Incrementos no Valor de Atributo que o personagem escolheu.
+///
+/// Tabela separada de [CharacterFeats], e não uma coluna "é incremento" nela,
+/// porque as duas coisas não têm os mesmos campos: um incremento não tem
+/// `feat_id`, não concede perícia e não aponta para o compêndio. Enfiá-lo na
+/// tabela de talentos deixaria metade das colunas nulas e obrigaria todo
+/// `SELECT` de talento a filtrar o caso.
+///
+/// [appliedIncreases] guarda o que REALMENTE entrou, pelo mesmo motivo de
+/// `CharacterFeats.applied_ability_increases`: sem isso, desfazer a escolha
+/// rebaixaria um atributo que estava no teto por um ponto que ele nunca
+/// recebeu.
+class CharacterAbilityImprovements extends Table {
+  IntColumn get localId => integer().autoIncrement()();
+  TextColumn get characterId => text().references(Characters, #id)();
+
+  /// Classe que concedeu a escolha.
+  ///
+  /// Não é anulável: no multiclasse a escolha vem do nível DA CLASSE, e sem
+  /// esse dado não há como dizer qual progressão foi gasta.
+  TextColumn get classId => text()();
+
+  /// Nível NA CLASSE, não o nível total do personagem.
+  IntColumn get classLevel => integer()();
+
+  /// Id da progressão que concedeu a escolha (`asi.fighter.4`).
+  ///
+  /// Redundante com classe + nível hoje, e de propósito: é o que permite uma
+  /// fonte futura de incremento (raça, item) coexistir sem remodelar a tabela.
+  TextColumn get progressionId => text()();
+
+  /// Quanto este incremento somou em cada atributo, como CSV `atributo:valor`.
+  TextColumn get appliedIncreases => text().withDefault(const Constant(''))();
+}
+
+/// Estado que o jogador controla numa característica de classe ou subclasse.
+///
+/// A característica NÃO é copiada para cá. Nome, descrição, nível e efeitos
+/// continuam vindo do compêndio e são resolvidos a cada leitura, o que mantém
+/// duas propriedades que importam: corrigir o compêndio corrige todas as
+/// fichas, e trocar de classe simplesmente deixa de produzir a característica
+/// — sem precisar de rotina de limpeza.
+///
+/// Aqui mora só o que não dá para derivar: usos gastos, estado ligado e a
+/// opção escolhida dentro da característica.
+class CharacterFeatureStates extends Table {
+  IntColumn get localId => integer().autoIncrement()();
+  TextColumn get characterId => text().references(Characters, #id)();
+
+  /// Id estável da característica, montado por
+  /// `SpecialFeatureResolver.featureId` (`class.barbarian.1.furia`).
+  TextColumn get featureId => text()();
+
+  /// Usos GASTOS desde a última recarga, não os restantes.
+  ///
+  /// O máximo é derivado de nível e atributo, então muda sozinho quando o
+  /// personagem evolui. Guardar os restantes deixaria o número defasado sem
+  /// ninguém mexer nele; guardar o gasto mantém `restante = máximo - gasto`
+  /// sempre correto.
+  IntColumn get usesSpent => integer().withDefault(const Constant(0))();
+
+  /// Se o estado ativável está ligado.
+  BoolColumn get isActive => boolean().withDefault(const Constant(false))();
+
+  /// Opção escolhida dentro da característica, pelo id da opção.
+  ///
+  /// Guarda o identificador, não o rótulo: corrigir o texto do compêndio não
+  /// pode invalidar a escolha do jogador.
+  TextColumn get choiceOptionId => text().nullable()();
+}
+
+/// Idiomas do personagem que NÃO dão para derivar.
+///
+/// Só entra aqui o que é decisão ou dado próprio: a escolha do jogador numa
+/// vaga, um idioma concedido à mão pelo Mestre, e idioma de ficha importada
+/// cuja origem não se sabe.
+///
+/// Idioma automático de raça, classe ou antecedente não é gravado, pela mesma
+/// razão de [CharacterFeatureStates]: ele é derivado do compêndio a cada
+/// leitura, então corrigir o compêndio corrige todas as fichas, e trocar de
+/// raça simplesmente deixa de produzir o idioma — sem rotina de limpeza e sem
+/// risco de a ficha guardar um idioma que a regra não dá mais.
+class CharacterLanguages extends Table {
+  IntColumn get localId => integer().autoIncrement()();
+  TextColumn get characterId => text().references(Characters, #id)();
+
+  /// Id do idioma no catálogo (`elvish`, `thieves_cant`).
+  ///
+  /// Id, nunca nome: renomear "Leonino" para "Leonin" no compêndio não pode
+  /// fazer o personagem perder o idioma.
+  TextColumn get languageId => text()();
+
+  /// Id de `LanguageOriginKind`: `choice`, `manual` ou `legacy`.
+  ///
+  /// Texto em vez de inteiro para a ordem do enum poder mudar sem
+  /// reinterpretar dado gravado.
+  TextColumn get kind => text().withDefault(const Constant('choice'))();
+
+  /// Id da vaga que permitiu a escolha.
+  ///
+  /// É o que permite remover só o que perdeu a origem: trocar a raça apaga as
+  /// vagas dela, e a escolha que apontava para uma dessas vagas cai, enquanto
+  /// a escolha do antecedente continua. Nulo em idioma manual ou legado.
+  TextColumn get slotId => text().nullable()();
+
+  /// Id da fonte que abriu a vaga (`elf_phb`, `acolyte`, `linguist`).
+  TextColumn get sourceId => text().nullable()();
+
+  /// Rótulo da fonte, já pronto para exibir.
+  ///
+  /// Persistido em vez de remontado na leitura, igual ao inventário: o
+  /// compêndio pode mudar de nome, e a ficha deve continuar dizendo de onde o
+  /// idioma veio.
+  TextColumn get sourceLabel => text().nullable()();
 }
 
 class CharacterSpellSlotsUsage extends Table {

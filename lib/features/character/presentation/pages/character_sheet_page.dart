@@ -18,6 +18,7 @@ import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/curr
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/death_saves_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/feats_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/inventory_panel.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/languages_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/magic_items_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/racial_traits_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/saving_throws_panel.dart';
@@ -470,6 +471,20 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                   ),
 
                   const SizedBox(height: 16),
+                  _SectionHeader(
+                    title: 'Idiomas',
+                    actionLabel: 'Editar',
+                    actionIcon: Icons.translate,
+                    onPressed: () =>
+                        AppNavigator.toEditLanguages(
+                          context,
+                          character: character,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  LanguagesPanel(character: character),
+
+                  const SizedBox(height: 16),
                   CollapsibleSection(
                     id: 'racial_traits',
                     title: 'Características raciais',
@@ -488,9 +503,7 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                     isExpanded: _isOpen('class_features'),
                     onExpansionChanged: (value) =>
                         _setOpen('class_features', value),
-                    child: ClassFeaturesPanel(
-                      classLevels: character.classLevels,
-                    ),
+                    child: ClassFeaturesPanel(character: character),
                   ),
 
                   const SizedBox(height: 16),
@@ -726,7 +739,13 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
     // diálogo de escolha em seguida, e repetir no aviso seria redundante.
 
     if (outcome.grantsFeat) {
-      parts.add('Este nível dá incremento de atributo ou talento.');
+      // A escolha em si é feita na seção Talentos, que é o único lugar que a
+      // registra. Dizer onde evita o jogador sair procurando, e evita um
+      // segundo fluxo de escolha que poderia divergir daquele.
+      parts.add(
+        'Este nível dá Incremento no Valor de Atributo ou talento: '
+        'escolha na seção Talentos.',
+      );
     }
 
     if (outcome.spellSyncError != null) {

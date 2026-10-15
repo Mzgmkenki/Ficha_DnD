@@ -1,8 +1,11 @@
 import 'dart:convert';
 
+import 'package:dnd_ficha_app/features/character/domain/entities/ability_score_improvement.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_feat.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_feature_state.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_language.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item_spell.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
@@ -287,6 +290,46 @@ class CharacterJsonCodec {
             'appliedAbilityIncreases': feat.appliedAbilityIncreases,
           },
       ],
+      // Incremento no Valor de Atributo: progressão própria, não talento.
+      // Exportado em lista separada para um arquivo desta versão continuar
+      // legível por uma build anterior — ela simplesmente ignora a chave, e os
+      // atributos já vêm somados em `abilityScores`.
+      'abilityImprovements': [
+        for (final improvement in character.abilityImprovements)
+          <String, dynamic>{
+            'classId': improvement.classId,
+            'classLevel': improvement.classLevel,
+            'progressionId': improvement.progressionId,
+            'appliedIncreases': improvement.appliedIncreases,
+          },
+      ],
+      // Só o estado que o jogador controla. A característica em si é derivada
+      // de classe, subclasse e nível na importação, como na leitura do banco.
+      'featureStates': [
+        for (final state in character.featureStates)
+          if (!state.isPristine)
+            <String, dynamic>{
+              'featureId': state.featureId,
+              'usesSpent': state.usesSpent,
+              'isActive': state.isActive,
+              'choiceOptionId': state.choiceOptionId,
+            },
+      ],
+      // Idiomas: só os que não dão para derivar. Os automáticos saem de raça,
+      // classe e antecedente na importação, como na leitura do banco, então
+      // exportá-los duplicaria dado e faria uma ficha importada com o
+      // compêndio corrigido manter o idioma errado.
+      'languages': [
+        for (final language in character.languages)
+          <String, dynamic>{
+            'languageId': language.languageId,
+            'kind': language.kind.id,
+            'slotId': language.slotId,
+            'sourceId': language.sourceId,
+            'sourceLabel': language.sourceLabel,
+          },
+      ],
+      'armorClassFormulaId': character.armorClassFormulaId,
       'inspiration': character.inspiration,
       'exhaustion': character.exhaustion,
       // Lista de ids, não CSV: dentro do JSON um array é o formato natural, e
@@ -372,6 +415,12 @@ class CharacterJsonCodec {
       weapons: _parseWeapons(map['weapons']),
       magicItems: _parseMagicItems(map['magicItems']),
       feats: _parseFeats(map['feats']),
+      abilityImprovements: _parseAbilityImprovements(
+        map['abilityImprovements'],
+      ),
+      featureStates: _parseFeatureStates(map['featureStates']),
+      languages: _parseLanguages(map['languages']),
+      armorClassFormulaId: _asString(map['armorClassFormulaId']),
       inspiration: _asBool(map['inspiration']),
       exhaustion: (_asInt(map['exhaustion']) ?? 0).clamp(0, 6),
       conditions: _parseConditions(map['conditions']),
@@ -597,6 +646,100 @@ class CharacterJsonCodec {
           appliedAbilityIncreases: _parseAbilityIncreases(
             map['appliedAbilityIncreases'],
           ),
+        ),
+      );
+    }
+
+    return result;
+  }
+
+  static List<AbilityScoreImprovement> _parseAbilityImprovements(Object? raw) {
+    final result = <AbilityScoreImprovement>[];
+
+    for (final item in _asList(raw)) {
+      final map = _asMap(item);
+      final classId = _asString(map['classId'])?.trim();
+      final classLevel = _asInt(map['classLevel']);
+
+      // Sem classe e nível não há como dizer qual progressão foi gasta, e um
+      // incremento solto faria a ficha oferecer a escolha de novo no mesmo
+      // nível. Descartar é mais seguro que gravar meio registro.
+      if (classId == null || classId.isEmpty) continue;
+      if (classLevel == null || classLevel < 1 || classLevel > 20) continue;
+
+      final increases = _parseAbilityIncreases(map['appliedIncreases']);
+
+      result.add(
+        AbilityScoreImprovement(
+          classId: classId,
+          classLevel: classLevel,
+          progressionId: _asString(map['progressionId']),
+          appliedIncreases: increases,
+        ),
+      );
+    }
+
+    return result;
+  }
+
+  static List<CharacterFeatureState> _parseFeatureStates(Object? raw) {
+    final result = <CharacterFeatureState>[];
+
+    for (final item in _asList(raw)) {
+      final map = _asMap(item);
+      final featureId = _asString(map['featureId'])?.trim();
+      if (featureId == null || featureId.isEmpty) continue;
+
+      final choice = _asString(map['choiceOptionId'])?.trim();
+
+      result.add(
+        CharacterFeatureState(
+          featureId: featureId,
+          // Clamp: gasto negativo num arquivo editado à mão daria usos extras.
+          usesSpent: (_asInt(map['usesSpent']) ?? 0).clamp(0, 999),
+          isActive: _asBool(map['isActive']),
+          choiceOptionId: choice == null || choice.isEmpty ? null : choice,
+        ),
+      );
+    }
+
+    return result;
+  }
+
+  static List<CharacterLanguage> _parseLanguages(Object? raw) {
+    final result = <CharacterLanguage>[];
+    final seen = <String>{};
+
+    for (final item in _asList(raw)) {
+      final map = _asMap(item);
+      final languageId = _asString(map['languageId'])?.trim();
+      // Sem id não há idioma: o nome traduzido do arquivo não serve de
+      // identificador, então um registro sem id é descartado em vez de
+      // adivinhado.
+      if (languageId == null || languageId.isEmpty) continue;
+
+      // Duplicata no arquivo entra uma vez só — é o que impede um import
+      // repetido de somar o mesmo idioma duas vezes na ficha.
+      if (!seen.add(languageId)) continue;
+
+      final slotId = _asString(map['slotId'])?.trim();
+      final sourceId = _asString(map['sourceId'])?.trim();
+      final sourceLabel = _asString(map['sourceLabel'])?.trim();
+      final kind = LanguageOriginKind.fromId(_asString(map['kind']));
+
+      result.add(
+        CharacterLanguage(
+          languageId: languageId,
+          // Escolha sem vaga gravada não tem como ser validada contra origem
+          // nenhuma; entra como legado, que é o estado honesto.
+          kind: kind == LanguageOriginKind.choice &&
+                  (slotId == null || slotId.isEmpty)
+              ? LanguageOriginKind.legacy
+              : kind,
+          slotId: slotId == null || slotId.isEmpty ? null : slotId,
+          sourceId: sourceId == null || sourceId.isEmpty ? null : sourceId,
+          sourceLabel:
+              sourceLabel == null || sourceLabel.isEmpty ? null : sourceLabel,
         ),
       );
     }

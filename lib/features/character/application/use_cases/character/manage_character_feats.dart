@@ -15,11 +15,18 @@ class FeatAllowance {
   const FeatAllowance({
     required this.granted,
     required this.taken,
+    this.improvements = 0,
     this.fromRace = false,
   });
 
   /// Escolhas concedidas, somando as classes e a raça.
   final int granted;
+
+  /// Quantas das escolhas gastas foram Incremento no Valor de Atributo.
+  ///
+  /// Separado de [taken] para a ficha poder explicar a conta: "3 de 4 usadas"
+  /// fica confuso se o jogador vê só um talento na lista.
+  final int improvements;
 
   /// Se uma das escolhas veio da raça, e não de um nível de classe.
   ///
@@ -28,8 +35,15 @@ class FeatAllowance {
   /// nível de incremento.
   final bool fromRace;
 
-  /// Talentos já escolhidos.
+  /// Escolhas já gastas, somando talentos e incrementos.
+  ///
+  /// As duas coisas consomem a MESMA escolha de nível: o nível concede "um
+  /// incremento ou um talento", não os dois. Contar só os talentos faria a
+  /// ficha oferecer de novo uma escolha já gasta num incremento.
   final int taken;
+
+  /// Quantos talentos, de [taken].
+  int get feats => taken - improvements;
 
   int get remaining {
     final left = granted - taken;
@@ -80,9 +94,12 @@ class ManageCharacterFeats {
     final fromRace = _raceGrantsFeat(character, races);
     if (fromRace) granted += 1;
 
+    final improvements = character.abilityImprovements.length;
+
     return FeatAllowance(
       granted: granted,
-      taken: character.feats.length,
+      taken: character.feats.length + improvements,
+      improvements: improvements,
       fromRace: fromRace,
     );
   }

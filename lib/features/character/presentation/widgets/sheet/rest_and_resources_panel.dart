@@ -1,7 +1,9 @@
 import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
+import 'package:dnd_ficha_app/features/character/application/providers/feature_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/feature_resources.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/hit_points_calculator.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/spell_slot_calculator.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
@@ -56,6 +58,11 @@ class RestAndResourcesPanel extends ConsumerWidget {
             // A exaustão saiu daqui para a seção Condições: ela é uma condição
             // com níveis, e os efeitos dela precisavam ficar na mesma lista das
             // outras para o jogador ler tudo de uma vez.
+
+            // Recursos de característica (Fúria, Canalizar Divindade, Surto de
+            // Ação) ficam aqui, e não na seção de características: é nesta
+            // tela que o jogador descansa, e é onde ele procura o contador.
+            _FeatureResourceList(character: character),
 
             const Divider(),
             Text(
@@ -211,3 +218,115 @@ class RestAndResourcesPanel extends ConsumerWidget {
 // O antigo _ExhaustionControl vivia aqui. Foi para conditions_panel.dart, onde
 // a tabela de efeitos passou a ser cumulativa: esta versão mostrava só
 // `_effects[level]`, escondendo os efeitos dos níveis anteriores.
+
+/// Os recursos limitados que as características concedem.
+///
+/// Mostra usos restantes, quando voltam e os dois botões de gastar e devolver.
+/// O máximo vem do compêndio e é recalculado a cada leitura; só o GASTO é
+/// persistido, então subir de nível aumenta o contador sozinho.
+class _FeatureResourceList extends ConsumerWidget {
+  const _FeatureResourceList({required this.character});
+
+  final Character character;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final resourcesAsync = ref.watch(featureResourcesProvider(character));
+
+    return resourcesAsync.when(
+      // Falha ao ler o compêndio esconde a lista em vez de derrubar o painel:
+      // descansar é mais importante que o contador.
+      error: (_, __) => const SizedBox.shrink(),
+      loading: () => const SizedBox.shrink(),
+      data: (resources) {
+        if (resources.isEmpty) return const SizedBox.shrink();
+
+        final text = Theme.of(context).textTheme;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Divider(),
+            Text('Recursos de característica', style: text.labelLarge),
+            const SizedBox(height: 4),
+            for (final resource in resources)
+              _FeatureResourceRow(
+                character: character,
+                resource: resource,
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _FeatureResourceRow extends ConsumerWidget {
+  const _FeatureResourceRow({
+    required this.character,
+    required this.resource,
+  });
+
+  final Character character;
+  final FeatureResource resource;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final text = Theme.of(context).textTheme;
+
+    final subtitle = [
+      resource.sourceLabel,
+      if (resource.rechargeLabel case final recharge?) 'volta em $recharge',
+      if (resource.cost case final cost?) cost,
+    ].join(' • ');
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(resource.label, style: text.bodyLarge),
+                Text(subtitle, style: text.bodySmall),
+              ],
+            ),
+          ),
+          IconButton(
+            key: ValueKey('feature-restore-${resource.featureId}'),
+            tooltip: 'Devolver um uso',
+            // Travado em zero gasto: sem isso o contador passaria do máximo.
+            onPressed: resource.canRestore
+                ? () => ref.read(restoreFeatureUseProvider)(
+                      character: character,
+                      resource: resource,
+                    )
+                : null,
+            icon: const Icon(Icons.add_circle_outline),
+          ),
+          SizedBox(
+            width: 48,
+            child: Text(
+              resource.usesLabel,
+              textAlign: TextAlign.center,
+              style: text.titleSmall,
+            ),
+          ),
+          IconButton(
+            key: ValueKey('feature-spend-${resource.featureId}'),
+            tooltip: 'Gastar um uso',
+            // Travado no limite: gasto não pode passar do máximo.
+            onPressed: resource.canSpend
+                ? () => ref.read(spendFeatureUseProvider)(
+                      character: character,
+                      resource: resource,
+                    )
+                : null,
+            icon: const Icon(Icons.remove_circle_outline),
+          ),
+        ],
+      ),
+    );
+  }
+}

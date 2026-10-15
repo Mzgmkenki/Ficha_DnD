@@ -69,6 +69,12 @@ class EditProficienciesArgs {
   final SkillProficiencies skills;
 }
 
+class EditLanguagesArgs {
+  const EditLanguagesArgs({required this.character});
+
+  final Character character;
+}
+
 class EditArmorClassArgs {
   const EditArmorClassArgs({required this.character});
 

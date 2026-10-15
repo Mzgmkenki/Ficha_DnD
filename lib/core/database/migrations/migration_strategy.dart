@@ -527,6 +527,68 @@ MigrationStrategy buildMigrationStrategy(AppDatabase db) {
           'WHERE armor_magic_bonus IS NULL',
         );
       }
+
+      if (from < 20) {
+        // Características especiais de classe e subclasse, mais o Incremento
+        // no Valor de Atributo como progressão própria.
+        //
+        // As duas tabelas nascem VAZIAS, e isso é a decisão mais importante
+        // desta migração. As alternativas seriam piores:
+        //
+        // - Reconstruir incrementos a partir dos atributos gravados é
+        //   impossível sem adivinhar: o total não diz quanto veio da origem,
+        //   de talento ou de distribuição manual. Inventar uma decomposição
+        //   mudaria a ficha de quem nunca pediu nada.
+        // - Copiar as características do compêndio para cá seria duplicar
+        //   dado derivado. Elas continuam sendo resolvidas na leitura a partir
+        //   de classe, subclasse e nível (ver `SpecialFeatureResolver`), então
+        //   um personagem antigo já abre com todas as características
+        //   automáticas no lugar, sem nenhuma linha gravada — e carregar o
+        //   mesmo personagem duas vezes não duplica nada, porque não há nada
+        //   para duplicar.
+        //
+        // O que o personagem antigo perde: nada. O que ele ganha: as
+        // características passam a aparecer com origem e nível, e a escolha de
+        // incremento fica disponível nos níveis que ainda não foram gastos.
+        await _tryCreateTable(m, db.characterAbilityImprovements);
+        await _tryCreateTable(m, db.characterFeatureStates);
+
+        // Preferência de fórmula de CA. Fica NULA de propósito: nulo é "nunca
+        // escolheu", e aí o cálculo usa a melhor fórmula válida. Gravar
+        // `equipment` aqui afirmaria que o jogador preferiu a armadura, e um
+        // Bárbaro antigo sem armadura passaria a ver CA 10 em vez da Defesa
+        // sem Armadura que ele sempre teve.
+        await _tryAddColumn(
+          m,
+          db.characters,
+          db.characters.armorClassFormulaId,
+        );
+      }
+
+      if (from < 21) {
+        // Idiomas do personagem.
+        //
+        // A tabela nasce VAZIA, e isso não perde nada: até aqui o app NUNCA
+        // gravou idioma. Raça e antecedente só exibiam texto do compêndio
+        // ("Idiomas: Comum, Élfico", "Idiomas adicionais: 2"), e nada disso
+        // chegava à ficha. Não existe, portanto, idioma antigo para preservar,
+        // deduplicar ou reclassificar.
+        //
+        // O que o personagem antigo ganha ao abrir depois desta versão: os
+        // idiomas automáticos passam a aparecer resolvidos, com origem, porque
+        // são derivados de raça, sub-raça, classe, subclasse, antecedente e
+        // talento a cada leitura — e as vagas de escolha que a origem dele
+        // sempre teve ficam disponíveis para preencher.
+        //
+        // O que ele NÃO ganha: uma escolha inventada. Deduzir qual idioma
+        // adicional o jogador teria escolhido é impossível, e gravar um palpite
+        // mudaria a ficha de quem não pediu nada. As vagas ficam pendentes, e a
+        // ficha diz quantas são.
+        //
+        // Idempotente pelo mesmo mecanismo do resto do arquivo: `CREATE TABLE`
+        // repetido devolve "already exists", que `_tryCreateTable` engole.
+        await _tryCreateTable(m, db.characterLanguages);
+      }
     },
     beforeOpen: (details) async {
       // Roda fora da transação de migração, então aqui é seguro usar `db`.

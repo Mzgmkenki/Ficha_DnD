@@ -10,6 +10,7 @@ import 'package:dnd_ficha_app/features/character/presentation/pages/edit_class_l
 import 'package:dnd_ficha_app/features/character/presentation/pages/edit_hit_points_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/edit_identity_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/edit_initiative_page.dart';
+import 'package:dnd_ficha_app/features/character/presentation/pages/edit_languages_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/edit_proficiencies_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/manage_character_magic_items_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/manage_character_spells_page.dart';
@@ -28,6 +29,7 @@ class AppRoutes {
   static const String editAbilityScores = '/character/ability-scores';
   static const String editHitPoints = '/character/hit-points';
   static const String editArmorClass = '/character/armor-class';
+  static const String editLanguages = '/character/languages';
   static const String editInitiative = '/character/initiative';
   static const String combatPanel = '/character/combat-panel';
   static const String editClassLevels = '/character/class-levels';
@@ -97,6 +99,12 @@ class AppRouter {
             characterId: args.characterId,
             initialHitPoints: args.hitPoints,
           ),
+        );
+
+      case AppRoutes.editLanguages:
+        return _withArgs<EditLanguagesArgs>(
+          settings,
+          (args) => EditLanguagesPage(character: args.character),
         );
 
       case AppRoutes.editArmorClass:

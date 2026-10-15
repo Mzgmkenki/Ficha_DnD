@@ -1,5 +1,6 @@
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/death_save_service.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/feature_resources.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/hit_points_calculator.dart';
 
 /// Cargas a gravar num item mágico depois do descanso.
@@ -50,9 +51,14 @@ class RestService {
   /// - recarrega as cargas dos itens mágicos (ver [rechargesOnLongRest]);
   /// - reduz a exaustão em 1 nível;
   /// - PV temporários não sobrevivem ao descanso.
+  /// [restoredFeatureIds] são as características cujos usos voltam neste
+  /// descanso. A lista vem pronta de fora, por `FeatureResources`, para este
+  /// serviço continuar sem depender do compêndio: quem sabe quais
+  /// características o personagem tem é a camada que as carregou.
   static RestOutcome longRest({
     required Character character,
     required int totalHitDice,
+    Set<String> restoredFeatureIds = const {},
   }) {
     final recovered =
         HitPointsCalculator.hitDiceRecoveredOnLongRest(totalHitDice);
@@ -71,7 +77,12 @@ class RestService {
       after: restoredHitPoints,
     );
 
-    final updated = character.copyWith(
+    final withFeatures = FeatureResources.restoreAll(
+      character: character,
+      featureIds: restoredFeatureIds,
+    );
+
+    final updated = withFeatures.copyWith(
       hitPoints: restoredHitPoints,
       deathSaves: clearedSaves,
       hitDiceUsed: remainingUsed,
@@ -85,6 +96,12 @@ class RestService {
         ? ''
         : ', ${recharges.length} item(ns) mágico(s) recarregado(s)';
 
+    // Mesma régua das outras notas: avisa só o que mudou de fato. Quem não
+    // tinha uso gasto não precisa ler que algo foi renovado.
+    final featuresNote = _clearedAnyUse(character, restoredFeatureIds)
+        ? ' Usos de característica renovados.'
+        : '';
+
     // Dito no resumo de propósito: os marcadores desaparecem da ficha, e o
     // jogador precisa saber que foi a regra, não um apagamento acidental.
     final savesNote =
@@ -95,7 +112,8 @@ class RestService {
       clearedSpellSlotLevels: null, // todos
       magicItemRecharges: recharges,
       summary: 'Descanso longo: PV restaurados, espaços de magia renovados'
-          '$itemsNote e $recovered dado(s) de vida recuperado(s).$savesNote',
+          '$itemsNote e $recovered dado(s) de vida recuperado(s).'
+          '$savesNote$featuresNote',
     );
   }
 
@@ -169,16 +187,27 @@ class RestService {
   static RestOutcome shortRest({
     required Character character,
     required List<int> pactSlotUsageKeys,
+    Set<String> restoredFeatureIds = const {},
   }) {
     final hasPact = pactSlotUsageKeys.isNotEmpty;
 
+    final restored = FeatureResources.restoreAll(
+      character: character,
+      featureIds: restoredFeatureIds,
+    );
+
+    final featuresNote = _clearedAnyUse(character, restoredFeatureIds)
+        ? ' Usos de característica de descanso curto renovados.'
+        : '';
+
     return RestOutcome(
-      character: character.copyWith(updatedAt: DateTime.now()),
+      character: restored.copyWith(updatedAt: DateTime.now()),
       clearedSpellSlotLevels: pactSlotUsageKeys,
       summary: hasPact
           ? 'Descanso curto: espaços de Magia de Pacto renovados. '
-              'Gaste dados de vida para recuperar PV.'
-          : 'Descanso curto: gaste dados de vida para recuperar PV.',
+              'Gaste dados de vida para recuperar PV.$featuresNote'
+          : 'Descanso curto: gaste dados de vida para recuperar PV.'
+              '$featuresNote',
     );
   }
 
@@ -208,6 +237,18 @@ class RestService {
       deathSaves: clearedSaves,
       hitDiceUsed: character.hitDiceUsed + 1,
       updatedAt: DateTime.now(),
+    );
+  }
+
+  /// Se alguma das características recarregadas tinha uso gasto.
+  ///
+  /// Olha o estado antes do descanso: depois dele todos estão em zero e não
+  /// dá mais para saber se a renovação mudou algo.
+  static bool _clearedAnyUse(Character character, Set<String> featureIds) {
+    if (featureIds.isEmpty) return false;
+
+    return character.featureStates.any(
+      (state) => featureIds.contains(state.featureId) && state.usesSpent > 0,
     );
   }
 }

@@ -14,7 +14,21 @@
       },
       {
         "name": "Defesa sem Armadura",
-        "description": "Sem vestir armadura, sua CA passa a ser 10 + modificador de Destreza + modificador de Constituição. Escudo continua permitido e soma normalmente."
+        "description": "Sem vestir armadura, sua CA passa a ser 10 + modificador de Destreza + modificador de Constituição. Escudo continua permitido e soma normalmente.",
+        "effects": [
+          {
+            "id": "barbarian.unarmored_defense",
+            "path": "ac.base",
+            "operation": "grant",
+            "formula": "10 + mod.dexterity + mod.constitution",
+            "conditions": { "armor": "none", "shield": "allowed" },
+            "stacking": "exclusive",
+            "group": "ac.base",
+            "unique": "unarmored_defense",
+            "label": "Defesa sem Armadura",
+            "display": "armor_class"
+          }
+        ]
       }
     ],
     "source": "phb"
@@ -204,7 +218,31 @@
     "features": [
       {
         "name": "Campeão Primal",
-        "description": "Força e Constituição aumentam em 4 cada, e o máximo desses dois atributos passa a ser 24."
+        "description": "Força e Constituição aumentam em 4 cada, e o máximo desses dois atributos passa a ser 24.",
+        "effects": [
+          {
+            "id": "barbarian.primal_champion.maximum",
+            "path": "ability.maximum",
+            "operation": "max",
+            "formula": "24",
+            "abilities": ["strength", "constitution"],
+            "stacking": "highest",
+            "group": "ability.maximum",
+            "label": "Máximo de Força e Constituição: 24",
+            "display": "abilities"
+          },
+          {
+            "id": "barbarian.primal_champion.bonus",
+            "path": "ability.bonus",
+            "operation": "add",
+            "formula": "4",
+            "abilities": ["strength", "constitution"],
+            "stacking": "sum",
+            "label": "Força +4 e Constituição +4",
+            "note": "Aplique os dois aumentos na tela de atributos: o app libera o teto 24, mas não mexe sozinho nos valores gravados.",
+            "display": "abilities"
+          }
+        ]
       }
     ],
     "source": "phb"
@@ -642,7 +680,14 @@
     "features": [
       {
         "name": "Druídico",
-        "description": "Você conhece o idioma secreto dos druidas. Consegue deixar mensagens escondidas em objetos e lugares, que outro druida percebe automaticamente. Quem não é druida pode notar que há uma mensagem com um teste de Percepção CD 15, mas não consegue entendê-la sem magia."
+        "description": "Você conhece o idioma secreto dos druidas. Consegue deixar mensagens escondidas em objetos e lugares, que outro druida percebe automaticamente. Quem não é druida pode notar que há uma mensagem com um teste de Percepção CD 15, mas não consegue entendê-la sem magia.",
+        "language_grants": [
+          {
+            "id": "druid.druidic",
+            "languages": ["druidic"],
+            "label": "Idioma secreto dos druidas"
+          }
+        ]
       },
       {
         "name": "Conjuração",
@@ -982,7 +1027,21 @@
     "features": [
       {
         "name": "Defesa sem Armadura",
-        "description": "Sem armadura e sem escudo, sua CA passa a ser 10 + modificador de Destreza + modificador de Sabedoria."
+        "description": "Sem armadura e sem escudo, sua CA passa a ser 10 + modificador de Destreza + modificador de Sabedoria.",
+        "effects": [
+          {
+            "id": "monk.unarmored_defense",
+            "path": "ac.base",
+            "operation": "grant",
+            "formula": "10 + mod.dexterity + mod.wisdom",
+            "conditions": { "armor": "none", "shield": "forbidden" },
+            "stacking": "exclusive",
+            "group": "ac.base",
+            "unique": "unarmored_defense",
+            "label": "Defesa sem Armadura",
+            "display": "armor_class"
+          }
+        ]
       },
       {
         "name": "Artes Marciais",
@@ -1591,7 +1650,14 @@
     "features": [
       {
         "name": "Explorador Hábil: Sagaz",
-        "description": "Substitui Explorador Natural. Escolha uma perícia em que já seja proficiente: seu bônus de proficiência é dobrado em todos os testes de atributo que usem essa perícia. Você também aprende dois idiomas à sua escolha, e pode falar, ler e escrever nos dois. Você não recebe terrenos favoritos nem os benefícios de viagem do Explorador Natural."
+        "description": "Substitui Explorador Natural. Escolha uma perícia em que já seja proficiente: seu bônus de proficiência é dobrado em todos os testes de atributo que usem essa perícia. Você também aprende dois idiomas à sua escolha, e pode falar, ler e escrever nos dois. Você não recebe terrenos favoritos nem os benefícios de viagem do Explorador Natural.",
+        "language_grants": [
+          {
+            "id": "ranger.canny.languages",
+            "choose": 2,
+            "label": "Idiomas do Explorador Hábil"
+          }
+        ]
       },
       {
         "name": "Inimigo Favorecido",
@@ -1853,7 +1919,14 @@
       },
       {
         "name": "Gíria de Ladrão",
-        "description": "Você conhece o código secreto do submundo, misturado à fala comum e a símbolos escondidos. Uma conversa em gíria leva cerca de quatro vezes mais tempo que a mesma conversa direta."
+        "description": "Você conhece o código secreto do submundo, misturado à fala comum e a símbolos escondidos. Uma conversa em gíria leva cerca de quatro vezes mais tempo que a mesma conversa direta.",
+        "language_grants": [
+          {
+            "id": "rogue.thieves_cant",
+            "languages": ["thieves_cant"],
+            "label": "Código secreto do submundo"
+          }
+        ]
       }
     ],
     "source": "phb"

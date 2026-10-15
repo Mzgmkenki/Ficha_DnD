@@ -87,6 +87,16 @@ class AppNavigator {
     );
   }
 
+  static Future<void> toEditLanguages(
+    BuildContext context, {
+    required Character character,
+  }) {
+    return Navigator.of(context).pushNamed(
+      AppRoutes.editLanguages,
+      arguments: EditLanguagesArgs(character: character),
+    );
+  }
+
   static Future<void> toEditInitiative(
     BuildContext context, {
     required Character character,

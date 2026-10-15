@@ -283,17 +283,72 @@ class ArmorProfile {
       'furtividade ${stealthDisadvantage ? 'desvantagem' : 'ok'})';
 }
 
+/// Uma fórmula alternativa de CA-base, concedida por característica.
+///
+/// É CA-BASE, e não bônus: substitui a armadura e o termo de Destreza por
+/// inteiro. Duas fórmulas base nunca somam — quem já veio até aqui escolheu
+/// uma (ver `ArmorClassOptions`).
+///
+/// O [value] chega pronto porque a conta é dado do compêndio, não regra deste
+/// arquivo: `10 + mod.DES + mod.CON` do Bárbaro e `13 + mod.DES` do Feiticeiro
+/// Dracônico são avaliadas por `FeatureFormula`, que também devolve a
+/// [composition] para a ficha mostrar de onde o número saiu.
+class ArmorClassBase {
+  const ArmorClassBase({
+    required this.id,
+    required this.label,
+    required this.value,
+    required this.composition,
+    this.allowsShield = true,
+  });
+
+  /// Id estável do efeito que concedeu a fórmula.
+  final String id;
+
+  final String label;
+
+  /// O total da fórmula, já com os modificadores de atributo dentro.
+  final int value;
+
+  /// A conta escrita: `10 + DES +2 + CON +3 = 15`.
+  final String composition;
+
+  /// Se a fórmula aceita escudo.
+  ///
+  /// Não é detalhe: a Defesa sem Armadura do Bárbaro aceita e a do Monge não,
+  /// e as duas têm o mesmo nome. Presumir um valor erraria metade dos casos.
+  final bool allowsShield;
+}
+
 /// Resultado do cálculo, com a explicação de como chegou no número.
 class ArmorClassResult {
   const ArmorClassResult({
     required this.total,
     required this.explanation,
     this.stealthDisadvantage = false,
+    this.baseId,
+    this.baseLabel,
+    this.baseComposition,
   });
 
   final int total;
   final String explanation;
   final bool stealthDisadvantage;
+
+  /// Id da fórmula base usada. Nulo quando a base veio da armadura.
+  ///
+  /// Serve para a ficha guardar a escolha do jogador e reabrir a tela na mesma
+  /// fórmula, em vez de recalcular a partir do nada.
+  final String? baseId;
+
+  /// Nome da fórmula base, quando foi uma característica que a concedeu.
+  final String? baseLabel;
+
+  /// A conta da fórmula base.
+  final String? baseComposition;
+
+  /// Se o número veio de uma fórmula de característica, e não da armadura.
+  bool get usesFeatureFormula => baseId != null;
 }
 
 /// Calcula a CA a partir da armadura, escudo e bônus diversos.
@@ -305,6 +360,12 @@ class ArmorClassCalculator {
   /// [armorMagicBonus] é o `+1`/`+2`/`+3` da peça mágica e entra somando na CA
   /// base. [stealthDisadvantage] permite a peça sobrescrever a penalidade da
   /// armadura básica; nulo usa a da tabela.
+  ///
+  /// [alternateBase] troca a CA-base inteira por uma fórmula de característica.
+  /// Quando ela é informada, a armadura e o termo de Destreza NÃO entram na
+  /// conta: é o que garante a regra de que duas fórmulas base nunca se somam.
+  /// Os bônus independentes continuam valendo — escudo, quando a fórmula
+  /// permite, e [otherBonus].
   static ArmorClassResult calculate({
     required ArmorOption armor,
     required AbilityScores abilityScores,
@@ -312,7 +373,17 @@ class ArmorClassCalculator {
     int otherBonus = 0,
     int armorMagicBonus = 0,
     bool? stealthDisadvantage,
+    ArmorClassBase? alternateBase,
   }) {
+    if (alternateBase != null) {
+      return _withAlternateBase(
+        base: alternateBase,
+        hasShield: hasShield,
+        otherBonus: otherBonus,
+        stealthDisadvantage: stealthDisadvantage ?? false,
+      );
+    }
+
     final dexModifier = abilityScores.dexterity.abilityModifier;
 
     // A Destreza entra inteira em armadura leve/nenhuma, limitada a +2 em
@@ -363,6 +434,43 @@ class ArmorClassCalculator {
       total: total,
       explanation: parts.join(' • '),
       stealthDisadvantage: stealthDisadvantage ?? armor.stealthDisadvantage,
+    );
+  }
+
+  /// A conta quando a base é uma fórmula de característica.
+  ///
+  /// Separada para deixar visível que aqui não existe armadura nem teto de
+  /// Destreza: a fórmula já traz os modificadores de atributo que a regra
+  /// manda somar, inteiros e sem limite de categoria.
+  static ArmorClassResult _withAlternateBase({
+    required ArmorClassBase base,
+    required bool hasShield,
+    required int otherBonus,
+    required bool stealthDisadvantage,
+  }) {
+    final shieldApplies = hasShield && base.allowsShield;
+    // O `2` é o mesmo de `calculate`, pelo mesmo motivo: `ShieldOption` vive
+    // em `owned_armor.dart`, que importa este arquivo, e importar de volta só
+    // para ler uma constante criaria um ciclo entre as duas bibliotecas.
+    final shieldBonus = shieldApplies ? 2 : 0;
+    final total = base.value + shieldBonus + otherBonus;
+
+    final parts = <String>[
+      '${base.label}: ${base.composition}',
+      if (shieldApplies) 'escudo +2',
+      // Escudo equipado numa fórmula que o proíbe não pode sumir em silêncio:
+      // o jogador precisa saber por que o +2 não entrou.
+      if (hasShield && !base.allowsShield) 'escudo não soma nesta fórmula',
+      if (otherBonus != 0) 'outros ${_signed(otherBonus)}',
+    ];
+
+    return ArmorClassResult(
+      total: total,
+      explanation: parts.join(' • '),
+      stealthDisadvantage: stealthDisadvantage,
+      baseId: base.id,
+      baseLabel: base.label,
+      baseComposition: base.composition,
     );
   }
 

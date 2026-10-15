@@ -1,5 +1,7 @@
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/feature_effect.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/initiative_rule.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/language_grant.dart';
 
 /// Magias que a subclasse concede num nível de classe.
 ///
@@ -24,6 +26,9 @@ class SubclassFeature {
     required this.description,
     this.action,
     this.initiative,
+    this.effects = const [],
+    this.choice,
+    this.languageGrants = const [],
   });
 
   /// Nível de classe em que a característica é liberada.
@@ -41,6 +46,18 @@ class SubclassFeature {
   /// É por aqui que Emboscador Terrível soma Sabedoria à iniciativa, em vez de
   /// a interface checar o id da subclasse.
   final InitiativeRule? initiative;
+
+  /// O que a característica muda na ficha, no mesmo formato das
+  /// características de classe. Ver [FeatureEffect].
+  final List<FeatureEffect> effects;
+
+  /// Decisão que a característica exige do jogador, quando exige uma.
+  final FeatureChoice? choice;
+
+  /// Idiomas que a característica de subclasse concede.
+  ///
+  /// Mesmo formato das características de classe. Ver [LanguageGrant].
+  final List<LanguageGrant> languageGrants;
 }
 
 /// Subclasse de uma classe: Campeão do Guerreiro, Domínio da Vida do Clérigo.

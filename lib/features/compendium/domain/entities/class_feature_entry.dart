@@ -1,5 +1,8 @@
 import 'package:dnd_ficha_app/features/character/domain/value_objects/combat_action_type.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/feature_effect.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/initiative_rule.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/language_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/language_grant.dart';
 
 /// O que uma característica custa na economia do turno.
 ///
@@ -111,6 +114,9 @@ class ClassFeature {
     this.description,
     this.action,
     this.initiative,
+    this.effects = const [],
+    this.choice,
+    this.languageGrants = const [],
   });
 
   final String name;
@@ -125,10 +131,31 @@ class ClassFeature {
   /// (vantagem) e Pau para Toda Obra do bardo (metade da proficiência).
   final InitiativeRule? initiative;
 
+  /// O que a característica muda na ficha, em forma de registro normalizado.
+  ///
+  /// Vazia é o caso comum: a maioria das características é texto de regra que
+  /// o jogador aplica em mesa. Declarar um efeito aqui é afirmar que o app
+  /// sabe calculá-lo — e é por isso que a lista não é inferida da descrição.
+  final List<FeatureEffect> effects;
+
+  /// Decisão que a característica exige do jogador, quando exige uma.
+  final FeatureChoice? choice;
+
+  /// Idiomas que a característica concede.
+  ///
+  /// É por aqui que Druídico e Gíria dos Ladrões entram: são idiomas de
+  /// disponibilidade `feature_only`, então ninguém os escolhe livremente, e a
+  /// única porta é a característica que os declara.
+  final List<LanguageGrant> languageGrants;
+
   bool get hasDescription {
     final text = description;
     return text != null && text.trim().isNotEmpty;
   }
+
+  /// Efeitos que o resolvedor transforma em número.
+  List<FeatureEffect> get calculatedEffects =>
+      effects.where((item) => item.isCalculated).toList(growable: false);
 
   /// Lê tanto `"Fúria"` quanto `{"name": "Fúria", "description": "..."}`.
   ///
@@ -154,6 +181,12 @@ class ClassFeature {
             : description,
         action: FeatureAction.tryParse(raw['action']),
         initiative: InitiativeRule.tryParse(raw['initiative']),
+        effects: FeatureEffect.parseList(raw['effects']),
+        choice: FeatureChoice.tryParse(raw['choice']),
+        languageGrants: LanguageGrant.parseList(
+          raw['language_grants'],
+          idPrefix: 'feature.${LanguageEntry.normalizeName(name)}',
+        ),
       );
     }
 

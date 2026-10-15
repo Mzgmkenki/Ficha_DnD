@@ -226,7 +226,39 @@
       {
         "level": 3,
         "name": "Espírito Totêmico",
-        "description": "Escolha um espírito. Urso: enquanto em Fúria, resistência a todo dano exceto psíquico. Águia: enquanto em Fúria e sem armadura pesada, criaturas têm desvantagem em ataques de oportunidade contra você e pode Disparar como ação bônus. Lobo: enquanto em Fúria, aliados têm vantagem em ataques corpo a corpo contra criaturas hostis a até 1,5 m de você. Alce: enquanto em Fúria e sem armadura pesada, deslocamento +4,5 m. Tigre: enquanto em Fúria, salto em distância +3 m e em altura +0,9 m."
+        "description": "Escolha um espírito. Urso: enquanto em Fúria, resistência a todo dano exceto psíquico. Águia: enquanto em Fúria e sem armadura pesada, criaturas têm desvantagem em ataques de oportunidade contra você e pode Disparar como ação bônus. Lobo: enquanto em Fúria, aliados têm vantagem em ataques corpo a corpo contra criaturas hostis a até 1,5 m de você. Alce: enquanto em Fúria e sem armadura pesada, deslocamento +4,5 m. Tigre: enquanto em Fúria, salto em distância +3 m e em altura +0,9 m.",
+        "choice": {
+          "id": "barbarian_totem_warrior.totem_spirit",
+          "prompt": "Escolha o espírito totêmico",
+          "required": true,
+          "options": [
+            {
+              "id": "bear",
+              "label": "Urso",
+              "description": "Em Fúria, resistência a todo dano exceto psíquico."
+            },
+            {
+              "id": "eagle",
+              "label": "Águia",
+              "description": "Em Fúria e sem armadura pesada, ataques de oportunidade contra você têm desvantagem e você pode Disparar como ação bônus."
+            },
+            {
+              "id": "wolf",
+              "label": "Lobo",
+              "description": "Em Fúria, aliados têm vantagem em ataques corpo a corpo contra criaturas hostis a até 1,5 m de você."
+            },
+            {
+              "id": "elk",
+              "label": "Alce",
+              "description": "Em Fúria e sem armadura pesada, deslocamento +4,5 m."
+            },
+            {
+              "id": "tiger",
+              "label": "Tigre",
+              "description": "Em Fúria, salto em distância +3 m e em altura +0,9 m."
+            }
+          ]
+        }
       },
       {
         "level": 6,
@@ -3412,7 +3444,21 @@
       {
         "level": 1,
         "name": "Resiliência Dracônica",
-        "description": "Seus pontos de vida máximos aumentam em 1 e sobem 1 a cada nível de feiticeiro. Sem armadura, sua CA passa a ser 13 + modificador de Destreza."
+        "description": "Seus pontos de vida máximos aumentam em 1 e sobem 1 a cada nível de feiticeiro. Sem armadura, sua CA passa a ser 13 + modificador de Destreza.",
+        "effects": [
+          {
+            "id": "sorcerer_draconic.draconic_resilience",
+            "path": "ac.base",
+            "operation": "grant",
+            "formula": "13 + mod.dexterity",
+            "conditions": { "armor": "none", "shield": "allowed" },
+            "stacking": "exclusive",
+            "group": "ac.base",
+            "label": "Resiliência Dracônica",
+            "note": "A fórmula não proíbe escudo, então o escudo soma normalmente por cima dela.",
+            "display": "armor_class"
+          }
+        ]
       },
       {
         "level": 6,

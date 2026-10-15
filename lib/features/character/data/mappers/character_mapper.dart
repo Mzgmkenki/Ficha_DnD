@@ -1,11 +1,17 @@
 import 'package:dnd_ficha_app/core/database/app_database.dart';
 import 'package:dnd_ficha_app/features/character/data/mappers/background_personality_codec.dart';
 import 'package:dnd_ficha_app/features/character/data/mappers/character_creation_metadata_codec.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/ability_score_improvement.dart'
+    as domain_improvements;
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart'
     as domain;
 import 'package:dnd_ficha_app/features/character/domain/entities/character_feat.dart'
     as domain_feats;
+import 'package:dnd_ficha_app/features/character/domain/entities/character_feature_state.dart'
+    as domain_feature_states;
+import 'package:dnd_ficha_app/features/character/domain/entities/character_language.dart'
+    as domain_languages;
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/combat_stats.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/currency.dart';
@@ -28,6 +34,9 @@ class CharacterMapper {
     required Character character,
     required List<CharacterClassLevel> classLevels,
     List<CharacterFeat> feats = const [],
+    List<CharacterAbilityImprovement> abilityImprovements = const [],
+    List<CharacterFeatureState> featureStates = const [],
+    List<CharacterLanguage> languages = const [],
   }) {
     return domain.Character(
       id: character.id,
@@ -154,6 +163,52 @@ class CharacterMapper {
             ),
           )
           .toList(growable: false),
+
+      abilityImprovements: abilityImprovements
+          .map(
+            (row) => domain_improvements.AbilityScoreImprovement(
+              localId: row.localId,
+              classId: row.classId,
+              classLevel: row.classLevel,
+              progressionId: row.progressionId,
+              appliedIncreases: GrantedAbilityIncreases.parseCsv(
+                row.appliedIncreases,
+              ),
+            ),
+          )
+          .toList(growable: false),
+
+      featureStates: featureStates
+          .map(
+            (row) => domain_feature_states.CharacterFeatureState(
+              localId: row.localId,
+              featureId: row.featureId,
+              // Clamp na leitura: base editada à mão não pode deixar a ficha
+              // com gasto negativo, que viraria usos extras de graça.
+              usesSpent: row.usesSpent < 0 ? 0 : row.usesSpent,
+              isActive: row.isActive,
+              choiceOptionId: row.choiceOptionId,
+            ),
+          )
+          .toList(growable: false),
+
+      languages: languages
+          .map(
+            (row) => domain_languages.CharacterLanguage(
+              localId: row.localId,
+              languageId: row.languageId,
+              // Id de origem desconhecido cai em legado, nunca em escolha:
+              // promover a escolha afirmaria uma vaga que pode não existir e
+              // gastaria uma decisão do jogador.
+              kind: domain_languages.LanguageOriginKind.fromId(row.kind),
+              slotId: row.slotId,
+              sourceId: row.sourceId,
+              sourceLabel: row.sourceLabel,
+            ),
+          )
+          .toList(growable: false),
+
+      armorClassFormulaId: character.armorClassFormulaId,
 
       inspiration: character.inspiration,
       exhaustion: character.exhaustion,

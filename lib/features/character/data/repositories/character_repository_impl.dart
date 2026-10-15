@@ -78,6 +78,7 @@ class CharacterRepositoryImpl implements CharacterRepository {
                 ),
               ),
               armorClass: drift.Value(character.combatStats.armorClass),
+              armorClassFormulaId: drift.Value(character.armorClassFormulaId),
               initiativeBonus:
                   drift.Value(character.combatStats.initiativeBonus),
               speed: drift.Value(character.combatStats.speedInMeters.round()),
@@ -215,6 +216,45 @@ class CharacterRepositoryImpl implements CharacterRepository {
             );
       }
 
+      for (final improvement in character.abilityImprovements) {
+        await _database.into(_database.characterAbilityImprovements).insert(
+              db.CharacterAbilityImprovementsCompanion.insert(
+                characterId: character.id,
+                classId: improvement.classId,
+                classLevel: improvement.classLevel,
+                progressionId: improvement.progressionId,
+                appliedIncreases: drift.Value(
+                  improvement.appliedIncreasesAsCsv,
+                ),
+              ),
+            );
+      }
+
+      for (final state in character.featureStates) {
+        await _database.into(_database.characterFeatureStates).insert(
+              db.CharacterFeatureStatesCompanion.insert(
+                characterId: character.id,
+                featureId: state.featureId,
+                usesSpent: drift.Value(state.usesSpent),
+                isActive: drift.Value(state.isActive),
+                choiceOptionId: drift.Value(state.choiceOptionId),
+              ),
+            );
+      }
+
+      for (final language in character.languages) {
+        await _database.into(_database.characterLanguages).insert(
+              db.CharacterLanguagesCompanion.insert(
+                characterId: character.id,
+                languageId: language.languageId,
+                kind: drift.Value(language.kind.id),
+                slotId: drift.Value(language.slotId),
+                sourceId: drift.Value(language.sourceId),
+                sourceLabel: drift.Value(language.sourceLabel),
+              ),
+            );
+      }
+
       for (final weapon in character.weapons) {
         await _database.into(_database.characterWeapons).insert(
               WeaponMapper.toInsert(
@@ -304,6 +344,18 @@ class CharacterRepositoryImpl implements CharacterRepository {
             ..where((tbl) => tbl.characterId.equals(id)))
           .go();
 
+      await (_database.delete(_database.characterAbilityImprovements)
+            ..where((tbl) => tbl.characterId.equals(id)))
+          .go();
+
+      await (_database.delete(_database.characterFeatureStates)
+            ..where((tbl) => tbl.characterId.equals(id)))
+          .go();
+
+      await (_database.delete(_database.characterLanguages)
+            ..where((tbl) => tbl.characterId.equals(id)))
+          .go();
+
       await (_database.delete(_database.characterInventoryItems)
             ..where((tbl) => tbl.characterId.equals(id)))
           .go();
@@ -351,6 +403,20 @@ class CharacterRepositoryImpl implements CharacterRepository {
           ..where((tbl) => tbl.characterId.equals(id)))
         .get();
 
+    final improvementRows =
+        await (_database.select(_database.characterAbilityImprovements)
+              ..where((tbl) => tbl.characterId.equals(id)))
+            .get();
+
+    final featureStateRows =
+        await (_database.select(_database.characterFeatureStates)
+              ..where((tbl) => tbl.characterId.equals(id)))
+            .get();
+
+    final languageRows = await (_database.select(_database.characterLanguages)
+          ..where((tbl) => tbl.characterId.equals(id)))
+        .get();
+
     final inventoryRows =
         await (_database.select(_database.characterInventoryItems)
               ..where((tbl) => tbl.characterId.equals(id)))
@@ -390,6 +456,9 @@ class CharacterRepositoryImpl implements CharacterRepository {
       character: characterRow,
       classLevels: classLevelRows,
       feats: featRows,
+      abilityImprovements: improvementRows,
+      featureStates: featureStateRows,
+      languages: languageRows,
     );
 
     return mapped.copyWith(
@@ -466,6 +535,9 @@ class CharacterRepositoryImpl implements CharacterRepository {
       _database.characterMagicItems,
       _database.characterMagicItemSpells,
       _database.characterFeats,
+      _database.characterAbilityImprovements,
+      _database.characterFeatureStates,
+      _database.characterLanguages,
       _database.characterInventoryItems,
       _database.characterCurrencyGrants,
     ]);
@@ -527,6 +599,7 @@ class CharacterRepositoryImpl implements CharacterRepository {
             ),
           ),
           armorClass: drift.Value(character.combatStats.armorClass),
+          armorClassFormulaId: drift.Value(character.armorClassFormulaId),
           initiativeBonus:
               drift.Value(character.combatStats.initiativeBonus),
           speed: drift.Value(character.combatStats.speedInMeters.round()),
@@ -671,6 +744,69 @@ class CharacterRepositoryImpl implements CharacterRepository {
                 appliedAbilityIncreases: drift.Value(
                   feat.appliedAbilityIncreasesAsCsv,
                 ),
+              ),
+            );
+      }
+
+      // Incrementos de atributo e estado de característica: apaga e reinsere,
+      // igual aos talentos e pelo mesmo motivo. As duas listas são curtas, vêm
+      // inteiras no agregado e já foram resolvidas pelo domínio.
+      await (_database.delete(_database.characterAbilityImprovements)
+            ..where((tbl) => tbl.characterId.equals(character.id)))
+          .go();
+
+      for (final improvement in character.abilityImprovements) {
+        await _database.into(_database.characterAbilityImprovements).insert(
+              db.CharacterAbilityImprovementsCompanion.insert(
+                characterId: character.id,
+                classId: improvement.classId,
+                classLevel: improvement.classLevel,
+                progressionId: improvement.progressionId,
+                appliedIncreases: drift.Value(
+                  improvement.appliedIncreasesAsCsv,
+                ),
+              ),
+            );
+      }
+
+      await (_database.delete(_database.characterFeatureStates)
+            ..where((tbl) => tbl.characterId.equals(character.id)))
+          .go();
+
+      for (final state in character.featureStates) {
+        // Estado sem nada guardado não vira linha: um personagem com 200
+        // características não precisa de 200 linhas dizendo "zero usos, não
+        // ativo, nada escolhido". A ausência de linha JÁ é esse estado.
+        if (state.isPristine) continue;
+
+        await _database.into(_database.characterFeatureStates).insert(
+              db.CharacterFeatureStatesCompanion.insert(
+                characterId: character.id,
+                featureId: state.featureId,
+                usesSpent: drift.Value(state.usesSpent),
+                isActive: drift.Value(state.isActive),
+                choiceOptionId: drift.Value(state.choiceOptionId),
+              ),
+            );
+      }
+
+      // Idiomas: apaga e reinsere, pelo mesmo motivo das listas acima. A lista
+      // é curta, vem inteira no agregado e já foi podada pelo domínio — quem
+      // decide o que perdeu a vaga é `LanguageSelection.pruneDropped`, não
+      // esta camada.
+      await (_database.delete(_database.characterLanguages)
+            ..where((tbl) => tbl.characterId.equals(character.id)))
+          .go();
+
+      for (final language in character.languages) {
+        await _database.into(_database.characterLanguages).insert(
+              db.CharacterLanguagesCompanion.insert(
+                characterId: character.id,
+                languageId: language.languageId,
+                kind: drift.Value(language.kind.id),
+                slotId: drift.Value(language.slotId),
+                sourceId: drift.Value(language.sourceId),
+                sourceLabel: drift.Value(language.sourceLabel),
               ),
             );
       }

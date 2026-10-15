@@ -11,6 +11,7 @@ import 'package:dnd_ficha_app/features/character/application/providers/character
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/background_personality_choice.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_language.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_weapon.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_equipment_selection.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
@@ -24,6 +25,9 @@ import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_pr
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiency_grant.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/background_grants.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/class_equipment_grants.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/language_resolver.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/language_selection.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/language_sources.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/owned_armor.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/standard_array.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
@@ -35,6 +39,7 @@ import 'package:dnd_ficha_app/features/character/presentation/widgets/alignment_
 import 'package:dnd_ficha_app/features/character/presentation/widgets/background_personality_form.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/class_equipment_form.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/custom_background_form.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/language_selection_form.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/portrait_avatar.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/subclass_summary.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart'
@@ -45,10 +50,12 @@ import 'package:dnd_ficha_app/features/compendium/domain/entities/ability_bonus_
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_equipment.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_skill_choice.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/subclass_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/weapon_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/services/language_catalog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -140,6 +147,13 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
 
   /// Perícias escolhidas dentro das opções que a raça oferece.
   final Set<String> _raceSkillPicks = {};
+
+  /// Idiomas escolhidos nas vagas abertas pelas origens.
+  ///
+  /// Guarda a vaga junto com o idioma, e é isso que permite trocar de raça sem
+  /// perder a escolha do antecedente: o resolvedor mantém o que ainda tem vaga
+  /// e descarta só o que ficou sem apoio.
+  List<CharacterLanguage> _languagePicks = const [];
 
   /// Valores base do conjunto padrão. Começa vazio: a criação só conclui
   /// depois que cada valor 15, 14, 13, 12, 10 e 8 for usado uma vez.
@@ -353,6 +367,22 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                 selectedClass,
                 combinedRace,
                 selectedBackground,
+              );
+
+              // Idiomas: as fontes são raça, sub-raça, antecedente, classe e
+              // as características de classe já liberadas no 1º nível. O
+              // catálogo é tolerante como o resto do compêndio — se ainda
+              // estiver carregando, a seção simplesmente não aparece e a
+              // criação segue utilizável.
+              final languageCatalog =
+                  ref.watch(compendium_providers.languageCatalogProvider).value;
+              final resolvedLanguages = _resolveLanguages(
+                catalog: languageCatalog,
+                baseRace: selectedRace,
+                subrace: selectedSubrace,
+                background: selectedBackground,
+                classEntry: selectedClass,
+                subclass: _findSubclass(classSubclasses, effectiveSubclassId),
               );
 
               if (!combinedRace.allowsCustomOrigin && _useCustomOrigin) {
@@ -616,6 +646,13 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                     ),
                     ..._buildClassSkillSection(selectedClass, creationSkills),
                     ..._buildExtraSkillSection(selectedClass, creationSkills),
+                    // Depois de raça, sub-raça, antecedente, classe e
+                    // subclasse, que são as etapas que determinam o que o
+                    // personagem recebe em idioma.
+                    ..._buildLanguageSection(
+                      languageCatalog,
+                      resolvedLanguages,
+                    ),
                     const SizedBox(height: 24),
                     FilledButton.icon(
                       onPressed:
@@ -627,6 +664,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                                 effectiveClassId,
                                 backgrounds,
                                 effectiveSubclassId,
+                                resolvedLanguages,
                               ),
                       icon:
                           _saving
@@ -866,6 +904,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
     String effectiveClassId,
     List<BackgroundEntry> backgrounds,
     String? subclassId,
+    ResolvedLanguages resolvedLanguages,
   ) async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -973,6 +1012,19 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
       return;
     }
 
+    // Idiomas: a validação é do domínio (`LanguageSelection`), e vale mesmo se
+    // a seção já tiver saído da viewport — como o resto das checagens daqui,
+    // ela olha o estado, não a árvore de widgets. Vaga sem opção disponível
+    // não trava a criação: faltar dado no compêndio não pode deixar o jogador
+    // sem saída.
+    final languageError = LanguageSelection.validationError(resolvedLanguages);
+    if (languageError != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(languageError)));
+      return;
+    }
+
     setState(() {
       _saving = true;
     });
@@ -1059,6 +1111,15 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
         // Armas do equipamento inicial da classe, com a origem registrada.
         // Munição não está aqui: foi para o inventário com a quantidade.
         weapons: _grantedWeapons,
+
+        // Só as ESCOLHAS de idioma. Os automáticos não são gravados: são
+        // derivados de raça, antecedente e classe a cada leitura, e gravá-los
+        // faria uma correção no compêndio não chegar às fichas já criadas.
+        // A poda garante que nada sem vaga vá para o banco.
+        languages: LanguageSelection.pruneDropped(
+          current: _languagePicks,
+          resolved: resolvedLanguages,
+        ),
 
         createdAt: now,
         updatedAt: now,
@@ -1876,6 +1937,104 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
             ],
           ),
         ),
+      ),
+    ];
+  }
+
+  SubclassEntry? _findSubclass(List<SubclassEntry> all, String? id) {
+    if (id == null || id.isEmpty) return null;
+    for (final item in all) {
+      if (item.id == id) return item;
+    }
+    return null;
+  }
+
+  /// Resolve os idiomas contra as origens escolhidas até agora.
+  ///
+  /// Montado a cada build, como `_buildCreationSkillSelection`: trocar a raça
+  /// recalcula tudo sem ninguém limpar estado à mão, e as escolhas que
+  /// continuam tendo vaga sobrevivem. Catálogo nulo (asset ainda carregando)
+  /// devolve vazio em vez de meia resolução.
+  ResolvedLanguages _resolveLanguages({
+    required LanguageCatalog? catalog,
+    required RaceEntry baseRace,
+    required RaceEntry? subrace,
+    required BackgroundEntry? background,
+    required ClassEntry classEntry,
+    required SubclassEntry? subclass,
+  }) {
+    if (catalog == null || catalog.isEmpty) return ResolvedLanguages.empty;
+
+    final classFeatures =
+        ref.watch(compendium_providers.classFeaturesProvider).value ??
+        const <ClassFeatureEntry>[];
+
+    final bundle = LanguageSourceBuilder.build(
+      catalog: catalog,
+      race: baseRace,
+      subrace: subrace,
+      // O antecedente customizável não declara idioma: o jogador escreve as
+      // características dele à mão, e inventar vagas ali daria idioma de graça.
+      background: background != null && !background.isCustom
+          ? background
+          : null,
+      classes: [
+        LanguageClassSource(
+          entry: classEntry,
+          level: 1,
+          subclass: subclass,
+        ),
+      ],
+      classFeatures: classFeatures,
+    );
+
+    return LanguageResolver.resolve(
+      catalog: catalog,
+      sources: bundle.sources,
+      selections: _languagePicks,
+    );
+  }
+
+  /// A etapa "Idiomas" do fluxo de criação.
+  ///
+  /// Não é uma aba porque esta tela não tem abas: a criação é um formulário
+  /// único e rolável, e a seção fica depois das etapas que determinam as
+  /// concessões — raça, sub-raça, antecedente, classe e subclasse.
+  List<Widget> _buildLanguageSection(
+    LanguageCatalog? catalog,
+    ResolvedLanguages resolved,
+  ) {
+    if (catalog == null || catalog.isEmpty) return const [];
+    if (resolved.automatic.isEmpty && resolved.totalSlots == 0) {
+      return const [];
+    }
+
+    return [
+      const SizedBox(height: 20),
+      Text('Idiomas', style: Theme.of(context).textTheme.titleLarge),
+      const SizedBox(height: 8),
+      LanguageSelectionForm(
+        catalog: catalog,
+        resolved: resolved,
+        onChoose: (slot, languageId) {
+          setState(() {
+            _languagePicks = LanguageSelection.choose(
+              current: _languagePicks,
+              slot: slot,
+              languageId: languageId,
+              catalog: catalog,
+              resolved: resolved,
+            );
+          });
+        },
+        onClear: (slot) {
+          setState(() {
+            _languagePicks = LanguageSelection.clearSlot(
+              current: _languagePicks,
+              slotId: slot.id,
+            );
+          });
+        },
       ),
     ];
   }

@@ -3,6 +3,7 @@ import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_choices.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_equipment.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_personality.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/language_grant.dart';
 
 /// Antecedente (background) do personagem.
 ///
@@ -20,6 +21,7 @@ class BackgroundEntry {
     required this.skillIds,
     this.description,
     this.languages = 0,
+    this.languageGrants = const [],
     this.tools = const [],
     this.featureName,
     this.featureDescription,
@@ -60,7 +62,18 @@ class BackgroundEntry {
   final List<String> skillIds;
 
   /// Quantidade de idiomas adicionais à escolha do jogador.
+  ///
+  /// Mantido por compatibilidade: é o campo que o asset sempre teve e o que o
+  /// resumo do antecedente exibe. Quando [languageGrants] está vazio, ele é
+  /// convertido em vagas de escolha livre — ver `LanguageResolver`.
   final int languages;
+
+  /// O que o antecedente concede em idiomas, em forma estruturada.
+  ///
+  /// Preenchido quando a concessão não é "N idiomas livres": um antecedente
+  /// que dê um idioma fixo, ou restrito a uma lista, declara aqui. Vazio cai
+  /// no comportamento de [languages].
+  final List<LanguageGrant> languageGrants;
 
   final List<String> tools;
   final String? featureName;

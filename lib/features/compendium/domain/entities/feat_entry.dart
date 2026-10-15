@@ -2,6 +2,7 @@ import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.da
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_prerequisite.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/initiative_rule.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/language_grant.dart';
 
 /// Perícias que o talento deixa o jogador escolher.
 ///
@@ -81,6 +82,7 @@ class FeatEntry {
     this.abilityIncreases = const {},
     this.abilityIncreaseOptions = const [],
     this.initiative,
+    this.languageGrants = const [],
     this.source = 'phb',
   });
 
@@ -121,6 +123,16 @@ class FeatEntry {
   ///
   /// Hoje só o Alerta declara, com `{"bonus": 5}`.
   final InitiativeRule? initiative;
+
+  /// O que o talento concede em idiomas.
+  ///
+  /// Vazio é o caso comum. O Linguista declara três vagas livres; talento que
+  /// não mexe em idioma não declara nada, e é por isso que a lista não é
+  /// inferida da descrição.
+  final List<LanguageGrant> languageGrants;
+
+  /// Se o talento abre alguma vaga ou concede algum idioma.
+  bool get touchesLanguages => languageGrants.isNotEmpty;
 
   final String source;
 

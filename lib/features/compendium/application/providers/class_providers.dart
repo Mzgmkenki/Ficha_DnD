@@ -4,9 +4,11 @@ import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.da
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_equipment.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/language_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_slot_progression_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/subclass_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/services/language_catalog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final classEntriesProvider = FutureProvider<List<ClassEntry>>((ref) async {
@@ -37,6 +39,22 @@ final featByIdProvider =
     if (item.id == id) return item;
   }
   return null;
+});
+
+final languageEntriesProvider =
+    FutureProvider<List<LanguageEntry>>((ref) async {
+  final repository = ref.watch(compendiumRepositoryProvider);
+  return repository.loadLanguages();
+});
+
+/// O catálogo de idiomas já montado, sem duplicatas.
+///
+/// Único ponto de verdade para "qual idioma é este texto" e "o que esta vaga
+/// oferece". A tela de criação, a ficha e a edição leem daqui, e é por isso
+/// que não podem divergir na normalização de nome.
+final languageCatalogProvider = FutureProvider<LanguageCatalog>((ref) async {
+  final entries = await ref.watch(languageEntriesProvider.future);
+  return LanguageCatalog.from(entries);
 });
 
 final backgroundByIdProvider =

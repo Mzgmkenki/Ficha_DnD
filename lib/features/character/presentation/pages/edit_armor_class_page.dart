@@ -1,11 +1,15 @@
 import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
 import 'package:dnd_ficha_app/core/theme/app_colors.dart';
+import 'package:dnd_ficha_app/features/character/application/providers/feature_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/inventory_item.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/armor_class_calculator.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/armor_class_options.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/feature_formula.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/owned_armor.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/special_feature_resolver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -37,6 +41,13 @@ class _EditArmorClassPageState extends ConsumerState<EditArmorClassPage> {
   int _otherBonus = 0;
   bool _saving = false;
 
+  /// Fórmula de CA-base escolhida.
+  ///
+  /// Começa na preferência gravada na ficha. Nula é "nunca escolheu", e nesse
+  /// caso a tela destaca a melhor fórmula válida sem fingir que o jogador a
+  /// escolheu.
+  String? _formulaId;
+
   /// Inventário em edição.
   ///
   /// A troca de equipado mexe aqui e só vai para o banco no salvar, junto com
@@ -57,6 +68,7 @@ class _EditArmorClassPageState extends ConsumerState<EditArmorClassPage> {
         )?.armor?.id ??
         'none';
     _hasShield = OwnedArmor.hasEquippedShield(_inventory);
+    _formulaId = widget.character.armorClassFormulaId;
   }
 
   /// Por que esta armadura da tabela não pode ser usada, ou `null`.
@@ -78,22 +90,50 @@ class _EditArmorClassPageState extends ConsumerState<EditArmorClassPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Falha ao ler o compêndio não pode travar a tela de CA: ela cai no
+    // cálculo só por equipamento, que é como funcionava antes das fórmulas de
+    // característica existirem.
+    final features = ref
+        .watch(resolvedFeaturesProvider(widget.character))
+        .maybeWhen(data: (value) => value, orElse: () => ResolvedFeatures.empty);
+
+    return _body(context, features);
+  }
+
+  Widget _body(BuildContext context, ResolvedFeatures features) {
     final text = Theme.of(context).textTheme;
 
     final armor = ArmorOption.fromId(_armorId) ?? ArmorOption.all.first;
     final blockReason = _blockReasonFor(armor);
 
+    final formulas = ArmorClassOptions.formulasFor(
+      features: features,
+      abilityScores: _scores,
+      inventory: _inventory,
+      context: FeatureFormulaContext.fromCharacter(widget.character),
+    );
+
+    final selectedFormula = _selectedFormula(formulas);
+    final featureBase = selectedFormula?.base;
+
     // Armadura bloqueada não entra na conta: o número mostrado tem que ser o
     // mesmo que a ficha vai guardar, e `OwnedArmor` também a ignoraria.
+    //
+    // Com uma fórmula de característica escolhida, a armadura sai inteira da
+    // conta: é a regra de que duas fórmulas base nunca se somam.
     final result = ArmorClassCalculator.calculate(
       armor: blockReason == null ? armor : ArmorOption.all.first,
       abilityScores: _scores,
       hasShield: _hasShield,
       otherBonus: _otherBonus,
-      armorMagicBonus: blockReason == null ? _magicBonusFor(armor) : 0,
+      armorMagicBonus:
+          blockReason == null && featureBase == null ? _magicBonusFor(armor) : 0,
+      alternateBase: featureBase,
     );
 
     final owned = OwnedArmor.from(_inventory);
+    final featureFormulas =
+        formulas.where((item) => !item.isEquipment).toList(growable: false);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Calcular CA')),
@@ -116,6 +156,30 @@ class _EditArmorClassPageState extends ConsumerState<EditArmorClassPage> {
               ),
             ),
           ),
+          if (featureFormulas.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Text('Fórmula de CA', style: text.titleSmall),
+            const SizedBox(height: 2),
+            Text(
+              'Escolha UMA fórmula base. Elas não se somam; escudo e outros '
+              'bônus entram por cima da escolhida.',
+              style: text.bodySmall?.copyWith(color: AppColors.onDarkVariant),
+            ),
+            const SizedBox(height: 4),
+            RadioGroup<String>(
+              groupValue: selectedFormula?.id,
+              onChanged: (value) {
+                if (value == null) return;
+                setState(() => _formulaId = value);
+              },
+              child: Column(
+                children: [
+                  for (final option in formulas)
+                    _FormulaTile(option: option),
+                ],
+              ),
+            ),
+          ],
           if (owned.isNotEmpty) ...[
             const SizedBox(height: 16),
             Text('Armaduras e escudos que você possui', style: text.titleSmall),
@@ -254,7 +318,9 @@ class _EditArmorClassPageState extends ConsumerState<EditArmorClassPage> {
           ],
           const SizedBox(height: 24),
           FilledButton.icon(
-            onPressed: _saving ? null : () => _save(result.total),
+            onPressed: _saving
+                ? null
+                : () => _save(result.total, selectedFormula?.id),
             icon:
                 _saving
                     ? const SizedBox(
@@ -268,6 +334,32 @@ class _EditArmorClassPageState extends ConsumerState<EditArmorClassPage> {
         ],
       ),
     );
+  }
+
+  /// A fórmula que está valendo nesta tela.
+  ///
+  /// A preferência gravada só vale se ainda puder ser usada: vestir armadura
+  /// derruba a Defesa sem Armadura, e nesse caso a tela mostra a melhor
+  /// fórmula válida em vez de um número que a ficha não guardaria. A
+  /// preferência em si não é apagada — ver `ArmorClassOptions`.
+  ArmorClassFormulaOption? _selectedFormula(
+    List<ArmorClassFormulaOption> formulas,
+  ) {
+    if (formulas.isEmpty) return null;
+
+    for (final option in formulas) {
+      if (option.id == _formulaId && option.isUsable) return option;
+    }
+
+    ArmorClassFormulaOption? best;
+    for (final option in formulas) {
+      if (!option.isUsable) continue;
+      if (best == null || (option.value ?? 0) > (best.value ?? 0)) {
+        best = option;
+      }
+    }
+
+    return best ?? formulas.first;
   }
 
   OwnedArmorPiece? _findOwnedWearable(String armorId) {
@@ -323,7 +415,7 @@ class _EditArmorClassPageState extends ConsumerState<EditArmorClassPage> {
       );
   }
 
-  Future<void> _save(int total) async {
+  Future<void> _save(int total, String? formulaId) async {
     setState(() => _saving = true);
 
     try {
@@ -343,6 +435,9 @@ class _EditArmorClassPageState extends ConsumerState<EditArmorClassPage> {
               // A armadura equipada vai junto com o total: é o que permite
               // reabrir a tela e ver de onde o número saiu.
               inventory: enforced.inventory,
+              // A fórmula escolhida também: sem ela, reabrir a tela voltaria a
+              // destacar "a melhor" e a decisão do jogador se perderia.
+              armorClassFormulaId: formulaId,
               combatStats: widget.character.combatStats.copyWith(
                 armorClass: total,
               ),
@@ -360,6 +455,65 @@ class _EditArmorClassPageState extends ConsumerState<EditArmorClassPage> {
     } finally {
       if (mounted) setState(() => _saving = false);
     }
+  }
+}
+
+/// Uma fórmula de CA-base disponível.
+///
+/// Mostra a conta inteira — `10 + DES +2 + CON +3 = 15` — porque é isso que
+/// permite o jogador conferir o número contra a mesa. Fórmula indisponível
+/// aparece apagada COM o motivo, em vez de sumir: ela continua sendo uma
+/// característica do personagem, só não está valendo agora.
+class _FormulaTile extends StatelessWidget {
+  const _FormulaTile({required this.option});
+
+  final ArmorClassFormulaOption option;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final usable = option.isUsable;
+
+    return RadioListTile<String>(
+      key: ValueKey('ac-formula-${option.id}'),
+      value: option.id,
+      // Desabilitada em vez de escondida, e o `enabled` já apaga o texto.
+      enabled: usable,
+      dense: true,
+      controlAffinity: ListTileControlAffinity.leading,
+      contentPadding: EdgeInsets.zero,
+      title: Text(
+        option.value == null
+            ? option.label
+            : '${option.label} — CA base ${option.value}',
+      ),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(option.composition, style: text.bodySmall),
+          if (option.sourceLabel case final source?)
+            Text(
+              source,
+              style: text.bodySmall?.copyWith(color: AppColors.onDarkVariant),
+            ),
+          if (!usable && option.unavailableReason != null)
+            Text(
+              'Indisponível: ${option.unavailableReason}.',
+              style: text.bodySmall?.copyWith(color: AppColors.error),
+            ),
+          if (usable && !option.allowsShield)
+            Text(
+              'Esta fórmula não permite escudo.',
+              style: text.bodySmall?.copyWith(color: AppColors.onDarkVariant),
+            ),
+          if (option.note case final note?)
+            Text(
+              note,
+              style: text.bodySmall?.copyWith(fontStyle: FontStyle.italic),
+            ),
+        ],
+      ),
+    );
   }
 }
 
