@@ -589,6 +589,26 @@ MigrationStrategy buildMigrationStrategy(AppDatabase db) {
         // repetido devolve "already exists", que `_tryCreateTable` engole.
         await _tryCreateTable(m, db.characterLanguages);
       }
+
+      if (from < 22) {
+        // Bônus manual de CA, separado do total.
+        //
+        // Nasce em zero, e isso preserva a ficha de quem já tinha CA gravada:
+        // o total em `armor_class` continua intacto e segue valendo como
+        // número de partida. O que muda é que, daqui para frente, a CA exibida
+        // é recalculada a cada mudança de atributo, e esta coluna é a parcela
+        // que o recálculo não teria como adivinhar.
+        //
+        // Não há backfill possível: o total gravado não diz quanto dele veio
+        // de bônus manual. Decompor por subtração exigiria recalcular a
+        // fórmula de cada personagem aqui dentro, e `onUpgrade` não pode ler o
+        // banco nem o compêndio. Quem usava bônus manual redigita uma vez.
+        await _tryAddColumn(
+          m,
+          db.characters,
+          db.characters.armorClassOtherBonus,
+        );
+      }
     },
     beforeOpen: (details) async {
       // Roda fora da transação de migração, então aqui é seguro usar `db`.

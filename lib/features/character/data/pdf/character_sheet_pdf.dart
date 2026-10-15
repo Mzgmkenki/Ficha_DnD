@@ -51,6 +51,7 @@ class CharacterSheetPdfData {
     this.portraitBytes,
     this.titleFontBytes,
     this.interactiveForms = true,
+    this.armorClass,
   });
 
   final Character character;
@@ -93,6 +94,17 @@ class CharacterSheetPdfData {
   /// desenhada, para marcar à mão depois de imprimir. O desenho é idêntico nos
   /// dois casos, então a ficha impressa não muda de aparência.
   final bool interactiveForms;
+
+  /// CA já resolvida, com fórmula de característica e bônus manual.
+  ///
+  /// Vem de fora pelo mesmo motivo da iniciativa: a CA depende do compêndio
+  /// (Defesa sem Armadura é uma característica de classe), e o gerador não
+  /// conhece provider nem banco. Nulo cai no inteiro gravado no personagem,
+  /// que é o que o PDF usava antes.
+  final int? armorClass;
+
+  /// A CA que o PDF deve imprimir.
+  int get effectiveArmorClass => armorClass ?? character.combatStats.armorClass;
 }
 
 /// Monta o PDF da ficha.
@@ -608,7 +620,10 @@ class CharacterSheetPdf {
     return [
       // Primeira fila: os números que decidem o turno.
       _boxRow([
-        _valueBox(label: 'Classe de armadura', value: '${stats.armorClass}'),
+        _valueBox(
+          label: 'Classe de armadura',
+          value: '${data.effectiveArmorClass}',
+        ),
         _valueBox(
           label: 'Iniciativa',
           value: initiative.formattedTotal,

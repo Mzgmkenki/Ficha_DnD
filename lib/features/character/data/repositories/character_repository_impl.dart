@@ -79,6 +79,8 @@ class CharacterRepositoryImpl implements CharacterRepository {
               ),
               armorClass: drift.Value(character.combatStats.armorClass),
               armorClassFormulaId: drift.Value(character.armorClassFormulaId),
+              armorClassOtherBonus:
+                  drift.Value(character.armorClassOtherBonus),
               initiativeBonus:
                   drift.Value(character.combatStats.initiativeBonus),
               speed: drift.Value(character.combatStats.speedInMeters.round()),
@@ -600,6 +602,7 @@ class CharacterRepositoryImpl implements CharacterRepository {
           ),
           armorClass: drift.Value(character.combatStats.armorClass),
           armorClassFormulaId: drift.Value(character.armorClassFormulaId),
+          armorClassOtherBonus: drift.Value(character.armorClassOtherBonus),
           initiativeBonus:
               drift.Value(character.combatStats.initiativeBonus),
           speed: drift.Value(character.combatStats.speedInMeters.round()),

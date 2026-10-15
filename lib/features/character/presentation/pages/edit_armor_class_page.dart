@@ -38,7 +38,13 @@ class _EditArmorClassPageState extends ConsumerState<EditArmorClassPage> {
   /// armadura tinha produzido o número.
   late String _armorId;
   late bool _hasShield;
-  int _otherBonus = 0;
+  /// Bônus digitado à mão.
+  ///
+  /// Começa no que está gravado na ficha, não em zero: antes o campo voltava
+  /// a zero a cada abertura, e salvar de novo apagava em silêncio o bônus do
+  /// anel de proteção que o jogador havia somado.
+  late int _otherBonus;
+
   bool _saving = false;
 
   /// Fórmula de CA-base escolhida.
@@ -69,6 +75,7 @@ class _EditArmorClassPageState extends ConsumerState<EditArmorClassPage> {
         'none';
     _hasShield = OwnedArmor.hasEquippedShield(_inventory);
     _formulaId = widget.character.armorClassFormulaId;
+    _otherBonus = widget.character.armorClassOtherBonus;
   }
 
   /// Por que esta armadura da tabela não pode ser usada, ou `null`.
@@ -438,6 +445,10 @@ class _EditArmorClassPageState extends ConsumerState<EditArmorClassPage> {
               // A fórmula escolhida também: sem ela, reabrir a tela voltaria a
               // destacar "a melhor" e a decisão do jogador se perderia.
               armorClassFormulaId: formulaId,
+              // O bônus manual vai gravado separado do total. É a única
+              // parcela da CA que o app não consegue derivar, e é ela que
+              // permite o resto ser recalculado a cada mudança de atributo.
+              armorClassOtherBonus: _otherBonus,
               combatStats: widget.character.combatStats.copyWith(
                 armorClass: total,
               ),

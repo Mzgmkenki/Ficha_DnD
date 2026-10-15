@@ -66,6 +66,7 @@ class Character {
     this.featureStates = const [],
     this.languages = const [],
     this.armorClassFormulaId,
+    this.armorClassOtherBonus = 0,
   });
 
   final String id;
@@ -150,6 +151,14 @@ class Character {
   /// derruba a Defesa sem Armadura, e tirá-la volta a valer a escolha
   /// original. Ver `ArmorClassOptions`.
   final String? armorClassFormulaId;
+
+  /// Bônus de CA digitado à mão: anel de proteção, manto, bênção da mesa.
+  ///
+  /// Guardado separado do total porque é a única parcela da CA que o app não
+  /// tem como derivar — ela não está no compêndio nem no inventário. É o que
+  /// permite recalcular a CA a cada mudança de atributo sem jogar fora o que
+  /// o jogador digitou.
+  final int armorClassOtherBonus;
 
   /// Inspiração heroica concedida pelo mestre.
   final bool inspiration;
@@ -315,6 +324,7 @@ class Character {
     List<CharacterFeatureState>? featureStates,
     List<CharacterLanguage>? languages,
     Object? armorClassFormulaId = _sentinel,
+    int? armorClassOtherBonus,
     bool? inspiration,
     int? exhaustion,
     Set<Condition>? conditions,
@@ -375,6 +385,8 @@ class Character {
       armorClassFormulaId: armorClassFormulaId == _sentinel
           ? this.armorClassFormulaId
           : armorClassFormulaId as String?,
+      // Sem sentinela: zerar o bônus é passar 0, que não é null.
+      armorClassOtherBonus: armorClassOtherBonus ?? this.armorClassOtherBonus,
       inspiration: inspiration ?? this.inspiration,
       exhaustion: exhaustion ?? this.exhaustion,
       // Sem sentinela: limpar as condições é passar um conjunto vazio, não

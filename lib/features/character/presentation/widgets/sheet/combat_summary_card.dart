@@ -2,6 +2,7 @@ import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
 import 'package:dnd_ficha_app/core/theme/app_typography.dart';
 import 'package:dnd_ficha_app/core/utils/distance_format.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
+import 'package:dnd_ficha_app/features/character/application/providers/feature_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/initiative_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/initiative_calculator.dart';
@@ -31,44 +32,76 @@ class _CombatSummaryCardState extends ConsumerState<CombatSummaryCard> {
     // quatro números piscaria em cada abertura da ficha.
     final result = initiative.value ?? _withoutCompendium();
 
+    // A CA é DERIVADA, como a iniciativa ao lado, e não lida do inteiro
+    // gravado. É o que faz subir a Destreza de um Monge mudar a CA na hora:
+    // antes o número só era reescrito ao salvar a tela de CA, então a ficha
+    // ficava com o valor velho até alguém abrir e gravar de novo.
+    //
+    // O valor gravado continua sendo o ponto de partida enquanto o compêndio
+    // carrega: melhor um número aproximado por um instante que um espaço vazio
+    // ou um indicador piscando a cada abertura da ficha.
+    final armorClass = ref
+        .watch(armorClassSelectionProvider(character))
+        .maybeWhen(
+          data: (value) => value.result.total,
+          orElse: () => character.combatStats.armorClass,
+        );
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            // Quatro colunas de largura igual, em vez de quatro larguras
+            // naturais espaçadas: num aparelho de 360 px a soma das larguras
+            // naturais passava do disponível e a linha estourava. Com
+            // `Expanded` cada valor recebe um quarto e o número encolhe
+            // sozinho se precisar (ver `_CombatValue`).
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _CombatValue(
-                  label: 'CA',
-                  value: '${character.combatStats.armorClass}',
+                Expanded(
+                  child: _CombatValue(
+                    label: 'CA',
+                    value: '$armorClass',
+                    valueKey: const ValueKey('combat-armor-class'),
+                    onTap: () => AppNavigator.toEditArmorClass(
+                      context,
+                      character: character,
+                    ),
+                  ),
                 ),
-                _CombatValue(
-                  label: 'Iniciativa',
+                Expanded(
+                  child: _CombatValue(
+                    label: 'Iniciativa',
                   value: result.formattedTotal,
                   // Duas etiquetas possíveis, e a de ajuste tem prioridade:
                   // saber que o número tem parcela manual importa mais na hora
                   // de conferir a conta do que a vantagem, que a composição
                   // logo abaixo repete.
-                  badge:
-                      result.hasManualAdjustment
-                          ? 'ajustada'
-                          : (result.hasAdvantage ? 'vantagem' : null),
-                  onTap:
-                      () => AppNavigator.toEditInitiative(
-                        context,
-                        character: character,
-                      ),
+                    badge:
+                        result.hasManualAdjustment
+                            ? 'ajustada'
+                            : (result.hasAdvantage ? 'vantagem' : null),
+                    onTap:
+                        () => AppNavigator.toEditInitiative(
+                          context,
+                          character: character,
+                        ),
+                  ),
                 ),
-                _CombatValue(
-                  label: 'Desloc.',
-                  value: formatMeters(character.combatStats.speedInMeters),
+                Expanded(
+                  child: _CombatValue(
+                    label: 'Desloc.',
+                    value: formatMeters(character.combatStats.speedInMeters),
+                  ),
                 ),
-                _CombatValue(
-                  label: 'HP',
-                  value:
-                      '${character.hitPoints.current}/${character.hitPoints.maximum}'
-                      '${character.hitPoints.temporary > 0 ? ' (+${character.hitPoints.temporary})' : ''}',
+                Expanded(
+                  child: _CombatValue(
+                    label: 'HP',
+                    value:
+                        '${character.hitPoints.current}/${character.hitPoints.maximum}'
+                        '${character.hitPoints.temporary > 0 ? ' (+${character.hitPoints.temporary})' : ''}',
+                  ),
                 ),
               ],
             ),
@@ -234,10 +267,15 @@ class _CombatValue extends StatelessWidget {
     required this.value,
     this.badge,
     this.onTap,
+    this.valueKey,
   });
 
   final String label;
   final String value;
+
+  /// Key no `Text` do número, para o teste ler o valor exibido sem depender
+  /// da posição dele na árvore.
+  final Key? valueKey;
 
   /// Etiqueta curta abaixo do número, como a vantagem na iniciativa.
   final String? badge;
@@ -251,15 +289,32 @@ class _CombatValue extends StatelessWidget {
 
     final content = Column(
       children: [
-        Text(label, style: theme.textTheme.labelMedium),
+        Text(
+          label,
+          style: theme.textTheme.labelMedium,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
         const SizedBox(height: 8),
-        Text(value, style: AppTypography.numeric(fontSize: 21)),
+        // `FittedBox` em vez de deixar o texto no tamanho fixo: "10/10 (+3)"
+        // não cabe num quarto de uma tela de 360 px, e encolher o número é
+        // melhor que cortá-lo ou estourar a linha.
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            value,
+            key: valueKey,
+            style: AppTypography.numeric(fontSize: 21),
+          ),
+        ),
         if (badge != null)
           Text(
             badge!,
             style: theme.textTheme.labelSmall?.copyWith(
               color: theme.colorScheme.primary,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
       ],
     );
@@ -275,7 +330,7 @@ class _CombatValue extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(8),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
           child: content,
         ),
       ),

@@ -79,6 +79,17 @@ class Characters extends Table {
   /// que o jogador havia decidido.
   TextColumn get armorClassFormulaId => text().nullable()();
 
+  /// Bônus de CA que o jogador digita à mão (anel, manto, bênção do Mestre).
+  ///
+  /// Persistido porque não dá para derivar: não existe no compêndio e não sai
+  /// do inventário. Antes ele era somado em [armorClass] e esquecido, então
+  /// reabrir a tela de CA zerava o campo e gravar de novo apagava o bônus.
+  ///
+  /// Guardá-lo separado é o que permite a CA exibida ser recalculada a cada
+  /// mudança de atributo sem perder esta parcela.
+  IntColumn get armorClassOtherBonus =>
+      integer().withDefault(const Constant(0))();
+
   IntColumn get initiativeBonus => integer().withDefault(const Constant(0))();
 
   /// Deslocamento em metros, arredondado. Legado: a coluna é inteira e não

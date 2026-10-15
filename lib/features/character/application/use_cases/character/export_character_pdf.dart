@@ -3,6 +3,9 @@ import 'dart:io';
 import 'package:dnd_ficha_app/core/branding/app_branding.dart';
 import 'package:dnd_ficha_app/features/character/data/pdf/character_sheet_pdf.dart';
 import 'package:dnd_ficha_app/features/character/domain/repositories/character_repository.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/armor_class_options.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/feature_formula.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/special_feature_resolver.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_entry.dart';
@@ -55,9 +58,30 @@ class ExportCharacterPdf {
       throw Exception('Personagem não encontrado.');
     }
 
+    // A CA é resolvida aqui, e não lida do inteiro gravado: Defesa sem
+    // Armadura é característica de classe, e o compêndio necessário já está
+    // nos parâmetros. Sem isto o PDF sairia com o número de antes da última
+    // mudança de atributo.
+    final features = SpecialFeatureResolver.resolve(
+      character: character,
+      classes: classes,
+      classFeatures: classFeatures,
+      subclasses: subclasses,
+    );
+
+    final armorClass = ArmorClassOptions.resolve(
+      features: features,
+      abilityScores: character.abilityScores,
+      inventory: character.inventory,
+      context: FeatureFormulaContext.fromCharacter(character),
+      preferredFormulaId: character.armorClassFormulaId,
+      otherBonus: character.armorClassOtherBonus,
+    );
+
     final bytes = await CharacterSheetPdf.build(
       CharacterSheetPdfData(
         character: character,
+        armorClass: armorClass.result.total,
         classes: classes,
         subclasses: subclasses,
         races: races,

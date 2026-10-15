@@ -209,6 +209,9 @@ class CharacterMapper {
           .toList(growable: false),
 
       armorClassFormulaId: character.armorClassFormulaId,
+      // Clamp na leitura: um valor absurdo numa base editada à mão não pode
+      // virar CA de três dígitos na ficha.
+      armorClassOtherBonus: character.armorClassOtherBonus.clamp(-20, 20),
 
       inspiration: character.inspiration,
       exhaustion: character.exhaustion,

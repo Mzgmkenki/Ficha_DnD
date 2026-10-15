@@ -267,6 +267,17 @@ class $CharactersTable extends Characters
         type: DriftSqlType.string,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _armorClassOtherBonusMeta =
+      const VerificationMeta('armorClassOtherBonus');
+  @override
+  late final GeneratedColumn<int> armorClassOtherBonus = GeneratedColumn<int>(
+    'armor_class_other_bonus',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   static const VerificationMeta _initiativeBonusMeta = const VerificationMeta(
     'initiativeBonus',
   );
@@ -1089,6 +1100,7 @@ class $CharactersTable extends Characters
     backgroundPersonalityChoices,
     armorClass,
     armorClassFormulaId,
+    armorClassOtherBonus,
     initiativeBonus,
     speed,
     speedMeters,
@@ -1335,6 +1347,15 @@ class $CharactersTable extends Characters
         armorClassFormulaId.isAcceptableOrUnknown(
           data['armor_class_formula_id']!,
           _armorClassFormulaIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('armor_class_other_bonus')) {
+      context.handle(
+        _armorClassOtherBonusMeta,
+        armorClassOtherBonus.isAcceptableOrUnknown(
+          data['armor_class_other_bonus']!,
+          _armorClassOtherBonusMeta,
         ),
       );
     }
@@ -1970,6 +1991,11 @@ class $CharactersTable extends Characters
         DriftSqlType.string,
         data['${effectivePrefix}armor_class_formula_id'],
       ),
+      armorClassOtherBonus:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}armor_class_other_bonus'],
+          )!,
       initiativeBonus:
           attachedDatabase.typeMapping.read(
             DriftSqlType.int,
@@ -2349,6 +2375,16 @@ class Character extends DataClass implements Insertable<Character> {
   /// sem Armadura, mas não apaga a escolha: tirar a armadura volta a valer o
   /// que o jogador havia decidido.
   final String? armorClassFormulaId;
+
+  /// Bônus de CA que o jogador digita à mão (anel, manto, bênção do Mestre).
+  ///
+  /// Persistido porque não dá para derivar: não existe no compêndio e não sai
+  /// do inventário. Antes ele era somado em [armorClass] e esquecido, então
+  /// reabrir a tela de CA zerava o campo e gravar de novo apagava o bônus.
+  ///
+  /// Guardá-lo separado é o que permite a CA exibida ser recalculada a cada
+  /// mudança de atributo sem perder esta parcela.
+  final int armorClassOtherBonus;
   final int initiativeBonus;
 
   /// Deslocamento em metros, arredondado. Legado: a coluna é inteira e não
@@ -2461,6 +2497,7 @@ class Character extends DataClass implements Insertable<Character> {
     required this.backgroundPersonalityChoices,
     required this.armorClass,
     this.armorClassFormulaId,
+    required this.armorClassOtherBonus,
     required this.initiativeBonus,
     required this.speed,
     this.speedMeters,
@@ -2571,6 +2608,7 @@ class Character extends DataClass implements Insertable<Character> {
     if (!nullToAbsent || armorClassFormulaId != null) {
       map['armor_class_formula_id'] = Variable<String>(armorClassFormulaId);
     }
+    map['armor_class_other_bonus'] = Variable<int>(armorClassOtherBonus);
     map['initiative_bonus'] = Variable<int>(initiativeBonus);
     map['speed'] = Variable<int>(speed);
     if (!nullToAbsent || speedMeters != null) {
@@ -2689,6 +2727,7 @@ class Character extends DataClass implements Insertable<Character> {
           armorClassFormulaId == null && nullToAbsent
               ? const Value.absent()
               : Value(armorClassFormulaId),
+      armorClassOtherBonus: Value(armorClassOtherBonus),
       initiativeBonus: Value(initiativeBonus),
       speed: Value(speed),
       speedMeters:
@@ -2801,6 +2840,9 @@ class Character extends DataClass implements Insertable<Character> {
       armorClassFormulaId: serializer.fromJson<String?>(
         json['armorClassFormulaId'],
       ),
+      armorClassOtherBonus: serializer.fromJson<int>(
+        json['armorClassOtherBonus'],
+      ),
       initiativeBonus: serializer.fromJson<int>(json['initiativeBonus']),
       speed: serializer.fromJson<int>(json['speed']),
       speedMeters: serializer.fromJson<double?>(json['speedMeters']),
@@ -2901,6 +2943,7 @@ class Character extends DataClass implements Insertable<Character> {
       ),
       'armorClass': serializer.toJson<int>(armorClass),
       'armorClassFormulaId': serializer.toJson<String?>(armorClassFormulaId),
+      'armorClassOtherBonus': serializer.toJson<int>(armorClassOtherBonus),
       'initiativeBonus': serializer.toJson<int>(initiativeBonus),
       'speed': serializer.toJson<int>(speed),
       'speedMeters': serializer.toJson<double?>(speedMeters),
@@ -2989,6 +3032,7 @@ class Character extends DataClass implements Insertable<Character> {
     String? backgroundPersonalityChoices,
     int? armorClass,
     Value<String?> armorClassFormulaId = const Value.absent(),
+    int? armorClassOtherBonus,
     int? initiativeBonus,
     int? speed,
     Value<double?> speedMeters = const Value.absent(),
@@ -3090,6 +3134,7 @@ class Character extends DataClass implements Insertable<Character> {
         armorClassFormulaId.present
             ? armorClassFormulaId.value
             : this.armorClassFormulaId,
+    armorClassOtherBonus: armorClassOtherBonus ?? this.armorClassOtherBonus,
     initiativeBonus: initiativeBonus ?? this.initiativeBonus,
     speed: speed ?? this.speed,
     speedMeters: speedMeters.present ? speedMeters.value : this.speedMeters,
@@ -3215,6 +3260,10 @@ class Character extends DataClass implements Insertable<Character> {
           data.armorClassFormulaId.present
               ? data.armorClassFormulaId.value
               : this.armorClassFormulaId,
+      armorClassOtherBonus:
+          data.armorClassOtherBonus.present
+              ? data.armorClassOtherBonus.value
+              : this.armorClassOtherBonus,
       initiativeBonus:
           data.initiativeBonus.present
               ? data.initiativeBonus.value
@@ -3445,6 +3494,7 @@ class Character extends DataClass implements Insertable<Character> {
           )
           ..write('armorClass: $armorClass, ')
           ..write('armorClassFormulaId: $armorClassFormulaId, ')
+          ..write('armorClassOtherBonus: $armorClassOtherBonus, ')
           ..write('initiativeBonus: $initiativeBonus, ')
           ..write('speed: $speed, ')
           ..write('speedMeters: $speedMeters, ')
@@ -3535,6 +3585,7 @@ class Character extends DataClass implements Insertable<Character> {
     backgroundPersonalityChoices,
     armorClass,
     armorClassFormulaId,
+    armorClassOtherBonus,
     initiativeBonus,
     speed,
     speedMeters,
@@ -3625,6 +3676,7 @@ class Character extends DataClass implements Insertable<Character> {
               this.backgroundPersonalityChoices &&
           other.armorClass == this.armorClass &&
           other.armorClassFormulaId == this.armorClassFormulaId &&
+          other.armorClassOtherBonus == this.armorClassOtherBonus &&
           other.initiativeBonus == this.initiativeBonus &&
           other.speed == this.speed &&
           other.speedMeters == this.speedMeters &&
@@ -3712,6 +3764,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
   final Value<String> backgroundPersonalityChoices;
   final Value<int> armorClass;
   final Value<String?> armorClassFormulaId;
+  final Value<int> armorClassOtherBonus;
   final Value<int> initiativeBonus;
   final Value<int> speed;
   final Value<double?> speedMeters;
@@ -3798,6 +3851,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.backgroundPersonalityChoices = const Value.absent(),
     this.armorClass = const Value.absent(),
     this.armorClassFormulaId = const Value.absent(),
+    this.armorClassOtherBonus = const Value.absent(),
     this.initiativeBonus = const Value.absent(),
     this.speed = const Value.absent(),
     this.speedMeters = const Value.absent(),
@@ -3885,6 +3939,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.backgroundPersonalityChoices = const Value.absent(),
     this.armorClass = const Value.absent(),
     this.armorClassFormulaId = const Value.absent(),
+    this.armorClassOtherBonus = const Value.absent(),
     this.initiativeBonus = const Value.absent(),
     this.speed = const Value.absent(),
     this.speedMeters = const Value.absent(),
@@ -3975,6 +4030,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Expression<String>? backgroundPersonalityChoices,
     Expression<int>? armorClass,
     Expression<String>? armorClassFormulaId,
+    Expression<int>? armorClassOtherBonus,
     Expression<int>? initiativeBonus,
     Expression<int>? speed,
     Expression<double>? speedMeters,
@@ -4069,6 +4125,8 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       if (armorClass != null) 'armor_class': armorClass,
       if (armorClassFormulaId != null)
         'armor_class_formula_id': armorClassFormulaId,
+      if (armorClassOtherBonus != null)
+        'armor_class_other_bonus': armorClassOtherBonus,
       if (initiativeBonus != null) 'initiative_bonus': initiativeBonus,
       if (speed != null) 'speed': speed,
       if (speedMeters != null) 'speed_meters': speedMeters,
@@ -4162,6 +4220,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Value<String>? backgroundPersonalityChoices,
     Value<int>? armorClass,
     Value<String?>? armorClassFormulaId,
+    Value<int>? armorClassOtherBonus,
     Value<int>? initiativeBonus,
     Value<int>? speed,
     Value<double?>? speedMeters,
@@ -4253,6 +4312,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
           backgroundPersonalityChoices ?? this.backgroundPersonalityChoices,
       armorClass: armorClass ?? this.armorClass,
       armorClassFormulaId: armorClassFormulaId ?? this.armorClassFormulaId,
+      armorClassOtherBonus: armorClassOtherBonus ?? this.armorClassOtherBonus,
       initiativeBonus: initiativeBonus ?? this.initiativeBonus,
       speed: speed ?? this.speed,
       speedMeters: speedMeters ?? this.speedMeters,
@@ -4402,6 +4462,11 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     if (armorClassFormulaId.present) {
       map['armor_class_formula_id'] = Variable<String>(
         armorClassFormulaId.value,
+      );
+    }
+    if (armorClassOtherBonus.present) {
+      map['armor_class_other_bonus'] = Variable<int>(
+        armorClassOtherBonus.value,
       );
     }
     if (initiativeBonus.present) {
@@ -4621,6 +4686,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
           )
           ..write('armorClass: $armorClass, ')
           ..write('armorClassFormulaId: $armorClassFormulaId, ')
+          ..write('armorClassOtherBonus: $armorClassOtherBonus, ')
           ..write('initiativeBonus: $initiativeBonus, ')
           ..write('speed: $speed, ')
           ..write('speedMeters: $speedMeters, ')
@@ -13405,6 +13471,7 @@ typedef $$CharactersTableCreateCompanionBuilder =
       Value<String> backgroundPersonalityChoices,
       Value<int> armorClass,
       Value<String?> armorClassFormulaId,
+      Value<int> armorClassOtherBonus,
       Value<int> initiativeBonus,
       Value<int> speed,
       Value<double?> speedMeters,
@@ -13493,6 +13560,7 @@ typedef $$CharactersTableUpdateCompanionBuilder =
       Value<String> backgroundPersonalityChoices,
       Value<int> armorClass,
       Value<String?> armorClassFormulaId,
+      Value<int> armorClassOtherBonus,
       Value<int> initiativeBonus,
       Value<int> speed,
       Value<double?> speedMeters,
@@ -13969,6 +14037,11 @@ class $$CharactersTableFilterComposer
 
   ColumnFilters<String> get armorClassFormulaId => $composableBuilder(
     column: $table.armorClassFormulaId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get armorClassOtherBonus => $composableBuilder(
+    column: $table.armorClassOtherBonus,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -14687,6 +14760,11 @@ class $$CharactersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get armorClassOtherBonus => $composableBuilder(
+    column: $table.armorClassOtherBonus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get initiativeBonus => $composableBuilder(
     column: $table.initiativeBonus,
     builder: (column) => ColumnOrderings(column),
@@ -15097,6 +15175,11 @@ class $$CharactersTableAnnotationComposer
 
   GeneratedColumn<String> get armorClassFormulaId => $composableBuilder(
     column: $table.armorClassFormulaId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get armorClassOtherBonus => $composableBuilder(
+    column: $table.armorClassOtherBonus,
     builder: (column) => column,
   );
 
@@ -15749,6 +15832,7 @@ class $$CharactersTableTableManager
                     const Value.absent(),
                 Value<int> armorClass = const Value.absent(),
                 Value<String?> armorClassFormulaId = const Value.absent(),
+                Value<int> armorClassOtherBonus = const Value.absent(),
                 Value<int> initiativeBonus = const Value.absent(),
                 Value<int> speed = const Value.absent(),
                 Value<double?> speedMeters = const Value.absent(),
@@ -15835,6 +15919,7 @@ class $$CharactersTableTableManager
                 backgroundPersonalityChoices: backgroundPersonalityChoices,
                 armorClass: armorClass,
                 armorClassFormulaId: armorClassFormulaId,
+                armorClassOtherBonus: armorClassOtherBonus,
                 initiativeBonus: initiativeBonus,
                 speed: speed,
                 speedMeters: speedMeters,
@@ -15924,6 +16009,7 @@ class $$CharactersTableTableManager
                     const Value.absent(),
                 Value<int> armorClass = const Value.absent(),
                 Value<String?> armorClassFormulaId = const Value.absent(),
+                Value<int> armorClassOtherBonus = const Value.absent(),
                 Value<int> initiativeBonus = const Value.absent(),
                 Value<int> speed = const Value.absent(),
                 Value<double?> speedMeters = const Value.absent(),
@@ -16010,6 +16096,7 @@ class $$CharactersTableTableManager
                 backgroundPersonalityChoices: backgroundPersonalityChoices,
                 armorClass: armorClass,
                 armorClassFormulaId: armorClassFormulaId,
+                armorClassOtherBonus: armorClassOtherBonus,
                 initiativeBonus: initiativeBonus,
                 speed: speed,
                 speedMeters: speedMeters,

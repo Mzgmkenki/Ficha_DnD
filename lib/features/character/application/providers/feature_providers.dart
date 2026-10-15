@@ -44,6 +44,9 @@ final armorClassSelectionProvider = FutureProvider.family
     inventory: character.inventory,
     context: FeatureFormulaContext.fromCharacter(character),
     preferredFormulaId: character.armorClassFormulaId,
+    // O bônus manual entra aqui para o número derivado ser o número final: a
+    // ficha mostra este resultado direto, sem somar nada por cima.
+    otherBonus: character.armorClassOtherBonus,
   );
 });
 

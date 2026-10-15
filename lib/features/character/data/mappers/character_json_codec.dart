@@ -330,6 +330,7 @@ class CharacterJsonCodec {
           },
       ],
       'armorClassFormulaId': character.armorClassFormulaId,
+      'armorClassOtherBonus': character.armorClassOtherBonus,
       'inspiration': character.inspiration,
       'exhaustion': character.exhaustion,
       // Lista de ids, não CSV: dentro do JSON um array é o formato natural, e
@@ -421,6 +422,8 @@ class CharacterJsonCodec {
       featureStates: _parseFeatureStates(map['featureStates']),
       languages: _parseLanguages(map['languages']),
       armorClassFormulaId: _asString(map['armorClassFormulaId']),
+      armorClassOtherBonus:
+          (_asInt(map['armorClassOtherBonus']) ?? 0).clamp(-20, 20),
       inspiration: _asBool(map['inspiration']),
       exhaustion: (_asInt(map['exhaustion']) ?? 0).clamp(0, 6),
       conditions: _parseConditions(map['conditions']),
