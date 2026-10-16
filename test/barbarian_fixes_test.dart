@@ -881,18 +881,32 @@ void main() {
       expect(totemMechanics.map((item) => item.level), [3, 6, 14]);
     });
 
-    test('só a escolha do 3º nível é obrigatória', () {
+    test('das três do Totêmico, só a do 3º nível é obrigatória', () {
       expect(catalog.byId(totemId)!.isRequired, isTrue);
       expect(catalog.byId(beastAspectId)!.isRequired, isFalse);
       expect(catalog.byId(attunementId)!.isRequired, isFalse);
 
-      // E nenhuma outra mecânica do compêndio ficou obrigatória por descuido.
-      final required = catalog.all
-          .where((item) => item.isRequired)
-          .map((item) => item.id)
-          .toList(growable: false);
+      // E nenhuma mecânica ficou obrigatória por descuido. A lista é exata de
+      // propósito: é um alarme, e marcar uma mecânica como obrigatória trava a
+      // conclusão do nível, então a mudança tem de ser deliberada.
+      //
+      // Além do totem, as obrigatórias são os Estilos de Combate: a escolha
+      // define a característica, e um Guerreiro sem estilo é um Guerreiro pela
+      // metade.
+      final required =
+          catalog.all
+              .where((item) => item.isRequired)
+              .map((item) => item.id)
+              .toSet();
 
-      expect(required, [totemId]);
+      expect(required, {
+        totemId,
+        'fighter.fighting_style',
+        'fighter_champion.additional_fighting_style',
+        'paladin.fighting_style',
+        'ranger.fighting_style',
+        'bard_swords.fighting_style',
+      });
     });
 
     test('os cinco espíritos não prometem bônus permanente', () {

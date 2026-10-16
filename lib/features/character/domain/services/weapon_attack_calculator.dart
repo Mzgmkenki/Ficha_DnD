@@ -61,7 +61,8 @@ class WeaponAttack {
     return custom;
   }
 
-  String get formattedAttack => attackBonus >= 0 ? '+$attackBonus' : '$attackBonus';
+  String get formattedAttack =>
+      attackBonus >= 0 ? '+$attackBonus' : '$attackBonus';
 
   /// `+7 = +3 do atributo +3 de proficiência +1 da arma mágica`.
   String get attackExplanation {
@@ -105,6 +106,11 @@ class WeaponAttack {
 class WeaponAttackCalculator {
   const WeaponAttackCalculator._();
 
+  /// [extraAttackParts] e [extraDamageParts] são parcelas já resolvidas por
+  /// quem conhece característica e mecânica — hoje, os Estilos de Combate, por
+  /// `WeaponStyleBonuses`. Chegam prontas de propósito: este cálculo não
+  /// conhece classe nem subclasse, e conferir aqui qual estilo vale em qual
+  /// arma espalharia a regra por dois lugares.
   static WeaponAttack calculate({
     required Character character,
     required CharacterWeapon weapon,
@@ -112,6 +118,8 @@ class WeaponAttackCalculator {
     List<ClassEntry> classes = const [],
     int magicItemAttackBonus = 0,
     int magicItemDamageBonus = 0,
+    List<WeaponModifier> extraAttackParts = const [],
+    List<WeaponModifier> extraDamageParts = const [],
   }) {
     final ability = resolveAbility(
       character: character,
@@ -140,6 +148,7 @@ class WeaponAttackCalculator {
         WeaponModifier(label: 'da arma mágica', value: weapon.magicBonus),
       if (magicItemAttackBonus != 0)
         WeaponModifier(label: 'de item mágico', value: magicItemAttackBonus),
+      ...extraAttackParts,
     ];
 
     // O dano NÃO leva o bônus de proficiência: proficiência é acerto, não
@@ -150,6 +159,7 @@ class WeaponAttackCalculator {
         WeaponModifier(label: 'da arma mágica', value: weapon.magicBonus),
       if (magicItemDamageBonus != 0)
         WeaponModifier(label: 'de item mágico', value: magicItemDamageBonus),
+      ...extraDamageParts,
     ];
 
     return WeaponAttack(

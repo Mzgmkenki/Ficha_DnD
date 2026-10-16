@@ -207,7 +207,8 @@ class ArmorClassOptions {
                 effect.conditions.shield != FeatureShieldCondition.forbidden,
             isAvailable: blocked == null && evaluated != null,
             sourceLabel: feature.sourceLabel,
-            unavailableReason: blocked ??
+            unavailableReason:
+                blocked ??
                 (evaluated == null
                     ? 'A fórmula declarada no compêndio não pôde ser lida.'
                     : null),
@@ -249,9 +250,8 @@ class ArmorClassOptions {
     );
 
     final preferred = _find(options, preferredFormulaId);
-    final chosen = preferred != null && preferred.isUsable
-        ? preferred
-        : _best(options);
+    final chosen =
+        preferred != null && preferred.isUsable ? preferred : _best(options);
 
     final fellBackFrom =
         preferred != null && !preferred.isUsable ? preferred.id : null;
@@ -259,9 +259,10 @@ class ArmorClassOptions {
     // O escudo mágico acompanha o escudo: se a fórmula escolhida não aceita
     // escudo, o `+1` dele também não entra. Somá-lo mesmo assim daria o bônus
     // do item sem o item estar valendo.
-    final shieldMagicBonus = chosen.allowsShield
-        ? (OwnedArmor.equippedShield(inventory)?.magicBonus ?? 0)
-        : 0;
+    final shieldMagicBonus =
+        chosen.allowsShield
+            ? (OwnedArmor.equippedShield(inventory)?.magicBonus ?? 0)
+            : 0;
 
     final result = ArmorClassCalculator.calculate(
       armor: armor.option,
@@ -345,6 +346,10 @@ class ArmorClassOptions {
             equipped.armor?.category == ArmorCategory.heavy) {
           return '${equipped.name} é armadura pesada, e esta fórmula não '
               'permite armadura pesada';
+        }
+      case FeatureArmorCondition.armored:
+        if (equipped == null) {
+          return 'esta fórmula exige estar usando armadura';
         }
     }
 

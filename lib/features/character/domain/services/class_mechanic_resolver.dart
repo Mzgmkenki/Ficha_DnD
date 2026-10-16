@@ -2,6 +2,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/character.dart'
 import 'package:dnd_ficha_app/features/character/domain/entities/character_class_mechanic.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/class_mechanic_prerequisites.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/feature_condition_state.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/feature_formula.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/feature_resources.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/special_feature_resolver.dart';
@@ -186,6 +187,7 @@ class ResolvedClassMechanic {
     this.resource,
     this.rollResultRowId,
     this.note,
+    this.abilityScoreImprovementLevels = const {},
   });
 
   final ClassMechanicEntry entry;
@@ -214,12 +216,29 @@ class ResolvedClassMechanic {
   /// Anotação livre do jogador sobre esta mecânica.
   final String? note;
 
+  /// Níveis desta classe que concedem Incremento no Valor de Atributo.
+  ///
+  /// Vem de `ClassEntry.featLevels` e existe só para a Versatilidade Marcial:
+  /// é a regra que deixa trocar o Estilo de Combate nesses níveis, e o
+  /// Guerreiro tem dois a mais que as outras classes.
+  final Set<int> abilityScoreImprovementLevels;
+
   String get id => entry.id;
 
   String get name => entry.name;
 
   /// Se a mecânica está liberada para este personagem.
   bool get isUnlocked => blocks.isEmpty;
+
+  /// Se a troca de opção é permitida agora.
+  ///
+  /// Mora aqui porque só o resolvedor sabe os níveis de incremento da classe,
+  /// e sem eles o gatilho da Versatilidade Marcial não pode ser avaliado.
+  bool canReplaceNow({bool freeEdit = false}) => entry.canReplaceAt(
+    classLevel,
+    freeEdit: freeEdit,
+    abilityScoreImprovementLevels: abilityScoreImprovementLevels,
+  );
 
   /// Origem e nível, como a ficha escreve: `Mestre de Batalha, nível 3`.
   String get sourceLabel => '$originLabel, nível ${entry.level}';
@@ -509,18 +528,49 @@ class ResolvedClassMechanics {
   /// `ResolvedFeatures.armorClassBonus` faz para as características. Só entra
   /// modo ligado: um bônus de modo temporário não pode ficar na CA depois de
   /// desligado.
-  int armorClassBonus(FeatureFormulaContext context) {
+  int armorClassBonus(
+    FeatureFormulaContext context, {
+    FeatureConditionState equipment = FeatureConditionState.none,
+  }) {
     var total = 0;
 
     for (final mechanic in visible) {
       for (final effect in mechanic.activeCalculatedEffects) {
         if (effect.path != FeatureEffectPaths.armorClassBonus) continue;
+        if (!equipment.allows(effect.conditions)) continue;
+
         final value = FeatureFormula.valueOf(effect.formula, context);
         if (value != null) total += value;
       }
     }
 
     return total;
+  }
+
+  /// Bônus de ataque e de dano com arma declarados pelas mecânicas VALENDO.
+  ///
+  /// Só opção escolhida e válida, e só modo ligado — a mesma regra de
+  /// [armorClassBonus]. Devolve os efeitos em vez de um número porque falta
+  /// conferir a condição da ARMA, o que depende de qual ataque está sendo
+  /// montado. Ver `WeaponStyleBonuses`.
+  List<FeatureEffect> weaponBonusEffects({
+    FeatureConditionState equipment = FeatureConditionState.none,
+  }) {
+    final result = <FeatureEffect>[];
+
+    for (final mechanic in visible) {
+      for (final effect in mechanic.activeCalculatedEffects) {
+        if (effect.path != FeatureEffectPaths.attackWeaponBonus &&
+            effect.path != FeatureEffectPaths.damageWeaponBonus) {
+          continue;
+        }
+        if (!equipment.allows(effect.conditions)) continue;
+
+        result.add(effect);
+      }
+    }
+
+    return result;
   }
 
   /// Ids de recurso que voltam com as recargas informadas.
@@ -590,6 +640,15 @@ class ClassMechanicResolver {
     final resolved = <ResolvedClassMechanic>[];
     final seen = <String>{};
 
+    // Quem já tomou cada opção, por reserva compartilhada. Precisa ser
+    // calculado ANTES do laço porque a resposta depende das escolhas de TODAS
+    // as mecânicas: é o que impede o Campeão de repetir no 10º nível o estilo
+    // que pegou no 1º.
+    final exclusivePool = _exclusivePool(
+      character: character,
+      catalog: catalog,
+    );
+
     for (final classLevel in character.classLevels) {
       final classEntry = _classById(classes, classLevel.classId);
       final className = classEntry?.name ?? classLevel.classId;
@@ -620,6 +679,11 @@ class ClassMechanicResolver {
             profile: profile,
             catalog: catalog,
             context: context,
+            exclusivePool: exclusivePool,
+            // Da CLASSE que concede, não do personagem: é o nível nesta classe
+            // que a Versatilidade Marcial consulta.
+            abilityScoreImprovementLevels:
+                classEntry?.featLevels.toSet() ?? const <int>{},
           ),
         );
       }
@@ -639,6 +703,36 @@ class ClassMechanicResolver {
       mechanics: List<ResolvedClassMechanic>.unmodifiable(resolved),
       profile: profile,
     );
+  }
+
+  /// Quem já tomou cada opção, por reserva compartilhada.
+  ///
+  /// Devolve `grupo → { id da opção → id da mecânica que a tomou }`. Só olha
+  /// registro que conta como escolha: resultado de tabela e anotação não tomam
+  /// vaga de ninguém.
+  ///
+  /// Mecânica sem grupo declarado fica de fora, e é o caso da maioria — as
+  /// manobras do Mestre de Batalha não disputam reserva com nada.
+  static Map<String, Map<String, String>> _exclusivePool({
+    required Character character,
+    required ClassMechanicCatalog catalog,
+  }) {
+    final result = <String, Map<String, String>>{};
+
+    for (final record in character.classMechanics) {
+      if (!record.countsAsPick) continue;
+
+      final entry = catalog.byId(record.mechanicId);
+      if (entry == null || !entry.hasExclusiveGroup) continue;
+
+      // Primeiro registro vence, para a mensagem apontar sempre a mesma
+      // origem entre leituras.
+      result
+          .putIfAbsent(entry.exclusiveGroup!, () => <String, String>{})
+          .putIfAbsent(record.optionId!, () => entry.id);
+    }
+
+    return result;
   }
 
   /// Monta o perfil usado na validação.
@@ -707,6 +801,8 @@ class ClassMechanicResolver {
     required MechanicProfile profile,
     required ClassMechanicCatalog catalog,
     required FeatureFormulaContext context,
+    Map<String, Map<String, String>> exclusivePool = const {},
+    Set<int> abilityScoreImprovementLevels = const {},
   }) {
     final blocks = ClassMechanicPrerequisites.evaluateMechanic(
       entry: entry,
@@ -738,30 +834,59 @@ class ClassMechanicResolver {
     for (final option in entry.options) {
       final record = records.remove(option.id);
 
-      final optionBlocks = ClassMechanicPrerequisites.evaluateOption(
-        entry: entry,
-        option: option,
-        // A validação de uma opção JÁ ESCOLHIDA não conta ela mesma como
-        // incompatibilidade: senão uma opção que lista as irmãs se bloquearia
-        // sozinha depois de escolhida.
-        profile:
-            record == null
-                ? profile
-                : profile.copyWith(
-                  selectedOptionKeys:
-                      profile.selectedOptionKeys
-                          .where(
-                            (key) =>
-                                key !=
-                                ClassMechanicPrerequisites.optionKey(
-                                  entry.id,
-                                  option.id,
-                                ),
-                          )
-                          .toSet(),
-                ),
-        catalog: catalog,
-      );
+      // Cópia crescível: a validação devolve a lista fechada, e a reserva
+      // compartilhada ainda pode acrescentar um motivo abaixo.
+      final optionBlocks = <MechanicBlock>[
+        ...ClassMechanicPrerequisites.evaluateOption(
+          entry: entry,
+          option: option,
+          // A validação de uma opção JÁ ESCOLHIDA não conta ela mesma como
+          // incompatibilidade: senão uma opção que lista as irmãs se
+          // bloquearia sozinha depois de escolhida.
+          profile:
+              record == null
+                  ? profile
+                  : profile.copyWith(
+                    selectedOptionKeys:
+                        profile.selectedOptionKeys
+                            .where(
+                              (key) =>
+                                  key !=
+                                  ClassMechanicPrerequisites.optionKey(
+                                    entry.id,
+                                    option.id,
+                                  ),
+                            )
+                            .toSet(),
+                  ),
+          catalog: catalog,
+        ),
+      ];
+
+      // Reserva compartilhada: a opção tomada por OUTRA característica do mesmo
+      // grupo fica bloqueada aqui, com o nome de quem a tomou. Continua visível
+      // — o jogador precisa ver que o estilo existe e por que não pode pegá-lo
+      // de novo.
+      //
+      // O registro desta própria mecânica não conta: senão a opção escolhida se
+      // bloquearia sozinha e apareceria como inválida.
+      final pool =
+          entry.hasExclusiveGroup && record == null
+              ? exclusivePool[entry.exclusiveGroup!]
+              : null;
+      final takenBy = pool == null ? null : pool[option.id];
+
+      if (takenBy != null && takenBy != entry.id) {
+        optionBlocks.add(
+          MechanicBlock(
+            kind: MechanicBlockKind.alreadyInExclusivePool,
+            message:
+                'Você já tem ${option.name} por '
+                '${catalog.byId(takenBy)?.name ?? 'outra característica'}, e a '
+                'mesma opção não pode ser escolhida duas vezes.',
+          ),
+        );
+      }
 
       // Mecânica que não cobra vaga concede TODAS as opções desbloqueadas.
       //
@@ -878,6 +1003,7 @@ class ClassMechanicResolver {
               : null,
       rollResultRowId: rollResult,
       note: note,
+      abilityScoreImprovementLevels: abilityScoreImprovementLevels,
     );
   }
 

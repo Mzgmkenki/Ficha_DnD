@@ -177,6 +177,20 @@ class _MechanicBody extends ConsumerWidget {
           _TableSection(character: character, mechanic: mechanic, table: table),
         ],
 
+        // Escolha de uma vaga só ganha dropdown: é uma decisão única entre
+        // opções conhecidas, e percorrer onze cartões para marcar um Estilo de
+        // Combate é trabalho que o campo resolve num toque. A lista de cartões
+        // continua abaixo, porque é onde moram a descrição completa, o motivo
+        // do bloqueio e a substituição.
+        if (mechanic.isUnlocked && entry.hasPicks && mechanic.limit == 1) ...[
+          const Divider(height: 24),
+          _SinglePickDropdown(
+            character: character,
+            mechanic: mechanic,
+            onReplacingChanged: onReplacingChanged,
+          ),
+        ],
+
         if (entry.options.isEmpty)
           const SizedBox.shrink()
         else ...[
@@ -465,6 +479,170 @@ class _TableSection extends ConsumerWidget {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('$prefix${result.message}')));
+  }
+}
+
+/// A escolha de uma vaga só, como campo de seleção.
+///
+/// É o caso dos Estilos de Combate: uma decisão, entre até onze opções, que o
+/// jogador toma uma vez. Percorrer onze cartões para marcar uma é trabalho que
+/// um campo resolve num toque.
+///
+/// Opção bloqueada CONTINUA na lista, desabilitada e com o motivo abaixo do
+/// campo quando é a selecionada — o requisito é explícito em não esconder o que
+/// existe. Quem já tem uma opção e troca passa pela mesma regra de
+/// substituição dos cartões, e não por uma escrita paralela.
+class _SinglePickDropdown extends ConsumerWidget {
+  const _SinglePickDropdown({
+    required this.character,
+    required this.mechanic,
+    required this.onReplacingChanged,
+  });
+
+  final Character character;
+  final ResolvedClassMechanic mechanic;
+  final ValueChanged<String?> onReplacingChanged;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final text = Theme.of(context).textTheme;
+
+    // Só as que o jogador escolhe. Opção concedida pela regra não entra num
+    // campo de escolha.
+    final options = mechanic.options
+        .where((item) => !item.isGranted)
+        .toList(growable: false);
+
+    if (options.isEmpty) return const SizedBox.shrink();
+
+    final current = mechanic.selected.isEmpty ? null : mechanic.selected.first;
+    final selectedId = current?.id;
+    final canReplace = mechanic.canReplaceNow(freeEdit: true);
+
+    // Sem vaga livre e sem permissão de troca, o campo só informa.
+    final enabled = mechanic.freeSlots > 0 || canReplace;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        DropdownButtonFormField<String>(
+          key: const ValueKey('mechanic-single-pick-dropdown'),
+          initialValue: selectedId,
+          decoration: InputDecoration(
+            labelText: mechanic.name,
+            helperText:
+                enabled
+                    ? (selectedId == null
+                        ? 'Escolha obrigatória para concluir este nível.'
+                        : 'Selecione outra opção para substituir a atual.')
+                    : 'Sem vaga livre e sem permissão de troca neste nível.',
+            helperMaxLines: 3,
+          ),
+          // Sem isto o campo se dimensiona pelo item mais largo, e nomes como
+          // "Combate com Armas de Arremesso" estouram a largura em tela
+          // pequena.
+          isExpanded: true,
+          selectedItemBuilder:
+              (context) => [
+                for (final option in options)
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(
+                      option.option.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+              ],
+          items: [
+            for (final option in options)
+              DropdownMenuItem<String>(
+                value: option.id,
+                // Bloqueada fica visível e desabilitada. A selecionada nunca é
+                // desabilitada, senão o campo não poderia exibi-la.
+                enabled: option.id == selectedId || !option.isBlocked,
+                child: Text(
+                  option.isBlocked && option.id != selectedId
+                      ? '${option.option.name} — indisponível'
+                      : option.option.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+          ],
+          onChanged:
+              enabled
+                  ? (value) => _choose(context, ref, value, selectedId)
+                  : null,
+        ),
+
+        // Resumo da selecionada, logo abaixo do campo.
+        if (current?.option.summary case final summary?)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              summary,
+              key: const ValueKey('mechanic-single-pick-summary'),
+              style: text.bodyMedium,
+            ),
+          ),
+
+        if (current != null && current.isInvalid)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              current.blockReason.isEmpty
+                  ? 'Esta opção não está valendo com o seu nível atual.'
+                  : current.blockReason,
+              style: text.bodySmall?.copyWith(color: AppColors.error),
+            ),
+          ),
+
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(
+            'A descrição completa de cada opção está na lista abaixo.',
+            style: text.bodySmall?.copyWith(color: AppColors.onDarkVariant),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _choose(
+    BuildContext context,
+    WidgetRef ref,
+    String? value,
+    String? selectedId,
+  ) async {
+    if (value == null || value == selectedId) return;
+
+    // Já tem uma opção: trocar é SUBSTITUIR, e passa pela regra de
+    // substituição em vez de somar uma segunda escolha.
+    final result =
+        selectedId == null
+            ? await ref.read(selectClassMechanicOptionProvider)(
+              characterId: character.id,
+              mechanicId: mechanic.id,
+              optionId: value,
+            )
+            : await ref.read(replaceClassMechanicOptionProvider)(
+              characterId: character.id,
+              mechanicId: mechanic.id,
+              replacedId: selectedId,
+              optionId: value,
+              // A tela de gerenciamento É o modo de edição livre: o jogador vem
+              // aqui para corrigir uma decisão. A permissão continua vindo do
+              // domínio.
+              freeEdit: true,
+            );
+
+    if (result.changed) onReplacingChanged(null);
+
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(result.message)));
   }
 }
 

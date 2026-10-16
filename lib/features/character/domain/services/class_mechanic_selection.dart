@@ -203,7 +203,7 @@ class ClassMechanicSelection {
       );
     }
 
-    if (!mechanic.entry.canReplaceAt(mechanic.classLevel, freeEdit: freeEdit)) {
+    if (!mechanic.canReplaceNow(freeEdit: freeEdit)) {
       final rule = mechanic.entry.replacement!;
       return MechanicSelectionOutcome.unchanged(
         character,

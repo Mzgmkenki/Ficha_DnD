@@ -808,7 +808,7 @@
     "features": [
       {
         "name": "Estilo de Luta",
-        "description": "Você adota um estilo de combate. Arquearia dá +2 em ataques à distância; Defesa dá +1 de CA com armadura; Duelo dá +2 de dano com arma de uma mão sem outra arma na outra; Combate com Armas Grandes rerrola resultado 1 ou 2 no dano de arma empunhada com duas mãos; Proteção usa reação e escudo para dar desvantagem a um ataque contra aliado a até 1,5 m; Combate com Duas Armas soma o modificador de atributo ao dano do ataque de ação bônus."
+        "description": "Você adota um estilo de combate que define a sua especialidade. O Guerreiro escolhe entre 11 opções, do Livro do Jogador e de Tasha, na característica Estilo de Combate. O mesmo estilo não pode ser escolhido mais de uma vez."
       },
       {
         "name": "Retomar o Fôlego",
@@ -1302,7 +1302,7 @@
     "features": [
       {
         "name": "Estilo de Luta",
-        "description": "Escolha Defesa, Duelo, Combate com Armas Grandes ou Proteção, com o mesmo efeito descrito para o Guerreiro."
+        "description": "Você adota um estilo de combate que define a sua especialidade. O Paladino escolhe entre 7 opções, do Livro do Jogador e de Tasha, na característica Estilo de Combate. O mesmo estilo não pode ser escolhido mais de uma vez."
       },
       {
         "name": "Conjuração",
@@ -1477,7 +1477,7 @@
     "features": [
       {
         "name": "Estilo de Luta",
-        "description": "Escolha Arquearia, Defesa, Duelo ou Combate com Duas Armas, com o mesmo efeito descrito para o Guerreiro."
+        "description": "Você adota um estilo de combate que define a sua especialidade. O Patrulheiro escolhe entre 7 opções, do Livro do Jogador e de Tasha, na característica Estilo de Combate. O mesmo estilo não pode ser escolhido mais de uma vez."
       },
       {
         "name": "Conjuração",
@@ -1678,7 +1678,7 @@
     "features": [
       {
         "name": "Estilo de Luta",
-        "description": "Escolha Arquearia, Defesa, Duelo ou Combate com Duas Armas, com o mesmo efeito descrito para o Guerreiro. Esta versão da classe também abre as opções de Tasha: Luta às Cegas, que dá visão às cegas de 3 m; Guerreiro Druídico, que ensina dois truques de Druida contados como magias de Patrulheiro e conjurados com Sabedoria; e Combate com Armas Arremessadas, que permite sacar a arma como parte do ataque e soma +2 no dano dos acertos à distância com arma de arremesso."
+        "description": "Você adota um estilo de combate que define a sua especialidade. O Patrulheiro Revisado herda a mesma lista de 7 opções do Patrulheiro, do Livro do Jogador e de Tasha, na característica Estilo de Combate. O mesmo estilo não pode ser escolhido mais de uma vez."
       },
       {
         "name": "Conjuração",

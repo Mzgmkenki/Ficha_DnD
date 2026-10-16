@@ -1,5 +1,6 @@
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/feature_condition_state.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/feature_formula.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/granted_ability_increases.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
@@ -268,18 +269,54 @@ class ResolvedFeatures {
   ///
   /// Soma porque são bônus independentes, não fórmulas base — quem não soma é
   /// a CA-base, resolvida em `ArmorClassOptions`.
-  int armorClassBonus(FeatureFormulaContext context) {
+  ///
+  /// [equipment] é o que está vestido agora. Efeito com condição que o
+  /// equipamento não cumpre NÃO entra: o +1 do estilo Defesa vale "enquanto
+  /// estiver usando armadura", e somá-lo sempre daria à ficha um número que a
+  /// regra não dá. Omitir [equipment] é tratado como "nada equipado", o que
+  /// deixa o condicional de fora em vez de dentro.
+  int armorClassBonus(
+    FeatureFormulaContext context, {
+    FeatureConditionState equipment = FeatureConditionState.none,
+  }) {
     var total = 0;
 
     for (final feature in features) {
       for (final effect in feature.calculatedEffects) {
         if (effect.path != FeatureEffectPaths.armorClassBonus) continue;
+        if (!equipment.allows(effect.conditions)) continue;
+
         final value = FeatureFormula.valueOf(effect.formula, context);
         if (value != null) total += value;
       }
     }
 
     return total;
+  }
+
+  /// Bônus de ataque e de dano com arma declarados pelas características.
+  ///
+  /// Devolve os efeitos, e não um número, porque a condição que falta conferir
+  /// é a da ARMA: quem sabe se o ataque é à distância é quem está montando o
+  /// ataque, não quem resolve as características. Ver `WeaponStyleBonuses`.
+  List<FeatureEffect> weaponBonusEffects({
+    FeatureConditionState equipment = FeatureConditionState.none,
+  }) {
+    final result = <FeatureEffect>[];
+
+    for (final feature in features) {
+      for (final effect in feature.calculatedEffects) {
+        if (effect.path != FeatureEffectPaths.attackWeaponBonus &&
+            effect.path != FeatureEffectPaths.damageWeaponBonus) {
+          continue;
+        }
+        if (!equipment.allows(effect.conditions)) continue;
+
+        result.add(effect);
+      }
+    }
+
+    return result;
   }
 
   /// Escolhas obrigatórias ainda em aberto.

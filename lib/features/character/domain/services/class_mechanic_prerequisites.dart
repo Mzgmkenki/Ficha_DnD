@@ -51,6 +51,13 @@ enum MechanicBlockKind {
   /// A opção já está escolhida e a mecânica não permite repetir.
   alreadySelected('already_selected'),
 
+  /// A opção já foi escolhida por OUTRA característica da mesma reserva.
+  ///
+  /// É o caso dos Estilos de Combate: o Campeão ganha um segundo estilo no 10º
+  /// nível, mas não pode repetir o que escolheu no 1º — e o mesmo vale entre
+  /// classes diferentes em multiclasse.
+  alreadyInExclusivePool('already_in_exclusive_pool'),
+
   /// O limite de escolhas do nível atual já foi usado.
   noFreeSlots('no_free_slots'),
 

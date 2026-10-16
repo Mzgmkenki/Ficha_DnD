@@ -151,6 +151,17 @@ enum MechanicReplacementTrigger {
   /// Só nos níveis que concedem novas escolhas.
   newPick('new_pick', 'ao aprender novas opções'),
 
+  /// Só nos níveis que concedem Incremento no Valor de Atributo.
+  ///
+  /// É a Versatilidade Marcial de Tasha, que deixa Guerreiro, Paladino e
+  /// Patrulheiro trocarem o Estilo de Combate nesses níveis. Quais são eles
+  /// depende da classe — o Guerreiro tem dois a mais —, então quem avalia
+  /// precisa informá-los a [ClassMechanicEntry.canReplaceAt].
+  abilityScoreImprovement(
+    'ability_score_improvement',
+    'nos níveis de Incremento no Valor de Atributo',
+  ),
+
   /// Ao terminar um descanso curto ou longo.
   rest('rest', 'ao terminar um descanso curto ou longo'),
 
@@ -505,6 +516,7 @@ class ClassMechanicEntry {
     this.prerequisites = MechanicPrerequisite.none,
     this.replacement,
     this.allowDuplicateOptions = false,
+    this.exclusiveGroup,
     this.isRequired = false,
     this.maxActiveOptions,
     this.action,
@@ -575,6 +587,27 @@ class ClassMechanicEntry {
   /// Falso no caso comum. Verdadeiro cobre o Guerreiro Totêmico, que pode
   /// escolher o mesmo animal em níveis diferentes.
   final bool allowDuplicateOptions;
+
+  /// Reserva compartilhada: mecânicas do mesmo grupo não repetem opção entre
+  /// si.
+  ///
+  /// [allowDuplicateOptions] resolve a repetição DENTRO de uma mecânica. Este
+  /// campo resolve a repetição ENTRE mecânicas diferentes, que é um caso que o
+  /// livro trata explicitamente: "o mesmo Estilo de Combate não pode ser
+  /// escolhido mais de uma vez, mesmo que outra característica permita escolher
+  /// novamente".
+  ///
+  /// Sem isto, o Campeão que ganha um segundo Estilo de Combate no 10º nível
+  /// poderia repetir o do 1º, e um Guerreiro/Patrulheiro poderia ter Arquearia
+  /// duas vezes — dois +2 no mesmo ataque.
+  ///
+  /// Nulo é o caso comum: cada mecânica cuida só de si. As manobras do Mestre
+  /// de Batalha e as runas do Cavaleiro Rúnico não disputam reserva com
+  /// ninguém.
+  final String? exclusiveGroup;
+
+  bool get hasExclusiveGroup =>
+      exclusiveGroup != null && exclusiveGroup!.isNotEmpty;
 
   /// Se a escolha precisa estar resolvida para o nível ser concluído.
   ///
@@ -783,7 +816,16 @@ class ClassMechanicEntry {
   /// [freeEdit] é o modo explícito de edição livre da ficha, em que o jogador
   /// corrige uma decisão fora do momento da regra. Ele não cria permissão onde
   /// não existe: mecânica sem [replacement] continua sem troca.
-  bool canReplaceAt(int classLevel, {bool freeEdit = false}) {
+  /// [abilityScoreImprovementLevels] são os níveis da classe que concedem
+  /// Incremento no Valor de Atributo, vindos de `ClassEntry.featLevels`. Só o
+  /// gatilho da Versatilidade Marcial os consulta; informá-los vazio faz esse
+  /// gatilho nunca liberar a troca, o que é o certo quando a classe não foi
+  /// resolvida.
+  bool canReplaceAt(
+    int classLevel, {
+    bool freeEdit = false,
+    Set<int> abilityScoreImprovementLevels = const {},
+  }) {
     final rule = replacement;
     if (rule == null) return false;
     if (freeEdit) return true;
@@ -794,6 +836,11 @@ class ClassMechanicEntry {
       MechanicReplacementTrigger.longRest => true,
       MechanicReplacementTrigger.levelUp => classLevel >= level,
       MechanicReplacementTrigger.newPick => newPicksAt(classLevel) > 0,
+      // Comparação por "já alcançou", e não por igualdade: o jogador que
+      // passou do 4º nível sem trocar continua podendo trocar, e amarrar a
+      // permissão ao instante exato da subida perderia a decisão.
+      MechanicReplacementTrigger.abilityScoreImprovement =>
+        abilityScoreImprovementLevels.any((item) => classLevel >= item),
     };
   }
 
@@ -946,6 +993,7 @@ class ClassMechanicEntry {
       prerequisites: MechanicPrerequisite.tryParse(raw['prerequisites']),
       replacement: MechanicReplacement.tryParse(raw['replacement']),
       allowDuplicateOptions: raw['allow_duplicates'] == true,
+      exclusiveGroup: text('exclusive_group'),
       isRequired: raw['required'] == true,
       maxActiveOptions: number('max_active'),
       action: FeatureAction.tryParse(raw['action']),

@@ -35,6 +35,22 @@ class FeatureEffectPaths {
   /// aumento não teria para onde ir.
   static const String abilityBonus = 'ability.bonus';
 
+  /// Bônus na jogada de ataque com arma.
+  ///
+  /// Entra na composição do ataque, ao lado do atributo, da proficiência e do
+  /// bônus mágico. É o caminho da Arquearia, que dá +2 — e é por isso que o
+  /// efeito precisa declarar em QUAL arma vale: somar o +2 num ataque corpo a
+  /// corpo seria dar à ficha um número que a regra não dá. Ver
+  /// [FeatureEffectConditions.weapon].
+  static const String attackWeaponBonus = 'attack.bonus';
+
+  /// Bônus na jogada de dano com arma.
+  ///
+  /// Mesma ideia de [attackWeaponBonus], e os dois estilos que o usam mostram
+  /// por que a condição é obrigatória: o Duelo só vale com arma corpo a corpo
+  /// em uma mão, e o Combate com Armas de Arremesso só com arma de arremesso.
+  static const String damageWeaponBonus = 'damage.bonus';
+
   /// Caminhos que o resolvedor transforma em número na ficha.
   ///
   /// O que não está aqui é tratado como informativo: fica estruturado, com
@@ -45,6 +61,8 @@ class FeatureEffectPaths {
     armorClassBonus,
     abilityMaximum,
     abilityBonus,
+    attackWeaponBonus,
+    damageWeaponBonus,
   ];
 
   static bool isCalculated(String path) => calculated.contains(path);
@@ -118,7 +136,15 @@ enum FeatureArmorCondition {
   none('none'),
 
   /// Qualquer armadura, menos pesada.
-  notHeavy('not_heavy');
+  notHeavy('not_heavy'),
+
+  /// Só COM armadura vestida, de qualquer categoria.
+  ///
+  /// É o oposto de [none], e existe pelo estilo Defesa: o +1 de CA vale
+  /// "enquanto estiver usando armadura", então sem armadura não há bônus.
+  /// Sem este valor o efeito teria de ser declarado como incondicional, e a
+  /// ficha daria +1 a um personagem desarmado.
+  armored('armored');
 
   const FeatureArmorCondition(this.id);
 
@@ -138,6 +164,76 @@ enum FeatureArmorCondition {
       case 'not_heavy_armor':
       case 'sem_armadura_pesada':
         return FeatureArmorCondition.notHeavy;
+      case 'wearing_armor':
+      case 'com_armadura':
+        return FeatureArmorCondition.armored;
+      default:
+        return null;
+    }
+  }
+}
+
+/// O que o efeito exige da arma usada no ataque.
+///
+/// Existe porque os Estilos de Combate são quase todos condicionais à arma, e
+/// a condição é justamente o que impede o app de inventar número: a Arquearia
+/// dá +2 no ataque, mas só à distância, e o Duelo dá +2 no dano, mas só com
+/// arma corpo a corpo em uma mão.
+///
+/// Fica separado de [FeatureEffectConditions.armor] porque as duas perguntas
+/// são independentes: um estilo pode exigir arma de arremesso e não se importar
+/// com armadura nenhuma.
+enum FeatureWeaponCondition {
+  /// Não exige nada da arma.
+  any('any'),
+
+  /// Qualquer arma corpo a corpo.
+  melee('melee'),
+
+  /// Arma corpo a corpo empunhada em UMA mão.
+  ///
+  /// A condição do Duelo. O app confere a marcação de duas mãos da arma na
+  /// ficha; "e nenhuma outra arma" continua com o jogador, porque a ficha não
+  /// modela o que está em cada mão — e é isso que a observação do efeito diz.
+  meleeOneHanded('melee_one_handed'),
+
+  /// Qualquer arma à distância.
+  ranged('ranged'),
+
+  /// Arma com a propriedade Arremesso.
+  thrown('thrown');
+
+  const FeatureWeaponCondition(this.id);
+
+  final String id;
+
+  /// Como a ficha escreve a exigência.
+  String get description => switch (this) {
+    FeatureWeaponCondition.any => '',
+    FeatureWeaponCondition.melee => 'com arma corpo a corpo',
+    FeatureWeaponCondition.meleeOneHanded =>
+      'com arma corpo a corpo em uma mão',
+    FeatureWeaponCondition.ranged => 'com arma à distância',
+    FeatureWeaponCondition.thrown => 'com arma de arremesso',
+  };
+
+  static FeatureWeaponCondition? fromId(String? id) {
+    if (id == null) return null;
+    final normalized = id.trim().toLowerCase();
+    for (final item in FeatureWeaponCondition.values) {
+      if (item.id == normalized) return item;
+    }
+    switch (normalized) {
+      case 'corpo_a_corpo':
+        return FeatureWeaponCondition.melee;
+      case 'one_handed':
+      case 'uma_mao':
+        return FeatureWeaponCondition.meleeOneHanded;
+      case 'distancia':
+      case 'a_distancia':
+        return FeatureWeaponCondition.ranged;
+      case 'arremesso':
+        return FeatureWeaponCondition.thrown;
       default:
         return null;
     }
@@ -235,14 +331,19 @@ class FeatureEffectConditions {
   const FeatureEffectConditions({
     this.armor = FeatureArmorCondition.any,
     this.shield = FeatureShieldCondition.allowed,
+    this.weapon = FeatureWeaponCondition.any,
   });
 
   final FeatureArmorCondition armor;
   final FeatureShieldCondition shield;
 
+  /// Que arma o efeito exige, quando ele age sobre ataque ou dano.
+  final FeatureWeaponCondition weapon;
+
   bool get isEmpty =>
       armor == FeatureArmorCondition.any &&
-      shield == FeatureShieldCondition.allowed;
+      shield == FeatureShieldCondition.allowed &&
+      weapon == FeatureWeaponCondition.any;
 
   /// Exigências em texto, para a ficha explicar por que o efeito não está
   /// valendo. Vazia quando não há nenhuma.
@@ -252,8 +353,10 @@ class FeatureEffectConditions {
         FeatureArmorCondition.any => null,
         FeatureArmorCondition.none => 'sem armadura',
         FeatureArmorCondition.notHeavy => 'sem armadura pesada',
+        FeatureArmorCondition.armored => 'usando armadura',
       },
       if (shield == FeatureShieldCondition.forbidden) 'sem escudo',
+      if (weapon != FeatureWeaponCondition.any) weapon.description,
     ].whereType<String>().toList(growable: false);
   }
 
@@ -267,6 +370,9 @@ class FeatureEffectConditions {
       shield:
           FeatureShieldCondition.fromId(raw['shield']?.toString()) ??
           FeatureShieldCondition.allowed,
+      weapon:
+          FeatureWeaponCondition.fromId(raw['weapon']?.toString()) ??
+          FeatureWeaponCondition.any,
     );
   }
 }

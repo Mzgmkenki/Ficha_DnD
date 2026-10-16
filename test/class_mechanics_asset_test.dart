@@ -522,17 +522,25 @@ void main() {
   });
 
   group('cobertura do levantamento', () {
-    test('as 45 subclasses do compêndio de mecânicas estão presentes', () {
+    test('as subclasses dos levantamentos estão presentes', () {
       final covered = {
         for (final entry in entries)
           if (entry.subclassId case final id?) id,
       };
 
+      // 45 do levantamento de mecânicas internas, mais `fighter_champion`, que
+      // entrou com o levantamento dos Estilos de Combate: o Campeão ganha um
+      // segundo estilo no 10º nível.
+      //
+      // A igualdade é mantida de propósito, em vez de "pelo menos 46": é um
+      // alarme. Conteúdo novo que acrescenta subclasse obriga a atualizar este
+      // número de forma deliberada, e é isso que impede uma subclasse de ser
+      // perdida numa edição e a perda passar escondida por uma adição.
       expect(
         covered,
-        hasLength(45),
+        hasLength(46),
         reason:
-            'o levantamento cobre 45 subclasses; o arquivo cobre '
+            'os levantamentos cobrem 46 subclasses; o arquivo cobre '
             '${covered.length}',
       );
     });
@@ -745,7 +753,24 @@ void main() {
       );
 
       expect(resolved.byId('fighter_battle_master.maneuvers'), isNull);
-      expect(resolved.visible, isEmpty);
+      expect(
+        resolved.byId('fighter_champion.additional_fighting_style'),
+        isNull,
+      );
+
+      // A afirmação é sobre mecânica DE SUBCLASSE, e não sobre a lista estar
+      // vazia. Ela era vazia por acidente, enquanto o Guerreiro não tinha
+      // nenhuma mecânica de classe; o Estilo de Combate do 1º nível é de
+      // classe, vale sem subclasse nenhuma, e precisa aparecer.
+      expect(
+        resolved.visible.where((item) => item.entry.subclassId != null),
+        isEmpty,
+        reason: 'nenhuma mecânica de subclasse pode valer sem a subclasse',
+      );
+
+      expect(resolved.visible.map((item) => item.id), [
+        'fighter.fighting_style',
+      ], reason: 'a escolha de classe do 1º nível não depende de subclasse');
     });
   });
 }

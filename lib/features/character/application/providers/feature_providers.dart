@@ -6,6 +6,7 @@ import 'package:dnd_ficha_app/features/character/application/use_cases/character
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/armor_class_options.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/feature_ability_bonuses.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/feature_condition_state.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/feature_formula.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/feature_resources.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/special_feature_resolver.dart';
@@ -49,6 +50,14 @@ final armorClassSelectionProvider = FutureProvider.family.autoDispose<
 
   final context = FeatureFormulaContext.fromCharacter(character);
 
+  // O que está vestido agora. É contra isto que a condição declarada no
+  // compêndio é medida: o +1 do estilo Defesa vale só com armadura, e sem este
+  // estado ele entraria na CA de um personagem desarmado.
+  final equipment = FeatureConditionState.from(
+    inventory: character.inventory,
+    abilityScores: character.abilityScores,
+  );
+
   // Os bônus de CA das mecânicas entram pelo bônus avulso, e não como fórmula
   // base: eles SOMAM por cima da fórmula escolhida, como o anel de proteção.
   //
@@ -56,7 +65,11 @@ final armorClassSelectionProvider = FutureProvider.family.autoDispose<
   // `ResolvedClassMechanics.armorClassBonus`. É o que impede o +2 do Eu Astral
   // Desperto de ficar na CA depois de o modo ser desligado, que é exatamente o
   // "não aplique permanentemente um bônus de modo temporário".
-  final mechanicBonus = mechanics.armorClassBonus(context);
+  final mechanicBonus = mechanics.armorClassBonus(
+    context,
+    equipment: equipment,
+  );
+  final featureBonus = features.armorClassBonus(context, equipment: equipment);
 
   return ArmorClassOptions.resolve(
     features: features,
@@ -66,7 +79,7 @@ final armorClassSelectionProvider = FutureProvider.family.autoDispose<
     preferredFormulaId: character.armorClassFormulaId,
     // O bônus manual entra aqui para o número derivado ser o número final: a
     // ficha mostra este resultado direto, sem somar nada por cima.
-    otherBonus: character.armorClassOtherBonus + mechanicBonus,
+    otherBonus: character.armorClassOtherBonus + mechanicBonus + featureBonus,
   );
 });
 

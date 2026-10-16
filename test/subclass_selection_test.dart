@@ -233,6 +233,20 @@ Future<void> _tapSave(WidgetTester tester) async {
   await tester.ensureVisible(saveButton);
   await tester.pumpAndSettle();
   await tester.tap(saveButton);
+
+  // O personagem já foi gravado neste ponto. Depois de gravar, a criação pode
+  // abrir a etapa "Escolhas de classe" — o Guerreiro tem Estilo de Combate no
+  // 1º nível, e a etapa é modal. Sem fechá-la, `pumpAndSettle` nunca assenta.
+  //
+  // Fechar por "Depois" é de propósito: estes testes são sobre SUBCLASSE, e
+  // adiar a escolha de classe não muda o que eles afirmam. A escolha continua
+  // pendente e marcada na ficha, que é o comportamento esperado.
+  await tester.pump();
+  final later = find.widgetWithText(TextButton, 'Depois');
+  if (later.evaluate().isNotEmpty) {
+    await tester.tap(later);
+  }
+
   await tester.pumpAndSettle();
 }
 

@@ -1050,33 +1050,38 @@
     "feature": "Estilo de Luta",
     "source": "xge",
     "edition": "2014",
-    "summary": "Duelo ou Combate com Duas Armas.",
+    "summary": "Escolha obrigatória do 3º nível: Duelo ou Combate com Duas Armas.",
     "kinds": ["permanent_choice", "auto_modifier"],
     "display": "attacks",
+    "required": true,
+    "exclusive_group": "fighting_style",
     "progression": [{ "level": 3, "picks": 1 }],
     "options": [
       {
         "id": "duelling",
         "name": "Duelo",
+        "name_original": "Dueling",
         "summary": "+2 de dano com arma corpo a corpo em uma mão.",
-        "description": "Quando empunha uma arma corpo a corpo em uma mão e nenhuma outra arma, recebe +2 nas jogadas de dano com ela.",
+        "description": "Quando empunha uma arma corpo a corpo em uma mão e nenhuma outra arma, recebe +2 nas jogadas de dano com ela. Um escudo não é uma arma e, portanto, não impede o benefício.",
         "incompatible_with": ["two_weapon_fighting"],
         "effects": [
           {
             "id": "bard_swords.style.duelling",
-            "path": "damage.melee",
+            "path": "damage.bonus",
             "operation": "add",
             "formula": "2",
+            "conditions": { "weapon": "melee_one_handed" },
             "display": "attacks",
             "label": "Duelo",
-            "note": "+2 de dano com arma corpo a corpo em uma mão, sem outra arma empunhada."
+            "note": "Somado nas armas corpo a corpo não marcadas como empunhadas com duas mãos. A exigência de não empunhar outra arma fica com você. Escudo é permitido."
           }
         ]
       },
       {
         "id": "two_weapon_fighting",
         "name": "Combate com Duas Armas",
-        "summary": "Soma o modificador ao dano do segundo ataque.",
+        "name_original": "Two-Weapon Fighting",
+        "summary": "Soma o modificador ao dano do ataque adicional.",
         "description": "Quando luta com duas armas, pode somar o modificador de atributo ao dano do ataque da segunda arma.",
         "incompatible_with": ["duelling"],
         "effects": [
@@ -1086,12 +1091,13 @@
             "operation": "add",
             "display": "attacks",
             "label": "Combate com Duas Armas",
-            "note": "Soma o modificador de atributo ao dano do ataque da segunda arma."
+            "note": "A ficha calcula um ataque por arma e não separa o ataque adicional, então some o modificador de atributo no dano dele na mesa."
           }
         ]
       }
     ],
-    "tags": ["xge", "estilo"]
+    "tags": ["xge", "estilo"],
+    "note": "A lista do Colégio das Espadas tem só estas duas opções, e a Versatilidade Marcial de Tasha não a amplia nem permite troca."
   },
   {
     "id": "bard_swords.blade_flourish",
@@ -3401,5 +3407,777 @@
     ],
     "tags": ["tce", "escribas"],
     "note": "A troca é um seletor dinâmico: as opções dependem das magias que estão no seu grimório naquele momento, por isso a lista não é fixa no compêndio."
+  },
+  {
+    "id": "fighter.fighting_style",
+    "name": "Estilo de Combate",
+    "class_id": "fighter",
+    "level": 1,
+    "feature": "Estilo de Luta",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "Escolha obrigatória do 1º nível: 11 estilos, do Livro do Jogador e de Tasha.",
+    "kinds": ["permanent_choice", "auto_modifier"],
+    "display": "features",
+    "required": true,
+    "exclusive_group": "fighting_style",
+    "progression": [{ "level": 1, "picks": 1 }],
+    "replacement": {
+      "trigger": "ability_score_improvement",
+      "note": "Versatilidade Marcial, regra opcional de Tasha: ao alcançar um nível que conceda Incremento no Valor de Atributo, pode trocar o Estilo de Combate por outro da lista do Guerreiro."
+    },
+    "options": [
+      {
+        "id": "archery",
+        "name": "Arqueria",
+        "name_original": "Archery",
+        "summary": "+2 nas jogadas de ataque à distância.",
+        "description": "Você recebe +2 nas jogadas de ataque realizadas com armas à distância.",
+        "effects": [
+          {
+            "id": "fighter.style.archery",
+            "path": "attack.bonus",
+            "operation": "add",
+            "formula": "2",
+            "conditions": { "weapon": "ranged" },
+            "display": "attacks",
+            "label": "Arqueria",
+            "note": "Já somado nos ataques com arma à distância."
+          }
+        ]
+      },
+      {
+        "id": "defense",
+        "name": "Defesa",
+        "name_original": "Defense",
+        "summary": "+1 de CA enquanto usar armadura.",
+        "description": "Enquanto estiver usando armadura, você recebe +1 de bônus na Classe de Armadura.",
+        "effects": [
+          {
+            "id": "fighter.style.defense",
+            "path": "ac.bonus",
+            "operation": "add",
+            "formula": "1",
+            "conditions": { "armor": "armored" },
+            "display": "armor_class",
+            "label": "Defesa",
+            "note": "Já somado na CA enquanto houver armadura equipada."
+          }
+        ]
+      },
+      {
+        "id": "duelling",
+        "name": "Duelo",
+        "name_original": "Dueling",
+        "summary": "+2 de dano com arma corpo a corpo em uma mão.",
+        "description": "Quando empunha uma arma corpo a corpo em uma mão e nenhuma outra arma, você recebe +2 nas jogadas de dano com essa arma. Um escudo não é uma arma e, portanto, não impede o benefício.",
+        "effects": [
+          {
+            "id": "fighter.style.duelling",
+            "path": "damage.bonus",
+            "operation": "add",
+            "formula": "2",
+            "conditions": { "weapon": "melee_one_handed" },
+            "display": "attacks",
+            "label": "Duelo",
+            "note": "Somado nas armas corpo a corpo não marcadas como empunhadas com duas mãos. A exigência de não empunhar outra arma fica com você: a ficha não sabe o que está em cada mão. Escudo é permitido."
+          }
+        ]
+      },
+      {
+        "id": "great_weapon_fighting",
+        "name": "Combate com Armas Grandes",
+        "name_original": "Great Weapon Fighting",
+        "summary": "Rerrola 1 e 2 no dano de arma de duas mãos.",
+        "description": "Quando obtém 1 ou 2 em um dado de dano da própria arma em um ataque feito com uma arma corpo a corpo empunhada com duas mãos, você pode jogar esse dado novamente e deve usar o novo resultado, mesmo que seja 1 ou 2. A arma precisa ter a propriedade Duas Mãos ou Versátil.",
+        "effects": [
+          {
+            "id": "fighter.style.great_weapon",
+            "path": "damage.reroll",
+            "operation": "grant",
+            "display": "attacks",
+            "label": "Combate com Armas Grandes",
+            "note": "Vale só para os dados de dano DA ARMA, não para dados de característica ou magia como Ataque Furtivo e Golpe Divino. A rerrolagem é feita na mesa."
+          }
+        ]
+      },
+      {
+        "id": "protection",
+        "name": "Proteção",
+        "name_original": "Protection",
+        "summary": "Reação com escudo para dar desvantagem a um ataque.",
+        "description": "Quando uma criatura que você pode ver ataca um alvo que não seja você, a até 1,5 m de você, pode usar sua reação para impor desvantagem à jogada de ataque. Você deve estar empunhando um escudo.",
+        "action": {
+          "type": "reaction",
+          "trigger": "Quando uma criatura ataca um alvo a até 1,5 m de você",
+          "requires": "Empunhar um escudo"
+        },
+        "effects": [
+          {
+            "id": "fighter.style.protection",
+            "path": "defense.reaction",
+            "operation": "grant",
+            "conditions": { "armor": "any" },
+            "display": "combat_actions",
+            "label": "Proteção",
+            "note": "A reação é declarada quando o ataque é feito, antes de o resultado ser determinado."
+          }
+        ]
+      },
+      {
+        "id": "two_weapon_fighting",
+        "name": "Combate com Duas Armas",
+        "name_original": "Two-Weapon Fighting",
+        "summary": "Soma o modificador ao dano do ataque adicional.",
+        "description": "Quando participa de combate com duas armas, você pode adicionar seu modificador de habilidade ao dano do ataque adicional.",
+        "effects": [
+          {
+            "id": "fighter.style.two_weapon",
+            "path": "damage.offhand",
+            "operation": "grant",
+            "display": "attacks",
+            "label": "Combate com Duas Armas",
+            "note": "A ficha calcula um ataque por arma e não separa o ataque adicional, então some o modificador de atributo no dano dele na mesa. Sem este estilo o modificador não entra, salvo se for negativo."
+          }
+        ]
+      },
+      {
+        "id": "blind_fighting",
+        "name": "Combate às Cegas",
+        "name_original": "Blind Fighting",
+        "summary": "Visão às cegas de 3 m.",
+        "description": "Você possui visão às cegas com alcance de 3 m. Dentro desse alcance, enxerga efetivamente tudo que não esteja atrás de cobertura total, mesmo se estiver cego ou na escuridão. Também enxerga uma criatura invisível dentro do alcance, a menos que ela se esconda de você com sucesso.",
+        "effects": [
+          {
+            "id": "fighter.style.blind_fighting",
+            "path": "sense.blindsight",
+            "operation": "max",
+            "formula": "3",
+            "display": "defenses",
+            "label": "Visão às cegas 3 m"
+          }
+        ]
+      },
+      {
+        "id": "interception",
+        "name": "Interceptação",
+        "name_original": "Interception",
+        "summary": "Reação para reduzir 1d10 + proficiência de dano num aliado.",
+        "description": "Quando uma criatura que você pode ver acerta um alvo que não seja você, a até 1,5 m de você, com um ataque, você pode usar sua reação para reduzir o dano sofrido pelo alvo em 1d10 + seu bônus de proficiência, até o mínimo de 0. Você deve estar empunhando um escudo ou uma arma simples ou marcial.",
+        "action": {
+          "type": "reaction",
+          "trigger": "Quando uma criatura acerta um alvo a até 1,5 m de você",
+          "requires": "Empunhar um escudo ou uma arma simples ou marcial"
+        },
+        "effects": [
+          {
+            "id": "fighter.style.interception",
+            "path": "defense.reaction",
+            "operation": "grant",
+            "display": "combat_actions",
+            "label": "Interceptação",
+            "note": "Redução de 1d10 + bônus de proficiência, até o mínimo de 0."
+          }
+        ]
+      },
+      {
+        "id": "superior_technique",
+        "name": "Técnica Superior",
+        "name_original": "Superior Technique",
+        "summary": "Uma manobra de Mestre de Batalha e um dado de superioridade d6.",
+        "description": "Você aprende uma manobra à sua escolha entre as disponíveis ao arquétipo Mestre de Batalha. Se a manobra exigir um teste de resistência, a CD é 8 + seu bônus de proficiência + seu modificador de Força ou Destreza, à sua escolha. Você recebe um dado de superioridade, um d6, gasto quando usa a manobra e recuperado ao terminar um descanso curto ou longo.",
+        "action": {
+          "type": "special",
+          "uses": 1,
+          "recharge": "short",
+          "requires": "Gastar o dado de superioridade da Técnica Superior"
+        },
+        "effects": [
+          {
+            "id": "fighter.style.superior_technique",
+            "path": "maneuver.known",
+            "operation": "grant",
+            "display": "combat_actions",
+            "label": "Técnica Superior",
+            "note": "Escolha a manobra na característica Manobras do Mestre de Batalha. O d6 desta característica se soma aos dados de superioridade que você já tenha de outra fonte."
+          }
+        ]
+      },
+      {
+        "id": "thrown_weapon_fighting",
+        "name": "Combate com Armas de Arremesso",
+        "name_original": "Thrown Weapon Fighting",
+        "summary": "Saca a arma como parte do ataque e +2 de dano.",
+        "description": "Você pode sacar uma arma que tenha a propriedade Arremesso como parte do ataque realizado com ela. Além disso, quando acerta com um ataque à distância usando uma arma de arremesso, recebe +2 na jogada de dano.",
+        "effects": [
+          {
+            "id": "fighter.style.thrown_weapon",
+            "path": "damage.bonus",
+            "operation": "add",
+            "formula": "2",
+            "conditions": { "weapon": "thrown" },
+            "display": "attacks",
+            "label": "Combate com Armas de Arremesso",
+            "note": "Somado nas armas com a propriedade Arremesso. O +2 vale no acerto à distância; sacar a arma como parte do ataque é resolvido na mesa."
+          }
+        ]
+      },
+      {
+        "id": "unarmed_fighting",
+        "name": "Combate Desarmado",
+        "name_original": "Unarmed Fighting",
+        "summary": "Ataque desarmado 1d6, ou 1d8 sem arma nem escudo.",
+        "description": "Seus ataques desarmados podem causar 1d6 + seu modificador de Força de dano contundente. Se não estiver empunhando armas nem escudo ao realizar a jogada de ataque, o d6 se torna d8. Além disso, no início de cada um de seus turnos, você pode causar 1d4 de dano contundente a uma criatura agarrada por você.",
+        "effects": [
+          {
+            "id": "fighter.style.unarmed_fighting",
+            "path": "attack.unarmed",
+            "operation": "grant",
+            "display": "attacks",
+            "label": "Combate Desarmado",
+            "note": "1d6 + Força, ou 1d8 + Força sem arma nem escudo empunhados. E 1d4 contundente por turno numa criatura agarrada por você."
+          }
+        ]
+      }
+    ],
+    "tags": ["phb", "tce", "estilo"],
+    "note": "O mesmo Estilo de Combate não pode ser escolhido mais de uma vez, mesmo que outra característica permita escolher novamente — por isso todas as fontes de estilo compartilham a mesma reserva."
+  },
+  {
+    "id": "fighter_champion.additional_fighting_style",
+    "name": "Estilo de Combate Adicional",
+    "class_id": "fighter",
+    "subclass_id": "fighter_champion",
+    "level": 10,
+    "feature": "Estilo de Luta Adicional",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "Um segundo estilo da lista do Guerreiro, diferente do primeiro.",
+    "kinds": ["permanent_choice", "auto_modifier"],
+    "display": "features",
+    "required": true,
+    "exclusive_group": "fighting_style",
+    "progression": [{ "level": 10, "picks": 1 }],
+    "options": [
+      {
+        "id": "archery",
+        "name": "Arqueria",
+        "name_original": "Archery",
+        "summary": "+2 nas jogadas de ataque à distância.",
+        "description": "Você recebe +2 nas jogadas de ataque realizadas com armas à distância.",
+        "effects": [
+          {
+            "id": "fighter_champion.style.archery",
+            "path": "attack.bonus",
+            "operation": "add",
+            "formula": "2",
+            "conditions": { "weapon": "ranged" },
+            "display": "attacks",
+            "label": "Arqueria",
+            "note": "Já somado nos ataques com arma à distância."
+          }
+        ]
+      },
+      {
+        "id": "defense",
+        "name": "Defesa",
+        "name_original": "Defense",
+        "summary": "+1 de CA enquanto usar armadura.",
+        "description": "Enquanto estiver usando armadura, você recebe +1 de bônus na Classe de Armadura.",
+        "effects": [
+          {
+            "id": "fighter_champion.style.defense",
+            "path": "ac.bonus",
+            "operation": "add",
+            "formula": "1",
+            "conditions": { "armor": "armored" },
+            "display": "armor_class",
+            "label": "Defesa",
+            "note": "Já somado na CA enquanto houver armadura equipada."
+          }
+        ]
+      },
+      {
+        "id": "duelling",
+        "name": "Duelo",
+        "name_original": "Dueling",
+        "summary": "+2 de dano com arma corpo a corpo em uma mão.",
+        "description": "Quando empunha uma arma corpo a corpo em uma mão e nenhuma outra arma, você recebe +2 nas jogadas de dano com essa arma. Um escudo não é uma arma e, portanto, não impede o benefício.",
+        "effects": [
+          {
+            "id": "fighter_champion.style.duelling",
+            "path": "damage.bonus",
+            "operation": "add",
+            "formula": "2",
+            "conditions": { "weapon": "melee_one_handed" },
+            "display": "attacks",
+            "label": "Duelo",
+            "note": "Somado nas armas corpo a corpo não marcadas como empunhadas com duas mãos. A exigência de não empunhar outra arma fica com você. Escudo é permitido."
+          }
+        ]
+      },
+      {
+        "id": "great_weapon_fighting",
+        "name": "Combate com Armas Grandes",
+        "name_original": "Great Weapon Fighting",
+        "summary": "Rerrola 1 e 2 no dano de arma de duas mãos.",
+        "description": "Quando obtém 1 ou 2 em um dado de dano da própria arma em um ataque feito com uma arma corpo a corpo empunhada com duas mãos, você pode jogar esse dado novamente e deve usar o novo resultado, mesmo que seja 1 ou 2.",
+        "effects": [
+          {
+            "id": "fighter_champion.style.great_weapon",
+            "path": "damage.reroll",
+            "operation": "grant",
+            "display": "attacks",
+            "label": "Combate com Armas Grandes",
+            "note": "Vale só para os dados de dano DA ARMA. A rerrolagem é feita na mesa."
+          }
+        ]
+      },
+      {
+        "id": "protection",
+        "name": "Proteção",
+        "name_original": "Protection",
+        "summary": "Reação com escudo para dar desvantagem a um ataque.",
+        "description": "Quando uma criatura que você pode ver ataca um alvo que não seja você, a até 1,5 m de você, pode usar sua reação para impor desvantagem à jogada de ataque. Você deve estar empunhando um escudo.",
+        "action": {
+          "type": "reaction",
+          "trigger": "Quando uma criatura ataca um alvo a até 1,5 m de você",
+          "requires": "Empunhar um escudo"
+        },
+        "effects": [
+          {
+            "id": "fighter_champion.style.protection",
+            "path": "defense.reaction",
+            "operation": "grant",
+            "display": "combat_actions",
+            "label": "Proteção",
+            "note": "A reação é declarada quando o ataque é feito, antes de o resultado ser determinado."
+          }
+        ]
+      },
+      {
+        "id": "two_weapon_fighting",
+        "name": "Combate com Duas Armas",
+        "name_original": "Two-Weapon Fighting",
+        "summary": "Soma o modificador ao dano do ataque adicional.",
+        "description": "Quando participa de combate com duas armas, você pode adicionar seu modificador de habilidade ao dano do ataque adicional.",
+        "effects": [
+          {
+            "id": "fighter_champion.style.two_weapon",
+            "path": "damage.offhand",
+            "operation": "grant",
+            "display": "attacks",
+            "label": "Combate com Duas Armas",
+            "note": "A ficha calcula um ataque por arma e não separa o ataque adicional, então some o modificador de atributo no dano dele na mesa."
+          }
+        ]
+      },
+      {
+        "id": "blind_fighting",
+        "name": "Combate às Cegas",
+        "name_original": "Blind Fighting",
+        "summary": "Visão às cegas de 3 m.",
+        "description": "Você possui visão às cegas com alcance de 3 m. Dentro desse alcance, enxerga efetivamente tudo que não esteja atrás de cobertura total, mesmo se estiver cego ou na escuridão.",
+        "effects": [
+          {
+            "id": "fighter_champion.style.blind_fighting",
+            "path": "sense.blindsight",
+            "operation": "max",
+            "formula": "3",
+            "display": "defenses",
+            "label": "Visão às cegas 3 m"
+          }
+        ]
+      },
+      {
+        "id": "interception",
+        "name": "Interceptação",
+        "name_original": "Interception",
+        "summary": "Reação para reduzir 1d10 + proficiência de dano num aliado.",
+        "description": "Quando uma criatura que você pode ver acerta um alvo que não seja você, a até 1,5 m de você, com um ataque, você pode usar sua reação para reduzir o dano sofrido pelo alvo em 1d10 + seu bônus de proficiência, até o mínimo de 0. Você deve estar empunhando um escudo ou uma arma simples ou marcial.",
+        "action": {
+          "type": "reaction",
+          "trigger": "Quando uma criatura acerta um alvo a até 1,5 m de você",
+          "requires": "Empunhar um escudo ou uma arma simples ou marcial"
+        },
+        "effects": [
+          {
+            "id": "fighter_champion.style.interception",
+            "path": "defense.reaction",
+            "operation": "grant",
+            "display": "combat_actions",
+            "label": "Interceptação",
+            "note": "Redução de 1d10 + bônus de proficiência, até o mínimo de 0."
+          }
+        ]
+      },
+      {
+        "id": "superior_technique",
+        "name": "Técnica Superior",
+        "name_original": "Superior Technique",
+        "summary": "Uma manobra de Mestre de Batalha e um dado de superioridade d6.",
+        "description": "Você aprende uma manobra à sua escolha entre as disponíveis ao arquétipo Mestre de Batalha. Você recebe um dado de superioridade, um d6, gasto quando usa a manobra e recuperado ao terminar um descanso curto ou longo.",
+        "action": {
+          "type": "special",
+          "uses": 1,
+          "recharge": "short",
+          "requires": "Gastar o dado de superioridade da Técnica Superior"
+        },
+        "effects": [
+          {
+            "id": "fighter_champion.style.superior_technique",
+            "path": "maneuver.known",
+            "operation": "grant",
+            "display": "combat_actions",
+            "label": "Técnica Superior",
+            "note": "Escolha a manobra na característica Manobras do Mestre de Batalha."
+          }
+        ]
+      },
+      {
+        "id": "thrown_weapon_fighting",
+        "name": "Combate com Armas de Arremesso",
+        "name_original": "Thrown Weapon Fighting",
+        "summary": "Saca a arma como parte do ataque e +2 de dano.",
+        "description": "Você pode sacar uma arma que tenha a propriedade Arremesso como parte do ataque realizado com ela. Além disso, quando acerta com um ataque à distância usando uma arma de arremesso, recebe +2 na jogada de dano.",
+        "effects": [
+          {
+            "id": "fighter_champion.style.thrown_weapon",
+            "path": "damage.bonus",
+            "operation": "add",
+            "formula": "2",
+            "conditions": { "weapon": "thrown" },
+            "display": "attacks",
+            "label": "Combate com Armas de Arremesso",
+            "note": "Somado nas armas com a propriedade Arremesso."
+          }
+        ]
+      },
+      {
+        "id": "unarmed_fighting",
+        "name": "Combate Desarmado",
+        "name_original": "Unarmed Fighting",
+        "summary": "Ataque desarmado 1d6, ou 1d8 sem arma nem escudo.",
+        "description": "Seus ataques desarmados podem causar 1d6 + seu modificador de Força de dano contundente. Se não estiver empunhando armas nem escudo, o d6 se torna d8. No início de cada um de seus turnos, pode causar 1d4 de dano contundente a uma criatura agarrada por você.",
+        "effects": [
+          {
+            "id": "fighter_champion.style.unarmed_fighting",
+            "path": "attack.unarmed",
+            "operation": "grant",
+            "display": "attacks",
+            "label": "Combate Desarmado",
+            "note": "1d6 + Força, ou 1d8 + Força sem arma nem escudo empunhados."
+          }
+        ]
+      }
+    ],
+    "tags": ["phb", "tce", "estilo"],
+    "note": "O Campeão escolhe um SEGUNDO estilo no 10º nível. O estilo já escolhido no 1º nível aparece bloqueado aqui, porque a mesma opção não pode ser escolhida duas vezes."
+  },
+  {
+    "id": "paladin.fighting_style",
+    "name": "Estilo de Combate",
+    "class_id": "paladin",
+    "level": 2,
+    "feature": "Estilo de Luta",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "Escolha obrigatória do 2º nível: 7 estilos, do Livro do Jogador e de Tasha.",
+    "kinds": ["permanent_choice", "auto_modifier"],
+    "display": "features",
+    "required": true,
+    "exclusive_group": "fighting_style",
+    "progression": [{ "level": 2, "picks": 1 }],
+    "replacement": {
+      "trigger": "ability_score_improvement",
+      "note": "Versatilidade Marcial, regra opcional de Tasha: ao alcançar um nível que conceda Incremento no Valor de Atributo, pode trocar o Estilo de Combate por outro da lista do Paladino."
+    },
+    "options": [
+      {
+        "id": "defense",
+        "name": "Defesa",
+        "name_original": "Defense",
+        "summary": "+1 de CA enquanto usar armadura.",
+        "description": "Enquanto estiver usando armadura, você recebe +1 de bônus na Classe de Armadura.",
+        "effects": [
+          {
+            "id": "paladin.style.defense",
+            "path": "ac.bonus",
+            "operation": "add",
+            "formula": "1",
+            "conditions": { "armor": "armored" },
+            "display": "armor_class",
+            "label": "Defesa",
+            "note": "Já somado na CA enquanto houver armadura equipada."
+          }
+        ]
+      },
+      {
+        "id": "duelling",
+        "name": "Duelo",
+        "name_original": "Dueling",
+        "summary": "+2 de dano com arma corpo a corpo em uma mão.",
+        "description": "Quando empunha uma arma corpo a corpo em uma mão e nenhuma outra arma, você recebe +2 nas jogadas de dano com essa arma. Um escudo não é uma arma e, portanto, não impede o benefício.",
+        "effects": [
+          {
+            "id": "paladin.style.duelling",
+            "path": "damage.bonus",
+            "operation": "add",
+            "formula": "2",
+            "conditions": { "weapon": "melee_one_handed" },
+            "display": "attacks",
+            "label": "Duelo",
+            "note": "Somado nas armas corpo a corpo não marcadas como empunhadas com duas mãos. A exigência de não empunhar outra arma fica com você. Escudo é permitido."
+          }
+        ]
+      },
+      {
+        "id": "great_weapon_fighting",
+        "name": "Combate com Armas Grandes",
+        "name_original": "Great Weapon Fighting",
+        "summary": "Rerrola 1 e 2 no dano de arma de duas mãos.",
+        "description": "Quando obtém 1 ou 2 em um dado de dano da própria arma em um ataque feito com uma arma corpo a corpo empunhada com duas mãos, você pode jogar esse dado novamente e deve usar o novo resultado, mesmo que seja 1 ou 2.",
+        "effects": [
+          {
+            "id": "paladin.style.great_weapon",
+            "path": "damage.reroll",
+            "operation": "grant",
+            "display": "attacks",
+            "label": "Combate com Armas Grandes",
+            "note": "Vale só para os dados de dano DA ARMA, não para o Golpe Divino. A rerrolagem é feita na mesa."
+          }
+        ]
+      },
+      {
+        "id": "protection",
+        "name": "Proteção",
+        "name_original": "Protection",
+        "summary": "Reação com escudo para dar desvantagem a um ataque.",
+        "description": "Quando uma criatura que você pode ver ataca um alvo que não seja você, a até 1,5 m de você, pode usar sua reação para impor desvantagem à jogada de ataque. Você deve estar empunhando um escudo.",
+        "action": {
+          "type": "reaction",
+          "trigger": "Quando uma criatura ataca um alvo a até 1,5 m de você",
+          "requires": "Empunhar um escudo"
+        },
+        "effects": [
+          {
+            "id": "paladin.style.protection",
+            "path": "defense.reaction",
+            "operation": "grant",
+            "display": "combat_actions",
+            "label": "Proteção",
+            "note": "A reação é declarada quando o ataque é feito, antes de o resultado ser determinado."
+          }
+        ]
+      },
+      {
+        "id": "blessed_warrior",
+        "name": "Guerreiro Abençoado",
+        "name_original": "Blessed Warrior",
+        "summary": "Dois truques de Clérigo, conjurados com Carisma.",
+        "description": "Você aprende dois truques à sua escolha da lista de magias de clérigo. Eles contam como magias de paladino para você, e Carisma é sua habilidade de conjuração para eles. Sempre que ganha um nível nesta classe, pode substituir um desses truques por outro truque da lista de clérigo.",
+        "effects": [
+          {
+            "id": "paladin.style.blessed_warrior",
+            "path": "spell.known",
+            "operation": "grant",
+            "display": "spellcasting",
+            "label": "Guerreiro Abençoado",
+            "note": "Acrescente os dois truques de Clérigo pelo gerenciador de magias. Eles contam como magias de Paladino e usam Carisma."
+          }
+        ]
+      },
+      {
+        "id": "blind_fighting",
+        "name": "Combate às Cegas",
+        "name_original": "Blind Fighting",
+        "summary": "Visão às cegas de 3 m.",
+        "description": "Você possui visão às cegas com alcance de 3 m. Dentro desse alcance, enxerga efetivamente tudo que não esteja atrás de cobertura total, mesmo se estiver cego ou na escuridão. Também enxerga uma criatura invisível dentro do alcance, a menos que ela se esconda de você com sucesso.",
+        "effects": [
+          {
+            "id": "paladin.style.blind_fighting",
+            "path": "sense.blindsight",
+            "operation": "max",
+            "formula": "3",
+            "display": "defenses",
+            "label": "Visão às cegas 3 m"
+          }
+        ]
+      },
+      {
+        "id": "interception",
+        "name": "Interceptação",
+        "name_original": "Interception",
+        "summary": "Reação para reduzir 1d10 + proficiência de dano num aliado.",
+        "description": "Quando uma criatura que você pode ver acerta um alvo que não seja você, a até 1,5 m de você, com um ataque, você pode usar sua reação para reduzir o dano sofrido pelo alvo em 1d10 + seu bônus de proficiência, até o mínimo de 0. Você deve estar empunhando um escudo ou uma arma simples ou marcial.",
+        "action": {
+          "type": "reaction",
+          "trigger": "Quando uma criatura acerta um alvo a até 1,5 m de você",
+          "requires": "Empunhar um escudo ou uma arma simples ou marcial"
+        },
+        "effects": [
+          {
+            "id": "paladin.style.interception",
+            "path": "defense.reaction",
+            "operation": "grant",
+            "display": "combat_actions",
+            "label": "Interceptação",
+            "note": "Redução de 1d10 + bônus de proficiência, até o mínimo de 0."
+          }
+        ]
+      }
+    ],
+    "tags": ["phb", "tce", "estilo"],
+    "note": "A lista do Paladino não inclui Arqueria, Combate com Duas Armas, Técnica Superior, Combate com Armas de Arremesso nem Combate Desarmado."
+  },
+  {
+    "id": "ranger.fighting_style",
+    "name": "Estilo de Combate",
+    "class_id": "ranger",
+    "level": 2,
+    "feature": "Estilo de Luta",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "Escolha obrigatória do 2º nível: 7 estilos, do Livro do Jogador e de Tasha.",
+    "kinds": ["permanent_choice", "auto_modifier"],
+    "display": "features",
+    "required": true,
+    "exclusive_group": "fighting_style",
+    "progression": [{ "level": 2, "picks": 1 }],
+    "replacement": {
+      "trigger": "ability_score_improvement",
+      "note": "Versatilidade Marcial, regra opcional de Tasha: ao alcançar um nível que conceda Incremento no Valor de Atributo, pode trocar o Estilo de Combate por outro da lista do Patrulheiro."
+    },
+    "options": [
+      {
+        "id": "archery",
+        "name": "Arqueria",
+        "name_original": "Archery",
+        "summary": "+2 nas jogadas de ataque à distância.",
+        "description": "Você recebe +2 nas jogadas de ataque realizadas com armas à distância.",
+        "effects": [
+          {
+            "id": "ranger.style.archery",
+            "path": "attack.bonus",
+            "operation": "add",
+            "formula": "2",
+            "conditions": { "weapon": "ranged" },
+            "display": "attacks",
+            "label": "Arqueria",
+            "note": "Já somado nos ataques com arma à distância."
+          }
+        ]
+      },
+      {
+        "id": "defense",
+        "name": "Defesa",
+        "name_original": "Defense",
+        "summary": "+1 de CA enquanto usar armadura.",
+        "description": "Enquanto estiver usando armadura, você recebe +1 de bônus na Classe de Armadura.",
+        "effects": [
+          {
+            "id": "ranger.style.defense",
+            "path": "ac.bonus",
+            "operation": "add",
+            "formula": "1",
+            "conditions": { "armor": "armored" },
+            "display": "armor_class",
+            "label": "Defesa",
+            "note": "Já somado na CA enquanto houver armadura equipada."
+          }
+        ]
+      },
+      {
+        "id": "duelling",
+        "name": "Duelo",
+        "name_original": "Dueling",
+        "summary": "+2 de dano com arma corpo a corpo em uma mão.",
+        "description": "Quando empunha uma arma corpo a corpo em uma mão e nenhuma outra arma, você recebe +2 nas jogadas de dano com essa arma. Um escudo não é uma arma e, portanto, não impede o benefício.",
+        "effects": [
+          {
+            "id": "ranger.style.duelling",
+            "path": "damage.bonus",
+            "operation": "add",
+            "formula": "2",
+            "conditions": { "weapon": "melee_one_handed" },
+            "display": "attacks",
+            "label": "Duelo",
+            "note": "Somado nas armas corpo a corpo não marcadas como empunhadas com duas mãos. A exigência de não empunhar outra arma fica com você. Escudo é permitido."
+          }
+        ]
+      },
+      {
+        "id": "two_weapon_fighting",
+        "name": "Combate com Duas Armas",
+        "name_original": "Two-Weapon Fighting",
+        "summary": "Soma o modificador ao dano do ataque adicional.",
+        "description": "Quando participa de combate com duas armas, você pode adicionar seu modificador de habilidade ao dano do ataque adicional.",
+        "effects": [
+          {
+            "id": "ranger.style.two_weapon",
+            "path": "damage.offhand",
+            "operation": "grant",
+            "display": "attacks",
+            "label": "Combate com Duas Armas",
+            "note": "A ficha calcula um ataque por arma e não separa o ataque adicional, então some o modificador de atributo no dano dele na mesa."
+          }
+        ]
+      },
+      {
+        "id": "blind_fighting",
+        "name": "Combate às Cegas",
+        "name_original": "Blind Fighting",
+        "summary": "Visão às cegas de 3 m.",
+        "description": "Você possui visão às cegas com alcance de 3 m. Dentro desse alcance, enxerga efetivamente tudo que não esteja atrás de cobertura total, mesmo se estiver cego ou na escuridão. Também enxerga uma criatura invisível dentro do alcance, a menos que ela se esconda de você com sucesso.",
+        "effects": [
+          {
+            "id": "ranger.style.blind_fighting",
+            "path": "sense.blindsight",
+            "operation": "max",
+            "formula": "3",
+            "display": "defenses",
+            "label": "Visão às cegas 3 m"
+          }
+        ]
+      },
+      {
+        "id": "druidic_warrior",
+        "name": "Guerreiro Druídico",
+        "name_original": "Druidic Warrior",
+        "summary": "Dois truques de Druida, conjurados com Sabedoria.",
+        "description": "Você aprende dois truques à sua escolha da lista de magias de druida. Eles contam como magias de patrulheiro para você, e Sabedoria é sua habilidade de conjuração para eles. Sempre que ganha um nível nesta classe, pode substituir um desses truques por outro truque da lista de druida.",
+        "effects": [
+          {
+            "id": "ranger.style.druidic_warrior",
+            "path": "spell.known",
+            "operation": "grant",
+            "display": "spellcasting",
+            "label": "Guerreiro Druídico",
+            "note": "Acrescente os dois truques de Druida pelo gerenciador de magias. Eles contam como magias de Patrulheiro e usam Sabedoria."
+          }
+        ]
+      },
+      {
+        "id": "thrown_weapon_fighting",
+        "name": "Combate com Armas de Arremesso",
+        "name_original": "Thrown Weapon Fighting",
+        "summary": "Saca a arma como parte do ataque e +2 de dano.",
+        "description": "Você pode sacar uma arma que tenha a propriedade Arremesso como parte do ataque realizado com ela. Além disso, quando acerta com um ataque à distância usando uma arma de arremesso, recebe +2 na jogada de dano.",
+        "effects": [
+          {
+            "id": "ranger.style.thrown_weapon",
+            "path": "damage.bonus",
+            "operation": "add",
+            "formula": "2",
+            "conditions": { "weapon": "thrown" },
+            "display": "attacks",
+            "label": "Combate com Armas de Arremesso",
+            "note": "Somado nas armas com a propriedade Arremesso."
+          }
+        ]
+      }
+    ],
+    "tags": ["phb", "tce", "estilo"],
+    "note": "O Patrulheiro Revisado de Tasha é variante do Patrulheiro e herda esta mesma escolha: declarar uma segunda entrada faria a ficha dele pedir dois Estilos de Combate."
   }
 ]

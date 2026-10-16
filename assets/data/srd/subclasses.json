@@ -1229,7 +1229,7 @@
       {
         "level": 3,
         "name": "Estilo de Luta",
-        "description": "Escolhe Duelismo (+2 de dano com arma corpo a corpo de uma mão sem outra arma) ou Combate com Duas Armas (soma o modificador de habilidade ao dano do ataque da mão secundária)."
+        "description": "Você adota um estilo de combate. O Colégio das Espadas escolhe entre Duelo e Combate com Duas Armas na característica Estilo de Combate. As opções de Tasha não ampliam esta lista."
       },
       {
         "level": 3,
