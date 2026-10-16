@@ -2,8 +2,10 @@ import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/class_mechanic_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/invocation_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/manage_ability_score_improvements.dart';
+import 'package:dnd_ficha_app/features/character/application/use_cases/character/update_character_class_levels.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/armor_class_options.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/feature_ability_bonuses.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/feature_formula.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/feature_resources.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/special_feature_resolver.dart';
@@ -120,6 +122,73 @@ final abilityMaximumsProvider = FutureProvider.family
       return features.abilityMaximums(
         FeatureFormulaContext.fromCharacter(character),
       );
+    });
+
+/// Resolve, para um personagem hipotético, os aumentos e os tetos de atributo
+/// que as características concedem.
+///
+/// Carrega o compêndio uma vez e devolve uma função síncrona, porque quem
+/// precisa disto está no meio de uma gravação de níveis: a tela monta o
+/// personagem com os níveis NOVOS, e é contra ele que a conta tem de ser feita.
+final featureAbilityBonusResolverProvider =
+    FutureProvider<AbilityBonusResolver>((ref) async {
+      final classes = await ref.watch(classEntriesProvider.future);
+      final classFeatures = await ref.watch(classFeaturesProvider.future);
+      final subclasses = await ref.watch(subclassEntriesProvider.future);
+
+      return (Character character) {
+        final features = SpecialFeatureResolver.resolve(
+          character: character,
+          classes: classes,
+          classFeatures: classFeatures,
+          subclasses: subclasses,
+        );
+
+        final context = FeatureFormulaContext.fromCharacter(character);
+
+        return (
+          granted: features.abilityBonuses(context),
+          maximums: features.abilityMaximums(context),
+        );
+      };
+    });
+
+/// Acerta os aumentos de atributo concedidos por característica e grava só se
+/// algo mudou.
+///
+/// Existe para o personagem que já estava salvo antes desta versão: um Bárbaro
+/// de 20º nível criado antes do Campeão Primal ser automatizado recebe o +4 na
+/// primeira vez que a ficha abre, e nunca mais. A migração do banco não pode
+/// fazer isso porque decidir quem recebe exige ler o compêndio.
+///
+/// Devolve se houve mudança, para quem chama poder avisar o jogador de que os
+/// atributos subiram sem ele ter mexido em nada.
+final reconcileFeatureAbilityBonusesProvider =
+    Provider<Future<bool> Function(String characterId)>((ref) {
+      final repository = ref.watch(characterRepositoryProvider);
+
+      return (String characterId) async {
+        final character = await repository.findById(characterId);
+        if (character == null) return false;
+
+        final resolve = await ref.read(
+          featureAbilityBonusResolverProvider.future,
+        );
+        final resolved = resolve(character);
+
+        final updated = FeatureAbilityBonuses.reconcile(
+          character: character,
+          granted: resolved.granted,
+          maximums: resolved.maximums,
+        );
+
+        // Identidade é o sinal de "nada a fazer". Sem esta saída, abrir a ficha
+        // gravaria o personagem toda vez e remontaria o agregado à toa.
+        if (identical(updated, character)) return false;
+
+        await repository.update(updated.copyWith(updatedAt: DateTime.now()));
+        return true;
+      };
     });
 
 /// Escolhas de característica obrigatórias ainda em aberto.

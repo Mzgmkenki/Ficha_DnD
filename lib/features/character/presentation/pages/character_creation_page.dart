@@ -1946,6 +1946,15 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
       );
       if (replacementId == null && blocking == null) continue;
 
+      final options = Skill.sortedByLabel
+          .where(
+            (skill) =>
+                skill.id == replacementId ||
+                !effective.contains(skill.id) ||
+                skill.id == originalId,
+          )
+          .toList(growable: false);
+
       rows.add(
         Padding(
           padding: const EdgeInsets.only(top: 8),
@@ -1959,13 +1968,26 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                       ? 'A substituição pode ser revista.'
                       : 'Já adquirida por ${blocking.sourceLabel}.',
             ),
-            items: Skill.sortedByLabel
-                .where(
-                  (skill) =>
-                      skill.id == replacementId ||
-                      !effective.contains(skill.id) ||
-                      skill.id == originalId,
-                )
+            // Sem `isExpanded` o campo se dimensiona pelo item mais largo, e
+            // aqui os itens carregam o sufixo "— já adquirida por ...". Em
+            // tela estreita isso passa da largura do cartão e estoura.
+            isExpanded: true,
+            // O campo fechado mostra só o nome da perícia: o motivo do bloqueio
+            // interessa na lista aberta, e repeti-lo aqui só forçaria reticência
+            // em cima do que o jogador já escolheu.
+            selectedItemBuilder:
+                (context) => [
+                  for (final skill in options)
+                    Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Text(
+                        skill.label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                ],
+            items: options
                 .map((skill) {
                   final usedBy = selection.acquiredFrom(
                     skill,
@@ -1980,6 +2002,8 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                           ? skill.label
                           : '${skill.label} — já adquirida por '
                               '${usedBy.sourceLabel}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   );
                 })

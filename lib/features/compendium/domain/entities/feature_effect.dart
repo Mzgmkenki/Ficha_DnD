@@ -23,6 +23,18 @@ class FeatureEffectPaths {
   /// diferente do 20 padrão (Campeão Primal passa Força e Constituição a 24).
   static const String abilityMaximum = 'ability.maximum';
 
+  /// Aumento permanente de atributo concedido pela característica.
+  ///
+  /// Contribuição PRÓPRIA da característica, separada do valor base, do bônus
+  /// de origem, do talento e do Incremento no Valor de Atributo. O Campeão
+  /// Primal é o caso do levantamento: +4 em Força e +4 em Constituição ao
+  /// chegar ao 20º nível de Bárbaro.
+  ///
+  /// Não confundir com [abilityMaximum]: um move o valor, o outro move o teto.
+  /// O Campeão Primal declara os dois justamente porque sem o teto novo o
+  /// aumento não teria para onde ir.
+  static const String abilityBonus = 'ability.bonus';
+
   /// Caminhos que o resolvedor transforma em número na ficha.
   ///
   /// O que não está aqui é tratado como informativo: fica estruturado, com
@@ -32,6 +44,7 @@ class FeatureEffectPaths {
     armorClassBase,
     armorClassBonus,
     abilityMaximum,
+    abilityBonus,
   ];
 
   static bool isCalculated(String path) => calculated.contains(path);
@@ -352,7 +365,9 @@ class FeatureEffect {
     final path = text('path');
     if (id == null || path == null) return null;
 
-    final operation = FeatureEffectOperation.fromId(raw['operation']?.toString());
+    final operation = FeatureEffectOperation.fromId(
+      raw['operation']?.toString(),
+    );
     if (operation == null) return null;
 
     final abilities = <Ability>[];
@@ -378,9 +393,10 @@ class FeatureEffect {
           FeatureEffectStacking.sum,
       group: text('group'),
       unique: text('unique'),
-      priority: priority is int
-          ? priority
-          : priority is num
+      priority:
+          priority is int
+              ? priority
+              : priority is num
               ? priority.toInt()
               : int.tryParse(priority?.toString().trim() ?? '') ?? 100,
       label: text('label'),
@@ -434,9 +450,8 @@ class FeatureChoiceOption {
     return FeatureChoiceOption(
       id: id,
       label: label,
-      description: description == null || description.isEmpty
-          ? null
-          : description,
+      description:
+          description == null || description.isEmpty ? null : description,
       effects: FeatureEffect.parseList(raw['effects']),
     );
   }

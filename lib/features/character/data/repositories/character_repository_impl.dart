@@ -19,6 +19,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/character_spell
 import 'package:dnd_ficha_app/features/character/domain/entities/character_weapon.dart'
     as domain_weapons;
 import 'package:dnd_ficha_app/features/character/domain/repositories/character_repository.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/feature_ability_bonuses.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart'
     as domain_condition;
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart'
@@ -130,6 +131,9 @@ class CharacterRepositoryImpl implements CharacterRepository {
                 CharacterCreationMetadataCodec.encodeOriginBonuses(
                   character.abilityScoreAllocation,
                 ),
+              ),
+              featureAbilityBonuses: drift.Value(
+                FeatureAbilityBonuses.toCsv(character.featureAbilityBonuses),
               ),
               skillProficiencyGrants: drift.Value(
                 CharacterCreationMetadataCodec.encodeSkillGrants(
@@ -736,6 +740,9 @@ class CharacterRepositoryImpl implements CharacterRepository {
             CharacterCreationMetadataCodec.encodeOriginBonuses(
               character.abilityScoreAllocation,
             ),
+          ),
+          featureAbilityBonuses: drift.Value(
+            FeatureAbilityBonuses.toCsv(character.featureAbilityBonuses),
           ),
           skillProficiencyGrants: drift.Value(
             CharacterCreationMetadataCodec.encodeSkillGrants(

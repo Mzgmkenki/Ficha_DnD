@@ -86,12 +86,16 @@ class LevelUpCharacterClass {
   final UpdateCharacterClassLevels _updateClassLevels;
   final SyncSubclassSpells _syncSubclassSpells;
 
+  /// [abilityBonuses] reconcilia os aumentos permanentes de atributo que as
+  /// características concedem. É o que faz chegar ao 20º nível de Bárbaro somar
+  /// +4 em Força e Constituição na mesma gravação que sobe o nível.
   Future<LevelUpOutcome> call({
     required String characterId,
     required String classId,
     required List<ClassEntry> classes,
     required List<SubclassEntry> subclasses,
     required SpellNameIndex spellIndex,
+    AbilityBonusResolver? abilityBonuses,
   }) async {
     final character = await _repository.findById(characterId);
 
@@ -131,6 +135,7 @@ class LevelUpCharacterClass {
         if (entry == null) return 8;
         return HitPointsCalculator.parseDieSize(entry.hitDie);
       },
+      abilityBonuses: abilityBonuses,
     );
 
     Object? syncError;

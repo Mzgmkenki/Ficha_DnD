@@ -220,6 +220,17 @@ class $CharactersTable extends Characters
         type: DriftSqlType.string,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _featureAbilityBonusesMeta =
+      const VerificationMeta('featureAbilityBonuses');
+  @override
+  late final GeneratedColumn<String> featureAbilityBonuses =
+      GeneratedColumn<String>(
+        'feature_ability_bonuses',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _skillProficiencyGrantsMeta =
       const VerificationMeta('skillProficiencyGrants');
   @override
@@ -1096,6 +1107,7 @@ class $CharactersTable extends Characters
     charisma,
     baseAbilityScores,
     originAbilityBonuses,
+    featureAbilityBonuses,
     skillProficiencyGrants,
     backgroundPersonalityChoices,
     armorClass,
@@ -1314,6 +1326,15 @@ class $CharactersTable extends Characters
         originAbilityBonuses.isAcceptableOrUnknown(
           data['origin_ability_bonuses']!,
           _originAbilityBonusesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('feature_ability_bonuses')) {
+      context.handle(
+        _featureAbilityBonusesMeta,
+        featureAbilityBonuses.isAcceptableOrUnknown(
+          data['feature_ability_bonuses']!,
+          _featureAbilityBonusesMeta,
         ),
       );
     }
@@ -1972,6 +1993,10 @@ class $CharactersTable extends Characters
         DriftSqlType.string,
         data['${effectivePrefix}origin_ability_bonuses'],
       ),
+      featureAbilityBonuses: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}feature_ability_bonuses'],
+      ),
       skillProficiencyGrants:
           attachedDatabase.typeMapping.read(
             DriftSqlType.string,
@@ -2348,6 +2373,17 @@ class Character extends DataClass implements Insertable<Character> {
   /// Bônus de origem aplicados na criação, separados dos valores base.
   final String? originAbilityBonuses;
 
+  /// Aumentos permanentes de atributo que características de classe aplicaram,
+  /// serializados como `strength:4,constitution:4`.
+  ///
+  /// Guarda o que FOI APLICADO, não o que a regra promete: é o que permite
+  /// perder o 20º nível de Bárbaro e devolver exatamente o +4 do Campeão
+  /// Primal sem encostar no que veio de raça, talento, incremento ou item.
+  ///
+  /// Nula em personagem anterior ao schema 25, que recebe o aumento na
+  /// primeira reconciliação em vez de ter o total adivinhado na migração.
+  final String? featureAbilityBonuses;
+
   /// Origem das proficiências adquiridas durante a criação, em JSON.
   final String skillProficiencyGrants;
 
@@ -2493,6 +2529,7 @@ class Character extends DataClass implements Insertable<Character> {
     required this.charisma,
     this.baseAbilityScores,
     this.originAbilityBonuses,
+    this.featureAbilityBonuses,
     required this.skillProficiencyGrants,
     required this.backgroundPersonalityChoices,
     required this.armorClass,
@@ -2599,6 +2636,9 @@ class Character extends DataClass implements Insertable<Character> {
     }
     if (!nullToAbsent || originAbilityBonuses != null) {
       map['origin_ability_bonuses'] = Variable<String>(originAbilityBonuses);
+    }
+    if (!nullToAbsent || featureAbilityBonuses != null) {
+      map['feature_ability_bonuses'] = Variable<String>(featureAbilityBonuses);
     }
     map['skill_proficiency_grants'] = Variable<String>(skillProficiencyGrants);
     map['background_personality_choices'] = Variable<String>(
@@ -2720,6 +2760,10 @@ class Character extends DataClass implements Insertable<Character> {
           originAbilityBonuses == null && nullToAbsent
               ? const Value.absent()
               : Value(originAbilityBonuses),
+      featureAbilityBonuses:
+          featureAbilityBonuses == null && nullToAbsent
+              ? const Value.absent()
+              : Value(featureAbilityBonuses),
       skillProficiencyGrants: Value(skillProficiencyGrants),
       backgroundPersonalityChoices: Value(backgroundPersonalityChoices),
       armorClass: Value(armorClass),
@@ -2830,6 +2874,9 @@ class Character extends DataClass implements Insertable<Character> {
       originAbilityBonuses: serializer.fromJson<String?>(
         json['originAbilityBonuses'],
       ),
+      featureAbilityBonuses: serializer.fromJson<String?>(
+        json['featureAbilityBonuses'],
+      ),
       skillProficiencyGrants: serializer.fromJson<String>(
         json['skillProficiencyGrants'],
       ),
@@ -2935,6 +2982,9 @@ class Character extends DataClass implements Insertable<Character> {
       'charisma': serializer.toJson<int>(charisma),
       'baseAbilityScores': serializer.toJson<String?>(baseAbilityScores),
       'originAbilityBonuses': serializer.toJson<String?>(originAbilityBonuses),
+      'featureAbilityBonuses': serializer.toJson<String?>(
+        featureAbilityBonuses,
+      ),
       'skillProficiencyGrants': serializer.toJson<String>(
         skillProficiencyGrants,
       ),
@@ -3028,6 +3078,7 @@ class Character extends DataClass implements Insertable<Character> {
     int? charisma,
     Value<String?> baseAbilityScores = const Value.absent(),
     Value<String?> originAbilityBonuses = const Value.absent(),
+    Value<String?> featureAbilityBonuses = const Value.absent(),
     String? skillProficiencyGrants,
     String? backgroundPersonalityChoices,
     int? armorClass,
@@ -3125,6 +3176,10 @@ class Character extends DataClass implements Insertable<Character> {
         originAbilityBonuses.present
             ? originAbilityBonuses.value
             : this.originAbilityBonuses,
+    featureAbilityBonuses:
+        featureAbilityBonuses.present
+            ? featureAbilityBonuses.value
+            : this.featureAbilityBonuses,
     skillProficiencyGrants:
         skillProficiencyGrants ?? this.skillProficiencyGrants,
     backgroundPersonalityChoices:
@@ -3246,6 +3301,10 @@ class Character extends DataClass implements Insertable<Character> {
           data.originAbilityBonuses.present
               ? data.originAbilityBonuses.value
               : this.originAbilityBonuses,
+      featureAbilityBonuses:
+          data.featureAbilityBonuses.present
+              ? data.featureAbilityBonuses.value
+              : this.featureAbilityBonuses,
       skillProficiencyGrants:
           data.skillProficiencyGrants.present
               ? data.skillProficiencyGrants.value
@@ -3488,6 +3547,7 @@ class Character extends DataClass implements Insertable<Character> {
           ..write('charisma: $charisma, ')
           ..write('baseAbilityScores: $baseAbilityScores, ')
           ..write('originAbilityBonuses: $originAbilityBonuses, ')
+          ..write('featureAbilityBonuses: $featureAbilityBonuses, ')
           ..write('skillProficiencyGrants: $skillProficiencyGrants, ')
           ..write(
             'backgroundPersonalityChoices: $backgroundPersonalityChoices, ',
@@ -3581,6 +3641,7 @@ class Character extends DataClass implements Insertable<Character> {
     charisma,
     baseAbilityScores,
     originAbilityBonuses,
+    featureAbilityBonuses,
     skillProficiencyGrants,
     backgroundPersonalityChoices,
     armorClass,
@@ -3671,6 +3732,7 @@ class Character extends DataClass implements Insertable<Character> {
           other.charisma == this.charisma &&
           other.baseAbilityScores == this.baseAbilityScores &&
           other.originAbilityBonuses == this.originAbilityBonuses &&
+          other.featureAbilityBonuses == this.featureAbilityBonuses &&
           other.skillProficiencyGrants == this.skillProficiencyGrants &&
           other.backgroundPersonalityChoices ==
               this.backgroundPersonalityChoices &&
@@ -3760,6 +3822,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
   final Value<int> charisma;
   final Value<String?> baseAbilityScores;
   final Value<String?> originAbilityBonuses;
+  final Value<String?> featureAbilityBonuses;
   final Value<String> skillProficiencyGrants;
   final Value<String> backgroundPersonalityChoices;
   final Value<int> armorClass;
@@ -3847,6 +3910,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.charisma = const Value.absent(),
     this.baseAbilityScores = const Value.absent(),
     this.originAbilityBonuses = const Value.absent(),
+    this.featureAbilityBonuses = const Value.absent(),
     this.skillProficiencyGrants = const Value.absent(),
     this.backgroundPersonalityChoices = const Value.absent(),
     this.armorClass = const Value.absent(),
@@ -3935,6 +3999,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.charisma = const Value.absent(),
     this.baseAbilityScores = const Value.absent(),
     this.originAbilityBonuses = const Value.absent(),
+    this.featureAbilityBonuses = const Value.absent(),
     this.skillProficiencyGrants = const Value.absent(),
     this.backgroundPersonalityChoices = const Value.absent(),
     this.armorClass = const Value.absent(),
@@ -4026,6 +4091,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Expression<int>? charisma,
     Expression<String>? baseAbilityScores,
     Expression<String>? originAbilityBonuses,
+    Expression<String>? featureAbilityBonuses,
     Expression<String>? skillProficiencyGrants,
     Expression<String>? backgroundPersonalityChoices,
     Expression<int>? armorClass,
@@ -4118,6 +4184,8 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       if (baseAbilityScores != null) 'base_ability_scores': baseAbilityScores,
       if (originAbilityBonuses != null)
         'origin_ability_bonuses': originAbilityBonuses,
+      if (featureAbilityBonuses != null)
+        'feature_ability_bonuses': featureAbilityBonuses,
       if (skillProficiencyGrants != null)
         'skill_proficiency_grants': skillProficiencyGrants,
       if (backgroundPersonalityChoices != null)
@@ -4216,6 +4284,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Value<int>? charisma,
     Value<String?>? baseAbilityScores,
     Value<String?>? originAbilityBonuses,
+    Value<String?>? featureAbilityBonuses,
     Value<String>? skillProficiencyGrants,
     Value<String>? backgroundPersonalityChoices,
     Value<int>? armorClass,
@@ -4306,6 +4375,8 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       charisma: charisma ?? this.charisma,
       baseAbilityScores: baseAbilityScores ?? this.baseAbilityScores,
       originAbilityBonuses: originAbilityBonuses ?? this.originAbilityBonuses,
+      featureAbilityBonuses:
+          featureAbilityBonuses ?? this.featureAbilityBonuses,
       skillProficiencyGrants:
           skillProficiencyGrants ?? this.skillProficiencyGrants,
       backgroundPersonalityChoices:
@@ -4444,6 +4515,11 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     if (originAbilityBonuses.present) {
       map['origin_ability_bonuses'] = Variable<String>(
         originAbilityBonuses.value,
+      );
+    }
+    if (featureAbilityBonuses.present) {
+      map['feature_ability_bonuses'] = Variable<String>(
+        featureAbilityBonuses.value,
       );
     }
     if (skillProficiencyGrants.present) {
@@ -4680,6 +4756,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
           ..write('charisma: $charisma, ')
           ..write('baseAbilityScores: $baseAbilityScores, ')
           ..write('originAbilityBonuses: $originAbilityBonuses, ')
+          ..write('featureAbilityBonuses: $featureAbilityBonuses, ')
           ..write('skillProficiencyGrants: $skillProficiencyGrants, ')
           ..write(
             'backgroundPersonalityChoices: $backgroundPersonalityChoices, ',
@@ -14645,6 +14722,7 @@ typedef $$CharactersTableCreateCompanionBuilder =
       Value<int> charisma,
       Value<String?> baseAbilityScores,
       Value<String?> originAbilityBonuses,
+      Value<String?> featureAbilityBonuses,
       Value<String> skillProficiencyGrants,
       Value<String> backgroundPersonalityChoices,
       Value<int> armorClass,
@@ -14734,6 +14812,7 @@ typedef $$CharactersTableUpdateCompanionBuilder =
       Value<int> charisma,
       Value<String?> baseAbilityScores,
       Value<String?> originAbilityBonuses,
+      Value<String?> featureAbilityBonuses,
       Value<String> skillProficiencyGrants,
       Value<String> backgroundPersonalityChoices,
       Value<int> armorClass,
@@ -15251,6 +15330,11 @@ class $$CharactersTableFilterComposer
 
   ColumnFilters<String> get originAbilityBonuses => $composableBuilder(
     column: $table.originAbilityBonuses,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get featureAbilityBonuses => $composableBuilder(
+    column: $table.featureAbilityBonuses,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -16028,6 +16112,11 @@ class $$CharactersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get featureAbilityBonuses => $composableBuilder(
+    column: $table.featureAbilityBonuses,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get skillProficiencyGrants => $composableBuilder(
     column: $table.skillProficiencyGrants,
     builder: (column) => ColumnOrderings(column),
@@ -16443,6 +16532,11 @@ class $$CharactersTableAnnotationComposer
 
   GeneratedColumn<String> get originAbilityBonuses => $composableBuilder(
     column: $table.originAbilityBonuses,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get featureAbilityBonuses => $composableBuilder(
+    column: $table.featureAbilityBonuses,
     builder: (column) => column,
   );
 
@@ -17174,6 +17268,7 @@ class $$CharactersTableTableManager
                 Value<int> charisma = const Value.absent(),
                 Value<String?> baseAbilityScores = const Value.absent(),
                 Value<String?> originAbilityBonuses = const Value.absent(),
+                Value<String?> featureAbilityBonuses = const Value.absent(),
                 Value<String> skillProficiencyGrants = const Value.absent(),
                 Value<String> backgroundPersonalityChoices =
                     const Value.absent(),
@@ -17262,6 +17357,7 @@ class $$CharactersTableTableManager
                 charisma: charisma,
                 baseAbilityScores: baseAbilityScores,
                 originAbilityBonuses: originAbilityBonuses,
+                featureAbilityBonuses: featureAbilityBonuses,
                 skillProficiencyGrants: skillProficiencyGrants,
                 backgroundPersonalityChoices: backgroundPersonalityChoices,
                 armorClass: armorClass,
@@ -17351,6 +17447,7 @@ class $$CharactersTableTableManager
                 Value<int> charisma = const Value.absent(),
                 Value<String?> baseAbilityScores = const Value.absent(),
                 Value<String?> originAbilityBonuses = const Value.absent(),
+                Value<String?> featureAbilityBonuses = const Value.absent(),
                 Value<String> skillProficiencyGrants = const Value.absent(),
                 Value<String> backgroundPersonalityChoices =
                     const Value.absent(),
@@ -17439,6 +17536,7 @@ class $$CharactersTableTableManager
                 charisma: charisma,
                 baseAbilityScores: baseAbilityScores,
                 originAbilityBonuses: originAbilityBonuses,
+                featureAbilityBonuses: featureAbilityBonuses,
                 skillProficiencyGrants: skillProficiencyGrants,
                 backgroundPersonalityChoices: backgroundPersonalityChoices,
                 armorClass: armorClass,

@@ -2,6 +2,7 @@ import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
 import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/class_mechanic_providers.dart';
+import 'package:dnd_ficha_app/features/character/application/providers/feature_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/invocation_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/level_up_character_class.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
@@ -59,6 +60,60 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
 
   /// Trava a exportação: gerar o PDF lê o compêndio inteiro e leva um instante.
   bool _exportingPdf = false;
+
+  /// Se a reconciliação dos aumentos de atributo por característica já rodou
+  /// nesta sessão da tela.
+  ///
+  /// Uma vez só: a operação é idempotente e devolve o mesmo personagem quando
+  /// não há nada a mudar, mas repeti-la a cada reconstrução gastaria uma
+  /// leitura do compêndio por quadro.
+  bool _abilityBonusesReconciled = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Depois do primeiro quadro, para não gravar durante a construção.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _reconcileFeatureAbilityBonuses();
+    });
+  }
+
+  /// Dá ao personagem já salvo os aumentos de atributo que as características
+  /// dele concedem.
+  ///
+  /// É o que cobre o Bárbaro de 20º nível criado antes do Campeão Primal ser
+  /// automatizado: a migração do banco não pode decidir quem recebe, porque
+  /// isso exige ler o compêndio e resolver as características pelo nível da
+  /// classe. Aqui pode.
+  ///
+  /// Best-effort de propósito: falhar não impede a ficha de abrir, e a próxima
+  /// abertura tenta de novo.
+  Future<void> _reconcileFeatureAbilityBonuses() async {
+    if (_abilityBonusesReconciled) return;
+    _abilityBonusesReconciled = true;
+
+    try {
+      final changed = await ref.read(reconcileFeatureAbilityBonusesProvider)(
+        widget.characterId,
+      );
+
+      // Avisa porque os atributos mudaram sem o jogador ter tocado em nada.
+      if (changed && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Os aumentos de atributo das suas características de classe '
+              'foram aplicados.',
+            ),
+          ),
+        );
+      }
+    } catch (error, stackTrace) {
+      debugPrint('Falha ao reconciliar aumentos de atributo: $error');
+      debugPrintStack(stackTrace: stackTrace);
+    }
+  }
 
   /// Seções recolhíveis: id da seção → aberta.
   ///
@@ -668,6 +723,12 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
         classes: classes,
         subclasses: subclasses,
         spellIndex: spellIndex,
+        // Chegar ao 20º nível de Bárbaro soma +4 em Força e Constituição na
+        // mesma gravação, e por isso o PV do nível já entra com a Constituição
+        // nova.
+        abilityBonuses: await ref.read(
+          featureAbilityBonusResolverProvider.future,
+        ),
       );
 
       if (!mounted) return;
@@ -769,7 +830,7 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
   /// falta em cada uma, para o jogador saber o tamanho da decisão antes de
   /// abrir a tela. Recusar não perde nada: a pendência continua marcada na
   /// seção "Recursos de classe".
-  Future<void> _promptClassMechanics() async {
+  Future<void> _promptClassMechanics({int attempt = 0}) async {
     final character = ref.read(characterByIdProvider(widget.characterId)).value;
     if (character == null || !mounted) return;
 
@@ -786,18 +847,34 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
 
     if (pending.isEmpty || !mounted) return;
 
+    // Escolha declarada obrigatória não aceita "Depois": o 3º nível do
+    // Guerreiro Totêmico não existe sem um espírito, e deixar passar produziria
+    // uma subclasse pela metade. As outras continuam adiáveis.
+    final required = pending
+        .where((item) => item.blocksCompletion)
+        .toList(growable: false);
+    final isRequired = required.isNotEmpty;
+    final offered = isRequired ? required : pending;
+
     final chosen = await showDialog<ResolvedClassMechanic>(
       context: context,
+      barrierDismissible: !isRequired,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Escolhas de classe'),
+          title: Text(
+            isRequired ? 'Escolha obrigatória' : 'Escolhas de classe',
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Estas características estão com escolha em aberto:'),
+              Text(
+                isRequired
+                    ? 'Estas características precisam ser resolvidas agora:'
+                    : 'Estas características estão com escolha em aberto:',
+              ),
               const SizedBox(height: 8),
-              for (final mechanic in pending)
+              for (final mechanic in offered)
                 ListTile(
                   key: ValueKey('level-up-mechanic-${mechanic.id}'),
                   dense: true,
@@ -814,10 +891,17 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
             ],
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Depois'),
-            ),
+            if (isRequired)
+              FilledButton(
+                key: const ValueKey('required-mechanic-resolve'),
+                onPressed: () => Navigator.of(dialogContext).pop(offered.first),
+                child: const Text('Escolher agora'),
+              )
+            else
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text('Depois'),
+              ),
           ],
         );
       },
@@ -830,6 +914,13 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
       characterId: widget.characterId,
       mechanicId: chosen.id,
     );
+
+    // Obrigatória que voltou sem ser resolvida é oferecida de novo. O limite de
+    // repetições evita laço infinito se o jogador insistir em sair, e a
+    // pendência continua marcada em vermelho na ficha de qualquer forma.
+    if (isRequired && mounted && attempt < 3) {
+      await _promptClassMechanics(attempt: attempt + 1);
+    }
   }
 
   /// Abre a escolha de subclasse e grava o que o jogador decidir.

@@ -88,6 +88,21 @@ final pendingClassMechanicsProvider = FutureProvider.family
       return resolved.pending;
     });
 
+/// Por que a ficha não pode ser concluída, quando há escolha obrigatória em
+/// aberto. Nulo quando não há nenhuma.
+///
+/// Separado de [pendingClassMechanicsProvider] porque as duas perguntas são
+/// diferentes: aquele decide se a etapa de escolhas aparece, este decide se o
+/// botão de salvar pode ser apertado. Manobra de Mestre de Batalha pendente
+/// não trava nada; Espírito Totêmico pendente trava.
+final blockingClassMechanicsProvider = FutureProvider.family
+    .autoDispose<String?, Character>((ref, character) async {
+      final resolved = await ref.watch(
+        resolvedClassMechanicsProvider(character).future,
+      );
+      return resolved.blockingReason;
+    });
+
 /// Resultado de uma escrita de mecânica, para a tela avisar o jogador.
 class MechanicWriteResult {
   const MechanicWriteResult({required this.message, required this.changed});

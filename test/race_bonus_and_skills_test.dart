@@ -96,11 +96,34 @@ const _overlappingSkillsRace = RaceEntry(
   skillChoice: RaceSkillChoice(choose: 1, options: ['athletics', 'survival']),
 );
 
+/// Raça que concede a mesma perícia do antecedente, para abrir a seção de
+/// substituição. Nome longo de propósito: é ele que entra no rótulo dos itens
+/// do campo e que fazia o dropdown passar da largura.
+const _halfOrc = RaceEntry(
+  id: 'half_orc',
+  name: 'Meio-Orc',
+  source: 'phb',
+  size: 'medium',
+  speed: 9,
+  creatureType: 'humanoid',
+  fixedAbilityBonuses: {'strength': 2, 'constitution': 1},
+  grantedSkills: ['intimidation'],
+  traits: ['Resistência Implacável.'],
+);
+
+/// Antecedente que repete a perícia da raça acima.
+const _soldier = BackgroundEntry(
+  id: 'soldier',
+  name: 'Soldado',
+  skillIds: ['athletics', 'intimidation'],
+);
+
 Future<_FakeCharacterRepository> _pumpCreationPage(
   WidgetTester tester,
   List<RaceEntry> races, {
   Size surfaceSize = const Size(1200, 4200),
   bool fillAbilityScores = true,
+  List<BackgroundEntry> backgrounds = const [_acolyte],
 }) async {
   final repository = _FakeCharacterRepository();
 
@@ -117,7 +140,7 @@ Future<_FakeCharacterRepository> _pumpCreationPage(
         characterRepositoryProvider.overrideWithValue(repository),
         classEntriesProvider.overrideWith((ref) => const [_fighter]),
         raceEntriesProvider.overrideWith((ref) => races),
-        backgroundEntriesProvider.overrideWith((ref) => const [_acolyte]),
+        backgroundEntriesProvider.overrideWith((ref) => backgrounds),
         // Classe sem equipamento inicial cadastrado: este teste é sobre raça e
         // perícias, e com o asset real o Guerreiro traria quatro grupos de
         // escolha obrigatória que impediriam a criação de concluir.
@@ -183,14 +206,17 @@ Future<void> _tapSave(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-Future<void> _selectBackground(WidgetTester tester) async {
+Future<void> _selectBackground(
+  WidgetTester tester, {
+  String id = 'acolyte',
+}) async {
   final dropdown = tester.widget<DropdownButtonFormField<String>>(
     find.ancestor(
       of: find.text('Antecedente'),
       matching: find.byType(DropdownButtonFormField<String>),
     ),
   );
-  dropdown.onChanged!('acolyte');
+  dropdown.onChanged!(id);
   await tester.pumpAndSettle();
 }
 
@@ -213,6 +239,39 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.byType(CharacterCreationPage), findsOneWidget);
+  });
+
+  testWidgets('campo de perícia repetida cabe na largura em tela pequena', (
+    tester,
+  ) async {
+    await _pumpCreationPage(
+      tester,
+      const [_halfOrc],
+      surfaceSize: const Size(360, 640),
+      fillAbilityScores: false,
+      backgrounds: const [_soldier],
+    );
+
+    await _selectBackground(tester, id: 'soldier');
+
+    final field = find.byWidgetPredicate(
+      (widget) =>
+          widget is DropdownButtonFormField<String> &&
+          widget.key.toString().contains('background-replacement-intimidation'),
+    );
+    await _reveal(tester, field);
+
+    expect(field, findsOneWidget);
+    expect(find.text('Perícia repetida'), findsOneWidget);
+    expect(find.text('Já adquirida por raça Meio-Orc.'), findsOneWidget);
+
+    // Sem `isExpanded` o campo se dimensionava pelo item mais largo
+    // ("Intimidação — já adquirida por raça Meio-Orc") e estourava à direita.
+    expect(tester.takeException(), isNull);
+
+    final fieldWidth = tester.getSize(field).width;
+    final cardWidth = tester.getSize(find.byType(Card).first).width;
+    expect(fieldWidth, lessThanOrEqualTo(cardWidth));
   });
 
   testWidgets('conjunto padrão mostra e devolve um valor removido', (

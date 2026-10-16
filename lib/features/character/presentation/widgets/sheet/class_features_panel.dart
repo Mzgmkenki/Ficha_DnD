@@ -1,4 +1,4 @@
-﻿import 'package:dnd_ficha_app/core/theme/app_colors.dart';
+import 'package:dnd_ficha_app/core/theme/app_colors.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/feature_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
@@ -40,15 +40,19 @@ class ClassFeaturesPanel extends ConsumerWidget {
               const Text('Nenhuma classe cadastrada para este personagem.')
             else
               featuresAsync.when(
-                data: (features) => classesAsync.when(
-                  data: (classes) => _content(context, features, classes),
-                  error: (error, _) =>
-                      Text('Erro ao carregar classes: $error'),
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
-                ),
-                error: (error, _) =>
-                    Text('Erro ao carregar características: $error'),
+                data:
+                    (features) => classesAsync.when(
+                      data: (classes) => _content(context, features, classes),
+                      error:
+                          (error, _) =>
+                              Text('Erro ao carregar classes: $error'),
+                      loading:
+                          () =>
+                              const Center(child: CircularProgressIndicator()),
+                    ),
+                error:
+                    (error, _) =>
+                        Text('Erro ao carregar características: $error'),
                 loading: () => const Center(child: CircularProgressIndicator()),
               ),
           ],
@@ -211,13 +215,24 @@ class _FeatureRow extends StatelessWidget {
     switch (effect.path) {
       case FeatureEffectPaths.armorClassBase:
         final conditions = effect.conditions.descriptions;
-        final suffix =
-            conditions.isEmpty ? '' : ' (${conditions.join(', ')})';
+        final suffix = conditions.isEmpty ? '' : ' (${conditions.join(', ')})';
         return 'Fórmula alternativa de CA, no gerenciamento de CA$suffix.';
       case FeatureEffectPaths.armorClassBonus:
         return 'Soma na CA.';
       case FeatureEffectPaths.abilityMaximum:
         return effect.label ?? 'Altera o máximo de atributo.';
+      case FeatureEffectPaths.abilityBonus:
+        // Diz que já está aplicado, e isso é a informação que falta: o número
+        // está no atributo, e sem a frase o jogador somaria de novo à mão.
+        final names =
+            effect.abilities.isEmpty
+                ? null
+                : effect.abilities.map((ability) => ability.label).join(' e ');
+        final applied =
+            names == null
+                ? 'Aumento já aplicado nos atributos.'
+                : 'Já aplicado em $names.';
+        return effect.label == null ? applied : '${effect.label} — $applied';
       default:
         return null;
     }
@@ -300,14 +315,16 @@ class _SubclassStatus extends ConsumerWidget {
           ),
         );
       },
-      error: (error, _) => Padding(
-        padding: const EdgeInsets.only(top: 4),
-        child: Text('Erro ao carregar $label: $error'),
-      ),
-      loading: () => const Padding(
-        padding: EdgeInsets.symmetric(vertical: 8),
-        child: LinearProgressIndicator(),
-      ),
+      error:
+          (error, _) => Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text('Erro ao carregar $label: $error'),
+          ),
+      loading:
+          () => const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: LinearProgressIndicator(),
+          ),
     );
   }
 }

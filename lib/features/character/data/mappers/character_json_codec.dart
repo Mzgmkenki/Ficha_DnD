@@ -21,6 +21,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart
 import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiency_grant.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/feature_ability_bonuses.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/granted_ability_increases.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/standard_array.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
@@ -148,6 +149,14 @@ class CharacterJsonCodec {
                 in character.abilityScoreAllocation!.originBonuses.entries)
               entry.key.name: entry.value,
           },
+        },
+      // Sai do arquivo junto com o total para a importação saber qual parte do
+      // 24 de Força veio da característica — sem isso, perder o nível depois de
+      // importar não teria como devolver o valor certo.
+      if (character.featureAbilityBonuses.isNotEmpty)
+        'featureAbilityBonuses': <String, dynamic>{
+          for (final entry in character.featureAbilityBonuses.entries)
+            entry.key.name: entry.value,
         },
       'classLevels': [
         for (final level in character.classLevels)
@@ -432,6 +441,9 @@ class CharacterJsonCodec {
       notes: _asString(map['notes']) ?? '',
       abilityScores: _parseAbilityScores(map['abilityScores']),
       abilityScoreAllocation: _parseAbilityAllocation(map['abilityAllocation']),
+      featureAbilityBonuses: FeatureAbilityBonuses.parseMap(
+        map['featureAbilityBonuses'],
+      ),
       classLevels: classLevels,
       hitPoints: HitPoints(
         current: current.clamp(0, safeMaximum),

@@ -1,10 +1,14 @@
 import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
+import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
 import 'package:dnd_ficha_app/core/theme/app_colors.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
+import 'package:dnd_ficha_app/features/character/application/providers/class_mechanic_providers.dart';
+import 'package:dnd_ficha_app/features/character/application/providers/feature_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/invocation_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/class_mechanic_resolver.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/hit_points_calculator.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/subclass_choice.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
@@ -42,17 +46,18 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
   @override
   void initState() {
     super.initState();
-    _classLevels = widget.initialClassLevels
-        .map(
-          (item) => ClassLevel(
-            classId: item.classId,
-            subclassId: item.subclassId,
-            level: item.level,
-            spellcastingAbility: item.spellcastingAbility,
-            spellcastingType: item.spellcastingType,
-          ),
-        )
-        .toList();
+    _classLevels =
+        widget.initialClassLevels
+            .map(
+              (item) => ClassLevel(
+                classId: item.classId,
+                subclassId: item.subclassId,
+                level: item.level,
+                spellcastingAbility: item.spellcastingAbility,
+                spellcastingType: item.spellcastingType,
+              ),
+            )
+            .toList();
   }
 
   int get _totalLevel {
@@ -119,9 +124,7 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
                           children: [
                             Expanded(
                               child: Text(
-                                isPrimary
-                                    ? '$className (Primária)'
-                                    : className,
+                                isPrimary ? '$className (Primária)' : className,
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                             ),
@@ -141,13 +144,14 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
                         Row(
                           children: [
                             IconButton(
-                              onPressed: classLevel.level > 1
-                                  ? () => _changeLevel(
+                              onPressed:
+                                  classLevel.level > 1
+                                      ? () => _changeLevel(
                                         index,
                                         classLevel.level - 1,
                                         classes,
                                       )
-                                  : null,
+                                      : null,
                               icon: const Icon(Icons.remove),
                             ),
                             Expanded(
@@ -162,10 +166,10 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
                               onPressed:
                                   (_totalLevel < 20 && classLevel.level < 20)
                                       ? () => _changeLevel(
-                                            index,
-                                            classLevel.level + 1,
-                                            classes,
-                                          )
+                                        index,
+                                        classLevel.level + 1,
+                                        classes,
+                                      )
                                       : null,
                               icon: const Icon(Icons.add),
                             ),
@@ -191,22 +195,24 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
               }),
               const SizedBox(height: 16),
               OutlinedButton.icon(
-                onPressed: _totalLevel < 20
-                    ? () => _showAddClassDialog(context, classes)
-                    : null,
+                onPressed:
+                    _totalLevel < 20
+                        ? () => _showAddClassDialog(context, classes)
+                        : null,
                 icon: const Icon(Icons.add),
                 label: const Text('Adicionar classe'),
               ),
               const SizedBox(height: 24),
               FilledButton.icon(
                 onPressed: _saving ? null : _save,
-                icon: _saving
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.save),
+                icon:
+                    _saving
+                        ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                        : const Icon(Icons.save),
                 label: Text(_saving ? 'Salvando...' : 'Salvar'),
               ),
             ],
@@ -247,8 +253,9 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
       builder: (dialogContext) {
         return StatefulBuilder(
           builder: (dialogContext, setDialogState) {
-            final missingForNewClass =
-                _missingPrerequisitesForClass(selectedClass.id);
+            final missingForNewClass = _missingPrerequisitesForClass(
+              selectedClass.id,
+            );
 
             return AlertDialog(
               title: const Text('Adicionar classe'),
@@ -261,14 +268,15 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
                       labelText: 'Classe',
                       border: OutlineInputBorder(),
                     ),
-                    items: availableClasses
-                        .map(
-                          (item) => DropdownMenuItem<ClassEntry>(
-                            value: item,
-                            child: Text(item.name),
-                          ),
-                        )
-                        .toList(),
+                    items:
+                        availableClasses
+                            .map(
+                              (item) => DropdownMenuItem<ClassEntry>(
+                                value: item,
+                                child: Text(item.name),
+                              ),
+                            )
+                            .toList(),
                     onChanged: (value) {
                       if (value == null) return;
                       setDialogState(() {
@@ -338,8 +346,9 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
           spellcastingAbility: _abilityFromString(
             selectedClass.spellcastingAbility ?? selectedClass.primaryAbility,
           ),
-          spellcastingType:
-              _spellcastingTypeForClass(selectedClass.spellcastingType),
+          spellcastingType: _spellcastingTypeForClass(
+            selectedClass.spellcastingType,
+          ),
         ),
       );
     });
@@ -361,9 +370,7 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
 
     if (_totalLevel > 20) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('O nível total não pode passar de 20.'),
-        ),
+        const SnackBar(content: Text('O nível total não pode passar de 20.')),
       );
       return;
     }
@@ -401,11 +408,22 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
           }
           return 8;
         },
+        // Esta tela é o único caminho que faz o nível CAIR, então é por aqui
+        // que o +4 do Campeão Primal tem de ir embora ao sair do 20º nível —
+        // e voltar ao entrar nele.
+        abilityBonuses: await ref.read(
+          featureAbilityBonusResolverProvider.future,
+        ),
       );
 
       // As magias de domínio, juramento e patrono acompanham a subclasse e o
       // nível, então precisam ser reconciliadas depois de salvar.
       await _syncSubclassSpells();
+
+      // A escolha obrigatória da subclasse vem depois de gravar, e não antes:
+      // a tela que a resolve lê o personagem do banco, então exigi-la antes do
+      // salvamento deixaria o jogador sem caminho para decidir.
+      await _promptRequiredClassMechanics();
 
       if (!mounted) return;
       Navigator.of(context).pop(true);
@@ -414,9 +432,9 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
       debugPrintStack(stackTrace: stackTrace);
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao salvar níveis: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao salvar níveis: $error')));
     } finally {
       if (mounted) {
         setState(() {
@@ -447,7 +465,8 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
   /// Tolerante ao carregamento: com o compêndio ainda em voo, devolve o id
   /// recebido, que é o comportamento de antes.
   String _baseClassIdOf(String classId) {
-    final classes = ref.read(classEntriesProvider).value ?? const <ClassEntry>[];
+    final classes =
+        ref.read(classEntriesProvider).value ?? const <ClassEntry>[];
 
     for (final item in classes) {
       if (item.id == classId) return item.baseClassId;
@@ -571,6 +590,82 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
     }
   }
 
+  /// Resolve, antes de sair da tela, as escolhas de classe que o dado declara
+  /// obrigatórias.
+  ///
+  /// É o que faz o Espírito Totêmico aparecer no instante em que o Bárbaro
+  /// chega ao 3º nível com o Guerreiro Totêmico: esta tela é o único caminho
+  /// que escolhe a subclasse fora da subida de nível, e sem este encadeamento
+  /// a decisão ficava invisível.
+  ///
+  /// Escolha adiável não entra aqui de propósito: manobra de Mestre de Batalha
+  /// continua podendo esperar, e a ficha segue marcando a pendência.
+  Future<void> _promptRequiredClassMechanics({int attempt = 0}) async {
+    if (!mounted || attempt >= 3) return;
+
+    final List<ResolvedClassMechanic> blocking;
+    try {
+      final character = await ref
+          .read(characterRepositoryProvider)
+          .findById(widget.characterId);
+
+      if (character == null || !mounted) return;
+
+      final resolved = await ref.read(
+        resolvedClassMechanicsProvider(character).future,
+      );
+      blocking = resolved.blocking;
+    } catch (error, stackTrace) {
+      // Best-effort, como a sincronização de magias: falha de leitura de asset
+      // não desfaz o nível já gravado. A pendência continua marcada na ficha.
+      debugPrint('Falha ao resolver escolhas obrigatórias de classe: $error');
+      debugPrintStack(stackTrace: stackTrace);
+      return;
+    }
+
+    if (blocking.isEmpty || !mounted) return;
+
+    final mechanic = blocking.first;
+
+    final open = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Escolha obrigatória'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('${mechanic.name} — ${mechanic.originLabel}'),
+              if (mechanic.entry.summary case final text?) ...[
+                const SizedBox(height: 8),
+                Text(text),
+              ],
+            ],
+          ),
+          actions: [
+            FilledButton(
+              key: const ValueKey('required-mechanic-open'),
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('Escolher agora'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (open != true || !mounted) return;
+
+    await AppNavigator.toManageClassMechanic(
+      context,
+      characterId: widget.characterId,
+      mechanicId: mechanic.id,
+    );
+
+    await _promptRequiredClassMechanics(attempt: attempt + 1);
+  }
+
   /// Põe no livro as magias que a subclasse concede até o nível atual e tira as
   /// que não valem mais.
   ///
@@ -632,9 +727,7 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
       );
       if (resolved.options.isEmpty) return;
 
-      final catalog = await ref.read(
-        eldritchInvocationCatalogProvider.future,
-      );
+      final catalog = await ref.read(eldritchInvocationCatalogProvider.future);
       final classes = await ref.read(classEntriesProvider.future);
       final subclasses = await ref.read(subclassEntriesProvider.future);
       final spells = await ref.read(spellEntriesProvider.future);
@@ -778,12 +871,14 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
       ];
     }
 
-    final currentId = options.any((item) => item.id == classLevel.subclassId)
-        ? classLevel.subclassId
-        : null;
-    final selected = currentId == null
-        ? null
-        : options.firstWhere((item) => item.id == currentId);
+    final currentId =
+        options.any((item) => item.id == classLevel.subclassId)
+            ? classLevel.subclassId
+            : null;
+    final selected =
+        currentId == null
+            ? null
+            : options.firstWhere((item) => item.id == currentId);
 
     return [
       const SizedBox(height: 12),
@@ -793,21 +888,25 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
           labelText: label,
           // Sem auto-seleção aqui: subir de nível não deve escolher o
           // arquétipo no lugar do jogador.
-          helperText: currentId == null ? 'Escolha para liberar as características' : null,
+          helperText:
+              currentId == null
+                  ? 'Escolha para liberar as características'
+                  : null,
         ),
         isExpanded: true,
-        items: options
-            .map(
-              (item) => DropdownMenuItem<String>(
-                value: item.id,
-                child: Text(
-                  item.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            )
-            .toList(),
+        items:
+            options
+                .map(
+                  (item) => DropdownMenuItem<String>(
+                    value: item.id,
+                    child: Text(
+                      item.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                )
+                .toList(),
         onChanged: (value) {
           setState(() {
             final current = _classLevels[index];

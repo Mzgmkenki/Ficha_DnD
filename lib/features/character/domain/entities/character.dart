@@ -69,6 +69,7 @@ class Character {
     this.languages = const [],
     this.eldritchInvocations = const [],
     this.classMechanics = const [],
+    this.featureAbilityBonuses = const {},
     this.armorClassFormulaId,
     this.armorClassOtherBonus = 0,
   });
@@ -172,6 +173,19 @@ class Character {
   /// estado válido: ele nunca teve mecânica gravada, e as vagas do nível dele
   /// aparecem pendentes em vez de preenchidas por palpite.
   final List<CharacterClassMechanic> classMechanics;
+
+  /// Quanto cada característica de classe já somou permanentemente em cada
+  /// atributo, por atributo.
+  ///
+  /// É o registro do que FOI APLICADO, não do que a regra promete — a mesma
+  /// ideia de `CharacterFeat.appliedAbilityIncreases`. Sem ele, perder o 20º
+  /// nível de Bárbaro não teria como devolver exatamente o +4 do Campeão
+  /// Primal sem encostar no que veio de raça, talento, incremento ou item.
+  ///
+  /// Vazio é o estado normal: só classe que concede aumento permanente de
+  /// atributo escreve aqui, e personagem anterior ao schema 25 chega vazio e
+  /// recebe o aumento na primeira reconciliação.
+  final Map<Ability, int> featureAbilityBonuses;
 
   /// Fórmula de CA-base que o jogador escolheu usar.
   ///
@@ -282,10 +296,10 @@ class Character {
     return 2;
   }
 
-  /// Bônus permanentes posteriores à criação: o que talentos e Incrementos no
-  /// Valor de Atributo realmente aplicaram.
+  /// Bônus permanentes posteriores à criação: o que talentos, Incrementos no
+  /// Valor de Atributo e características de classe realmente aplicaram.
   ///
-  /// Os dois entram aqui porque os dois são a mesma coisa para quem decompõe o
+  /// Os três entram aqui porque os três são a mesma coisa para quem decompõe o
   /// total: ganho posterior à criação, já persistido junto com a fonte que o
   /// concedeu. Deixar o incremento de fora faria a tela de atributos apresentar
   /// como "valor base" um número que inclui pontos de nível.
@@ -305,6 +319,9 @@ class Character {
     }
     for (final improvement in abilityImprovements) {
       addAll(improvement.appliedIncreases);
+    }
+    for (final entry in featureAbilityBonuses.entries) {
+      result[entry.key] = (result[entry.key] ?? 0) + entry.value;
     }
 
     return result;
@@ -365,6 +382,7 @@ class Character {
     List<CharacterLanguage>? languages,
     List<CharacterEldritchInvocation>? eldritchInvocations,
     List<CharacterClassMechanic>? classMechanics,
+    Map<Ability, int>? featureAbilityBonuses,
     Object? armorClassFormulaId = _sentinel,
     int? armorClassOtherBonus,
     bool? inspiration,
@@ -424,6 +442,10 @@ class Character {
       // Sem sentinela nas duas: limpar é passar lista vazia, não null.
       eldritchInvocations: eldritchInvocations ?? this.eldritchInvocations,
       classMechanics: classMechanics ?? this.classMechanics,
+      // Sem sentinela: limpar é passar mapa vazio, que é exatamente o que a
+      // reconciliação faz quando o personagem perde o nível que concedia.
+      featureAbilityBonuses:
+          featureAbilityBonuses ?? this.featureAbilityBonuses,
       // Sentinela é obrigatória: voltar para "nunca escolheu" é setar null, e
       // com `?? this.armorClassFormulaId` isso seria impossível — a troca de
       // classe precisa poder soltar uma fórmula que não existe mais.

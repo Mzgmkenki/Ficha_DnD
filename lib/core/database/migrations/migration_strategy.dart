@@ -665,6 +665,42 @@ MigrationStrategy buildMigrationStrategy(AppDatabase db) {
         // repetido devolve "already exists", que `_tryCreateTable` engole.
         await _tryCreateTable(m, db.characterClassMechanics);
       }
+
+      if (from < 25) {
+        // Aumento permanente de atributo concedido por característica de
+        // classe. O caso é o Campeão Primal, no 20º nível de Bárbaro.
+        //
+        // A coluna nasce NULA, e isso é deliberado: até aqui o app nunca
+        // aplicou esse aumento. O efeito existia declarado no compêndio, mas
+        // como texto de referência — a própria observação do asset mandava o
+        // jogador somar à mão na tela de atributos. Então não há valor antigo
+        // para preservar nem para subtrair.
+        //
+        // Por que não dá para fazer backfill aqui: decidir quem recebe o +4
+        // exige ler o compêndio (`class_features.json`), resolver as
+        // características pelo nível DA CLASSE e avaliar as fórmulas. Nada
+        // disso está disponível dentro da transação de migração, e tentar
+        // travaria a abertura do banco — a mesma razão documentada no topo
+        // deste arquivo e na migração 24.
+        //
+        // Quem faz o trabalho é a reconciliação, ao abrir a ficha: ela compara
+        // o que as características concedem hoje com o que está gravado aqui e
+        // aplica só a diferença. Para o personagem antigo o gravado é vazio,
+        // então ele recebe o aumento uma vez e nunca mais — a operação é
+        // idempotente por construção, não por marcação de migração.
+        //
+        // E o atributo NÃO é mexido aqui: o total persistido continua sendo o
+        // que o jogador tem hoje. Quem já havia somado o +4 à mão, seguindo a
+        // observação antiga do asset, não ganha 28 de Força: a reconciliação
+        // limita o aumento à folga até o teto, e com Força já em 24 a folga é
+        // zero. O caso intermediário converge para o mesmo lugar — Força 22
+        // recebe só +2 e para em 24.
+        await _tryAddColumn(
+          m,
+          db.characters,
+          db.characters.featureAbilityBonuses,
+        );
+      }
     },
     beforeOpen: (details) async {
       // Roda fora da transação de migração, então aqui é seguro usar `db`.

@@ -24,6 +24,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/death_saves.dar
 import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_proficiencies.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/feature_ability_bonuses.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/granted_ability_increases.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/alignment.dart'
@@ -71,6 +72,9 @@ class CharacterMapper {
       abilityScoreAllocation: CharacterCreationMetadataCodec.decodeAllocation(
         character.baseAbilityScores,
         character.originAbilityBonuses,
+      ),
+      featureAbilityBonuses: FeatureAbilityBonuses.parseCsv(
+        character.featureAbilityBonuses,
       ),
 
       classLevels:

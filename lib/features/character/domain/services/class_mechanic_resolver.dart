@@ -293,6 +293,13 @@ class ResolvedClassMechanic {
   /// lista de opções conhecidas é decisão que falta, não preferência.
   bool get hasPendingPicks => isUnlocked && entry.hasPicks && freeSlots > 0;
 
+  /// Se a pendência IMPEDE concluir, e não só fica marcada na ficha.
+  ///
+  /// Só quando o dado declara a escolha como obrigatória. A distinção existe
+  /// para o Mestre de Batalha continuar podendo decidir as manobras depois,
+  /// enquanto o Guerreiro Totêmico não passa do 3º nível sem um espírito.
+  bool get blocksCompletion => hasPendingPicks && entry.isRequired;
+
   bool get hasInvalid => invalid.isNotEmpty;
 
   /// Se a mecânica deve aparecer na ficha.
@@ -422,6 +429,31 @@ class ResolvedClassMechanics {
   /// pendência.
   List<ResolvedClassMechanic> get pending =>
       visible.where((item) => item.hasPendingPicks).toList(growable: false);
+
+  /// Pendências que impedem concluir, por serem declaradas obrigatórias.
+  ///
+  /// Subconjunto de [pending]. Separado porque as duas respostas servem a
+  /// perguntas diferentes: [pending] decide se a etapa de escolhas aparece,
+  /// esta decide se o botão de concluir pode ser apertado.
+  List<ResolvedClassMechanic> get blocking =>
+      visible.where((item) => item.blocksCompletion).toList(growable: false);
+
+  bool get hasBlocking => blocking.isNotEmpty;
+
+  /// Por que não dá para concluir, em uma frase, ou nulo quando dá.
+  ///
+  /// Nomeia a característica em vez de dizer só "há escolhas pendentes": o
+  /// jogador precisa saber o que abrir, e a mensagem é o único lugar onde ele
+  /// vê isso quando a pendência vem de uma subclasse que ele acabou de pegar.
+  String? get blockingReason {
+    final items = blocking;
+    if (items.isEmpty) return null;
+
+    final names = items.map((item) => item.name).join(', ');
+    return items.length == 1
+        ? 'Escolha obrigatória em aberto: $names.'
+        : 'Escolhas obrigatórias em aberto: $names.';
+  }
 
   /// Mecânicas com escolha que perdeu o pré-requisito.
   List<ResolvedClassMechanic> get needingReview => visible

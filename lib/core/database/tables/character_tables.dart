@@ -48,6 +48,17 @@ class Characters extends Table {
   /// Bônus de origem aplicados na criação, separados dos valores base.
   TextColumn get originAbilityBonuses => text().nullable()();
 
+  /// Aumentos permanentes de atributo que características de classe aplicaram,
+  /// serializados como `strength:4,constitution:4`.
+  ///
+  /// Guarda o que FOI APLICADO, não o que a regra promete: é o que permite
+  /// perder o 20º nível de Bárbaro e devolver exatamente o +4 do Campeão
+  /// Primal sem encostar no que veio de raça, talento, incremento ou item.
+  ///
+  /// Nula em personagem anterior ao schema 25, que recebe o aumento na
+  /// primeira reconciliação em vez de ter o total adivinhado na migração.
+  TextColumn get featureAbilityBonuses => text().nullable()();
+
   /// Origem das proficiências adquiridas durante a criação, em JSON.
   TextColumn get skillProficiencyGrants =>
       text().withDefault(const Constant('[]'))();

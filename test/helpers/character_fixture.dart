@@ -9,6 +9,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dar
 import 'package:dnd_ficha_app/features/character/domain/entities/combat_stats.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
+import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/proficiency_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
@@ -61,6 +62,7 @@ Character characterFixture({
   List<CharacterMagicItem> magicItems = const [],
   List<CharacterFeatureState> featureStates = const [],
   List<CharacterClassMechanic> classMechanics = const [],
+  Map<Ability, int> featureAbilityBonuses = const {},
   String? backgroundId,
   String? speciesId,
   int exhaustion = 0,
@@ -84,6 +86,7 @@ Character characterFixture({
     magicItems: magicItems,
     featureStates: featureStates,
     classMechanics: classMechanics,
+    featureAbilityBonuses: featureAbilityBonuses,
     backgroundId: backgroundId,
     speciesId: speciesId,
     exhaustion: exhaustion,

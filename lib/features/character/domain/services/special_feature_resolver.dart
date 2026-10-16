@@ -141,10 +141,7 @@ class ResolvedFeature {
 /// Espelha `PendingSubclassChoice`: o mesmo problema, o mesmo formato, para a
 /// ficha tratar as duas pendências igual.
 class PendingFeatureChoice {
-  const PendingFeatureChoice({
-    required this.feature,
-    required this.choice,
-  });
+  const PendingFeatureChoice({required this.feature, required this.choice});
 
   final ResolvedFeature feature;
   final FeatureChoice choice;
@@ -171,9 +168,8 @@ class ResolvedFeatures {
   }
 
   /// Características de uma classe específica, na ordem dos níveis.
-  List<ResolvedFeature> forClass(String classId) => features
-      .where((item) => item.classId == classId)
-      .toList(growable: false);
+  List<ResolvedFeature> forClass(String classId) =>
+      features.where((item) => item.classId == classId).toList(growable: false);
 
   /// Características que pedem para ser mostradas numa área da ficha.
   ///
@@ -214,6 +210,59 @@ class ResolvedFeatures {
   /// O teto de um atributo, já com as exceções aplicadas.
   int maximumFor(Ability ability, FeatureFormulaContext context) =>
       abilityMaximums(context)[ability] ?? GrantedAbilityIncreases.maximum;
+
+  /// Aumentos permanentes de atributo que as características concedem.
+  ///
+  /// Só as características que o personagem ALCANÇOU entram aqui: a lista já
+  /// vem cortada pelo nível DA CLASSE em `SpecialFeatureResolver.resolve`, e é
+  /// isso que faz o Campeão Primal valer para o Bárbaro 20 e não para um
+  /// personagem de nível total 20 com 19 níveis de Bárbaro.
+  ///
+  /// Característica superada não concede nada, porque [calculatedEffects]
+  /// devolve vazio nesse caso.
+  ///
+  /// O mapa é deduplicado por id de efeito: a mesma declaração não pode contar
+  /// duas vezes, e é essa garantia que mantém a aplicação idempotente por
+  /// construção, sem depender de quem chama.
+  Map<Ability, int> abilityBonuses(FeatureFormulaContext context) {
+    final result = <Ability, int>{};
+    final highestByGroup = <String, Map<Ability, int>>{};
+    final seen = <String>{};
+
+    for (final feature in features) {
+      for (final effect in feature.calculatedEffects) {
+        if (effect.path != FeatureEffectPaths.abilityBonus) continue;
+        if (!seen.add(effect.id)) continue;
+
+        final value = FeatureFormula.valueOf(effect.formula, context);
+        if (value == null || value == 0) continue;
+
+        // `highest` existe para duas fontes do mesmo benefício não se somarem.
+        // Sem grupo declarado, o próprio caminho serve de grupo.
+        if (effect.stacking == FeatureEffectStacking.highest) {
+          final group = effect.group ?? effect.path;
+          final bucket = highestByGroup.putIfAbsent(group, () => {});
+          for (final ability in effect.abilities) {
+            final current = bucket[ability];
+            if (current == null || value > current) bucket[ability] = value;
+          }
+          continue;
+        }
+
+        for (final ability in effect.abilities) {
+          result[ability] = (result[ability] ?? 0) + value;
+        }
+      }
+    }
+
+    for (final bucket in highestByGroup.values) {
+      for (final entry in bucket.entries) {
+        result[entry.key] = (result[entry.key] ?? 0) + entry.value;
+      }
+    }
+
+    return result;
+  }
 
   /// Bônus de CA declarados pelas características, somados.
   ///
@@ -290,15 +339,13 @@ class SpecialFeatureResolver {
       final entry = _classById(classes, classLevel.classId);
       final className = entry?.name ?? classLevel.classId;
 
-      final reached =
-          classFeatures
-              .where(
-                (item) =>
-                    item.classId == classLevel.classId &&
-                    item.level <= classLevel.level,
-              )
-              .toList(growable: false)
-            ..sort((a, b) => a.level.compareTo(b.level));
+      final reached = classFeatures
+        .where(
+          (item) =>
+              item.classId == classLevel.classId &&
+              item.level <= classLevel.level,
+        )
+        .toList(growable: false)..sort((a, b) => a.level.compareTo(b.level));
 
       for (final featureEntry in reached) {
         for (final feature in featureEntry.features) {
@@ -389,10 +436,11 @@ class SpecialFeatureResolver {
     final result = <ResolvedFeature>[];
 
     for (final feature in items) {
-      final keys = feature.effects
-          .map((effect) => effect.unique)
-          .whereType<String>()
-          .toSet();
+      final keys =
+          feature.effects
+              .map((effect) => effect.unique)
+              .whereType<String>()
+              .toSet();
 
       if (keys.isEmpty) {
         result.add(feature);

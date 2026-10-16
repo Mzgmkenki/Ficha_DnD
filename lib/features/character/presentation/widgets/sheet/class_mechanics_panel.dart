@@ -89,6 +89,16 @@ class ClassMechanicsPanel extends ConsumerWidget {
                             'classe.',
               ),
 
+            // Obrigatória ganha aviso próprio: a diferença entre "pode decidir
+            // depois" e "a subclasse está incompleta" importa para o jogador.
+            if (resolved.blockingReason case final reason?)
+              _Notice(
+                icon: Icons.priority_high,
+                color: AppColors.error,
+                valueKey: const ValueKey('class-mechanics-blocking'),
+                message: reason,
+              ),
+
             if (resolved.needsReview)
               _Notice(
                 icon: Icons.block,

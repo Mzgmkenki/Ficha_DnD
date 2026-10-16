@@ -45,7 +45,8 @@ void main() {
       final origin = '${entry['class_id']}/${entry['level']}';
       for (final raw in entry['features'] as List<dynamic>) {
         final feature = Map<String, dynamic>.from(raw as Map);
-        for (final effect in (feature['effects'] as List<dynamic>?) ?? const []) {
+        for (final effect
+            in (feature['effects'] as List<dynamic>?) ?? const []) {
           result.add((
             origin: '$origin "${feature['name']}"',
             raw: Map<String, dynamic>.from(effect as Map),
@@ -58,7 +59,8 @@ void main() {
       final origin = entry['id'] as String;
       for (final raw in (entry['features'] as List<dynamic>?) ?? const []) {
         final feature = Map<String, dynamic>.from(raw as Map);
-        for (final effect in (feature['effects'] as List<dynamic>?) ?? const []) {
+        for (final effect
+            in (feature['effects'] as List<dynamic>?) ?? const []) {
           result.add((
             origin: '$origin "${feature['name']}"',
             raw: Map<String, dynamic>.from(effect as Map),
@@ -178,15 +180,17 @@ void main() {
     });
 
     test('as duas Defesas sem Armadura compartilham a identidade', () {
-      final defenses = allEffects()
-          .map((item) => FeatureEffect.tryParse(item.raw)!)
-          .where((effect) => effect.unique == 'unarmored_defense')
-          .toList();
+      final defenses =
+          allEffects()
+              .map((item) => FeatureEffect.tryParse(item.raw)!)
+              .where((effect) => effect.unique == 'unarmored_defense')
+              .toList();
 
       expect(
         defenses,
         hasLength(2),
-        reason: 'Bárbaro e Monge; sem a chave comum o multiclasse concederia '
+        reason:
+            'Bárbaro e Monge; sem a chave comum o multiclasse concederia '
             'as duas',
       );
     });
@@ -337,10 +341,7 @@ void main() {
       );
 
       expect(selection.result.total, 15, reason: '13 + 2');
-      expect(
-        selection.selected!.id,
-        'sorcerer_draconic.draconic_resilience',
-      );
+      expect(selection.selected!.id, 'sorcerer_draconic.draconic_resilience');
       expect(selection.selected!.allowsShield, isTrue);
     });
 
@@ -365,28 +366,66 @@ void main() {
       expect(maximums[Ability.wisdom], isNull);
     });
 
-    test('Espírito Totêmico pede uma escolha com cinco opções', () {
-      final totem = parsedSubclasses().firstWhere(
-        (item) => item.id == 'barbarian_totem_warrior',
+    test('Campeão Primal concede +4 em Força e Constituição no asset', () {
+      final character = characterFixture(
+        classLevels: const [ClassLevel(classId: 'barbarian', level: 20)],
       );
 
-      final feature = totem.features.firstWhere(
-        (item) => item.name == 'Espírito Totêmico',
+      final features = SpecialFeatureResolver.resolve(
+        character: character,
+        classes: classes,
+        classFeatures: parsedClassFeatures(),
+        subclasses: parsedSubclasses(),
       );
 
-      expect(feature.choice, isNotNull);
-      expect(feature.choice!.isRequired, isTrue);
-      expect(
-        feature.choice!.id,
-        'barbarian_totem_warrior.totem_spirit',
-        reason: 'o id da escolha acompanha o da subclasse, para a chave '
-            'persistida não depender de texto traduzido',
+      final bonuses = features.abilityBonuses(
+        FeatureFormulaContext.fromCharacter(character),
       );
-      expect(feature.choice!.options, hasLength(5));
-      expect(
-        feature.choice!.options.map((option) => option.id),
-        containsAll(['bear', 'eagle', 'wolf', 'elk', 'tiger']),
-      );
+
+      expect(bonuses[Ability.strength], 4);
+      expect(bonuses[Ability.constitution], 4);
+      expect(bonuses[Ability.dexterity], isNull);
     });
+
+    test('a característica de nível 20 do Bárbaro não vale no 19º', () {
+      final character = characterFixture(
+        classLevels: const [ClassLevel(classId: 'barbarian', level: 19)],
+      );
+
+      final features = SpecialFeatureResolver.resolve(
+        character: character,
+        classes: classes,
+        classFeatures: parsedClassFeatures(),
+        subclasses: parsedSubclasses(),
+      );
+
+      final context = FeatureFormulaContext.fromCharacter(character);
+
+      expect(features.abilityBonuses(context), isEmpty);
+      expect(features.abilityMaximums(context), isEmpty);
+    });
+
+    test(
+      'Espírito Totêmico não declara mais escolha no asset de subclasses',
+      () {
+        // A escolha mudou de casa: ela vive em `class_mechanics.json`, que é o
+        // sistema que realmente apresenta, grava e bloqueia. Deixar o bloco
+        // `choice` aqui também duplicaria as cinco opções em dois arquivos.
+        final totem = parsedSubclasses().firstWhere(
+          (item) => item.id == 'barbarian_totem_warrior',
+        );
+
+        final feature = totem.features.firstWhere(
+          (item) => item.name == 'Espírito Totêmico',
+        );
+
+        expect(feature.choice, isNull);
+        expect(
+          feature.description,
+          contains('Urso'),
+          reason: 'o texto da característica continua aqui: só a escolha saiu',
+        );
+      },
+    );
   });
 }

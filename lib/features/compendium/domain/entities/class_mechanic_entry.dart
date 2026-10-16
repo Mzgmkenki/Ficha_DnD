@@ -505,6 +505,7 @@ class ClassMechanicEntry {
     this.prerequisites = MechanicPrerequisite.none,
     this.replacement,
     this.allowDuplicateOptions = false,
+    this.isRequired = false,
     this.maxActiveOptions,
     this.action,
     this.usesMinimum,
@@ -574,6 +575,17 @@ class ClassMechanicEntry {
   /// Falso no caso comum. Verdadeiro cobre o Guerreiro Totêmico, que pode
   /// escolher o mesmo animal em níveis diferentes.
   final bool allowDuplicateOptions;
+
+  /// Se a escolha precisa estar resolvida para o nível ser concluído.
+  ///
+  /// Falso por padrão, e isso é deliberado: a maior parte das mecânicas pode
+  /// ficar em aberto sem travar nada — quem subiu para Mestre de Batalha pode
+  /// decidir as manobras depois, e a ficha continua marcando a pendência.
+  ///
+  /// Verdadeiro é para a escolha que define a característica: o 3º nível do
+  /// Guerreiro Totêmico não existe sem um espírito, e deixar o personagem
+  /// seguir sem ele produziria uma subclasse pela metade.
+  final bool isRequired;
 
   /// Quantos modos podem estar ativos ao mesmo tempo.
   ///
@@ -934,6 +946,7 @@ class ClassMechanicEntry {
       prerequisites: MechanicPrerequisite.tryParse(raw['prerequisites']),
       replacement: MechanicReplacement.tryParse(raw['replacement']),
       allowDuplicateOptions: raw['allow_duplicates'] == true,
+      isRequired: raw['required'] == true,
       maxActiveOptions: number('max_active'),
       action: FeatureAction.tryParse(raw['action']),
       usesMinimum: number('uses_minimum'),

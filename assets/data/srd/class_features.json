@@ -218,7 +218,7 @@
     "features": [
       {
         "name": "Campeão Primal",
-        "description": "Força e Constituição aumentam em 4 cada, e o máximo desses dois atributos passa a ser 24.",
+        "description": "Campeão Primitivo: Força +4 e Constituição +4. Limite máximo desses atributos: 24. Os dois aumentos são aplicados automaticamente ao alcançar o 20º nível de Bárbaro.",
         "effects": [
           {
             "id": "barbarian.primal_champion.maximum",
@@ -239,7 +239,7 @@
             "abilities": ["strength", "constitution"],
             "stacking": "sum",
             "label": "Força +4 e Constituição +4",
-            "note": "Aplique os dois aumentos na tela de atributos: o app libera o teto 24, mas não mexe sozinho nos valores gravados.",
+            "note": "Aplicado automaticamente ao alcançar o 20º nível de Bárbaro, e devolvido se o nível cair. Não some à mão.",
             "display": "abilities"
           }
         ]

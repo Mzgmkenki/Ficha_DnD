@@ -420,6 +420,104 @@
     "note": "A Armadura Arcana continua sendo a mesma peça: o modelo muda o que ela oferece, não a armadura vestida."
   },
   {
+    "id": "barbarian_totem_warrior.totem_spirit",
+    "name": "Espírito Totêmico",
+    "class_id": "barbarian",
+    "subclass_id": "barbarian_totem_warrior",
+    "level": 3,
+    "feature": "Espírito Totêmico",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "Escolha obrigatória do 3º nível: o espírito animal que guia o bárbaro.",
+    "kinds": ["permanent_choice"],
+    "display": "features",
+    "required": true,
+    "progression": [{ "level": 3, "picks": 1 }],
+    "options": [
+      {
+        "id": "bear",
+        "name": "Urso",
+        "name_original": "Bear",
+        "summary": "Resistência a quase todo dano em Fúria.",
+        "description": "Enquanto estiver em Fúria, você tem resistência a todos os tipos de dano, exceto psíquico.",
+        "effects": [
+          {
+            "id": "barbarian_totem.totem_spirit.bear",
+            "path": "resistance.damage",
+            "operation": "grant",
+            "display": "defenses",
+            "label": "Resistência do Urso",
+            "note": "Só enquanto a Fúria estiver ativa: resistência a todo dano, exceto psíquico."
+          }
+        ]
+      },
+      {
+        "id": "eagle",
+        "name": "Águia",
+        "name_original": "Eagle",
+        "summary": "Disparar como ação bônus e desvantagem contra ataques de oportunidade.",
+        "description": "Enquanto estiver em Fúria e sem armadura pesada, outras criaturas têm desvantagem em ataques de oportunidade contra você, e você pode usar a ação Disparar como ação bônus no seu turno.",
+        "action": {
+          "type": "bonus",
+          "requires": "Estar em Fúria e sem armadura pesada"
+        }
+      },
+      {
+        "id": "wolf",
+        "name": "Lobo",
+        "name_original": "Wolf",
+        "summary": "Aliados atacam com vantagem perto de você.",
+        "description": "Enquanto estiver em Fúria, seus aliados têm vantagem em jogadas de ataque corpo a corpo contra criaturas hostis a até 1,5 m de você.",
+        "effects": [
+          {
+            "id": "barbarian_totem.totem_spirit.wolf",
+            "path": "attack.ally_advantage",
+            "operation": "grant",
+            "display": "features",
+            "label": "Espírito do Lobo",
+            "note": "Só enquanto a Fúria estiver ativa, e vale para os aliados, não para você."
+          }
+        ]
+      },
+      {
+        "id": "elk",
+        "name": "Alce",
+        "name_original": "Elk",
+        "summary": "Deslocamento +4,5 m em Fúria.",
+        "description": "Enquanto estiver em Fúria e sem armadura pesada, o seu deslocamento de caminhada aumenta em 4,5 m.",
+        "effects": [
+          {
+            "id": "barbarian_totem.totem_spirit.elk",
+            "path": "speed.walk",
+            "operation": "grant",
+            "display": "features",
+            "label": "Deslocamento do Alce",
+            "note": "Só enquanto a Fúria estiver ativa e sem armadura pesada: +4,5 m de deslocamento."
+          }
+        ]
+      },
+      {
+        "id": "tiger",
+        "name": "Tigre",
+        "name_original": "Tiger",
+        "summary": "Salto maior em Fúria.",
+        "description": "Enquanto estiver em Fúria, a sua distância de salto em distância aumenta em 3 m e a de salto em altura em 0,9 m.",
+        "effects": [
+          {
+            "id": "barbarian_totem.totem_spirit.tiger",
+            "path": "jump.distance",
+            "operation": "grant",
+            "display": "features",
+            "label": "Salto do Tigre",
+            "note": "Só enquanto a Fúria estiver ativa: +3 m em distância e +0,9 m em altura."
+          }
+        ]
+      }
+    ],
+    "tags": ["phb", "totem"],
+    "note": "Escolha obrigatória: o 3º nível do Guerreiro Totêmico não fica resolvido sem um espírito. Os cinco benefícios valem apenas enquanto a Fúria está ativa, por isso ficam como referência e não entram como bônus permanente na ficha."
+  },
+  {
     "id": "barbarian_totem_warrior.beast_aspect",
     "name": "Aspecto da Besta",
     "class_id": "barbarian",
