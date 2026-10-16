@@ -26,6 +26,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/death_saves.dar
 import 'package:dnd_ficha_app/features/character/domain/services/active_effects.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/death_save_service.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/feature_resources.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/level_progression_reversal.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/rest_service.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/combat_action_type.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart';
@@ -140,6 +141,20 @@ final updateCharacterClassLevelsProvider = Provider<UpdateCharacterClassLevels>(
   (ref) {
     final repository = ref.watch(characterRepositoryProvider);
     return UpdateCharacterClassLevels(repository);
+  },
+);
+
+/// Diz quais vagas de progressão um personagem hipotético ainda concede.
+///
+/// Carrega o compêndio uma vez e devolve função síncrona, igual ao resolvedor
+/// de aumentos de atributo: quem precisa disto está no meio de uma gravação de
+/// níveis e tem de conferir contra os níveis NOVOS.
+final progressionSlotResolverProvider = FutureProvider<ProgressionSlotResolver>(
+  (ref) async {
+    final classes = await ref.watch(classEntriesProvider.future);
+
+    return (Character character) =>
+        LevelProgressionReversal.validIdsFor(character, classes);
   },
 );
 

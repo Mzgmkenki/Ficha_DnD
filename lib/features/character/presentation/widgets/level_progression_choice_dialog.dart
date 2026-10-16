@@ -13,21 +13,36 @@ enum LevelProgressionDecision { feat, improvement }
 ///
 /// Devolve `null` quando o jogador fecha sem decidir. Isso NÃO gasta a
 /// escolha: ela continua pendente e volta a ser oferecida na ficha.
+///
+/// [barrierDismissible] fica falso quando a janela foi aberta pelo app, e não
+/// pelo jogador: na subida de nível a decisão é obrigatória, então sair dela
+/// exige o "Decidir depois" explícito em vez de um toque fora do diálogo. O
+/// requisito é não permitir concluir a evolução com a escolha em aberto sem o
+/// jogador ter visto que ela existe.
 Future<LevelProgressionDecision?> showLevelProgressionChoiceDialog({
   required BuildContext context,
   required LevelProgressionSlot slot,
   bool canChooseFeat = true,
   String? featUnavailableReason,
+  bool barrierDismissible = true,
 }) {
   final allowsImprovement = slot.allowsImprovement;
 
   return showDialog<LevelProgressionDecision>(
     context: context,
+    barrierDismissible: barrierDismissible,
     builder: (dialogContext) {
       final text = Theme.of(dialogContext).textTheme;
 
       return AlertDialog(
-        title: const Text('Escolha do nível'),
+        title: Text(
+          slot.fromRace
+              ? 'Escolha do nível'
+              // Classe e nível no título, e não só no corpo: num multiclasse
+              // com duas pendências em sequência é o título que diz de qual
+              // das duas se trata.
+              : '${slot.className} — nível ${slot.classLevel}',
+        ),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,7 +51,8 @@ Future<LevelProgressionDecision?> showLevelProgressionChoiceDialog({
               Text(
                 slot.fromRace
                     ? 'A raça concede um talento no 1º nível.'
-                    : '${slot.label} concede um Incremento no Valor de '
+                    : 'Escolha um benefício de progressão. '
+                        '${slot.label} concede um Incremento no Valor de '
                         'Atributo, que você pode trocar por um talento.',
                 style: text.bodyMedium,
               ),
@@ -51,9 +67,10 @@ Future<LevelProgressionDecision?> showLevelProgressionChoiceDialog({
                     '+${AbilityScoreImprovementDraft.points} em um atributo, '
                     'ou +1 em dois.',
                   ),
-                  onTap: () => Navigator.of(dialogContext).pop(
-                    LevelProgressionDecision.improvement,
-                  ),
+                  onTap:
+                      () => Navigator.of(
+                        dialogContext,
+                      ).pop(LevelProgressionDecision.improvement),
                 ),
               ListTile(
                 key: const ValueKey('progression-feat'),
@@ -70,11 +87,12 @@ Future<LevelProgressionDecision?> showLevelProgressionChoiceDialog({
                           'Nenhum talento disponível agora.'),
                 ),
                 enabled: canChooseFeat,
-                onTap: canChooseFeat
-                    ? () => Navigator.of(dialogContext).pop(
-                          LevelProgressionDecision.feat,
-                        )
-                    : null,
+                onTap:
+                    canChooseFeat
+                        ? () => Navigator.of(
+                          dialogContext,
+                        ).pop(LevelProgressionDecision.feat)
+                        : null,
               ),
             ],
           ),

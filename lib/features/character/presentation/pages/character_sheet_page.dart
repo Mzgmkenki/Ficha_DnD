@@ -7,8 +7,10 @@ import 'package:dnd_ficha_app/features/character/application/providers/invocatio
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/level_up_character_class.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/class_mechanic_resolver.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/level_progression_choices.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/subclass_choice.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/level_progression_flow.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/level_up_class_dialog.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/ability_score_block.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/background_panel.dart';
@@ -36,6 +38,7 @@ import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/weap
 import 'package:dnd_ficha_app/features/character/presentation/widgets/subclass_choice_dialog.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/subclass_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/services/spell_name_index.dart';
 import 'package:flutter/material.dart';
@@ -605,10 +608,7 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                   // Estelar.
                   _ClassMechanicsSection(character: character),
 
-                  const SizedBox(height: 16),
-                  const _SectionHeader(title: 'Talentos'),
-                  const SizedBox(height: 8),
-                  FeatsPanel(character: character),
+                  _ProgressionSection(character: character),
 
                   const SizedBox(height: 16),
                   _SectionHeader(
@@ -761,6 +761,17 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
       // ordem invertida, o Guerreiro que acabou de virar Mestre de Batalha não
       // veria as manobras na mesma subida.
       if (mounted) await _promptClassMechanics();
+
+      // A escolha entre talento e Incremento no Valor de Atributo fecha a
+      // sequência: ela mexe nos ATRIBUTOS, e um atributo novo muda PV, CA e
+      // testes. Resolvê-la antes das mecânicas faria o jogador escolher um
+      // Estilo de Combate com os números que estavam prestes a mudar.
+      //
+      // Não é condicionada a `outcome.grantsFeat` de propósito: quem decide se
+      // há o que escolher é a lista de vagas em aberto. Assim a janela também
+      // aparece para a vaga que ficou pendente numa subida anterior, e não
+      // aparece duas vezes para a mesma.
+      if (mounted) await _promptLevelProgression();
     } catch (error, stackTrace) {
       debugPrint('Falha ao subir de nível: $error');
       debugPrintStack(stackTrace: stackTrace);
@@ -923,6 +934,23 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
     }
   }
 
+  /// Abre a escolha entre talento e Incremento no Valor de Atributo.
+  ///
+  /// Chamada depois de o nível já estar GRAVADO: a vaga que a janela resolve
+  /// só existe no personagem salvo, e quem a grava lê o personagem do banco.
+  ///
+  /// Com mais de uma pendência as janelas vêm em sequência, uma por vez, na
+  /// ordem em que os níveis as concederam.
+  Future<void> _promptLevelProgression() async {
+    if (!mounted) return;
+
+    await promptPendingLevelProgression(
+      context: context,
+      ref: ref,
+      characterId: widget.characterId,
+    );
+  }
+
   /// Abre a escolha de subclasse e grava o que o jogador decidir.
   ///
   /// Sair sem escolher não é erro: a decisão continua em aberto e volta a ser
@@ -1002,13 +1030,11 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
     // diálogo de escolha em seguida, e repetir no aviso seria redundante.
 
     if (outcome.grantsFeat) {
-      // A escolha em si é feita na seção Talentos, que é o único lugar que a
-      // registra. Dizer onde evita o jogador sair procurando, e evita um
-      // segundo fluxo de escolha que poderia divergir daquele.
-      parts.add(
-        'Este nível dá Incremento no Valor de Atributo ou talento: '
-        'escolha na seção Talentos.',
-      );
+      // Só anuncia. A escolha vem numa janela logo depois, pelo mesmo motivo
+      // da subclasse: o jogador precisa ver que o nível entrou mesmo que
+      // feche o diálogo. Mandar ele "ir até a seção Talentos", como fazia
+      // antes, era o sintoma — a janela nunca abria sozinha.
+      parts.add('Este nível dá Incremento no Valor de Atributo ou talento.');
     }
 
     if (outcome.spellSyncError != null) {
@@ -1103,6 +1129,72 @@ class _EldritchInvocationsSectionState
           isExpanded: _expanded,
           onExpansionChanged: (value) => setState(() => _expanded = value),
           child: EldritchInvocationsPanel(character: widget.character),
+        ),
+      ],
+    );
+  }
+}
+
+/// A seção de progressão de nível: talentos e incrementos, por vaga.
+///
+/// Recolhida por padrão, como as outras: é histórico, e histórico não precisa
+/// ocupar a tela em mesa. O resumo do cabeçalho é o que torna isso aceitável —
+/// a contagem de escolhas usadas aparece fechada, e a pendência vira aviso
+/// destacado, então nada que exija ação fica escondido.
+class _ProgressionSection extends ConsumerStatefulWidget {
+  const _ProgressionSection({required this.character});
+
+  final Character character;
+
+  @override
+  ConsumerState<_ProgressionSection> createState() =>
+      _ProgressionSectionState();
+}
+
+class _ProgressionSectionState extends ConsumerState<_ProgressionSection> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final classes = ref.watch(classEntriesProvider).value;
+    final races = ref.watch(raceEntriesProvider).value ?? const <RaceEntry>[];
+
+    // Com o compêndio em voo não há como saber quantas vagas existem. A seção
+    // aparece sem resumo em vez de desaparecer: sumir e voltar faria a página
+    // pular sob o dedo.
+    final slots =
+        classes == null
+            ? const <LevelProgressionSlot>[]
+            : LevelProgressionChoices.forCharacter(
+              widget.character,
+              classes,
+              races: races,
+            );
+
+    final pending = slots.where((slot) => slot.isPending).length;
+    final used = slots.length - pending;
+
+    return Column(
+      children: [
+        const SizedBox(height: 16),
+        CollapsibleSection(
+          id: 'progression',
+          title: 'Talentos e progressão',
+          summary:
+              classes == null
+                  ? null
+                  : (slots.isEmpty
+                      ? 'Nenhuma escolha de nível ainda'
+                      : '$used de ${slots.length} escolhas usadas'),
+          badge:
+              pending == 0
+                  ? null
+                  : (pending == 1
+                      ? '1 escolha pendente'
+                      : '$pending escolhas pendentes'),
+          isExpanded: _expanded,
+          onExpansionChanged: (value) => setState(() => _expanded = value),
+          child: FeatsPanel(character: widget.character),
         ),
       ],
     );

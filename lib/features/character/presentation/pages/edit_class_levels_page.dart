@@ -13,6 +13,7 @@ import 'package:dnd_ficha_app/features/character/domain/services/hit_points_calc
 import 'package:dnd_ficha_app/features/character/domain/services/subclass_choice.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/spellcasting_type.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/level_progression_flow.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/subclass_choice_dialog.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/subclass_summary.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
@@ -414,6 +415,12 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
         abilityBonuses: await ref.read(
           featureAbilityBonusResolverProvider.future,
         ),
+        // E pelo mesmo motivo é por aqui que o incremento de uma vaga que
+        // deixou de existir devolve os pontos: um Guerreiro 4 que volta ao 3º
+        // nível perde a vaga do 4º, e os pontos dela têm de sair com ela.
+        progressionSlots: await ref.read(
+          progressionSlotResolverProvider.future,
+        ),
       );
 
       // As magias de domínio, juramento e patrono acompanham a subclasse e o
@@ -424,6 +431,21 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
       // a tela que a resolve lê o personagem do banco, então exigi-la antes do
       // salvamento deixaria o jogador sem caminho para decidir.
       await _promptRequiredClassMechanics();
+
+      // A escolha entre talento e incremento também: esta tela é o único
+      // caminho que adiciona nível SEM passar pela subida de nível da ficha —
+      // multiclasse novo, ajuste manual, importação corrigida à mão. Sem este
+      // encadeamento a vaga nasceria pendente e invisível.
+      //
+      // Reduzir nível não abre nada: a vaga deixa de existir e a escolha que
+      // havia nela é desfeita pelo caso de uso, então não sobra pendência.
+      if (mounted) {
+        await promptPendingLevelProgression(
+          context: context,
+          ref: ref,
+          characterId: widget.characterId,
+        );
+      }
 
       if (!mounted) return;
       Navigator.of(context).pop(true);
