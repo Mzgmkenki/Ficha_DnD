@@ -15,6 +15,7 @@ import 'package:dnd_ficha_app/features/character/presentation/pages/edit_profici
 import 'package:dnd_ficha_app/features/character/presentation/pages/manage_character_magic_items_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/manage_character_spells_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/manage_character_weapons_page.dart';
+import 'package:dnd_ficha_app/features/character/presentation/pages/manage_class_mechanic_page.dart';
 import 'package:dnd_ficha_app/features/character/presentation/pages/manage_eldritch_invocations_page.dart';
 import 'package:dnd_ficha_app/features/compendium/presentation/pages/spell_compendium_page.dart';
 import 'package:dnd_ficha_app/features/compendium/presentation/pages/spell_detail_page.dart';
@@ -32,6 +33,7 @@ class AppRoutes {
   static const String editArmorClass = '/character/armor-class';
   static const String editLanguages = '/character/languages';
   static const String eldritchInvocations = '/character/eldritch-invocations';
+  static const String classMechanic = '/character/class-mechanic';
   static const String editInitiative = '/character/initiative';
   static const String combatPanel = '/character/combat-panel';
   static const String editClassLevels = '/character/class-levels';
@@ -116,6 +118,15 @@ class AppRouter {
               ManageEldritchInvocationsPage(characterId: args.characterId),
         );
 
+      case AppRoutes.classMechanic:
+        return _withArgs<ManageClassMechanicArgs>(
+          settings,
+          (args) => ManageClassMechanicPage(
+            characterId: args.characterId,
+            mechanicId: args.mechanicId,
+          ),
+        );
+
       case AppRoutes.editArmorClass:
         return _withArgs<EditArmorClassArgs>(
           settings,
@@ -180,17 +191,11 @@ class AppRouter {
         );
 
       default:
-        return _errorRoute(
-          settings,
-          'Rota não encontrada: ${settings.name}',
-        );
+        return _errorRoute(settings, 'Rota não encontrada: ${settings.name}');
     }
   }
 
-  MaterialPageRoute<T> _page<T>(
-    RouteSettings settings,
-    WidgetBuilder builder,
-  ) {
+  MaterialPageRoute<T> _page<T>(RouteSettings settings, WidgetBuilder builder) {
     return MaterialPageRoute<T>(settings: settings, builder: builder);
   }
 
@@ -218,27 +223,28 @@ class AppRouter {
   Route<dynamic> _errorRoute(RouteSettings settings, String message) {
     return MaterialPageRoute<void>(
       settings: settings,
-      builder: (context) => Scaffold(
-        appBar: AppBar(title: const Text('Erro de navegação')),
-        body: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.wrong_location_outlined, size: 48),
-                const SizedBox(height: 16),
-                Text(message, textAlign: TextAlign.center),
-                const SizedBox(height: 24),
-                FilledButton(
-                  onPressed: () => Navigator.of(context).maybePop(),
-                  child: const Text('Voltar'),
+      builder:
+          (context) => Scaffold(
+            appBar: AppBar(title: const Text('Erro de navegação')),
+            body: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.wrong_location_outlined, size: 48),
+                    const SizedBox(height: 16),
+                    Text(message, textAlign: TextAlign.center),
+                    const SizedBox(height: 24),
+                    FilledButton(
+                      onPressed: () => Navigator.of(context).maybePop(),
+                      child: const Text('Voltar'),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
     );
   }
 }

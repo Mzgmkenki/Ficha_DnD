@@ -1,9 +1,11 @@
 import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
 import 'package:dnd_ficha_app/core/theme/app_colors.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
+import 'package:dnd_ficha_app/features/character/application/providers/class_mechanic_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/combat_panel_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/combat_panel_summary.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/class_mechanics_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/combat_actions_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/conditions_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/rest_and_resources_panel.dart';
@@ -79,10 +81,7 @@ class _CombatPanelPageState extends ConsumerState<CombatPanelPage>
         // O nome do personagem no subtítulo: o painel é aberto no meio de um
         // combate com várias fichas na mesa, e o título sozinho não diz de quem
         // é esta tela.
-        bottom: _TabsBar(
-          controller: _tabs,
-          character: characterAsync.value,
-        ),
+        bottom: _TabsBar(controller: _tabs, character: characterAsync.value),
       ),
       body: characterAsync.when(
         data: (character) {
@@ -91,13 +90,12 @@ class _CombatPanelPageState extends ConsumerState<CombatPanelPage>
           }
 
           return classesAsync.when(
-            data: (classes) => _Body(
-              tabs: _tabs,
-              character: character,
-              classes: classes,
-            ),
-            error: (error, stackTrace) =>
-                Center(child: Text('Erro ao carregar classes: $error')),
+            data:
+                (classes) =>
+                    _Body(tabs: _tabs, character: character, classes: classes),
+            error:
+                (error, stackTrace) =>
+                    Center(child: Text('Erro ao carregar classes: $error')),
             loading: () => const Center(child: CircularProgressIndicator()),
           );
         },
@@ -128,8 +126,7 @@ class _TabsBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     // Local porque campo público de widget não promove para não-nulo.
     final character = this.character;
-    final summary =
-        character == null ? null : CombatPanelSummary.of(character);
+    final summary = character == null ? null : CombatPanelSummary.of(character);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -144,9 +141,9 @@ class _TabsBar extends StatelessWidget implements PreferredSizeWidget {
                 character?.name ?? '',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.onDarkVariant,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: AppColors.onDarkVariant),
               ),
             ),
           ),
@@ -232,9 +229,9 @@ class _TabBadge extends StatelessWidget {
       child: Text(
         '$count',
         textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: AppColors.onRedContainer,
-            ),
+        style: Theme.of(
+          context,
+        ).textTheme.labelSmall?.copyWith(color: AppColors.onRedContainer),
       ),
     );
   }
@@ -267,12 +264,54 @@ class _Body extends StatelessWidget {
         ),
         _Tab(
           storageKey: 'combat_panel_resources',
-          child: RestAndResourcesPanel(
-            character: character,
-            classes: classes,
+          child: Column(
+            children: [
+              RestAndResourcesPanel(character: character, classes: classes),
+
+              // Os recursos de classe entram aqui, e não só na ficha, porque
+              // é em combate que o jogador liga a Forma Estelar, troca o
+              // Cutelo Elemental e gasta um Dado de Superioridade. Deixar
+              // isso só na ficha obrigaria a sair do painel no meio do turno.
+              _ClassMechanicsTab(character: character),
+            ],
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Os recursos de classe no Painel de combate.
+///
+/// Mesmo painel da ficha, pelo mesmo provider: as duas telas mostram o mesmo
+/// estado e os mesmos controles, então não há como divergirem. Só aparece para
+/// quem tem alguma mecânica alcançada.
+class _ClassMechanicsTab extends ConsumerWidget {
+  const _ClassMechanicsTab({required this.character});
+
+  final Character character;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final resolved = ref.watch(resolvedClassMechanicsProvider(character)).value;
+
+    if (resolved == null || resolved.visible.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Recursos de classe',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 8),
+          ClassMechanicsPanel(character: character),
+        ],
+      ),
     );
   }
 }

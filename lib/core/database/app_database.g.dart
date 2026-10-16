@@ -11415,6 +11415,691 @@ class CharacterEldritchInvocationsCompanion
   }
 }
 
+class $CharacterClassMechanicsTable extends CharacterClassMechanics
+    with TableInfo<$CharacterClassMechanicsTable, CharacterClassMechanic> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CharacterClassMechanicsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _localIdMeta = const VerificationMeta(
+    'localId',
+  );
+  @override
+  late final GeneratedColumn<int> localId = GeneratedColumn<int>(
+    'local_id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _characterIdMeta = const VerificationMeta(
+    'characterId',
+  );
+  @override
+  late final GeneratedColumn<String> characterId = GeneratedColumn<String>(
+    'character_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES characters (id)',
+    ),
+  );
+  static const VerificationMeta _mechanicIdMeta = const VerificationMeta(
+    'mechanicId',
+  );
+  @override
+  late final GeneratedColumn<String> mechanicId = GeneratedColumn<String>(
+    'mechanic_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _optionIdMeta = const VerificationMeta(
+    'optionId',
+  );
+  @override
+  late final GeneratedColumn<String> optionId = GeneratedColumn<String>(
+    'option_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isSelectedMeta = const VerificationMeta(
+    'isSelected',
+  );
+  @override
+  late final GeneratedColumn<bool> isSelected = GeneratedColumn<bool>(
+    'is_selected',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_selected" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _chosenAtLevelMeta = const VerificationMeta(
+    'chosenAtLevel',
+  );
+  @override
+  late final GeneratedColumn<int> chosenAtLevel = GeneratedColumn<int>(
+    'chosen_at_level',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _replacedOptionIdMeta = const VerificationMeta(
+    'replacedOptionId',
+  );
+  @override
+  late final GeneratedColumn<String> replacedOptionId = GeneratedColumn<String>(
+    'replaced_option_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _replacedAtLevelMeta = const VerificationMeta(
+    'replacedAtLevel',
+  );
+  @override
+  late final GeneratedColumn<int> replacedAtLevel = GeneratedColumn<int>(
+    'replaced_at_level',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _rollResultMeta = const VerificationMeta(
+    'rollResult',
+  );
+  @override
+  late final GeneratedColumn<String> rollResult = GeneratedColumn<String>(
+    'roll_result',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    localId,
+    characterId,
+    mechanicId,
+    optionId,
+    isSelected,
+    chosenAtLevel,
+    replacedOptionId,
+    replacedAtLevel,
+    rollResult,
+    note,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'character_class_mechanics';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CharacterClassMechanic> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('local_id')) {
+      context.handle(
+        _localIdMeta,
+        localId.isAcceptableOrUnknown(data['local_id']!, _localIdMeta),
+      );
+    }
+    if (data.containsKey('character_id')) {
+      context.handle(
+        _characterIdMeta,
+        characterId.isAcceptableOrUnknown(
+          data['character_id']!,
+          _characterIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_characterIdMeta);
+    }
+    if (data.containsKey('mechanic_id')) {
+      context.handle(
+        _mechanicIdMeta,
+        mechanicId.isAcceptableOrUnknown(data['mechanic_id']!, _mechanicIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_mechanicIdMeta);
+    }
+    if (data.containsKey('option_id')) {
+      context.handle(
+        _optionIdMeta,
+        optionId.isAcceptableOrUnknown(data['option_id']!, _optionIdMeta),
+      );
+    }
+    if (data.containsKey('is_selected')) {
+      context.handle(
+        _isSelectedMeta,
+        isSelected.isAcceptableOrUnknown(data['is_selected']!, _isSelectedMeta),
+      );
+    }
+    if (data.containsKey('chosen_at_level')) {
+      context.handle(
+        _chosenAtLevelMeta,
+        chosenAtLevel.isAcceptableOrUnknown(
+          data['chosen_at_level']!,
+          _chosenAtLevelMeta,
+        ),
+      );
+    }
+    if (data.containsKey('replaced_option_id')) {
+      context.handle(
+        _replacedOptionIdMeta,
+        replacedOptionId.isAcceptableOrUnknown(
+          data['replaced_option_id']!,
+          _replacedOptionIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('replaced_at_level')) {
+      context.handle(
+        _replacedAtLevelMeta,
+        replacedAtLevel.isAcceptableOrUnknown(
+          data['replaced_at_level']!,
+          _replacedAtLevelMeta,
+        ),
+      );
+    }
+    if (data.containsKey('roll_result')) {
+      context.handle(
+        _rollResultMeta,
+        rollResult.isAcceptableOrUnknown(data['roll_result']!, _rollResultMeta),
+      );
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {localId};
+  @override
+  CharacterClassMechanic map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CharacterClassMechanic(
+      localId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}local_id'],
+          )!,
+      characterId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}character_id'],
+          )!,
+      mechanicId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}mechanic_id'],
+          )!,
+      optionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}option_id'],
+      ),
+      isSelected:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.bool,
+            data['${effectivePrefix}is_selected'],
+          )!,
+      chosenAtLevel:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}chosen_at_level'],
+          )!,
+      replacedOptionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}replaced_option_id'],
+      ),
+      replacedAtLevel: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}replaced_at_level'],
+      ),
+      rollResult: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}roll_result'],
+      ),
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      ),
+    );
+  }
+
+  @override
+  $CharacterClassMechanicsTable createAlias(String alias) {
+    return $CharacterClassMechanicsTable(attachedDatabase, alias);
+  }
+}
+
+class CharacterClassMechanic extends DataClass
+    implements Insertable<CharacterClassMechanic> {
+  final int localId;
+  final String characterId;
+
+  /// Id da mecânica no catálogo (`fighter_battle_master.maneuvers`).
+  ///
+  /// Id, nunca nome: corrigir a tradução de "Manobras" no catálogo não pode
+  /// fazer o personagem perder as escolhas.
+  final String mechanicId;
+
+  /// Id da opção escolhida dentro da mecânica (`riposte`).
+  ///
+  /// Nulo é um registro de MECÂNICA, não de opção: é assim que o resultado de
+  /// uma tabela de rolagem fica guardado, porque o Surto de Magia Selvagem não
+  /// tem opção escolhida, tem resultado.
+  final String? optionId;
+
+  /// Se o registro conta contra o limite de escolhas.
+  ///
+  /// Falso no registro de mecânica. Sem esta coluna, o resultado "3" do Surto
+  /// Selvagem viraria uma manobra escolhida na contagem.
+  final bool isSelected;
+
+  /// Nível NA CLASSE responsável em que a opção foi escolhida.
+  ///
+  /// Zero é "não registrado", o que acontece em ficha importada sem este dado.
+  /// Serve para o histórico, não para a validação — quem valida usa o nível
+  /// atual.
+  final int chosenAtLevel;
+
+  /// Id da opção que esta substituiu, quando houve substituição.
+  ///
+  /// O histórico fica na própria linha porque a pergunta da ficha é sempre
+  /// "esta veio de uma troca?", e isso é um campo, não uma consulta a uma
+  /// tabela de eventos.
+  final String? replacedOptionId;
+
+  /// Nível em que a substituição aconteceu.
+  final int? replacedAtLevel;
+
+  /// Resultado registrado de uma tabela de rolagem, pelo id da LINHA.
+  ///
+  /// Id da linha, e não o número rolado, pela mesma razão de [optionId]: a
+  /// faixa `01–02` é apresentação e muda com a formatação.
+  final String? rollResult;
+
+  /// Anotação livre do jogador sobre esta escolha.
+  final String? note;
+  const CharacterClassMechanic({
+    required this.localId,
+    required this.characterId,
+    required this.mechanicId,
+    this.optionId,
+    required this.isSelected,
+    required this.chosenAtLevel,
+    this.replacedOptionId,
+    this.replacedAtLevel,
+    this.rollResult,
+    this.note,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['local_id'] = Variable<int>(localId);
+    map['character_id'] = Variable<String>(characterId);
+    map['mechanic_id'] = Variable<String>(mechanicId);
+    if (!nullToAbsent || optionId != null) {
+      map['option_id'] = Variable<String>(optionId);
+    }
+    map['is_selected'] = Variable<bool>(isSelected);
+    map['chosen_at_level'] = Variable<int>(chosenAtLevel);
+    if (!nullToAbsent || replacedOptionId != null) {
+      map['replaced_option_id'] = Variable<String>(replacedOptionId);
+    }
+    if (!nullToAbsent || replacedAtLevel != null) {
+      map['replaced_at_level'] = Variable<int>(replacedAtLevel);
+    }
+    if (!nullToAbsent || rollResult != null) {
+      map['roll_result'] = Variable<String>(rollResult);
+    }
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    return map;
+  }
+
+  CharacterClassMechanicsCompanion toCompanion(bool nullToAbsent) {
+    return CharacterClassMechanicsCompanion(
+      localId: Value(localId),
+      characterId: Value(characterId),
+      mechanicId: Value(mechanicId),
+      optionId:
+          optionId == null && nullToAbsent
+              ? const Value.absent()
+              : Value(optionId),
+      isSelected: Value(isSelected),
+      chosenAtLevel: Value(chosenAtLevel),
+      replacedOptionId:
+          replacedOptionId == null && nullToAbsent
+              ? const Value.absent()
+              : Value(replacedOptionId),
+      replacedAtLevel:
+          replacedAtLevel == null && nullToAbsent
+              ? const Value.absent()
+              : Value(replacedAtLevel),
+      rollResult:
+          rollResult == null && nullToAbsent
+              ? const Value.absent()
+              : Value(rollResult),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+    );
+  }
+
+  factory CharacterClassMechanic.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CharacterClassMechanic(
+      localId: serializer.fromJson<int>(json['localId']),
+      characterId: serializer.fromJson<String>(json['characterId']),
+      mechanicId: serializer.fromJson<String>(json['mechanicId']),
+      optionId: serializer.fromJson<String?>(json['optionId']),
+      isSelected: serializer.fromJson<bool>(json['isSelected']),
+      chosenAtLevel: serializer.fromJson<int>(json['chosenAtLevel']),
+      replacedOptionId: serializer.fromJson<String?>(json['replacedOptionId']),
+      replacedAtLevel: serializer.fromJson<int?>(json['replacedAtLevel']),
+      rollResult: serializer.fromJson<String?>(json['rollResult']),
+      note: serializer.fromJson<String?>(json['note']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'localId': serializer.toJson<int>(localId),
+      'characterId': serializer.toJson<String>(characterId),
+      'mechanicId': serializer.toJson<String>(mechanicId),
+      'optionId': serializer.toJson<String?>(optionId),
+      'isSelected': serializer.toJson<bool>(isSelected),
+      'chosenAtLevel': serializer.toJson<int>(chosenAtLevel),
+      'replacedOptionId': serializer.toJson<String?>(replacedOptionId),
+      'replacedAtLevel': serializer.toJson<int?>(replacedAtLevel),
+      'rollResult': serializer.toJson<String?>(rollResult),
+      'note': serializer.toJson<String?>(note),
+    };
+  }
+
+  CharacterClassMechanic copyWith({
+    int? localId,
+    String? characterId,
+    String? mechanicId,
+    Value<String?> optionId = const Value.absent(),
+    bool? isSelected,
+    int? chosenAtLevel,
+    Value<String?> replacedOptionId = const Value.absent(),
+    Value<int?> replacedAtLevel = const Value.absent(),
+    Value<String?> rollResult = const Value.absent(),
+    Value<String?> note = const Value.absent(),
+  }) => CharacterClassMechanic(
+    localId: localId ?? this.localId,
+    characterId: characterId ?? this.characterId,
+    mechanicId: mechanicId ?? this.mechanicId,
+    optionId: optionId.present ? optionId.value : this.optionId,
+    isSelected: isSelected ?? this.isSelected,
+    chosenAtLevel: chosenAtLevel ?? this.chosenAtLevel,
+    replacedOptionId:
+        replacedOptionId.present
+            ? replacedOptionId.value
+            : this.replacedOptionId,
+    replacedAtLevel:
+        replacedAtLevel.present ? replacedAtLevel.value : this.replacedAtLevel,
+    rollResult: rollResult.present ? rollResult.value : this.rollResult,
+    note: note.present ? note.value : this.note,
+  );
+  CharacterClassMechanic copyWithCompanion(
+    CharacterClassMechanicsCompanion data,
+  ) {
+    return CharacterClassMechanic(
+      localId: data.localId.present ? data.localId.value : this.localId,
+      characterId:
+          data.characterId.present ? data.characterId.value : this.characterId,
+      mechanicId:
+          data.mechanicId.present ? data.mechanicId.value : this.mechanicId,
+      optionId: data.optionId.present ? data.optionId.value : this.optionId,
+      isSelected:
+          data.isSelected.present ? data.isSelected.value : this.isSelected,
+      chosenAtLevel:
+          data.chosenAtLevel.present
+              ? data.chosenAtLevel.value
+              : this.chosenAtLevel,
+      replacedOptionId:
+          data.replacedOptionId.present
+              ? data.replacedOptionId.value
+              : this.replacedOptionId,
+      replacedAtLevel:
+          data.replacedAtLevel.present
+              ? data.replacedAtLevel.value
+              : this.replacedAtLevel,
+      rollResult:
+          data.rollResult.present ? data.rollResult.value : this.rollResult,
+      note: data.note.present ? data.note.value : this.note,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CharacterClassMechanic(')
+          ..write('localId: $localId, ')
+          ..write('characterId: $characterId, ')
+          ..write('mechanicId: $mechanicId, ')
+          ..write('optionId: $optionId, ')
+          ..write('isSelected: $isSelected, ')
+          ..write('chosenAtLevel: $chosenAtLevel, ')
+          ..write('replacedOptionId: $replacedOptionId, ')
+          ..write('replacedAtLevel: $replacedAtLevel, ')
+          ..write('rollResult: $rollResult, ')
+          ..write('note: $note')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    localId,
+    characterId,
+    mechanicId,
+    optionId,
+    isSelected,
+    chosenAtLevel,
+    replacedOptionId,
+    replacedAtLevel,
+    rollResult,
+    note,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CharacterClassMechanic &&
+          other.localId == this.localId &&
+          other.characterId == this.characterId &&
+          other.mechanicId == this.mechanicId &&
+          other.optionId == this.optionId &&
+          other.isSelected == this.isSelected &&
+          other.chosenAtLevel == this.chosenAtLevel &&
+          other.replacedOptionId == this.replacedOptionId &&
+          other.replacedAtLevel == this.replacedAtLevel &&
+          other.rollResult == this.rollResult &&
+          other.note == this.note);
+}
+
+class CharacterClassMechanicsCompanion
+    extends UpdateCompanion<CharacterClassMechanic> {
+  final Value<int> localId;
+  final Value<String> characterId;
+  final Value<String> mechanicId;
+  final Value<String?> optionId;
+  final Value<bool> isSelected;
+  final Value<int> chosenAtLevel;
+  final Value<String?> replacedOptionId;
+  final Value<int?> replacedAtLevel;
+  final Value<String?> rollResult;
+  final Value<String?> note;
+  const CharacterClassMechanicsCompanion({
+    this.localId = const Value.absent(),
+    this.characterId = const Value.absent(),
+    this.mechanicId = const Value.absent(),
+    this.optionId = const Value.absent(),
+    this.isSelected = const Value.absent(),
+    this.chosenAtLevel = const Value.absent(),
+    this.replacedOptionId = const Value.absent(),
+    this.replacedAtLevel = const Value.absent(),
+    this.rollResult = const Value.absent(),
+    this.note = const Value.absent(),
+  });
+  CharacterClassMechanicsCompanion.insert({
+    this.localId = const Value.absent(),
+    required String characterId,
+    required String mechanicId,
+    this.optionId = const Value.absent(),
+    this.isSelected = const Value.absent(),
+    this.chosenAtLevel = const Value.absent(),
+    this.replacedOptionId = const Value.absent(),
+    this.replacedAtLevel = const Value.absent(),
+    this.rollResult = const Value.absent(),
+    this.note = const Value.absent(),
+  }) : characterId = Value(characterId),
+       mechanicId = Value(mechanicId);
+  static Insertable<CharacterClassMechanic> custom({
+    Expression<int>? localId,
+    Expression<String>? characterId,
+    Expression<String>? mechanicId,
+    Expression<String>? optionId,
+    Expression<bool>? isSelected,
+    Expression<int>? chosenAtLevel,
+    Expression<String>? replacedOptionId,
+    Expression<int>? replacedAtLevel,
+    Expression<String>? rollResult,
+    Expression<String>? note,
+  }) {
+    return RawValuesInsertable({
+      if (localId != null) 'local_id': localId,
+      if (characterId != null) 'character_id': characterId,
+      if (mechanicId != null) 'mechanic_id': mechanicId,
+      if (optionId != null) 'option_id': optionId,
+      if (isSelected != null) 'is_selected': isSelected,
+      if (chosenAtLevel != null) 'chosen_at_level': chosenAtLevel,
+      if (replacedOptionId != null) 'replaced_option_id': replacedOptionId,
+      if (replacedAtLevel != null) 'replaced_at_level': replacedAtLevel,
+      if (rollResult != null) 'roll_result': rollResult,
+      if (note != null) 'note': note,
+    });
+  }
+
+  CharacterClassMechanicsCompanion copyWith({
+    Value<int>? localId,
+    Value<String>? characterId,
+    Value<String>? mechanicId,
+    Value<String?>? optionId,
+    Value<bool>? isSelected,
+    Value<int>? chosenAtLevel,
+    Value<String?>? replacedOptionId,
+    Value<int?>? replacedAtLevel,
+    Value<String?>? rollResult,
+    Value<String?>? note,
+  }) {
+    return CharacterClassMechanicsCompanion(
+      localId: localId ?? this.localId,
+      characterId: characterId ?? this.characterId,
+      mechanicId: mechanicId ?? this.mechanicId,
+      optionId: optionId ?? this.optionId,
+      isSelected: isSelected ?? this.isSelected,
+      chosenAtLevel: chosenAtLevel ?? this.chosenAtLevel,
+      replacedOptionId: replacedOptionId ?? this.replacedOptionId,
+      replacedAtLevel: replacedAtLevel ?? this.replacedAtLevel,
+      rollResult: rollResult ?? this.rollResult,
+      note: note ?? this.note,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (localId.present) {
+      map['local_id'] = Variable<int>(localId.value);
+    }
+    if (characterId.present) {
+      map['character_id'] = Variable<String>(characterId.value);
+    }
+    if (mechanicId.present) {
+      map['mechanic_id'] = Variable<String>(mechanicId.value);
+    }
+    if (optionId.present) {
+      map['option_id'] = Variable<String>(optionId.value);
+    }
+    if (isSelected.present) {
+      map['is_selected'] = Variable<bool>(isSelected.value);
+    }
+    if (chosenAtLevel.present) {
+      map['chosen_at_level'] = Variable<int>(chosenAtLevel.value);
+    }
+    if (replacedOptionId.present) {
+      map['replaced_option_id'] = Variable<String>(replacedOptionId.value);
+    }
+    if (replacedAtLevel.present) {
+      map['replaced_at_level'] = Variable<int>(replacedAtLevel.value);
+    }
+    if (rollResult.present) {
+      map['roll_result'] = Variable<String>(rollResult.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CharacterClassMechanicsCompanion(')
+          ..write('localId: $localId, ')
+          ..write('characterId: $characterId, ')
+          ..write('mechanicId: $mechanicId, ')
+          ..write('optionId: $optionId, ')
+          ..write('isSelected: $isSelected, ')
+          ..write('chosenAtLevel: $chosenAtLevel, ')
+          ..write('replacedOptionId: $replacedOptionId, ')
+          ..write('replacedAtLevel: $replacedAtLevel, ')
+          ..write('rollResult: $rollResult, ')
+          ..write('note: $note')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $CharacterInventoryItemsTable extends CharacterInventoryItems
     with TableInfo<$CharacterInventoryItemsTable, CharacterInventoryItem> {
   @override
@@ -13908,6 +14593,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $CharacterLanguagesTable(this);
   late final $CharacterEldritchInvocationsTable characterEldritchInvocations =
       $CharacterEldritchInvocationsTable(this);
+  late final $CharacterClassMechanicsTable characterClassMechanics =
+      $CharacterClassMechanicsTable(this);
   late final $CharacterInventoryItemsTable characterInventoryItems =
       $CharacterInventoryItemsTable(this);
   late final $CharacterCurrencyGrantsTable characterCurrencyGrants =
@@ -13930,6 +14617,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     characterFeatureStates,
     characterLanguages,
     characterEldritchInvocations,
+    characterClassMechanics,
     characterInventoryItems,
     characterCurrencyGrants,
     classEntries,
@@ -14371,6 +15059,34 @@ final class $$CharactersTableReferences
 
     final cache = $_typedResult.readTableOrNull(
       _characterEldritchInvocationsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $CharacterClassMechanicsTable,
+    List<CharacterClassMechanic>
+  >
+  _characterClassMechanicsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.characterClassMechanics,
+        aliasName: $_aliasNameGenerator(
+          db.characters.id,
+          db.characterClassMechanics.characterId,
+        ),
+      );
+
+  $$CharacterClassMechanicsTableProcessedTableManager
+  get characterClassMechanicsRefs {
+    final manager = $$CharacterClassMechanicsTableTableManager(
+      $_db,
+      $_db.characterClassMechanics,
+    ).filter((f) => f.characterId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _characterClassMechanicsRefsTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -15120,6 +15836,32 @@ class $$CharactersTableFilterComposer
               }) => $$CharacterEldritchInvocationsTableFilterComposer(
                 $db: $db,
                 $table: $db.characterEldritchInvocations,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<bool> characterClassMechanicsRefs(
+    Expression<bool> Function($$CharacterClassMechanicsTableFilterComposer f) f,
+  ) {
+    final $$CharacterClassMechanicsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.characterClassMechanics,
+          getReferencedColumn: (t) => t.characterId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CharacterClassMechanicsTableFilterComposer(
+                $db: $db,
+                $table: $db.characterClassMechanics,
                 $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
                 joinBuilder: joinBuilder,
                 $removeJoinBuilderFromRootComposer:
@@ -16289,6 +17031,33 @@ class $$CharactersTableAnnotationComposer
     return f(composer);
   }
 
+  Expression<T> characterClassMechanicsRefs<T extends Object>(
+    Expression<T> Function($$CharacterClassMechanicsTableAnnotationComposer a)
+    f,
+  ) {
+    final $$CharacterClassMechanicsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.characterClassMechanics,
+          getReferencedColumn: (t) => t.characterId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CharacterClassMechanicsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.characterClassMechanics,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
   Expression<T> characterInventoryItemsRefs<T extends Object>(
     Expression<T> Function($$CharacterInventoryItemsTableAnnotationComposer a)
     f,
@@ -16368,6 +17137,7 @@ class $$CharactersTableTableManager
             bool characterFeatureStatesRefs,
             bool characterLanguagesRefs,
             bool characterEldritchInvocationsRefs,
+            bool characterClassMechanicsRefs,
             bool characterInventoryItemsRefs,
             bool characterCurrencyGrantsRefs,
           })
@@ -16758,6 +17528,7 @@ class $$CharactersTableTableManager
             characterFeatureStatesRefs = false,
             characterLanguagesRefs = false,
             characterEldritchInvocationsRefs = false,
+            characterClassMechanicsRefs = false,
             characterInventoryItemsRefs = false,
             characterCurrencyGrantsRefs = false,
           }) {
@@ -16776,6 +17547,7 @@ class $$CharactersTableTableManager
                 if (characterLanguagesRefs) db.characterLanguages,
                 if (characterEldritchInvocationsRefs)
                   db.characterEldritchInvocations,
+                if (characterClassMechanicsRefs) db.characterClassMechanics,
                 if (characterInventoryItemsRefs) db.characterInventoryItems,
                 if (characterCurrencyGrantsRefs) db.characterCurrencyGrants,
               ],
@@ -17002,6 +17774,28 @@ class $$CharactersTableTableManager
                           ),
                       typedResults: items,
                     ),
+                  if (characterClassMechanicsRefs)
+                    await $_getPrefetchedData<
+                      Character,
+                      $CharactersTable,
+                      CharacterClassMechanic
+                    >(
+                      currentTable: table,
+                      referencedTable: $$CharactersTableReferences
+                          ._characterClassMechanicsRefsTable(db),
+                      managerFromTypedResult:
+                          (p0) =>
+                              $$CharactersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).characterClassMechanicsRefs,
+                      referencedItemsForCurrentItem:
+                          (item, referencedItems) => referencedItems.where(
+                            (e) => e.characterId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
                   if (characterInventoryItemsRefs)
                     await $_getPrefetchedData<
                       Character,
@@ -17077,6 +17871,7 @@ typedef $$CharactersTableProcessedTableManager =
         bool characterFeatureStatesRefs,
         bool characterLanguagesRefs,
         bool characterEldritchInvocationsRefs,
+        bool characterClassMechanicsRefs,
         bool characterInventoryItemsRefs,
         bool characterCurrencyGrantsRefs,
       })
@@ -21831,6 +22626,456 @@ typedef $$CharacterEldritchInvocationsTableProcessedTableManager =
       CharacterEldritchInvocation,
       PrefetchHooks Function({bool characterId})
     >;
+typedef $$CharacterClassMechanicsTableCreateCompanionBuilder =
+    CharacterClassMechanicsCompanion Function({
+      Value<int> localId,
+      required String characterId,
+      required String mechanicId,
+      Value<String?> optionId,
+      Value<bool> isSelected,
+      Value<int> chosenAtLevel,
+      Value<String?> replacedOptionId,
+      Value<int?> replacedAtLevel,
+      Value<String?> rollResult,
+      Value<String?> note,
+    });
+typedef $$CharacterClassMechanicsTableUpdateCompanionBuilder =
+    CharacterClassMechanicsCompanion Function({
+      Value<int> localId,
+      Value<String> characterId,
+      Value<String> mechanicId,
+      Value<String?> optionId,
+      Value<bool> isSelected,
+      Value<int> chosenAtLevel,
+      Value<String?> replacedOptionId,
+      Value<int?> replacedAtLevel,
+      Value<String?> rollResult,
+      Value<String?> note,
+    });
+
+final class $$CharacterClassMechanicsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $CharacterClassMechanicsTable,
+          CharacterClassMechanic
+        > {
+  $$CharacterClassMechanicsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $CharactersTable _characterIdTable(_$AppDatabase db) =>
+      db.characters.createAlias(
+        $_aliasNameGenerator(
+          db.characterClassMechanics.characterId,
+          db.characters.id,
+        ),
+      );
+
+  $$CharactersTableProcessedTableManager get characterId {
+    final $_column = $_itemColumn<String>('character_id')!;
+
+    final manager = $$CharactersTableTableManager(
+      $_db,
+      $_db.characters,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_characterIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$CharacterClassMechanicsTableFilterComposer
+    extends Composer<_$AppDatabase, $CharacterClassMechanicsTable> {
+  $$CharacterClassMechanicsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get mechanicId => $composableBuilder(
+    column: $table.mechanicId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get optionId => $composableBuilder(
+    column: $table.optionId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isSelected => $composableBuilder(
+    column: $table.isSelected,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get chosenAtLevel => $composableBuilder(
+    column: $table.chosenAtLevel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get replacedOptionId => $composableBuilder(
+    column: $table.replacedOptionId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get replacedAtLevel => $composableBuilder(
+    column: $table.replacedAtLevel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get rollResult => $composableBuilder(
+    column: $table.rollResult,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CharactersTableFilterComposer get characterId {
+    final $$CharactersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableFilterComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterClassMechanicsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CharacterClassMechanicsTable> {
+  $$CharacterClassMechanicsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get localId => $composableBuilder(
+    column: $table.localId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get mechanicId => $composableBuilder(
+    column: $table.mechanicId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get optionId => $composableBuilder(
+    column: $table.optionId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isSelected => $composableBuilder(
+    column: $table.isSelected,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get chosenAtLevel => $composableBuilder(
+    column: $table.chosenAtLevel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get replacedOptionId => $composableBuilder(
+    column: $table.replacedOptionId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get replacedAtLevel => $composableBuilder(
+    column: $table.replacedAtLevel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get rollResult => $composableBuilder(
+    column: $table.rollResult,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CharactersTableOrderingComposer get characterId {
+    final $$CharactersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableOrderingComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterClassMechanicsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CharacterClassMechanicsTable> {
+  $$CharacterClassMechanicsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get localId =>
+      $composableBuilder(column: $table.localId, builder: (column) => column);
+
+  GeneratedColumn<String> get mechanicId => $composableBuilder(
+    column: $table.mechanicId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get optionId =>
+      $composableBuilder(column: $table.optionId, builder: (column) => column);
+
+  GeneratedColumn<bool> get isSelected => $composableBuilder(
+    column: $table.isSelected,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get chosenAtLevel => $composableBuilder(
+    column: $table.chosenAtLevel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get replacedOptionId => $composableBuilder(
+    column: $table.replacedOptionId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get replacedAtLevel => $composableBuilder(
+    column: $table.replacedAtLevel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get rollResult => $composableBuilder(
+    column: $table.rollResult,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  $$CharactersTableAnnotationComposer get characterId {
+    final $$CharactersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CharacterClassMechanicsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CharacterClassMechanicsTable,
+          CharacterClassMechanic,
+          $$CharacterClassMechanicsTableFilterComposer,
+          $$CharacterClassMechanicsTableOrderingComposer,
+          $$CharacterClassMechanicsTableAnnotationComposer,
+          $$CharacterClassMechanicsTableCreateCompanionBuilder,
+          $$CharacterClassMechanicsTableUpdateCompanionBuilder,
+          (CharacterClassMechanic, $$CharacterClassMechanicsTableReferences),
+          CharacterClassMechanic,
+          PrefetchHooks Function({bool characterId})
+        > {
+  $$CharacterClassMechanicsTableTableManager(
+    _$AppDatabase db,
+    $CharacterClassMechanicsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer:
+              () => $$CharacterClassMechanicsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer:
+              () => $$CharacterClassMechanicsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer:
+              () => $$CharacterClassMechanicsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> localId = const Value.absent(),
+                Value<String> characterId = const Value.absent(),
+                Value<String> mechanicId = const Value.absent(),
+                Value<String?> optionId = const Value.absent(),
+                Value<bool> isSelected = const Value.absent(),
+                Value<int> chosenAtLevel = const Value.absent(),
+                Value<String?> replacedOptionId = const Value.absent(),
+                Value<int?> replacedAtLevel = const Value.absent(),
+                Value<String?> rollResult = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+              }) => CharacterClassMechanicsCompanion(
+                localId: localId,
+                characterId: characterId,
+                mechanicId: mechanicId,
+                optionId: optionId,
+                isSelected: isSelected,
+                chosenAtLevel: chosenAtLevel,
+                replacedOptionId: replacedOptionId,
+                replacedAtLevel: replacedAtLevel,
+                rollResult: rollResult,
+                note: note,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> localId = const Value.absent(),
+                required String characterId,
+                required String mechanicId,
+                Value<String?> optionId = const Value.absent(),
+                Value<bool> isSelected = const Value.absent(),
+                Value<int> chosenAtLevel = const Value.absent(),
+                Value<String?> replacedOptionId = const Value.absent(),
+                Value<int?> replacedAtLevel = const Value.absent(),
+                Value<String?> rollResult = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+              }) => CharacterClassMechanicsCompanion.insert(
+                localId: localId,
+                characterId: characterId,
+                mechanicId: mechanicId,
+                optionId: optionId,
+                isSelected: isSelected,
+                chosenAtLevel: chosenAtLevel,
+                replacedOptionId: replacedOptionId,
+                replacedAtLevel: replacedAtLevel,
+                rollResult: rollResult,
+                note: note,
+              ),
+          withReferenceMapper:
+              (p0) =>
+                  p0
+                      .map(
+                        (e) => (
+                          e.readTable(table),
+                          $$CharacterClassMechanicsTableReferences(
+                            db,
+                            table,
+                            e,
+                          ),
+                        ),
+                      )
+                      .toList(),
+          prefetchHooksCallback: ({characterId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                T extends TableManagerState<
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic
+                >
+              >(state) {
+                if (characterId) {
+                  state =
+                      state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.characterId,
+                            referencedTable:
+                                $$CharacterClassMechanicsTableReferences
+                                    ._characterIdTable(db),
+                            referencedColumn:
+                                $$CharacterClassMechanicsTableReferences
+                                    ._characterIdTable(db)
+                                    .id,
+                          )
+                          as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$CharacterClassMechanicsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CharacterClassMechanicsTable,
+      CharacterClassMechanic,
+      $$CharacterClassMechanicsTableFilterComposer,
+      $$CharacterClassMechanicsTableOrderingComposer,
+      $$CharacterClassMechanicsTableAnnotationComposer,
+      $$CharacterClassMechanicsTableCreateCompanionBuilder,
+      $$CharacterClassMechanicsTableUpdateCompanionBuilder,
+      (CharacterClassMechanic, $$CharacterClassMechanicsTableReferences),
+      CharacterClassMechanic,
+      PrefetchHooks Function({bool characterId})
+    >;
 typedef $$CharacterInventoryItemsTableCreateCompanionBuilder =
     CharacterInventoryItemsCompanion Function({
       Value<int> localId,
@@ -23263,6 +24508,11 @@ class $AppDatabaseManager {
       $$CharacterEldritchInvocationsTableTableManager(
         _db,
         _db.characterEldritchInvocations,
+      );
+  $$CharacterClassMechanicsTableTableManager get characterClassMechanics =>
+      $$CharacterClassMechanicsTableTableManager(
+        _db,
+        _db.characterClassMechanics,
       );
   $$CharacterInventoryItemsTableTableManager get characterInventoryItems =>
       $$CharacterInventoryItemsTableTableManager(

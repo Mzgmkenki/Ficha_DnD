@@ -8,6 +8,7 @@ import 'package:dnd_ficha_app/core/storage/portrait_storage.dart';
 import 'package:dnd_ficha_app/core/theme/app_colors.dart';
 import 'package:dnd_ficha_app/core/utils/distance_format.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
+import 'package:dnd_ficha_app/features/character/application/providers/class_mechanic_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/background_personality_choice.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
@@ -25,6 +26,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/saving_throw_pr
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiency_grant.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/background_grants.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/class_equipment_grants.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/class_mechanic_resolver.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/language_resolver.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/language_selection.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/language_sources.dart';
@@ -1134,6 +1136,14 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
       }
 
       if (!mounted) return;
+
+      // Escolhas de classe do 1º nível, quando houver: Bênçãos do
+      // Conhecimento, Ancestral Dracônico, Afinidade Divina, Fase Lunar.
+      // A etapa só aparece com pendência — classe sem escolha no 1º nível não
+      // mostra tela vazia.
+      await _promptClassMechanics(id);
+
+      if (!mounted) return;
       await AppNavigator.replaceWithCharacterSheet(context, characterId: id);
     } catch (error, stackTrace) {
       debugPrint('ERRO AO CRIAR PERSONAGEM: $error');
@@ -1182,6 +1192,81 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
           ),
         );
       }
+    }
+  }
+
+  /// Oferece as escolhas de classe do 1º nível, quando a classe tiver alguma.
+  ///
+  /// Lê o personagem recém-gravado em vez de montar um em memória: o
+  /// resolvedor precisa do agregado como ele ficou no banco, e é esse o estado
+  /// que a tela de gerenciamento vai editar em seguida.
+  ///
+  /// Não interrompe a criação se falhar, pelo mesmo motivo de
+  /// [_syncSubclassSpells]: o personagem já existe, e a pendência continua
+  /// marcada na ficha.
+  Future<void> _promptClassMechanics(String characterId) async {
+    try {
+      final character = await ref
+          .read(characterRepositoryProvider)
+          .findById(characterId);
+
+      if (character == null || !mounted) return;
+
+      final pending = await ref.read(
+        pendingClassMechanicsProvider(character).future,
+      );
+
+      // Sem pendência não há etapa: o requisito é explícito em não apresentar
+      // etapa vazia.
+      if (pending.isEmpty || !mounted) return;
+
+      final chosen = await showDialog<ResolvedClassMechanic>(
+        context: context,
+        builder: (dialogContext) {
+          return AlertDialog(
+            title: const Text('Escolhas de classe'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('A sua classe já pede decisões no 1º nível:'),
+                const SizedBox(height: 8),
+                for (final mechanic in pending)
+                  ListTile(
+                    key: ValueKey('creation-mechanic-${mechanic.id}'),
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(mechanic.name),
+                    subtitle: Text(
+                      '${mechanic.originLabel} • '
+                      '${mechanic.freeSlots == 1 ? '1 escolha' : '${mechanic.freeSlots} escolhas'}'
+                      ' em aberto',
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => Navigator.of(dialogContext).pop(mechanic),
+                  ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text('Depois'),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (chosen == null || !mounted) return;
+
+      await AppNavigator.toManageClassMechanic(
+        context,
+        characterId: characterId,
+        mechanicId: chosen.id,
+      );
+    } catch (error, stackTrace) {
+      debugPrint('Falha ao resolver escolhas de classe: $error');
+      debugPrintStack(stackTrace: stackTrace);
     }
   }
 
@@ -1975,15 +2060,10 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
       subrace: subrace,
       // O antecedente customizável não declara idioma: o jogador escreve as
       // características dele à mão, e inventar vagas ali daria idioma de graça.
-      background: background != null && !background.isCustom
-          ? background
-          : null,
+      background:
+          background != null && !background.isCustom ? background : null,
       classes: [
-        LanguageClassSource(
-          entry: classEntry,
-          level: 1,
-          subclass: subclass,
-        ),
+        LanguageClassSource(entry: classEntry, level: 1, subclass: subclass),
       ],
       classFeatures: classFeatures,
     );

@@ -1,0 +1,3307 @@
+[
+  {
+    "id": "artificer_alchemist.experimental_elixir",
+    "name": "Elixir Experimental",
+    "class_id": "artificer",
+    "subclass_id": "artificer_alchemist",
+    "level": 3,
+    "feature": "Elixir Experimental",
+    "source": "erlw",
+    "edition": "2014",
+    "summary": "Tabela d6: elixir aleatório no descanso longo ou efeito escolhido gastando espaço.",
+    "kinds": ["roll_table", "per_use_choice", "limited_resource"],
+    "display": "resources",
+    "activation": "Ação para beber. Ação e suprimentos de alquimista para criar um elixir escolhido.",
+    "duration": "Cada elixir dura até o próximo descanso longo.",
+    "recovery": "Os elixires gratuitos voltam ao fim de um descanso longo.",
+    "action": {
+      "type": "action",
+      "uses": 1,
+      "recharge": "long",
+      "cost": "Gratuito no descanso longo; 1 espaço de magia de 1º círculo ou superior para escolher o efeito"
+    },
+    "progression": [
+      { "level": 3, "uses": 1, "note": "1 elixir gratuito por descanso longo" },
+      { "level": 6, "uses": 2, "note": "2 elixires gratuitos por descanso longo" },
+      { "level": 15, "uses": 3, "note": "3 elixires gratuitos por descanso longo" }
+    ],
+    "table": {
+      "id": "artificer_alchemist.experimental_elixir.table",
+      "title": "Elixir Experimental (d6)",
+      "dice": "d6",
+      "columns": ["d6", "Elixir", "Efeito"],
+      "rows": [
+        {
+          "id": "1",
+          "label": "1",
+          "min": 1,
+          "max": 1,
+          "option_id": "healing",
+          "values": ["Cura", "Quem bebe recupera 2d4 + modificador de Inteligência pontos de vida."]
+        },
+        {
+          "id": "2",
+          "label": "2",
+          "min": 2,
+          "max": 2,
+          "option_id": "swiftness",
+          "values": ["Rapidez", "Deslocamento de caminhada aumenta em 3 m por 1 hora."]
+        },
+        {
+          "id": "3",
+          "label": "3",
+          "min": 3,
+          "max": 3,
+          "option_id": "resilience",
+          "values": ["Resiliência", "+1 de CA por 10 minutos."]
+        },
+        {
+          "id": "4",
+          "label": "4",
+          "min": 4,
+          "max": 4,
+          "option_id": "boldness",
+          "values": ["Ousadia", "Por 1 minuto, 1d4 extra em cada jogada de ataque e teste de resistência."]
+        },
+        {
+          "id": "5",
+          "label": "5",
+          "min": 5,
+          "max": 5,
+          "option_id": "flight",
+          "values": ["Voo", "Deslocamento de voo 3 m por 10 minutos."]
+        },
+        {
+          "id": "6",
+          "label": "6",
+          "min": 6,
+          "max": 6,
+          "option_id": "transformation",
+          "values": ["Transformação", "Efeito de Alterar-se por 10 minutos, sem exigir concentração; a opção da magia é escolhida ao beber."]
+        }
+      ],
+      "notes": [
+        "No descanso longo o elixir é aleatório. Gastando um espaço de magia, o efeito é escolhido."
+      ]
+    },
+    "options": [
+      {
+        "id": "healing",
+        "name": "Cura",
+        "summary": "2d4 + Inteligência pontos de vida.",
+        "description": "Quem bebe o elixir recupera 2d4 + seu modificador de Inteligência pontos de vida.",
+        "effects": [
+          {
+            "id": "artificer_alchemist.elixir.healing",
+            "path": "healing.flat",
+            "operation": "add",
+            "display": "resources",
+            "label": "Cura do elixir",
+            "note": "2d4 + modificador de Inteligência pontos de vida a quem bebe."
+          }
+        ]
+      },
+      {
+        "id": "swiftness",
+        "name": "Rapidez",
+        "summary": "+3 m de deslocamento por 1 hora.",
+        "description": "O deslocamento de caminhada de quem bebe aumenta em 3 m durante 1 hora.",
+        "mode": true,
+        "duration": "1 hora",
+        "effects": [
+          {
+            "id": "artificer_alchemist.elixir.swiftness",
+            "path": "speed.walk",
+            "operation": "add",
+            "formula": "3",
+            "display": "features",
+            "label": "Deslocamento do elixir",
+            "note": "+3 m de deslocamento de caminhada enquanto o elixir durar."
+          }
+        ]
+      },
+      {
+        "id": "resilience",
+        "name": "Resiliência",
+        "summary": "+1 de CA por 10 minutos.",
+        "description": "Quem bebe recebe +1 de CA durante 10 minutos.",
+        "mode": true,
+        "duration": "10 minutos",
+        "effects": [
+          {
+            "id": "artificer_alchemist.elixir.resilience",
+            "path": "ac.bonus",
+            "operation": "add",
+            "formula": "1",
+            "stacking": "sum",
+            "display": "armor_class",
+            "label": "Elixir de Resiliência"
+          }
+        ]
+      },
+      {
+        "id": "boldness",
+        "name": "Ousadia",
+        "summary": "1d4 extra em ataques e resistências por 1 minuto.",
+        "description": "Durante 1 minuto, quem bebe rola 1d4 extra em cada jogada de ataque e em cada teste de resistência.",
+        "mode": true,
+        "duration": "1 minuto",
+        "effects": [
+          {
+            "id": "artificer_alchemist.elixir.boldness",
+            "path": "attack.bonus_die",
+            "operation": "add",
+            "display": "attacks",
+            "label": "Elixir de Ousadia",
+            "note": "1d4 extra em cada jogada de ataque e teste de resistência por 1 minuto."
+          }
+        ]
+      },
+      {
+        "id": "flight",
+        "name": "Voo",
+        "summary": "Voo 3 m por 10 minutos.",
+        "description": "Quem bebe recebe deslocamento de voo de 3 m durante 10 minutos.",
+        "mode": true,
+        "duration": "10 minutos",
+        "effects": [
+          {
+            "id": "artificer_alchemist.elixir.flight",
+            "path": "speed.fly",
+            "operation": "max",
+            "formula": "3",
+            "display": "features",
+            "label": "Voo do elixir",
+            "note": "Deslocamento de voo 3 m por 10 minutos."
+          }
+        ]
+      },
+      {
+        "id": "transformation",
+        "name": "Transformação",
+        "summary": "Alterar-se por 10 minutos, sem concentração.",
+        "description": "Quem bebe recebe o efeito da magia Alterar-se por 10 minutos, sem precisar manter concentração. A opção da magia é escolhida ao beber.",
+        "mode": true,
+        "duration": "10 minutos",
+        "effects": [
+          {
+            "id": "artificer_alchemist.elixir.transformation",
+            "path": "spell.effect",
+            "operation": "grant",
+            "display": "spellcasting",
+            "label": "Alterar-se pelo elixir",
+            "note": "Efeito de Alterar-se por 10 minutos, sem concentração. Escolha a opção da magia ao beber."
+          }
+        ]
+      }
+    ],
+    "tags": ["erlw", "alquimia", "tabela"],
+    "note": "A quantidade de elixires gratuitos acompanha o nível de Artífice. Criar um elixir escolhido gasta espaço de magia e não consome os usos gratuitos."
+  },
+  {
+    "id": "artificer_artillerist.eldritch_cannon",
+    "name": "Canhão Místico",
+    "class_id": "artificer",
+    "subclass_id": "artificer_artillerist",
+    "level": 3,
+    "feature": "Canhão Místico",
+    "source": "erlw",
+    "edition": "2014",
+    "summary": "Lança-chamas, Balista de Força ou Protetor. No 15º nível podem existir dois.",
+    "kinds": ["per_use_choice", "activatable_mode", "limited_resource"],
+    "display": "combat_actions",
+    "activation": "Ação para criar. Ação bônus para ativar, estando a até 18 m.",
+    "duration": "1 hora, ou até cair a 0 PV, ser dispensado com uma ação ou você morrer.",
+    "recovery": "A criação gratuita volta ao fim de um descanso longo.",
+    "max_active": 1,
+    "action": {
+      "type": "action",
+      "uses": 1,
+      "recharge": "long",
+      "cost": "Gratuito uma vez por descanso longo; depois exige um espaço de magia"
+    },
+    "progression": [
+      { "level": 3, "max_active": 1, "note": "Dano de 2d8 e um canhão por vez" },
+      { "level": 9, "note": "Lança-chamas e Balista passam a 3d8; pode detonar o canhão por 3d8 de força em 6 m" },
+      { "level": 15, "max_active": 2, "note": "Dois canhões ao mesmo tempo e meia cobertura a até 3 m deles" }
+    ],
+    "options": [
+      {
+        "id": "flamethrower",
+        "name": "Lança-chamas",
+        "summary": "Cone de 4,5 m, 2d8 de fogo.",
+        "description": "O canhão exala fogo num cone de 4,5 m. Cada criatura na área faz um teste de resistência de Destreza contra a sua CD de magia, sofrendo 2d8 de dano de fogo na falha e metade no sucesso. Passa a 3d8 no 9º nível.",
+        "mode": true,
+        "effects": [
+          {
+            "id": "artificer_artillerist.cannon.flamethrower",
+            "path": "attack.area",
+            "operation": "grant",
+            "display": "combat_actions",
+            "label": "Lança-chamas",
+            "note": "Cone de 4,5 m, resistência de Destreza, 2d8 de fogo (3d8 no 9º nível), metade no sucesso."
+          }
+        ]
+      },
+      {
+        "id": "force_ballista",
+        "name": "Balista de Força",
+        "summary": "Ataque mágico à distância de 36 m, 2d8 de força.",
+        "description": "Faça um ataque mágico à distância originado do canhão, com alcance de 36 m. Em um acerto, o alvo sofre 2d8 de dano de força e é empurrado 1,5 m para longe do canhão. Passa a 3d8 no 9º nível.",
+        "mode": true,
+        "effects": [
+          {
+            "id": "artificer_artillerist.cannon.force_ballista",
+            "path": "attack.ranged",
+            "operation": "grant",
+            "display": "attacks",
+            "label": "Balista de Força",
+            "note": "Ataque mágico à distância, 36 m, 2d8 de força (3d8 no 9º nível) e empurra 1,5 m."
+          }
+        ]
+      },
+      {
+        "id": "protector",
+        "name": "Protetor",
+        "summary": "1d8 + Inteligência PV temporários em 3 m.",
+        "description": "O canhão emite uma onda protetora. O próprio canhão e cada criatura à sua escolha a até 3 m dele recebem 1d8 + seu modificador de Inteligência pontos de vida temporários, com mínimo de +1 proveniente do modificador.",
+        "mode": true,
+        "effects": [
+          {
+            "id": "artificer_artillerist.cannon.protector",
+            "path": "hp.temporary",
+            "operation": "add",
+            "display": "resources",
+            "label": "Protetor",
+            "note": "1d8 + modificador de Inteligência pontos de vida temporários ao canhão e a criaturas à sua escolha a até 3 m."
+          }
+        ]
+      }
+    ],
+    "tags": ["erlw", "artilharia", "entidade"],
+    "note": "O canhão tem CA 18 e PV iguais a 5 × seu nível de Artífice. Os dois canhões do 15º nível não podem ser pagos com o mesmo espaço de magia."
+  },
+  {
+    "id": "artificer_battle_smith.arcane_jolt",
+    "name": "Impacto Arcano",
+    "class_id": "artificer",
+    "subclass_id": "artificer_battle_smith",
+    "level": 9,
+    "feature": "Impacto Arcano",
+    "source": "erlw",
+    "edition": "2014",
+    "summary": "Dano de força ou cura, uma vez por turno, com recurso compartilhado.",
+    "kinds": ["per_use_choice", "limited_resource"],
+    "display": "attacks",
+    "activation": "Uma vez por turno, quando você ou o Defensor de Aço acerta um ataque.",
+    "recovery": "Descanso longo.",
+    "uses_minimum": 1,
+    "action": {
+      "type": "special",
+      "uses_formula": "mod.INT",
+      "recharge": "long",
+      "trigger": "Quando você ou o Defensor de Aço acerta uma criatura com um ataque"
+    },
+    "progression": [
+      { "level": 9, "note": "2d6 de dano de força ou 2d6 pontos de vida restaurados" },
+      { "level": 15, "note": "Passa a 4d6" }
+    ],
+    "options": [
+      {
+        "id": "arcane_tremor",
+        "name": "Tremor Arcano",
+        "summary": "+2d6 de força ao alvo (4d6 no 15º nível).",
+        "description": "O alvo atingido sofre 2d6 de dano de força adicional. Passa a 4d6 no 15º nível.",
+        "effects": [
+          {
+            "id": "artificer_battle_smith.jolt.tremor",
+            "path": "damage.extra",
+            "operation": "add",
+            "display": "attacks",
+            "label": "Tremor Arcano",
+            "note": "+2d6 de dano de força (4d6 no 15º nível) ao alvo atingido."
+          }
+        ]
+      },
+      {
+        "id": "restorative_energy",
+        "name": "Energia Restauradora",
+        "summary": "2d6 PV a uma criatura ou objeto a até 9 m do alvo.",
+        "description": "Uma criatura ou objeto que você veja a até 9 m do alvo atingido recupera 2d6 pontos de vida. Passa a 4d6 no 15º nível.",
+        "effects": [
+          {
+            "id": "artificer_battle_smith.jolt.restorative",
+            "path": "healing.flat",
+            "operation": "add",
+            "display": "resources",
+            "label": "Energia Restauradora",
+            "note": "2d6 pontos de vida (4d6 no 15º nível) a uma criatura ou objeto a até 9 m do alvo."
+          }
+        ]
+      }
+    ],
+    "tags": ["erlw", "defensor"]
+  },
+  {
+    "id": "artificer_armorer.armor_model",
+    "name": "Modelo de Armadura",
+    "class_id": "artificer",
+    "subclass_id": "artificer_armorer",
+    "level": 3,
+    "feature": "Modelo de Armadura",
+    "source": "tce",
+    "edition": "2014",
+    "summary": "Guardião ou Infiltrador, trocável em descanso curto ou longo.",
+    "kinds": ["permanent_choice", "auto_modifier"],
+    "display": "features",
+    "activation": "Escolhido ao terminar um descanso curto ou longo; a troca exige ferramentas de ferreiro.",
+    "replacement": {
+      "trigger": "rest",
+      "per_event": 1,
+      "note": "A troca de modelo exige ferramentas de ferreiro."
+    },
+    "progression": [
+      { "level": 3, "picks": 1 },
+      { "level": 15, "note": "Armadura Aperfeiçoada: o modelo escolhido ganha o efeito adicional do 15º nível" }
+    ],
+    "options": [
+      {
+        "id": "guardian",
+        "name": "Guardião",
+        "summary": "Manoplas Trovejantes e Campo Defensivo.",
+        "description": "Manoplas Trovejantes: ataque corpo a corpo que causa 1d8 de dano trovejante; a criatura atingida tem desvantagem em ataques contra qualquer alvo que não seja você até o início do seu próximo turno. Campo Defensivo: como ação bônus, recebe pontos de vida temporários iguais ao seu nível de Artífice, com usos iguais ao bônus de proficiência por descanso longo. No 15º nível, quando uma criatura Enorme ou menor que você veja termina o turno a até 9 m, pode usar a reação para forçar um teste de resistência de Força e puxá-la até 7,5 m, com um ataque corpo a corpo como parte da mesma reação.",
+        "incompatible_with": ["infiltrator"],
+        "action": {
+          "type": "bonus",
+          "uses_formula": "proficiency",
+          "recharge": "long",
+          "label": "Campo Defensivo",
+          "cost": "Pontos de vida temporários iguais ao nível de Artífice"
+        },
+        "effects": [
+          {
+            "id": "artificer_armorer.model.guardian",
+            "path": "attack.melee",
+            "operation": "grant",
+            "display": "attacks",
+            "label": "Manoplas Trovejantes",
+            "note": "Arma simples corpo a corpo, 1d8 trovejante; o alvo tem desvantagem em ataques contra outros alvos até o início do seu próximo turno."
+          }
+        ]
+      },
+      {
+        "id": "infiltrator",
+        "name": "Infiltrador",
+        "summary": "Lançador de Relâmpagos, Passos Energizados e Campo de Amortecimento.",
+        "description": "Lançador de Relâmpagos: arma simples à distância com alcance 27/90 m e 1d6 de dano elétrico; uma vez em cada um dos seus turnos, ao acertar, causa 1d6 elétrico adicional. Passos Energizados: deslocamento aumenta em 1,5 m. Campo de Amortecimento: vantagem em testes de Furtividade — se a armadura normalmente impõe desvantagem, vantagem e desvantagem se anulam. No 15º nível, qualquer criatura atingida pelo Lançador de Relâmpagos fica cintilando até o começo do seu próximo turno.",
+        "incompatible_with": ["guardian"],
+        "effects": [
+          {
+            "id": "artificer_armorer.model.infiltrator.weapon",
+            "path": "attack.ranged",
+            "operation": "grant",
+            "display": "attacks",
+            "label": "Lançador de Relâmpagos",
+            "note": "Arma simples à distância, 27/90 m, 1d6 elétrico e +1d6 elétrico uma vez por turno."
+          },
+          {
+            "id": "artificer_armorer.model.infiltrator.speed",
+            "path": "speed.walk",
+            "operation": "add",
+            "formula": "1",
+            "display": "features",
+            "label": "Passos Energizados",
+            "note": "Deslocamento aumenta em 1,5 m (declarado como 1 por arredondamento da ficha em metros)."
+          }
+        ]
+      }
+    ],
+    "tags": ["tce", "armadura"],
+    "note": "A Armadura Arcana continua sendo a mesma peça: o modelo muda o que ela oferece, não a armadura vestida."
+  },
+  {
+    "id": "barbarian_totem_warrior.beast_aspect",
+    "name": "Aspecto da Besta",
+    "class_id": "barbarian",
+    "subclass_id": "barbarian_totem_warrior",
+    "level": 6,
+    "feature": "Aspecto da Besta",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "Escolha independente do 6º nível: qualquer animal disponível.",
+    "kinds": ["permanent_choice"],
+    "display": "features",
+    "progression": [{ "level": 6, "picks": 1 }],
+    "options": [
+      {
+        "id": "bear",
+        "name": "Urso",
+        "summary": "Capacidade de carga dobrada.",
+        "description": "Sua capacidade de carga dobra e você tem vantagem em testes de Força para empurrar, puxar, levantar ou quebrar objetos."
+      },
+      {
+        "id": "eagle",
+        "name": "Águia",
+        "summary": "Visão a longa distância.",
+        "description": "Enxerga detalhes a até 1,6 km como se estivessem a 30 m, e luz fraca não impõe desvantagem em testes de Percepção."
+      },
+      {
+        "id": "wolf",
+        "name": "Lobo",
+        "summary": "Rastreio e furtividade em viagem.",
+        "description": "Pode rastrear outras criaturas durante viagem em ritmo rápido e se mover furtivamente em ritmo normal."
+      },
+      {
+        "id": "elk",
+        "name": "Alce",
+        "summary": "Velocidade de viagem dobrada.",
+        "description": "A velocidade de viagem dobra para você e para até dez companheiros a até 18 m de você, desde que nenhum esteja incapacitado."
+      },
+      {
+        "id": "tiger",
+        "name": "Tigre",
+        "summary": "Duas proficiências de perícia.",
+        "description": "Ganha proficiência em duas perícias entre Atletismo, Acrobacia, Furtividade e Sobrevivência.",
+        "effects": [
+          {
+            "id": "barbarian_totem.beast_aspect.tiger",
+            "path": "skill.proficiency",
+            "operation": "grant",
+            "display": "skills",
+            "label": "Aspecto do Tigre",
+            "note": "Escolha duas entre Atletismo, Acrobacia, Furtividade e Sobrevivência na tela de proficiências."
+          }
+        ]
+      }
+    ],
+    "tags": ["phb", "totem"],
+    "note": "A escolha do 6º nível é independente da do 3º: a regra permite repetir o mesmo animal ou mudar."
+  },
+  {
+    "id": "barbarian_totem_warrior.totemic_attunement",
+    "name": "Sintonia Totêmica",
+    "class_id": "barbarian",
+    "subclass_id": "barbarian_totem_warrior",
+    "level": 14,
+    "feature": "Sintonia Totêmica",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "Escolha independente do 14º nível: qualquer animal disponível.",
+    "kinds": ["permanent_choice"],
+    "display": "combat_actions",
+    "progression": [{ "level": 14, "picks": 1 }],
+    "options": [
+      {
+        "id": "bear",
+        "name": "Urso",
+        "summary": "Inimigos a 1,5 m têm desvantagem contra outros alvos.",
+        "description": "Enquanto estiver em Fúria, criaturas hostis a até 1,5 m têm desvantagem em jogadas de ataque contra alvos que não sejam você ou outro personagem com esta característica. Criaturas imunes à condição amedrontado são imunes a este efeito."
+      },
+      {
+        "id": "eagle",
+        "name": "Águia",
+        "summary": "Voo igual ao deslocamento terrestre em Fúria.",
+        "description": "Enquanto estiver em Fúria, tem deslocamento de voo igual ao seu deslocamento de caminhada. Você cai se terminar o turno no ar sem outra forma de sustentação.",
+        "effects": [
+          {
+            "id": "barbarian_totem.attunement.eagle",
+            "path": "speed.fly",
+            "operation": "grant",
+            "display": "features",
+            "label": "Voo em Fúria",
+            "note": "Só enquanto a Fúria estiver ativa. Você cai se terminar o turno no ar."
+          }
+        ]
+      },
+      {
+        "id": "wolf",
+        "name": "Lobo",
+        "summary": "Ação bônus para derrubar depois de acertar.",
+        "description": "Enquanto estiver em Fúria, pode usar uma ação bônus após acertar uma criatura Grande ou menor com um ataque corpo a corpo com arma para derrubá-la.",
+        "action": {
+          "type": "bonus",
+          "trigger": "Após acertar uma criatura Grande ou menor com ataque corpo a corpo com arma",
+          "requires": "Estar em Fúria"
+        }
+      },
+      {
+        "id": "elk",
+        "name": "Alce",
+        "summary": "Atravessa o espaço de criaturas durante o movimento.",
+        "description": "Enquanto estiver em Fúria, pode usar uma ação bônus durante o movimento para atravessar o espaço de uma criatura Grande ou menor. O alvo faz teste de resistência de Força contra CD 8 + bônus de proficiência + modificador de Força e, na falha, fica caído e sofre 1d12 + modificador de Força de dano contundente.",
+        "action": {
+          "type": "bonus",
+          "requires": "Estar em Fúria e estar se movendo"
+        }
+      },
+      {
+        "id": "tiger",
+        "name": "Tigre",
+        "summary": "Ataque adicional depois de avançar 6 m.",
+        "description": "Enquanto estiver em Fúria, se mover pelo menos 6 m em linha reta até uma criatura Grande ou menor e então acertar um ataque corpo a corpo com arma contra ela, pode usar uma ação bônus para fazer outro ataque corpo a corpo contra ela.",
+        "action": {
+          "type": "bonus",
+          "requires": "Estar em Fúria e ter se movido 6 m em linha reta"
+        }
+      }
+    ],
+    "tags": ["phb", "totem"]
+  },
+  {
+    "id": "barbarian_storm_herald.storm_aura",
+    "name": "Aura da Tempestade",
+    "class_id": "barbarian",
+    "subclass_id": "barbarian_storm_herald",
+    "level": 3,
+    "feature": "Aura da Tempestade",
+    "source": "xge",
+    "edition": "2014",
+    "summary": "Ambiente Deserto, Mar ou Tundra: controla as quatro características da subclasse.",
+    "kinds": ["permanent_choice", "activatable_mode", "lookup_table"],
+    "display": "combat_actions",
+    "activation": "Dispara ao entrar em Fúria e novamente em cada turno seu, com uma ação bônus.",
+    "duration": "Enquanto a Fúria estiver ativa.",
+    "max_active": 1,
+    "replacement": {
+      "trigger": "level_up",
+      "per_event": 1,
+      "note": "Pode trocar o ambiente ao ganhar um nível nesta classe."
+    },
+    "progression": [
+      { "level": 3, "picks": 1 },
+      { "level": 6, "note": "Alma da Tempestade: resistência ao dano do ambiente escolhido" },
+      { "level": 10, "note": "Tempestade Protetora: criaturas escolhidas na aura recebem a mesma resistência" },
+      { "level": 14, "note": "Tempestade Furiosa: a reação do ambiente escolhido fica disponível" }
+    ],
+    "table": {
+      "id": "barbarian_storm_herald.storm_aura.table",
+      "title": "Efeito da Aura da Tempestade por nível de Bárbaro",
+      "columns": ["Ambiente", "Nível 3", "Nível 5", "Nível 10", "Nível 15", "Nível 20"],
+      "rows": [
+        {
+          "id": "desert",
+          "label": "Deserto",
+          "option_id": "desert",
+          "values": ["2 de fogo", "3 de fogo", "4 de fogo", "5 de fogo", "6 de fogo"],
+          "note": "Dano fixo a todas as outras criaturas na aura, sem teste de resistência."
+        },
+        {
+          "id": "sea",
+          "label": "Mar",
+          "option_id": "sea",
+          "values": ["1d6 elétrico", "1d6 elétrico", "2d6 elétrico", "3d6 elétrico", "4d6 elétrico"],
+          "note": "Uma criatura escolhida na aura faz resistência de Destreza; metade no sucesso."
+        },
+        {
+          "id": "tundra",
+          "label": "Tundra",
+          "option_id": "tundra",
+          "values": ["2 PV temporários", "3 PV temporários", "4 PV temporários", "5 PV temporários", "6 PV temporários"],
+          "note": "Cada criatura escolhida por você na aura recebe os pontos de vida temporários."
+        }
+      ],
+      "notes": [
+        "Raio da aura: 3 m.",
+        "Quando o efeito exige resistência, a CD é 8 + bônus de proficiência + modificador de Constituição."
+      ]
+    },
+    "options": [
+      {
+        "id": "desert",
+        "name": "Deserto",
+        "summary": "Dano de fogo fixo a todas as outras criaturas na aura.",
+        "description": "Quando a aura é ativada, cada outra criatura na aura sofre dano de fogo igual ao valor da tabela. No 6º nível ganha resistência a fogo e imunidade aos efeitos de calor extremo. No 14º nível, quando uma criatura na aura acerta você, pode usar a reação para forçar resistência de Destreza, causando fogo igual à metade do seu nível de Bárbaro na falha.",
+        "mode": true,
+        "incompatible_with": ["sea", "tundra"],
+        "duration": "Enquanto a Fúria estiver ativa"
+      },
+      {
+        "id": "sea",
+        "name": "Mar",
+        "summary": "Dano elétrico a uma criatura escolhida na aura.",
+        "description": "Quando a aura é ativada, escolha uma outra criatura na aura; ela faz teste de resistência de Destreza, sofrendo o dano elétrico da tabela na falha e metade no sucesso. No 6º nível ganha resistência a dano elétrico, respira debaixo d'água e deslocamento de natação de 9 m. No 14º nível, quando acerta uma criatura na aura, pode usar a reação para forçar resistência de Força e derrubá-la.",
+        "mode": true,
+        "incompatible_with": ["desert", "tundra"],
+        "duration": "Enquanto a Fúria estiver ativa",
+        "effects": [
+          {
+            "id": "barbarian_storm_herald.aura.sea.swim",
+            "path": "speed.swim",
+            "operation": "max",
+            "formula": "9",
+            "display": "features",
+            "label": "Alma da Tempestade (Mar)",
+            "note": "A partir do 6º nível: deslocamento de natação 9 m e respirar debaixo d'água, sempre, não só em Fúria."
+          }
+        ]
+      },
+      {
+        "id": "tundra",
+        "name": "Tundra",
+        "summary": "Pontos de vida temporários às criaturas escolhidas.",
+        "description": "Quando a aura é ativada, cada criatura escolhida por você na aura recebe os pontos de vida temporários da tabela. No 6º nível ganha resistência a frio e imunidade aos efeitos de frio extremo. No 14º nível, sempre que ativa a aura, escolhe uma criatura visível nela, que faz resistência de Força e, na falha, fica com deslocamento 0 até o início do seu próximo turno.",
+        "mode": true,
+        "incompatible_with": ["desert", "sea"],
+        "duration": "Enquanto a Fúria estiver ativa"
+      }
+    ],
+    "tags": ["xge", "aura", "tempestade"]
+  },
+  {
+    "id": "barbarian_beast.form_of_the_beast",
+    "name": "Forma da Besta",
+    "class_id": "barbarian",
+    "subclass_id": "barbarian_beast",
+    "level": 3,
+    "feature": "Forma da Besta",
+    "source": "tce",
+    "edition": "2014",
+    "summary": "Mordida, Garras ou Cauda, escolhida a cada Fúria.",
+    "kinds": ["per_use_choice", "activatable_mode"],
+    "display": "attacks",
+    "activation": "Ao entrar em Fúria.",
+    "duration": "Até a Fúria terminar.",
+    "max_active": 1,
+    "replacement": {
+      "trigger": "any_time",
+      "per_event": 1,
+      "note": "A arma natural é escolhida de novo a cada Fúria."
+    },
+    "options": [
+      {
+        "id": "bite",
+        "name": "Mordida",
+        "summary": "1d8 perfurante e cura igual ao bônus de proficiência.",
+        "description": "Sua boca vira uma arma natural que causa 1d8 de dano perfurante. Uma vez em cada um dos seus turnos, ao acertar com ela enquanto estiver com metade ou menos dos pontos de vida máximos, você recupera pontos de vida iguais ao seu bônus de proficiência.",
+        "mode": true,
+        "incompatible_with": ["claws", "tail"],
+        "effects": [
+          {
+            "id": "barbarian_beast.form.bite",
+            "path": "attack.melee",
+            "operation": "grant",
+            "display": "attacks",
+            "label": "Mordida",
+            "note": "Arma simples corpo a corpo, 1d8 perfurante, usa Força."
+          }
+        ]
+      },
+      {
+        "id": "claws",
+        "name": "Garras",
+        "summary": "1d6 cortante e um ataque adicional por ação de Atacar.",
+        "description": "Cada mão vazia vira uma garra que causa 1d6 de dano cortante. Uma vez em cada um dos seus turnos, ao atacar com uma garra usando a ação Atacar, pode fazer um ataque adicional de garra como parte da mesma ação.",
+        "mode": true,
+        "incompatible_with": ["bite", "tail"],
+        "effects": [
+          {
+            "id": "barbarian_beast.form.claws",
+            "path": "attack.melee",
+            "operation": "grant",
+            "display": "attacks",
+            "label": "Garras",
+            "note": "Arma simples corpo a corpo, 1d6 cortante, usa Força, com um ataque adicional por ação de Atacar."
+          }
+        ]
+      },
+      {
+        "id": "tail",
+        "name": "Cauda",
+        "summary": "1d8 perfurante com 3 m de alcance e reação de +1d8 na CA.",
+        "description": "Sua cauda vira uma arma natural que causa 1d8 de dano perfurante com alcance de 3 m. Quando uma criatura que você vê a até 3 m acerta você, pode usar a reação para rolar 1d8 e somar o resultado à sua CA contra esse ataque, podendo fazê-lo errar.",
+        "mode": true,
+        "incompatible_with": ["bite", "claws"],
+        "action": {
+          "type": "reaction",
+          "trigger": "Quando uma criatura que você vê a até 3 m acerta você"
+        },
+        "effects": [
+          {
+            "id": "barbarian_beast.form.tail",
+            "path": "attack.melee",
+            "operation": "grant",
+            "display": "attacks",
+            "label": "Cauda",
+            "note": "Arma simples corpo a corpo, 1d8 perfurante, alcance 3 m, usa Força."
+          }
+        ]
+      }
+    ],
+    "tags": ["tce", "besta"]
+  },
+  {
+    "id": "barbarian_beast.bestial_soul",
+    "name": "Alma Bestial",
+    "class_id": "barbarian",
+    "subclass_id": "barbarian_beast",
+    "level": 6,
+    "feature": "Alma Bestial",
+    "source": "tce",
+    "edition": "2014",
+    "summary": "Uma adaptação escolhida por descanso: Aquática, Escalada ou Salto.",
+    "kinds": ["permanent_choice"],
+    "display": "features",
+    "activation": "Escolhida ao terminar um descanso curto ou longo.",
+    "replacement": {
+      "trigger": "rest",
+      "per_event": 1,
+      "note": "A adaptação é escolhida de novo em cada descanso curto ou longo."
+    },
+    "progression": [{ "level": 6, "picks": 1 }],
+    "options": [
+      {
+        "id": "aquatic",
+        "name": "Aquática",
+        "summary": "Natação igual ao deslocamento e respirar debaixo d'água.",
+        "description": "Você tem deslocamento de natação igual ao seu deslocamento de caminhada e pode respirar debaixo d'água.",
+        "incompatible_with": ["climbing", "jumping"],
+        "effects": [
+          {
+            "id": "barbarian_beast.soul.aquatic",
+            "path": "speed.swim",
+            "operation": "grant",
+            "display": "features",
+            "label": "Adaptação Aquática",
+            "note": "Deslocamento de natação igual ao de caminhada e respirar debaixo d'água."
+          }
+        ]
+      },
+      {
+        "id": "climbing",
+        "name": "Escalada",
+        "summary": "Escalada igual ao deslocamento, inclusive em tetos.",
+        "description": "Você tem deslocamento de escalada igual ao seu deslocamento de caminhada e pode andar em superfícies verticais e tetos sem fazer testes, mantendo as mãos livres.",
+        "incompatible_with": ["aquatic", "jumping"],
+        "effects": [
+          {
+            "id": "barbarian_beast.soul.climbing",
+            "path": "speed.climb",
+            "operation": "grant",
+            "display": "features",
+            "label": "Adaptação de Escalada",
+            "note": "Deslocamento de escalada igual ao de caminhada, inclusive em superfícies verticais e tetos."
+          }
+        ]
+      },
+      {
+        "id": "jumping",
+        "name": "Salto",
+        "summary": "Salto aumentado pelo resultado de Atletismo.",
+        "description": "Uma vez em cada um dos seus turnos, ao saltar, faça um teste de Atletismo e aumente a distância do salto nesse resultado em pés, sem gastar movimento além do total realmente percorrido.",
+        "incompatible_with": ["aquatic", "climbing"]
+      }
+    ],
+    "tags": ["tce", "besta"],
+    "note": "Os ataques com as armas naturais da Forma da Besta contam como mágicos a partir deste nível, independentemente da adaptação escolhida."
+  },
+  {
+    "id": "barbarian_wild_magic.wild_surge",
+    "name": "Surto Selvagem",
+    "class_id": "barbarian",
+    "subclass_id": "barbarian_wild_magic",
+    "level": 3,
+    "feature": "Surto Selvagem",
+    "source": "tce",
+    "edition": "2014",
+    "summary": "Tabela d8 rolada ao entrar em Fúria.",
+    "kinds": ["roll_table"],
+    "display": "combat_actions",
+    "activation": "Role 1d8 ao entrar em Fúria.",
+    "duration": "Até a Fúria terminar, quando o efeito tiver duração.",
+    "progression": [
+      { "level": 3, "note": "Role 1d8 ao entrar em Fúria" },
+      { "level": 10, "note": "Reação Instável: ao sofrer dano ou falhar em resistência, role de novo e substitua o efeito atual" },
+      { "level": 14, "note": "Surto Controlado: role 2d8 e escolha qual usar; em números iguais, escolha qualquer efeito" }
+    ],
+    "table": {
+      "id": "barbarian_wild_magic.wild_surge.table",
+      "title": "Surto Selvagem (d8)",
+      "dice": "d8",
+      "columns": ["d8", "Efeito"],
+      "rows": [
+        { "id": "1", "label": "1", "min": 1, "max": 1, "values": ["Cada criatura escolhida a até 9 m faz resistência de Constituição; na falha sofre 1d12 necrótico. Você recebe 1d12 pontos de vida temporários."] },
+        { "id": "2", "label": "2", "min": 2, "max": 2, "values": ["Teleporta até 9 m para um espaço visível. Enquanto a Fúria durar, pode repetir com uma ação bônus."] },
+        { "id": "3", "label": "3", "min": 3, "max": 3, "values": ["Um espírito intangível aparece a até 9 m. No fim do turno atual ele explode: cada criatura a até 1,5 m faz resistência de Destreza ou sofre 1d6 de força. Enquanto a Fúria durar, pode criar outro com uma ação bônus."] },
+        { "id": "4", "label": "4", "min": 4, "max": 4, "values": ["Uma arma que você segura fica infundida: o dano vira força e ela ganha as propriedades leve e arremessável (6/18 m). Se sair da sua mão, reaparece nela no fim do turno."] },
+        { "id": "5", "label": "5", "min": 5, "max": 5, "values": ["Até a Fúria terminar, sempre que uma criatura acerta você com um ataque, ela sofre 1d6 de dano de força."] },
+        { "id": "6", "label": "6", "min": 6, "max": 6, "values": ["Você e aliados a até 3 m recebem +1 de CA até a Fúria terminar."] },
+        { "id": "7", "label": "7", "min": 7, "max": 7, "values": ["O terreno a até 4,5 m fica difícil para os seus inimigos."] },
+        { "id": "8", "label": "8", "min": 8, "max": 8, "values": ["Um raio de luz sai do seu peito: uma criatura a até 9 m faz resistência de Constituição; na falha sofre 1d6 radiante e fica cega até o início do seu próximo turno. Enquanto a Fúria durar, pode repetir com uma ação bônus."] }
+      ],
+      "notes": [
+        "Quando o efeito exige resistência, a CD é 8 + bônus de proficiência + modificador de Constituição.",
+        "No 14º nível role 2d8 e escolha o resultado. Em números iguais, escolha qualquer efeito da tabela."
+      ]
+    },
+    "tags": ["tce", "magia-selvagem", "tabela"],
+    "note": "O resultado é registrado para consulta, não aplicado automaticamente: vários efeitos dependem de escolha de alvo em mesa."
+  },
+  {
+    "id": "barbarian_wild_magic.bolstering_magic",
+    "name": "Magia Reforçada",
+    "class_id": "barbarian",
+    "subclass_id": "barbarian_wild_magic",
+    "level": 6,
+    "feature": "Magia Reforçada",
+    "source": "tce",
+    "edition": "2014",
+    "summary": "Bônus de 1d3 em ataques e testes, ou recuperar um espaço de magia.",
+    "kinds": ["per_use_choice", "limited_resource"],
+    "display": "resources",
+    "activation": "Ação, tocando uma criatura.",
+    "recovery": "Descanso longo.",
+    "action": {
+      "type": "action",
+      "uses_formula": "proficiency",
+      "recharge": "long"
+    },
+    "options": [
+      {
+        "id": "bonus_die",
+        "name": "Bônus d3",
+        "summary": "1d3 em ataques e testes de atributo por 10 minutos.",
+        "description": "Por 10 minutos, a criatura tocada pode rolar 1d3 e somar o resultado a jogadas de ataque e testes de atributo.",
+        "duration": "10 minutos"
+      },
+      {
+        "id": "regain_slot",
+        "name": "Recuperar Espaço",
+        "summary": "Role 1d3 e recupere um espaço de magia desse nível ou menor.",
+        "description": "Role 1d3. A criatura tocada recupera um espaço de magia gasto de nível igual ou inferior ao resultado, no máximo de 3º círculo. Uma criatura só pode receber este benefício uma vez por descanso longo.",
+        "prerequisites": {
+          "note": "Uma mesma criatura só pode receber Recuperar Espaço uma vez por descanso longo."
+        }
+      }
+    ],
+    "tags": ["tce", "magia-selvagem"]
+  },
+  {
+    "id": "barbarian_giant.elemental_cleaver",
+    "name": "Cutelo Elemental",
+    "class_id": "barbarian",
+    "subclass_id": "barbarian_giant",
+    "level": 6,
+    "feature": "Cutelo Elemental",
+    "source": "bgg",
+    "edition": "2014",
+    "summary": "Ácido, frio, fogo, elétrico ou trovejante, escolhido a cada Fúria.",
+    "kinds": ["per_use_choice", "activatable_mode"],
+    "display": "attacks",
+    "activation": "Ao entrar em Fúria, escolhendo uma arma que você segura.",
+    "duration": "Enquanto a Fúria durar. Pode transferir para outra arma com uma ação bônus.",
+    "max_active": 1,
+    "replacement": {
+      "trigger": "any_time",
+      "per_event": 1,
+      "note": "O tipo de dano é escolhido de novo a cada Fúria."
+    },
+    "progression": [
+      { "level": 6, "note": "+1d6 do tipo escolhido em cada acerto" },
+      { "level": 14, "note": "Colosso Demiúrgico: passa a +2d6" }
+    ],
+    "options": [
+      {
+        "id": "acid",
+        "name": "Ácido",
+        "summary": "Dano da arma vira ácido e causa +1d6 de ácido.",
+        "description": "Enquanto a Fúria durar, o dano da arma escolhida pode ser todo de ácido e cada acerto causa 1d6 de ácido adicional (2d6 no 14º nível). A arma ganha a propriedade arremessável com alcance 6/18 m e volta à sua mão imediatamente após o ataque.",
+        "mode": true,
+        "incompatible_with": ["cold", "fire", "lightning", "thunder"]
+      },
+      {
+        "id": "cold",
+        "name": "Frio",
+        "summary": "Dano da arma vira frio e causa +1d6 de frio.",
+        "description": "Enquanto a Fúria durar, o dano da arma escolhida pode ser todo de frio e cada acerto causa 1d6 de frio adicional (2d6 no 14º nível). A arma ganha a propriedade arremessável com alcance 6/18 m e volta à sua mão imediatamente após o ataque.",
+        "mode": true,
+        "incompatible_with": ["acid", "fire", "lightning", "thunder"]
+      },
+      {
+        "id": "fire",
+        "name": "Fogo",
+        "summary": "Dano da arma vira fogo e causa +1d6 de fogo.",
+        "description": "Enquanto a Fúria durar, o dano da arma escolhida pode ser todo de fogo e cada acerto causa 1d6 de fogo adicional (2d6 no 14º nível). A arma ganha a propriedade arremessável com alcance 6/18 m e volta à sua mão imediatamente após o ataque.",
+        "mode": true,
+        "incompatible_with": ["acid", "cold", "lightning", "thunder"]
+      },
+      {
+        "id": "lightning",
+        "name": "Elétrico",
+        "summary": "Dano da arma vira elétrico e causa +1d6 de elétrico.",
+        "description": "Enquanto a Fúria durar, o dano da arma escolhida pode ser todo elétrico e cada acerto causa 1d6 elétrico adicional (2d6 no 14º nível). A arma ganha a propriedade arremessável com alcance 6/18 m e volta à sua mão imediatamente após o ataque.",
+        "mode": true,
+        "incompatible_with": ["acid", "cold", "fire", "thunder"]
+      },
+      {
+        "id": "thunder",
+        "name": "Trovejante",
+        "summary": "Dano da arma vira trovejante e causa +1d6 de trovejante.",
+        "description": "Enquanto a Fúria durar, o dano da arma escolhida pode ser todo trovejante e cada acerto causa 1d6 trovejante adicional (2d6 no 14º nível). A arma ganha a propriedade arremessável com alcance 6/18 m e volta à sua mão imediatamente após o ataque.",
+        "mode": true,
+        "incompatible_with": ["acid", "cold", "fire", "lightning"]
+      }
+    ],
+    "tags": ["bgg", "gigante", "elemental"]
+  },
+  {
+    "id": "bard_swords.fighting_style",
+    "name": "Estilo de Luta",
+    "class_id": "bard",
+    "subclass_id": "bard_swords",
+    "level": 3,
+    "feature": "Estilo de Luta",
+    "source": "xge",
+    "edition": "2014",
+    "summary": "Duelo ou Combate com Duas Armas.",
+    "kinds": ["permanent_choice", "auto_modifier"],
+    "display": "attacks",
+    "progression": [{ "level": 3, "picks": 1 }],
+    "options": [
+      {
+        "id": "duelling",
+        "name": "Duelo",
+        "summary": "+2 de dano com arma corpo a corpo em uma mão.",
+        "description": "Quando empunha uma arma corpo a corpo em uma mão e nenhuma outra arma, recebe +2 nas jogadas de dano com ela.",
+        "incompatible_with": ["two_weapon_fighting"],
+        "effects": [
+          {
+            "id": "bard_swords.style.duelling",
+            "path": "damage.melee",
+            "operation": "add",
+            "formula": "2",
+            "display": "attacks",
+            "label": "Duelo",
+            "note": "+2 de dano com arma corpo a corpo em uma mão, sem outra arma empunhada."
+          }
+        ]
+      },
+      {
+        "id": "two_weapon_fighting",
+        "name": "Combate com Duas Armas",
+        "summary": "Soma o modificador ao dano do segundo ataque.",
+        "description": "Quando luta com duas armas, pode somar o modificador de atributo ao dano do ataque da segunda arma.",
+        "incompatible_with": ["duelling"],
+        "effects": [
+          {
+            "id": "bard_swords.style.two_weapon",
+            "path": "damage.offhand",
+            "operation": "add",
+            "display": "attacks",
+            "label": "Combate com Duas Armas",
+            "note": "Soma o modificador de atributo ao dano do ataque da segunda arma."
+          }
+        ]
+      }
+    ],
+    "tags": ["xge", "estilo"]
+  },
+  {
+    "id": "bard_swords.blade_flourish",
+    "name": "Floreio de Lâmina",
+    "class_id": "bard",
+    "subclass_id": "bard_swords",
+    "level": 3,
+    "feature": "Floreio de Lâmina",
+    "source": "xge",
+    "edition": "2014",
+    "summary": "Defensivo, Cortante ou Móvel, escolhido no acerto gastando Inspiração.",
+    "kinds": ["per_use_choice"],
+    "display": "attacks",
+    "activation": "Uma vez em cada turno, ao acertar um ataque com arma, gastando um dado de Inspiração de Bardo.",
+    "action": {
+      "type": "special",
+      "cost": "1 dado de Inspiração de Bardo",
+      "trigger": "Uma vez em cada turno, ao acertar um ataque com arma"
+    },
+    "replacement": {
+      "trigger": "any_time",
+      "per_event": 1,
+      "note": "O floreio é escolhido a cada uso."
+    },
+    "progression": [
+      { "level": 3, "note": "Deslocamento +3 m até o fim do turno ao usar a ação Atacar" },
+      { "level": 14, "note": "Floreio do Mestre: pode rolar 1d6 em vez de gastar Inspiração" }
+    ],
+    "options": [
+      {
+        "id": "defensive",
+        "name": "Floreio Defensivo",
+        "summary": "Soma o dado à CA até o início do próximo turno.",
+        "description": "Some o resultado do dado ao dano do ataque e o mesmo resultado à sua CA até o início do seu próximo turno."
+      },
+      {
+        "id": "slashing",
+        "name": "Floreio Cortante",
+        "summary": "Outra criatura a até 1,5 m sofre o mesmo dado.",
+        "description": "Some o resultado do dado ao dano do ataque. Outra criatura à sua escolha que você veja a até 1,5 m de você também sofre dano igual ao resultado do dado."
+      },
+      {
+        "id": "mobile",
+        "name": "Floreio Móvel",
+        "summary": "Empurra o alvo e permite reposicionar-se.",
+        "description": "Some o resultado do dado ao dano do ataque e empurre o alvo até 1,5 m mais aproximadamente 0,3 m por ponto do dado (a regra original diz 5 pés mais um número de pés igual ao resultado). Depois pode usar imediatamente a reação para mover até o seu deslocamento de caminhada para um espaço desocupado a até 1,5 m do alvo."
+      }
+    ],
+    "tags": ["xge", "floreio"]
+  },
+  {
+    "id": "bard_creation.mote_of_potential",
+    "name": "Fragmento de Potencial",
+    "class_id": "bard",
+    "subclass_id": "bard_creation",
+    "level": 3,
+    "feature": "Fragmento de Potencial",
+    "source": "tce",
+    "edition": "2014",
+    "summary": "O efeito depende de como o dado de Inspiração é usado.",
+    "kinds": ["per_use_choice", "auto_modifier"],
+    "display": "resources",
+    "activation": "Quando o alvo gasta o dado de Inspiração de Bardo que você concedeu.",
+    "options": [
+      {
+        "id": "ability_check",
+        "name": "Teste de atributo",
+        "summary": "Role a Inspiração duas vezes e escolha.",
+        "description": "Quando o dado é usado num teste de atributo, o alvo rola o dado de Inspiração duas vezes e escolhe qual resultado usar."
+      },
+      {
+        "id": "attack_roll",
+        "name": "Jogada de ataque",
+        "summary": "Dano trovejante em área ao redor do alvo.",
+        "description": "Quando o dado é usado numa jogada de ataque, o alvo do ataque e cada criatura à sua escolha que você veja a até 1,5 m dele fazem teste de resistência de Constituição contra a sua CD de magia. Cada falha sofre dano trovejante igual ao resultado da Inspiração."
+      },
+      {
+        "id": "saving_throw",
+        "name": "Teste de resistência",
+        "summary": "Pontos de vida temporários ao usuário.",
+        "description": "Quando o dado é usado num teste de resistência, depois de rolar e somar a Inspiração, a criatura recebe pontos de vida temporários iguais ao resultado mais o seu modificador de Carisma."
+      }
+    ],
+    "tags": ["tce", "criacao"],
+    "note": "Não é uma escolha do Bardo: o gatilho é definido por como o portador do dado o usa. Fica listado para consulta rápida em mesa."
+  },
+  {
+    "id": "bard_spirits.tales_from_beyond",
+    "name": "Contos do Além",
+    "class_id": "bard",
+    "subclass_id": "bard_spirits",
+    "level": 3,
+    "feature": "Contos do Além",
+    "source": "vrgtr",
+    "edition": "2014",
+    "summary": "Tabela d12. No 14º nível rola duas vezes e escolhe.",
+    "kinds": ["roll_table", "temporary_state"],
+    "display": "combat_actions",
+    "activation": "Ação bônus e 1 dado de Inspiração de Bardo, segurando um Foco Espiritual.",
+    "duration": "O conto fica retido até ser usado ou até você terminar um descanso curto ou longo.",
+    "recovery": "Descanso curto ou longo.",
+    "action": {
+      "type": "bonus",
+      "cost": "1 dado de Inspiração de Bardo",
+      "requires": "Segurar um Foco Espiritual",
+      "recharge": "short"
+    },
+    "max_active": 1,
+    "progression": [
+      { "level": 3, "note": "Role 1d6 na tabela (dado de Inspiração do nível)" },
+      { "level": 5, "note": "O dado de Inspiração vira d8" },
+      { "level": 10, "note": "O dado de Inspiração vira d10" },
+      { "level": 14, "note": "Conexão Mística: role duas vezes e escolha; em resultados iguais, escolha qualquer conto" },
+      { "level": 15, "note": "O dado de Inspiração vira d12" }
+    ],
+    "table": {
+      "id": "bard_spirits.tales_from_beyond.table",
+      "title": "Contos do Além (d12)",
+      "dice": "d12",
+      "columns": ["d12", "Conto", "Efeito"],
+      "rows": [
+        { "id": "1", "label": "1", "min": 1, "max": 1, "values": ["Animal Esperto", "Por 10 minutos, o alvo pode rolar seu dado de Inspiração e somar a um teste de Inteligência, Sabedoria ou Carisma."] },
+        { "id": "2", "label": "2", "min": 2, "max": 2, "values": ["Duelista", "Ataque mágico corpo a corpo contra o alvo; dano de força igual a duas rolagens do dado de Inspiração mais o seu modificador de Carisma."] },
+        { "id": "3", "label": "3", "min": 3, "max": 3, "values": ["Amigos Amados", "O alvo e outra criatura à sua escolha a até 1,5 m dele recebem pontos de vida temporários iguais ao dado mais o seu modificador de Carisma."] },
+        { "id": "4", "label": "4", "min": 4, "max": 4, "values": ["Fugitivo", "O alvo pode usar a reação para teleportar até 9 m. Você pode permitir que até o seu modificador de Carisma em criaturas a até 9 m do alvo façam o mesmo com as reações delas."] },
+        { "id": "5", "label": "5", "min": 5, "max": 5, "values": ["Vingador", "Por 1 minuto, qualquer criatura que acerte o alvo com ataque corpo a corpo sofre dano de força igual a uma rolagem do dado."] },
+        { "id": "6", "label": "6", "min": 6, "max": 6, "values": ["Viajante", "O alvo recebe pontos de vida temporários iguais ao dado mais o seu nível de Bardo. Enquanto mantiver esses pontos, recebe +1 de CA e +3 m de deslocamento de caminhada."] },
+        { "id": "7", "label": "7", "min": 7, "max": 7, "values": ["Sedutor", "O alvo faz resistência de Sabedoria; na falha sofre duas rolagens do dado em dano psíquico e fica incapacitado até o fim do próximo turno dele."] },
+        { "id": "8", "label": "8", "min": 8, "max": 8, "values": ["Fantasma", "O alvo fica invisível até o fim do próximo turno dele ou até atingir uma criatura. Se acertar enquanto invisível, o atingido sofre dano necrótico extra igual ao dado e fica amedrontado do beneficiário até o fim do próximo turno."] },
+        { "id": "9", "label": "9", "min": 9, "max": 9, "values": ["Bruto", "Criaturas à escolha do beneficiário a até 9 m fazem resistência de Força; na falha sofrem três rolagens do dado em dano trovejante e ficam caídas. No sucesso, metade e não caem."] },
+        { "id": "10", "label": "10", "min": 10, "max": 10, "values": ["Dragão", "Cone de 9 m, resistência de Destreza; na falha sofre dano de fogo igual a quatro rolagens do dado, metade no sucesso."] },
+        { "id": "11", "label": "11", "min": 11, "max": 11, "values": ["Anjo", "O alvo recupera pontos de vida iguais a duas rolagens do dado mais o seu modificador de Carisma e pode encerrar uma condição entre cego, surdo, paralisado, petrificado ou envenenado."] },
+        { "id": "12", "label": "12", "min": 12, "max": 12, "values": ["Distorcedor Mental", "O alvo faz resistência de Inteligência; na falha sofre três rolagens do dado em dano psíquico e fica atordoado até o fim do próximo turno dele."] }
+      ],
+      "notes": [
+        "Apenas um conto fica retido por vez.",
+        "Aplicar o conto exige uma ação e um alvo visível a até 9 m, que pode ser você.",
+        "Quando o conto exige resistência, a CD é a sua CD de magia."
+      ]
+    },
+    "tags": ["vrgtr", "espiritos", "tabela"]
+  },
+  {
+    "id": "cleric_knowledge_domain.blessings_of_knowledge",
+    "name": "Bênçãos do Conhecimento",
+    "class_id": "cleric",
+    "subclass_id": "cleric_knowledge_domain",
+    "level": 1,
+    "feature": "Bênçãos do Conhecimento",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "Duas perícias entre quatro, com o bônus de proficiência dobrado.",
+    "kinds": ["known_list"],
+    "display": "skills",
+    "progression": [{ "level": 1, "picks": 2 }],
+    "options": [
+      {
+        "id": "arcana",
+        "name": "Arcanismo",
+        "summary": "Proficiência e bônus de proficiência dobrado.",
+        "description": "Ganha proficiência em Arcanismo e dobra o bônus de proficiência em qualquer teste dessa perícia.",
+        "effects": [
+          {
+            "id": "cleric_knowledge.blessings.arcana",
+            "path": "skill.expertise",
+            "operation": "grant",
+            "display": "skills",
+            "label": "Arcanismo (especialista)",
+            "note": "Marque Arcanismo como especialista na tela de proficiências."
+          }
+        ]
+      },
+      {
+        "id": "history",
+        "name": "História",
+        "summary": "Proficiência e bônus de proficiência dobrado.",
+        "description": "Ganha proficiência em História e dobra o bônus de proficiência em qualquer teste dessa perícia.",
+        "effects": [
+          {
+            "id": "cleric_knowledge.blessings.history",
+            "path": "skill.expertise",
+            "operation": "grant",
+            "display": "skills",
+            "label": "História (especialista)",
+            "note": "Marque História como especialista na tela de proficiências."
+          }
+        ]
+      },
+      {
+        "id": "nature",
+        "name": "Natureza",
+        "summary": "Proficiência e bônus de proficiência dobrado.",
+        "description": "Ganha proficiência em Natureza e dobra o bônus de proficiência em qualquer teste dessa perícia.",
+        "effects": [
+          {
+            "id": "cleric_knowledge.blessings.nature",
+            "path": "skill.expertise",
+            "operation": "grant",
+            "display": "skills",
+            "label": "Natureza (especialista)",
+            "note": "Marque Natureza como especialista na tela de proficiências."
+          }
+        ]
+      },
+      {
+        "id": "religion",
+        "name": "Religião",
+        "summary": "Proficiência e bônus de proficiência dobrado.",
+        "description": "Ganha proficiência em Religião e dobra o bônus de proficiência em qualquer teste dessa perícia.",
+        "effects": [
+          {
+            "id": "cleric_knowledge.blessings.religion",
+            "path": "skill.expertise",
+            "operation": "grant",
+            "display": "skills",
+            "label": "Religião (especialista)",
+            "note": "Marque Religião como especialista na tela de proficiências."
+          }
+        ]
+      }
+    ],
+    "tags": ["phb", "conhecimento"],
+    "note": "A característica também concede dois idiomas, que são escolhidos na tela de idiomas."
+  },
+  {
+    "id": "cleric_nature_domain.acolyte_of_nature",
+    "name": "Acólito da Natureza",
+    "class_id": "cleric",
+    "subclass_id": "cleric_nature_domain",
+    "level": 1,
+    "feature": "Acólito da Natureza",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "Uma perícia entre Adestrar Animais, Natureza e Sobrevivência.",
+    "kinds": ["permanent_choice"],
+    "display": "skills",
+    "progression": [{ "level": 1, "picks": 1 }],
+    "options": [
+      {
+        "id": "animal_handling",
+        "name": "Adestrar Animais",
+        "description": "Ganha proficiência na perícia Adestrar Animais.",
+        "effects": [
+          {
+            "id": "cleric_nature.acolyte.animal_handling",
+            "path": "skill.proficiency",
+            "operation": "grant",
+            "display": "skills",
+            "label": "Adestrar Animais",
+            "note": "Marque Adestrar Animais na tela de proficiências."
+          }
+        ]
+      },
+      {
+        "id": "nature",
+        "name": "Natureza",
+        "description": "Ganha proficiência na perícia Natureza.",
+        "effects": [
+          {
+            "id": "cleric_nature.acolyte.nature",
+            "path": "skill.proficiency",
+            "operation": "grant",
+            "display": "skills",
+            "label": "Natureza",
+            "note": "Marque Natureza na tela de proficiências."
+          }
+        ]
+      },
+      {
+        "id": "survival",
+        "name": "Sobrevivência",
+        "description": "Ganha proficiência na perícia Sobrevivência.",
+        "effects": [
+          {
+            "id": "cleric_nature.acolyte.survival",
+            "path": "skill.proficiency",
+            "operation": "grant",
+            "display": "skills",
+            "label": "Sobrevivência",
+            "note": "Marque Sobrevivência na tela de proficiências."
+          }
+        ]
+      }
+    ],
+    "tags": ["phb", "natureza"],
+    "note": "A característica também concede um truque de Druida, escolhido na tela de magias, e proficiência com armaduras pesadas."
+  },
+  {
+    "id": "cleric_nature_domain.divine_strike",
+    "name": "Golpe Divino",
+    "class_id": "cleric",
+    "subclass_id": "cleric_nature_domain",
+    "level": 8,
+    "feature": "Golpe Divino",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "Frio, fogo ou elétrico, escolhido em cada uso.",
+    "kinds": ["per_use_choice"],
+    "display": "attacks",
+    "activation": "Uma vez por turno, ao acertar um ataque com arma.",
+    "progression": [
+      { "level": 8, "note": "+1d8 do tipo escolhido" },
+      { "level": 14, "note": "Passa a +2d8" }
+    ],
+    "options": [
+      {
+        "id": "cold",
+        "name": "Frio",
+        "description": "O ataque causa 1d8 de dano de frio adicional (2d8 no 14º nível)."
+      },
+      {
+        "id": "fire",
+        "name": "Fogo",
+        "description": "O ataque causa 1d8 de dano de fogo adicional (2d8 no 14º nível)."
+      },
+      {
+        "id": "lightning",
+        "name": "Elétrico",
+        "description": "O ataque causa 1d8 de dano elétrico adicional (2d8 no 14º nível)."
+      }
+    ],
+    "tags": ["phb", "natureza"]
+  },
+  {
+    "id": "cleric_tempest_domain.wrath_of_the_storm",
+    "name": "Ira da Tempestade",
+    "class_id": "cleric",
+    "subclass_id": "cleric_tempest_domain",
+    "level": 1,
+    "feature": "Ira da Tempestade",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "Elétrico ou trovejante, escolhido em cada uso.",
+    "kinds": ["per_use_choice", "limited_resource"],
+    "display": "combat_actions",
+    "activation": "Reação, quando uma criatura visível a até 1,5 m acerta você.",
+    "recovery": "Descanso longo.",
+    "uses_minimum": 1,
+    "action": {
+      "type": "reaction",
+      "uses_formula": "mod.SAB",
+      "recharge": "long",
+      "trigger": "Quando uma criatura que você vê a até 1,5 m acerta você com um ataque"
+    },
+    "options": [
+      {
+        "id": "lightning",
+        "name": "Elétrico",
+        "description": "A criatura faz teste de resistência de Destreza contra a sua CD de magia, sofrendo 2d8 de dano elétrico na falha e metade no sucesso."
+      },
+      {
+        "id": "thunder",
+        "name": "Trovejante",
+        "description": "A criatura faz teste de resistência de Destreza contra a sua CD de magia, sofrendo 2d8 de dano trovejante na falha e metade no sucesso."
+      }
+    ],
+    "tags": ["phb", "tempestade"]
+  },
+  {
+    "id": "druid_land.circle_terrain",
+    "name": "Terreno do Círculo",
+    "class_id": "druid",
+    "subclass_id": "druid_land",
+    "level": 3,
+    "feature": "Magias do Círculo",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "Um terreno define a lista de Magias do Círculo, sempre preparadas.",
+    "kinds": ["permanent_choice", "lookup_table"],
+    "display": "spellcasting",
+    "progression": [{ "level": 3, "picks": 1 }],
+    "table": {
+      "id": "druid_land.circle_terrain.table",
+      "title": "Magias do Círculo por terreno",
+      "columns": ["Terreno", "3º nível", "5º nível", "7º nível", "9º nível"],
+      "rows": [
+        { "id": "arctic", "label": "Ártico", "option_id": "arctic", "values": ["Hold Person, Spike Growth", "Sleet Storm, Slow", "Freedom of Movement, Ice Storm", "Commune with Nature, Cone of Cold"] },
+        { "id": "coast", "label": "Costa", "option_id": "coast", "values": ["Mirror Image, Misty Step", "Water Breathing, Water Walk", "Control Water, Freedom of Movement", "Conjure Elemental, Scrying"] },
+        { "id": "desert", "label": "Deserto", "option_id": "desert", "values": ["Blur, Silence", "Create Food and Water, Protection from Energy", "Blight, Hallucinatory Terrain", "Insect Plague, Wall of Stone"] },
+        { "id": "forest", "label": "Floresta", "option_id": "forest", "values": ["Barkskin, Spider Climb", "Call Lightning, Plant Growth", "Divination, Freedom of Movement", "Commune with Nature, Tree Stride"] },
+        { "id": "grassland", "label": "Planície", "option_id": "grassland", "values": ["Invisibility, Pass without Trace", "Daylight, Haste", "Divination, Freedom of Movement", "Dream, Insect Plague"] },
+        { "id": "mountain", "label": "Montanha", "option_id": "mountain", "values": ["Spider Climb, Spike Growth", "Lightning Bolt, Meld into Stone", "Stone Shape, Stoneskin", "Passwall, Wall of Stone"] },
+        { "id": "swamp", "label": "Pântano", "option_id": "swamp", "values": ["Acid Arrow, Darkness", "Water Walk, Stinking Cloud", "Freedom of Movement, Locate Creature", "Insect Plague, Scrying"] },
+        { "id": "underdark", "label": "Subterrâneo", "option_id": "underdark", "values": ["Spider Climb, Web", "Gaseous Form, Stinking Cloud", "Greater Invisibility, Stone Shape", "Cloudkill, Insect Plague"] }
+      ],
+      "notes": [
+        "As magias do terreno escolhido ficam sempre preparadas e não contam no limite diário.",
+        "Cada par é liberado no nível de Druida indicado na coluna."
+      ]
+    },
+    "options": [
+      {
+        "id": "arctic",
+        "name": "Ártico",
+        "summary": "Hold Person, Sleet Storm, Ice Storm, Cone of Cold.",
+        "description": "3º nível: Hold Person e Spike Growth. 5º: Sleet Storm e Slow. 7º: Freedom of Movement e Ice Storm. 9º: Commune with Nature e Cone of Cold.",
+        "incompatible_with": ["coast", "desert", "forest", "grassland", "mountain", "swamp", "underdark"]
+      },
+      {
+        "id": "coast",
+        "name": "Costa",
+        "summary": "Mirror Image, Water Breathing, Control Water, Conjure Elemental.",
+        "description": "3º nível: Mirror Image e Misty Step. 5º: Water Breathing e Water Walk. 7º: Control Water e Freedom of Movement. 9º: Conjure Elemental e Scrying.",
+        "incompatible_with": ["arctic", "desert", "forest", "grassland", "mountain", "swamp", "underdark"]
+      },
+      {
+        "id": "desert",
+        "name": "Deserto",
+        "summary": "Blur, Protection from Energy, Blight, Wall of Stone.",
+        "description": "3º nível: Blur e Silence. 5º: Create Food and Water e Protection from Energy. 7º: Blight e Hallucinatory Terrain. 9º: Insect Plague e Wall of Stone.",
+        "incompatible_with": ["arctic", "coast", "forest", "grassland", "mountain", "swamp", "underdark"]
+      },
+      {
+        "id": "forest",
+        "name": "Floresta",
+        "summary": "Barkskin, Call Lightning, Divination, Tree Stride.",
+        "description": "3º nível: Barkskin e Spider Climb. 5º: Call Lightning e Plant Growth. 7º: Divination e Freedom of Movement. 9º: Commune with Nature e Tree Stride.",
+        "incompatible_with": ["arctic", "coast", "desert", "grassland", "mountain", "swamp", "underdark"]
+      },
+      {
+        "id": "grassland",
+        "name": "Planície",
+        "summary": "Invisibility, Haste, Divination, Dream.",
+        "description": "3º nível: Invisibility e Pass without Trace. 5º: Daylight e Haste. 7º: Divination e Freedom of Movement. 9º: Dream e Insect Plague.",
+        "incompatible_with": ["arctic", "coast", "desert", "forest", "mountain", "swamp", "underdark"]
+      },
+      {
+        "id": "mountain",
+        "name": "Montanha",
+        "summary": "Spider Climb, Lightning Bolt, Stoneskin, Passwall.",
+        "description": "3º nível: Spider Climb e Spike Growth. 5º: Lightning Bolt e Meld into Stone. 7º: Stone Shape e Stoneskin. 9º: Passwall e Wall of Stone.",
+        "incompatible_with": ["arctic", "coast", "desert", "forest", "grassland", "swamp", "underdark"]
+      },
+      {
+        "id": "swamp",
+        "name": "Pântano",
+        "summary": "Acid Arrow, Stinking Cloud, Locate Creature, Scrying.",
+        "description": "3º nível: Acid Arrow e Darkness. 5º: Water Walk e Stinking Cloud. 7º: Freedom of Movement e Locate Creature. 9º: Insect Plague e Scrying.",
+        "incompatible_with": ["arctic", "coast", "desert", "forest", "grassland", "mountain", "underdark"]
+      },
+      {
+        "id": "underdark",
+        "name": "Subterrâneo",
+        "summary": "Web, Gaseous Form, Greater Invisibility, Cloudkill.",
+        "description": "3º nível: Spider Climb e Web. 5º: Gaseous Form e Stinking Cloud. 7º: Greater Invisibility e Stone Shape. 9º: Cloudkill e Insect Plague.",
+        "incompatible_with": ["arctic", "coast", "desert", "forest", "grassland", "mountain", "swamp"]
+      }
+    ],
+    "tags": ["phb", "terra", "tabela"],
+    "note": "As magias do terreno não são adicionadas ao livro automaticamente: marque-as como sempre preparadas na tela de magias. A tabela fica aqui para consulta."
+  },
+  {
+    "id": "druid_moon.elemental_wild_shape",
+    "name": "Forma Selvagem Elemental",
+    "class_id": "druid",
+    "subclass_id": "druid_moon",
+    "level": 10,
+    "feature": "Forma Selvagem Elemental",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "Elemental do Ar, da Terra, do Fogo ou da Água, gastando 2 usos.",
+    "kinds": ["per_use_choice", "activatable_mode"],
+    "display": "combat_actions",
+    "activation": "Gasta dois usos de Forma Selvagem ao mesmo tempo.",
+    "max_active": 1,
+    "action": {
+      "type": "action",
+      "cost": "2 usos de Forma Selvagem"
+    },
+    "options": [
+      {
+        "id": "air_elemental",
+        "name": "Elemental do Ar",
+        "description": "Assume a forma de um Elemental do Ar.",
+        "mode": true,
+        "incompatible_with": ["earth_elemental", "fire_elemental", "water_elemental"]
+      },
+      {
+        "id": "earth_elemental",
+        "name": "Elemental da Terra",
+        "description": "Assume a forma de um Elemental da Terra.",
+        "mode": true,
+        "incompatible_with": ["air_elemental", "fire_elemental", "water_elemental"]
+      },
+      {
+        "id": "fire_elemental",
+        "name": "Elemental do Fogo",
+        "description": "Assume a forma de um Elemental do Fogo.",
+        "mode": true,
+        "incompatible_with": ["air_elemental", "earth_elemental", "water_elemental"]
+      },
+      {
+        "id": "water_elemental",
+        "name": "Elemental da Água",
+        "description": "Assume a forma de um Elemental da Água.",
+        "mode": true,
+        "incompatible_with": ["air_elemental", "earth_elemental", "fire_elemental"]
+      }
+    ],
+    "tags": ["phb", "lua", "forma"]
+  },
+  {
+    "id": "druid_shepherd.spirit_totem",
+    "name": "Totem Espiritual",
+    "class_id": "druid",
+    "subclass_id": "druid_shepherd",
+    "level": 2,
+    "feature": "Totem Espiritual",
+    "source": "xge",
+    "edition": "2014",
+    "summary": "Urso, Falcão ou Unicórnio, escolhido a cada invocação.",
+    "kinds": ["per_use_choice", "activatable_mode", "limited_resource"],
+    "display": "combat_actions",
+    "activation": "Ação bônus, invocando o espírito num ponto visível a até 18 m.",
+    "duration": "1 minuto. Aura de raio 9 m.",
+    "recovery": "Descanso curto ou longo.",
+    "max_active": 1,
+    "action": {
+      "type": "bonus",
+      "uses": 1,
+      "recharge": "short"
+    },
+    "options": [
+      {
+        "id": "bear",
+        "name": "Espírito do Urso",
+        "summary": "PV temporários e vantagem em Força na aura.",
+        "description": "Quando o espírito surge, cada criatura à sua escolha na aura recebe 5 + seu nível de Druida pontos de vida temporários. Enquanto estiverem na aura, você e seus aliados têm vantagem em testes e resistências de Força.",
+        "mode": true,
+        "incompatible_with": ["hawk", "unicorn"],
+        "duration": "1 minuto"
+      },
+      {
+        "id": "hawk",
+        "name": "Espírito do Falcão",
+        "summary": "Reação para dar vantagem em um ataque e vantagem em Percepção.",
+        "description": "Quando uma criatura faz um ataque contra um alvo dentro da aura, você pode usar a reação para dar vantagem à jogada. Enquanto estiverem na aura, você e seus aliados têm vantagem em testes de Percepção.",
+        "mode": true,
+        "incompatible_with": ["bear", "unicorn"],
+        "duration": "1 minuto",
+        "action": {
+          "type": "reaction",
+          "trigger": "Quando uma criatura faz um ataque contra um alvo dentro da aura"
+        }
+      },
+      {
+        "id": "unicorn",
+        "name": "Espírito do Unicórnio",
+        "summary": "Cura em área sempre que você conjura magia de cura com espaço.",
+        "description": "Você e seus aliados têm vantagem em testes de atributo feitos para detectar criaturas na aura. Sempre que conjura uma magia usando um espaço que restaura pontos de vida a uma criatura, cada criatura à sua escolha dentro da aura também recupera pontos de vida iguais ao seu nível de Druida.",
+        "mode": true,
+        "incompatible_with": ["bear", "hawk"],
+        "duration": "1 minuto"
+      }
+    ],
+    "tags": ["xge", "pastor", "aura"]
+  },
+  {
+    "id": "druid_stars.starry_form",
+    "name": "Forma Estelar",
+    "class_id": "druid",
+    "subclass_id": "druid_stars",
+    "level": 2,
+    "feature": "Forma Estelar",
+    "source": "tce",
+    "edition": "2014",
+    "summary": "Arqueiro, Cálice ou Dragão. No 10º nível pode alternar no começo do turno.",
+    "kinds": ["activatable_mode", "temporary_state"],
+    "display": "combat_actions",
+    "activation": "Ação bônus e um uso de Forma Selvagem.",
+    "duration": "10 minutos, ou até você ficar incapacitado, morrer ou dispensar sem usar ação.",
+    "max_active": 1,
+    "action": {
+      "type": "bonus",
+      "cost": "1 uso de Forma Selvagem"
+    },
+    "replacement": {
+      "trigger": "any_time",
+      "per_event": 1,
+      "note": "A constelação é escolhida ao ativar; a partir do 10º nível pode ser trocada no início de cada turno."
+    },
+    "progression": [
+      { "level": 2, "max_active": 1, "note": "Arqueiro e Cálice usam 1d8" },
+      { "level": 10, "max_active": 1, "note": "Constelações Cintilantes: Arqueiro e Cálice usam 2d8, o Dragão ganha voo 6 m e a constelação pode ser trocada no início do turno" },
+      { "level": 14, "note": "Cheio de Estrelas: resistência a dano contundente, perfurante e cortante na Forma Estelar" }
+    ],
+    "options": [
+      {
+        "id": "archer",
+        "name": "Arqueiro",
+        "summary": "Ataque mágico à distância como ação bônus.",
+        "description": "Ao ativar e, nos turnos seguintes, como ação bônus, faça um ataque mágico à distância contra uma criatura a até 18 m, causando 1d8 + seu modificador de Sabedoria de dano radiante. Passa a 2d8 no 10º nível.",
+        "mode": true,
+        "incompatible_with": ["chalice", "dragon"],
+        "duration": "10 minutos",
+        "action": {
+          "type": "bonus"
+        },
+        "effects": [
+          {
+            "id": "druid_stars.form.archer",
+            "path": "attack.ranged",
+            "operation": "grant",
+            "display": "attacks",
+            "label": "Arqueiro",
+            "note": "Ataque mágico à distância, 18 m, 1d8 + Sabedoria de dano radiante (2d8 no 10º nível)."
+          }
+        ]
+      },
+      {
+        "id": "chalice",
+        "name": "Cálice",
+        "summary": "Cura adicional sempre que conjura magia de cura com espaço.",
+        "description": "Sempre que conjura uma magia usando um espaço que restaura pontos de vida, você ou uma criatura a até 9 m recupera 1d8 + seu modificador de Sabedoria adicional. Passa a 2d8 no 10º nível.",
+        "mode": true,
+        "incompatible_with": ["archer", "dragon"],
+        "duration": "10 minutos"
+      },
+      {
+        "id": "dragon",
+        "name": "Dragão",
+        "summary": "Piso de 10 em testes de concentração e, no 10º nível, voo 6 m.",
+        "description": "Quando faz um teste de Inteligência, Sabedoria ou Constituição para manter concentração numa magia, um resultado de 9 ou menos no d20 conta como 10. A partir do 10º nível também concede deslocamento de voo de 6 m com capacidade de pairar.",
+        "mode": true,
+        "incompatible_with": ["archer", "chalice"],
+        "duration": "10 minutos",
+        "effects": [
+          {
+            "id": "druid_stars.form.dragon",
+            "path": "concentration.floor",
+            "operation": "min",
+            "formula": "10",
+            "display": "spellcasting",
+            "label": "Dragão",
+            "note": "Resultado de 9 ou menos no d20 conta como 10 em testes de concentração."
+          }
+        ]
+      }
+    ],
+    "tags": ["tce", "estrelas", "forma"]
+  },
+  {
+    "id": "druid_wildfire.cauterizing_flames",
+    "name": "Chamas Cauterizantes",
+    "class_id": "druid",
+    "subclass_id": "druid_wildfire",
+    "level": 10,
+    "feature": "Chamas Cauterizantes",
+    "source": "tce",
+    "edition": "2014",
+    "summary": "Curar ou causar dano consumindo a chama espectral.",
+    "kinds": ["per_use_choice", "limited_resource"],
+    "display": "combat_actions",
+    "activation": "Reação, quando uma criatura visível entra no espaço da chama espectral.",
+    "duration": "A chama dura 1 minuto no espaço onde a criatura morreu.",
+    "recovery": "Descanso longo.",
+    "action": {
+      "type": "reaction",
+      "uses_formula": "proficiency",
+      "recharge": "long",
+      "trigger": "Quando uma criatura que você vê entra no espaço de uma chama espectral"
+    },
+    "options": [
+      {
+        "id": "heal",
+        "name": "Curar",
+        "summary": "2d10 + Sabedoria pontos de vida.",
+        "description": "A chama é extinta e a criatura recupera 2d10 + seu modificador de Sabedoria pontos de vida."
+      },
+      {
+        "id": "harm",
+        "name": "Causar dano",
+        "summary": "2d10 + Sabedoria de dano de fogo.",
+        "description": "A chama é extinta e a criatura sofre 2d10 + seu modificador de Sabedoria de dano de fogo."
+      }
+    ],
+    "tags": ["tce", "fogo-selvagem"],
+    "note": "A chama espectral surge quando uma criatura Pequena ou maior morre a até 9 m de você ou do seu Espírito do Fogo Selvagem."
+  },
+  {
+    "id": "fighter_battle_master.maneuvers",
+    "name": "Manobras",
+    "class_id": "fighter",
+    "subclass_id": "fighter_battle_master",
+    "level": 3,
+    "feature": "Superioridade em Combate",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "23 manobras oficiais do PHB e de Tasha, com os Dados de Superioridade.",
+    "kinds": ["known_list", "limited_resource"],
+    "display": "combat_actions",
+    "activation": "Cada manobra gasta um Dado de Superioridade. Em geral, só uma manobra por ataque.",
+    "recovery": "Descanso curto ou longo.",
+    "action": {
+      "type": "special",
+      "uses": 4,
+      "recharge": "short",
+      "label": "Dados de Superioridade",
+      "cost": "1 Dado de Superioridade por manobra"
+    },
+    "replacement": {
+      "trigger": "new_pick",
+      "per_event": 1,
+      "note": "Ao aprender manobras novas, pode trocar uma que já conhece."
+    },
+    "progression": [
+      { "level": 3, "picks": 3, "uses": 4, "note": "Dados de Superioridade: 4d8" },
+      { "level": 7, "picks": 5, "uses": 5, "note": "Dados de Superioridade: 5d8" },
+      { "level": 10, "picks": 7, "uses": 5, "note": "Dados de Superioridade: 5d10" },
+      { "level": 15, "picks": 9, "uses": 6, "note": "Dados de Superioridade: 6d10" },
+      { "level": 18, "uses": 6, "note": "Dados de Superioridade: 6d12" }
+    ],
+    "options": [
+      { "id": "ambush", "name": "Emboscada", "name_original": "Ambush", "summary": "Soma o dado a Furtividade ou iniciativa.", "description": "Ao fazer um teste de Furtividade ou uma jogada de iniciativa, desde que não esteja incapacitado, gaste um dado e some o resultado à rolagem.", "tags": ["tce"] },
+      { "id": "bait_and_switch", "name": "Trocar de Lugar", "name_original": "Bait and Switch", "summary": "Troca de lugar com um aliado e dá bônus de CA.", "description": "Estando a até 1,5 m de um aliado voluntário, gaste um dado e 1,5 m de movimento para trocar de lugar com ele sem provocar ataques de oportunidade. Role o dado e escolha um dos dois para receber bônus de CA igual ao resultado até o início do seu próximo turno.", "tags": ["tce"] },
+      { "id": "brace", "name": "Postura Firme", "name_original": "Brace", "summary": "Reação para atacar quem entra no seu alcance.", "description": "Quando uma criatura que você vê entra no alcance da arma corpo a corpo que você empunha, use a reação e gaste um dado para atacá-la. Em um acerto, some o dado ao dano.", "action": { "type": "reaction", "trigger": "Quando uma criatura visível entra no alcance da sua arma corpo a corpo" }, "tags": ["tce"] },
+      { "id": "commanders_strike", "name": "Golpe do Comandante", "name_original": "Commander's Strike", "summary": "Um aliado ataca usando a reação dele.", "description": "Ao usar a ação Atacar, abra mão de um ataque e use uma ação bônus e um dado. Um aliado que veja ou ouça você usa a reação para fazer um ataque com arma e soma o dado ao dano.", "action": { "type": "bonus" } },
+      { "id": "commanding_presence", "name": "Presença Imponente", "name_original": "Commanding Presence", "summary": "Soma o dado a Intimidação, Performance ou Persuasão.", "description": "Ao fazer um teste de Intimidação, Performance ou Persuasão, gaste um dado e some o resultado ao teste.", "tags": ["tce"] },
+      { "id": "disarming_attack", "name": "Ataque Desarmante", "name_original": "Disarming Attack", "summary": "O alvo solta um objeto.", "description": "Ao acertar um ataque com arma, gaste um dado e some ao dano. O alvo faz teste de resistência de Força e, na falha, solta um objeto que esteja segurando, à sua escolha, que cai aos pés dele." },
+      { "id": "distracting_strike", "name": "Golpe Perturbador", "name_original": "Distracting Strike", "summary": "Dá vantagem ao próximo ataque de um aliado.", "description": "Ao acertar um ataque com arma, gaste um dado e some ao dano. O próximo ataque de outra criatura contra o alvo, antes do início do seu próximo turno, tem vantagem." },
+      { "id": "evasive_footwork", "name": "Passos Evasivos", "name_original": "Evasive Footwork", "summary": "Soma o dado à CA enquanto se move.", "description": "Ao se mover, gaste um dado e some o resultado à sua CA até parar de se mover." },
+      { "id": "feinting_attack", "name": "Ataque Fingido", "name_original": "Feinting Attack", "summary": "Vantagem no próximo ataque contra um alvo próximo.", "description": "Use uma ação bônus e gaste um dado, escolhendo uma criatura a até 1,5 m. Você tem vantagem no próximo ataque contra ela neste turno; se acertar, some o dado ao dano.", "action": { "type": "bonus" } },
+      { "id": "goading_attack", "name": "Ataque Provocante", "name_original": "Goading Attack", "summary": "O alvo tem desvantagem contra outros.", "description": "Ao acertar um ataque com arma, gaste um dado e some ao dano. O alvo faz teste de resistência de Sabedoria e, na falha, tem desvantagem em ataques contra alvos que não sejam você até o fim do seu próximo turno." },
+      { "id": "grappling_strike", "name": "Golpe de Agarrão", "name_original": "Grappling Strike", "summary": "Agarra o alvo somando o dado a Atletismo.", "description": "Imediatamente após acertar um ataque corpo a corpo no seu turno, gaste um dado e use uma ação bônus para agarrar o alvo, somando o dado ao teste de Atletismo.", "action": { "type": "bonus" }, "tags": ["tce"] },
+      { "id": "lunging_attack", "name": "Ataque Investido", "name_original": "Lunging Attack", "summary": "+1,5 m de alcance num ataque corpo a corpo.", "description": "Ao fazer um ataque corpo a corpo no seu turno, gaste um dado para aumentar o alcance desse ataque em 1,5 m. Em um acerto, some o dado ao dano." },
+      { "id": "maneuvering_attack", "name": "Ataque de Manobra", "name_original": "Maneuvering Attack", "summary": "Um aliado se move sem provocar ataque do alvo.", "description": "Ao acertar um ataque com arma, gaste um dado e some ao dano. Escolha um aliado que veja ou ouça você: ele usa a reação para mover até metade do deslocamento sem provocar ataque de oportunidade do alvo atingido." },
+      { "id": "menacing_attack", "name": "Ataque Ameaçador", "name_original": "Menacing Attack", "summary": "O alvo fica amedrontado.", "description": "Ao acertar um ataque com arma, gaste um dado e some ao dano. O alvo faz teste de resistência de Sabedoria e, na falha, fica amedrontado de você até o fim do seu próximo turno." },
+      { "id": "parry", "name": "Aparar", "name_original": "Parry", "summary": "Reduz o dano de um ataque corpo a corpo.", "description": "Quando um ataque corpo a corpo causa dano a você, use a reação e gaste um dado para reduzir o dano no resultado do dado mais o seu modificador de Destreza.", "action": { "type": "reaction", "trigger": "Quando um ataque corpo a corpo causa dano a você" } },
+      { "id": "precision_attack", "name": "Ataque Preciso", "name_original": "Precision Attack", "summary": "Soma o dado à jogada de ataque.", "description": "Ao fazer um ataque com arma, gaste um dado e some o resultado à jogada de ataque. Pode decidir antes ou depois de rolar o d20, mas antes de aplicar os efeitos." },
+      { "id": "pushing_attack", "name": "Ataque de Empurrão", "name_original": "Pushing Attack", "summary": "Empurra o alvo até 4,5 m.", "description": "Ao acertar um ataque com arma, gaste um dado e some ao dano. Se o alvo for Grande ou menor, ele faz teste de resistência de Força e, na falha, é empurrado até 4,5 m." },
+      { "id": "quick_toss", "name": "Arremesso Rápido", "name_original": "Quick Toss", "summary": "Saca e arremessa uma arma como ação bônus.", "description": "Use uma ação bônus e gaste um dado para sacar uma arma com a propriedade arremessável e fazer um ataque à distância com ela. Em um acerto, some o dado ao dano.", "action": { "type": "bonus" }, "tags": ["tce"] },
+      { "id": "rally", "name": "Reagrupar", "name_original": "Rally", "summary": "PV temporários a um aliado.", "description": "Use uma ação bônus e gaste um dado. Um aliado que veja ou ouça você recebe pontos de vida temporários iguais ao resultado mais o seu modificador de Carisma.", "action": { "type": "bonus" } },
+      { "id": "riposte", "name": "Riposta", "name_original": "Riposte", "summary": "Contra-ataque quando um ataque corpo a corpo erra.", "description": "Quando uma criatura erra um ataque corpo a corpo contra você, use a reação e gaste um dado para atacá-la corpo a corpo. Em um acerto, some o dado ao dano.", "action": { "type": "reaction", "trigger": "Quando uma criatura erra um ataque corpo a corpo contra você" } },
+      { "id": "sweeping_attack", "name": "Ataque Amplo", "name_original": "Sweeping Attack", "summary": "Atinge uma segunda criatura próxima.", "description": "Ao acertar um ataque corpo a corpo, gaste um dado e escolha outra criatura a até 1,5 m do alvo original e dentro do seu alcance. Se a rolagem original também acertaria a CA dela, ela sofre dano igual ao resultado do dado, do mesmo tipo do ataque original." },
+      { "id": "tactical_assessment", "name": "Avaliação Tática", "name_original": "Tactical Assessment", "summary": "Soma o dado a Investigação, História ou Intuição.", "description": "Ao fazer um teste de Investigação, História ou Intuição, gaste um dado e some o resultado ao teste.", "tags": ["tce"] },
+      { "id": "trip_attack", "name": "Ataque Rasteiro", "name_original": "Trip Attack", "summary": "Derruba o alvo.", "description": "Ao acertar um ataque com arma, gaste um dado e some ao dano. Se o alvo for Grande ou menor, ele faz teste de resistência de Força e, na falha, fica caído." }
+    ],
+    "tags": ["phb", "tce", "manobras"],
+    "note": "A CD dos testes de resistência das manobras é 8 + bônus de proficiência + modificador de Força ou de Destreza, o que for maior. No 15º nível, ao rolar iniciativa sem nenhum dado sobrando, você recupera um."
+  },
+  {
+    "id": "fighter_arcane_archer.arcane_shot",
+    "name": "Disparo Arcano",
+    "class_id": "fighter",
+    "subclass_id": "fighter_arcane_archer",
+    "level": 3,
+    "feature": "Disparo Arcano",
+    "source": "xge",
+    "edition": "2014",
+    "summary": "Oito opções oficiais, duas utilizações por descanso.",
+    "kinds": ["known_list", "per_use_choice", "limited_resource"],
+    "display": "combat_actions",
+    "activation": "Uma vez por turno, ao disparar uma flecha de arco curto ou longo como parte da ação Atacar.",
+    "recovery": "Descanso curto ou longo.",
+    "action": {
+      "type": "special",
+      "uses": 2,
+      "recharge": "short",
+      "label": "Utilizações de Disparo Arcano"
+    },
+    "replacement": {
+      "trigger": "new_pick",
+      "per_event": 1,
+      "note": "Ao aprender uma opção nova, pode trocar uma que já conhece."
+    },
+    "progression": [
+      { "level": 3, "picks": 2, "uses": 2 },
+      { "level": 7, "picks": 3, "uses": 2, "note": "Flecha Mágica e Disparo Curvo ficam disponíveis" },
+      { "level": 10, "picks": 4, "uses": 2 },
+      { "level": 15, "picks": 5, "uses": 2, "note": "Ao rolar iniciativa sem utilizações, você recupera uma" },
+      { "level": 18, "picks": 6, "uses": 2, "note": "Todas as opções de Disparo Arcano melhoram" }
+    ],
+    "options": [
+      {
+        "id": "banishing_arrow",
+        "name": "Flecha Banidora",
+        "name_original": "Banishing Arrow",
+        "summary": "Bane o alvo brevemente para o Feywild.",
+        "description": "Ao acertar, o alvo faz teste de resistência de Carisma. Na falha, é banido para um local inofensivo no Feywild, ficando incapacitado e com deslocamento 0 até o fim do próximo turno dele, quando reaparece no espaço que ocupava ou no mais próximo. No 18º nível o acerto também causa 2d6 de dano de força."
+      },
+      {
+        "id": "beguiling_arrow",
+        "name": "Flecha Sedutora",
+        "name_original": "Beguiling Arrow",
+        "summary": "+2d6 psíquico e enfeitiça o alvo por um aliado.",
+        "description": "O acerto causa 2d6 de dano psíquico adicional. Escolha um aliado seu a até 9 m do alvo: o alvo faz resistência de Sabedoria e, na falha, fica enfeitiçado por esse aliado até o início do seu próximo turno, encerrando antes se o aliado escolhido atacar ou danificar o alvo. No 18º nível passa a 4d6."
+      },
+      {
+        "id": "bursting_arrow",
+        "name": "Flecha Explosiva",
+        "name_original": "Bursting Arrow",
+        "summary": "2d6 de força em 3 m, sem resistência.",
+        "description": "Após acertar, o alvo e todas as outras criaturas a até 3 m dele sofrem 2d6 de dano de força, sem teste de resistência. No 18º nível passa a 4d6."
+      },
+      {
+        "id": "enfeebling_arrow",
+        "name": "Flecha Enfraquecedora",
+        "name_original": "Enfeebling Arrow",
+        "summary": "+2d6 necrótico e reduz o dano do alvo à metade.",
+        "description": "O acerto causa 2d6 de dano necrótico adicional. O alvo faz resistência de Constituição e, na falha, o dano dos ataques com arma dele é reduzido à metade até o início do seu próximo turno. No 18º nível passa a 4d6."
+      },
+      {
+        "id": "grasping_arrow",
+        "name": "Flecha Agarradora",
+        "name_original": "Grasping Arrow",
+        "summary": "+2d6 veneno, -3 m de deslocamento e dano ao se mover.",
+        "description": "O acerto causa 2d6 de dano de veneno adicional, o deslocamento do alvo diminui 3 m e, na primeira vez em cada turno em que ele se mover sem teleportar, sofre 2d6 de dano cortante. O alvo ou uma criatura ao alcance pode usar uma ação e um teste de Atletismo contra a sua CD para remover os espinhos; do contrário duram 1 minuto ou até você usar a opção de novo. No 18º nível os dois danos passam a 4d6."
+      },
+      {
+        "id": "piercing_arrow",
+        "name": "Flecha Perfurante",
+        "name_original": "Piercing Arrow",
+        "summary": "Linha de 9 m que ignora cobertura.",
+        "description": "Não há jogada de ataque. A flecha percorre uma linha de 9 m muito estreita, atravessa objetos e ignora cobertura. Cada criatura na linha faz resistência de Destreza, sofrendo o dano normal da flecha mais 1d6 perfurante na falha e metade no sucesso. No 18º nível passa a 2d6."
+      },
+      {
+        "id": "seeking_arrow",
+        "name": "Flecha Buscadora",
+        "name_original": "Seeking Arrow",
+        "summary": "Contorna cantos e revela a posição do alvo.",
+        "description": "Não há jogada de ataque. Escolha uma criatura que você viu no último minuto. A flecha contorna cantos e ignora meia e três quartos de cobertura. Se o alvo estiver dentro do alcance da arma e houver caminho físico para a flecha, ele faz resistência de Destreza: na falha sofre o dano normal mais 1d6 de força e você descobre a localização atual dele; no sucesso, metade do dano e você não descobre a localização. No 18º nível passa a 2d6."
+      },
+      {
+        "id": "shadow_arrow",
+        "name": "Flecha Sombria",
+        "name_original": "Shadow Arrow",
+        "summary": "+2d6 psíquico e cega o alvo além de 1,5 m.",
+        "description": "O acerto causa 2d6 de dano psíquico adicional. O alvo faz resistência de Sabedoria e, na falha, não enxerga nada além de 1,5 m até o início do seu próximo turno. No 18º nível passa a 4d6."
+      }
+    ],
+    "tags": ["xge", "disparos"],
+    "note": "A CD dos testes de resistência é 8 + bônus de proficiência + modificador de Inteligência. Normalmente você decide aplicar a opção depois de acertar, exceto nas opções que não usam jogada de ataque."
+  },
+  {
+    "id": "fighter_rune_knight.runes",
+    "name": "Runas",
+    "class_id": "fighter",
+    "subclass_id": "fighter_rune_knight",
+    "level": 3,
+    "feature": "Escultor de Runas",
+    "source": "tce",
+    "edition": "2014",
+    "summary": "Seis runas; duas exigem nível 7. Passivos sempre valem, invocações têm usos.",
+    "kinds": ["known_list", "activatable_mode", "limited_resource"],
+    "display": "combat_actions",
+    "activation": "Ao fim de um descanso longo, grave cada runa conhecida num objeto diferente que possa vestir ou segurar.",
+    "recovery": "Cada invocação volta em um descanso curto ou longo.",
+    "replacement": {
+      "trigger": "level_up",
+      "per_event": 1,
+      "note": "Ao ganhar um nível nesta classe, pode trocar uma runa conhecida."
+    },
+    "progression": [
+      { "level": 3, "picks": 2, "option_uses": 1 },
+      { "level": 7, "picks": 3, "option_uses": 1, "note": "Runa da Colina e Runa da Tempestade ficam disponíveis" },
+      { "level": 10, "picks": 4, "option_uses": 1 },
+      { "level": 15, "picks": 5, "option_uses": 2, "note": "Mestre das Runas: cada runa pode ser invocada duas vezes entre descansos" }
+    ],
+    "options": [
+      {
+        "id": "cloud",
+        "name": "Runa da Nuvem",
+        "name_original": "Cloud Rune",
+        "summary": "Passivo: vantagem em Prestidigitação e Enganação. Invocação: redireciona um ataque.",
+        "description": "Passivo: vantagem em testes de Prestidigitação e de Enganação. Invocação: quando você ou uma criatura visível a até 9 m é atingida por um ataque, use a reação para escolher uma criatura diferente do atacante a até 9 m; o ataque, com a mesma rolagem, passa a tê-la como alvo, independentemente do alcance original.",
+        "mode": true,
+        "action": {
+          "type": "reaction",
+          "uses": 1,
+          "recharge": "short",
+          "trigger": "Quando você ou uma criatura visível a até 9 m é atingida por um ataque"
+        }
+      },
+      {
+        "id": "fire",
+        "name": "Runa do Fogo",
+        "name_original": "Fire Rune",
+        "summary": "Passivo: dobra a proficiência com ferramentas. Invocação: +2d6 de fogo e contém o alvo.",
+        "description": "Passivo: dobra o bônus de proficiência em testes com ferramentas nas quais você tenha proficiência. Invocação: ao acertar um ataque com arma, o alvo sofre 2d6 de dano de fogo adicional e faz teste de resistência de Força; na falha, fica contido por até 1 minuto e sofre 2d6 de fogo no início de cada turno dele, repetindo o teste no fim de cada turno.",
+        "mode": true,
+        "action": {
+          "type": "special",
+          "uses": 1,
+          "recharge": "short",
+          "trigger": "Ao acertar um ataque com arma"
+        }
+      },
+      {
+        "id": "frost",
+        "name": "Runa do Gelo",
+        "name_original": "Frost Rune",
+        "summary": "Passivo: vantagem em Adestrar Animais e Intimidação. Invocação: +2 em Força e Constituição.",
+        "description": "Passivo: vantagem em testes de Adestrar Animais e de Intimidação. Invocação: como ação bônus, por 10 minutos, recebe +2 em todos os testes e testes de resistência de Força e de Constituição.",
+        "mode": true,
+        "duration": "10 minutos",
+        "action": {
+          "type": "bonus",
+          "uses": 1,
+          "recharge": "short"
+        }
+      },
+      {
+        "id": "stone",
+        "name": "Runa da Pedra",
+        "name_original": "Stone Rune",
+        "summary": "Passivo: vantagem em Intuição e visão no escuro 36 m. Invocação: enfeitiça e imobiliza.",
+        "description": "Passivo: vantagem em testes de Intuição e visão no escuro de 36 m. Invocação: quando uma criatura visível termina o turno a até 9 m, use a reação para forçar um teste de resistência de Sabedoria; na falha, ela fica enfeitiçada por você por 1 minuto, com deslocamento 0 e incapacitada, repetindo o teste no fim de cada turno dela.",
+        "mode": true,
+        "action": {
+          "type": "reaction",
+          "uses": 1,
+          "recharge": "short",
+          "trigger": "Quando uma criatura visível termina o turno a até 9 m"
+        },
+        "effects": [
+          {
+            "id": "fighter_rune_knight.rune.stone.darkvision",
+            "path": "sense.darkvision",
+            "operation": "max",
+            "formula": "36",
+            "display": "defenses",
+            "label": "Runa da Pedra",
+            "note": "Visão no escuro de 36 m enquanto a runa estiver gravada."
+          }
+        ]
+      },
+      {
+        "id": "hill",
+        "name": "Runa da Colina",
+        "name_original": "Hill Rune",
+        "summary": "Passivo: resistência a veneno. Invocação: resistência a dano físico.",
+        "description": "Passivo: vantagem em testes de resistência contra a condição envenenado e resistência a dano de veneno. Invocação: como ação bônus, por 1 minuto, ganha resistência a dano contundente, perfurante e cortante.",
+        "mode": true,
+        "duration": "1 minuto",
+        "prerequisites": {
+          "class_level": 7
+        },
+        "action": {
+          "type": "bonus",
+          "uses": 1,
+          "recharge": "short"
+        },
+        "effects": [
+          {
+            "id": "fighter_rune_knight.rune.hill.poison",
+            "path": "resistance.damage",
+            "operation": "grant",
+            "display": "defenses",
+            "label": "Runa da Colina",
+            "note": "Resistência a dano de veneno e vantagem contra a condição envenenado, de forma passiva."
+          }
+        ]
+      },
+      {
+        "id": "storm",
+        "name": "Runa da Tempestade",
+        "name_original": "Storm Rune",
+        "summary": "Passivo: vantagem em Arcanismo e não pode ser surpreendido. Invocação: estado profético.",
+        "description": "Passivo: vantagem em testes de Arcanismo e você não pode ser surpreendido desde que não esteja incapacitado. Invocação: como ação bônus, entra num estado profético por 1 minuto; quando você ou uma criatura visível a até 18 m faz um ataque, um teste de resistência ou um teste de atributo, pode usar a reação para impor vantagem ou desvantagem à rolagem.",
+        "mode": true,
+        "duration": "1 minuto",
+        "prerequisites": {
+          "class_level": 7
+        },
+        "action": {
+          "type": "bonus",
+          "uses": 1,
+          "recharge": "short"
+        }
+      }
+    ],
+    "tags": ["tce", "runas"],
+    "note": "A CD rúnica é 8 + bônus de proficiência + modificador de Constituição. Cada runa fica gravada num objeto diferente: uma runa por objeto."
+  },
+  {
+    "id": "monk_open_hand.open_hand_technique",
+    "name": "Técnica da Mão Aberta",
+    "class_id": "monk",
+    "subclass_id": "monk_open_hand",
+    "level": 3,
+    "feature": "Técnica da Mão Aberta",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "Derrubar, empurrar ou impedir reações, escolhido em cada acerto.",
+    "kinds": ["per_use_choice"],
+    "display": "combat_actions",
+    "activation": "Sempre que acerta uma criatura com um dos ataques da Rajada de Golpes.",
+    "options": [
+      {
+        "id": "prone",
+        "name": "Derrubar",
+        "summary": "Resistência de Destreza ou fica caída.",
+        "description": "O alvo faz teste de resistência de Destreza contra a sua CD de Ki e, na falha, fica caído."
+      },
+      {
+        "id": "push",
+        "name": "Empurrar",
+        "summary": "Resistência de Força ou é empurrada até 4,5 m.",
+        "description": "O alvo faz teste de resistência de Força contra a sua CD de Ki e, na falha, é empurrado até 4,5 m para longe de você."
+      },
+      {
+        "id": "no_reactions",
+        "name": "Impedir reações",
+        "summary": "Sem teste: o alvo não pode reagir.",
+        "description": "Sem teste de resistência, o alvo não pode realizar reações até o fim do seu próximo turno."
+      }
+    ],
+    "tags": ["phb", "mao-aberta"]
+  },
+  {
+    "id": "monk_four_elements.disciplines",
+    "name": "Disciplinas Elementais",
+    "class_id": "monk",
+    "subclass_id": "monk_four_elements",
+    "level": 3,
+    "feature": "Discípulo dos Elementos",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "Dezessete disciplinas oficiais, com custos de Ki e pré-requisitos de nível.",
+    "kinds": ["known_list", "lookup_table"],
+    "display": "combat_actions",
+    "activation": "Cada disciplina gasta pontos de Ki. As magias das disciplinas não exigem componentes materiais.",
+    "replacement": {
+      "trigger": "new_pick",
+      "per_event": 1,
+      "note": "Ao aprender uma disciplina nova, pode trocar uma que já conhece."
+    },
+    "progression": [
+      { "level": 3, "picks": 1, "note": "Sintonia Elemental é conhecida de graça" },
+      { "level": 5, "picks": 1, "note": "Máximo de 3 pontos de Ki por magia que escala" },
+      { "level": 6, "picks": 2 },
+      { "level": 9, "picks": 2, "note": "Máximo de 4 pontos de Ki por magia que escala" },
+      { "level": 11, "picks": 3 },
+      { "level": 13, "picks": 3, "note": "Máximo de 5 pontos de Ki por magia que escala" },
+      { "level": 17, "picks": 4, "note": "Máximo de 6 pontos de Ki por magia que escala" }
+    ],
+    "table": {
+      "id": "monk_four_elements.disciplines.ki_cap",
+      "title": "Máximo de Ki por magia que escala",
+      "columns": ["Nível de Monge", "Máximo de pontos de Ki"],
+      "rows": [
+        { "id": "5_8", "label": "5 a 8", "values": ["3"] },
+        { "id": "9_12", "label": "9 a 12", "values": ["4"] },
+        { "id": "13_16", "label": "13 a 16", "values": ["5"] },
+        { "id": "17_20", "label": "17 a 20", "values": ["6"] }
+      ],
+      "notes": [
+        "O máximo inclui o custo base da disciplina.",
+        "A CD das disciplinas é a sua CD de Ki."
+      ]
+    },
+    "options": [
+      { "id": "elemental_attunement", "name": "Sintonia Elemental", "name_original": "Elemental Attunement", "granted": true, "summary": "Conhecida de graça. Efeitos elementais inofensivos.", "description": "Como ação, cria pequenos efeitos elementais inofensivos a até 9 m: acender ou apagar uma chama pequena; aquecer ou esfriar até cerca de 0,45 kg por 1 hora; ou moldar até um cubo de cerca de 0,3 m de um elemento por 1 minuto.", "action": { "type": "action", "cost": "0 Ki" } },
+      { "id": "breath_of_winter", "name": "Sopro do Inverno", "name_original": "Breath of Winter", "summary": "6 Ki: Cone of Cold.", "description": "Gaste 6 pontos de Ki para conjurar Cone of Cold.", "prerequisites": { "class_level": 17 }, "action": { "type": "action", "cost": "6 Ki" } },
+      { "id": "clench_of_the_north_wind", "name": "Punho do Vento Norte", "name_original": "Clench of the North Wind", "summary": "3 Ki: Hold Person.", "description": "Gaste 3 pontos de Ki para conjurar Hold Person.", "prerequisites": { "class_level": 6 }, "action": { "type": "action", "cost": "3 Ki" } },
+      { "id": "eternal_mountain_defense", "name": "Defesa da Montanha Eterna", "name_original": "Eternal Mountain Defense", "summary": "5 Ki: Stoneskin em si mesmo.", "description": "Gaste 5 pontos de Ki para conjurar Stoneskin em si mesmo.", "prerequisites": { "class_level": 17 }, "action": { "type": "action", "cost": "5 Ki" } },
+      { "id": "fangs_of_the_fire_snake", "name": "Presas da Serpente de Fogo", "name_original": "Fangs of the Fire Snake", "summary": "1 Ki: +3 m de alcance e dano de fogo nos golpes desarmados.", "description": "Ao usar a ação Atacar, gaste 1 ponto de Ki: o alcance dos seus golpes desarmados aumenta em 3 m por toda a ação e pelo resto do turno, e o dano pode ser de fogo. Em cada acerto pode gastar 1 ponto de Ki adicional para causar 1d10 de fogo extra.", "action": { "type": "special", "cost": "1 Ki (+1 Ki por acerto para 1d10 de fogo)" } },
+      { "id": "fist_of_four_thunders", "name": "Punho dos Quatro Trovões", "name_original": "Fist of Four Thunders", "summary": "2 Ki: Thunderwave.", "description": "Gaste 2 pontos de Ki para conjurar Thunderwave.", "action": { "type": "action", "cost": "2 Ki" } },
+      { "id": "fist_of_unbroken_air", "name": "Punho de Ar Ininterrupto", "name_original": "Fist of Unbroken Air", "summary": "2 Ki: 3d10 contundente e empurra.", "description": "Como ação, gaste 2 pontos de Ki: uma criatura a até 9 m faz teste de resistência de Força; na falha sofre 3d10 de dano contundente, mais 1d10 por ponto de Ki adicional, e você pode empurrá-la até 6 m e derrubá-la. No sucesso, metade do dano, sem empurrar nem derrubar.", "action": { "type": "action", "cost": "2 Ki (+1 Ki por 1d10 adicional)" } },
+      { "id": "flames_of_the_phoenix", "name": "Chamas da Fênix", "name_original": "Flames of the Phoenix", "summary": "4 Ki: Fireball.", "description": "Gaste 4 pontos de Ki para conjurar Fireball.", "prerequisites": { "class_level": 11 }, "action": { "type": "action", "cost": "4 Ki" } },
+      { "id": "gong_of_the_summit", "name": "Gongo do Cume", "name_original": "Gong of the Summit", "summary": "3 Ki: Shatter.", "description": "Gaste 3 pontos de Ki para conjurar Shatter.", "prerequisites": { "class_level": 6 }, "action": { "type": "action", "cost": "3 Ki" } },
+      { "id": "mist_stance", "name": "Postura da Névoa", "name_original": "Mist Stance", "summary": "4 Ki: Gaseous Form em si mesmo.", "description": "Gaste 4 pontos de Ki para conjurar Gaseous Form em si mesmo.", "prerequisites": { "class_level": 11 }, "action": { "type": "action", "cost": "4 Ki" } },
+      { "id": "ride_the_wind", "name": "Cavalgar o Vento", "name_original": "Ride the Wind", "summary": "4 Ki: Fly em si mesmo.", "description": "Gaste 4 pontos de Ki para conjurar Fly em si mesmo.", "prerequisites": { "class_level": 11 }, "action": { "type": "action", "cost": "4 Ki" } },
+      { "id": "river_of_hungry_flame", "name": "Rio de Chama Faminta", "name_original": "River of Hungry Flame", "summary": "5 Ki: Wall of Fire.", "description": "Gaste 5 pontos de Ki para conjurar Wall of Fire.", "prerequisites": { "class_level": 17 }, "action": { "type": "action", "cost": "5 Ki" } },
+      { "id": "rush_of_the_gale_spirits", "name": "Ímpeto dos Espíritos do Vendaval", "name_original": "Rush of the Gale Spirits", "summary": "2 Ki: Gust of Wind.", "description": "Gaste 2 pontos de Ki para conjurar Gust of Wind.", "action": { "type": "action", "cost": "2 Ki" } },
+      { "id": "shape_the_flowing_river", "name": "Moldar o Rio Corrente", "name_original": "Shape the Flowing River", "summary": "1 Ki: converte e remodela água e gelo.", "description": "Como ação, gaste 1 ponto de Ki: escolha uma área de gelo ou água a até 36 m, com no máximo 9 m de lado. Converte água em gelo e vice-versa e remodela o gelo. As mudanças de elevação, profundidade ou altura não podem exceder metade da maior dimensão da área, com máximo de 4,5 m numa área de 9 m. Não pode aprisionar nem ferir uma criatura diretamente.", "action": { "type": "action", "cost": "1 Ki" } },
+      { "id": "sweeping_cinder_strike", "name": "Golpe de Cinzas", "name_original": "Sweeping Cinder Strike", "summary": "2 Ki: Burning Hands.", "description": "Gaste 2 pontos de Ki para conjurar Burning Hands.", "action": { "type": "action", "cost": "2 Ki" } },
+      { "id": "water_whip", "name": "Chicote de Água", "name_original": "Water Whip", "summary": "2 Ki: 3d10 contundente, derruba ou puxa.", "description": "Como ação, gaste 2 pontos de Ki: uma criatura visível a até 9 m faz teste de resistência de Destreza; na falha sofre 3d10 de dano contundente, mais 1d10 por ponto de Ki adicional, e você a derruba ou a puxa até 7,5 m. No sucesso, metade do dano e sem controle de posição.", "action": { "type": "action", "cost": "2 Ki (+1 Ki por 1d10 adicional)" } },
+      { "id": "wave_of_rolling_earth", "name": "Onda de Terra Rolante", "name_original": "Wave of Rolling Earth", "summary": "6 Ki: Wall of Stone.", "description": "Gaste 6 pontos de Ki para conjurar Wall of Stone.", "prerequisites": { "class_level": 17 }, "action": { "type": "action", "cost": "6 Ki" } }
+    ],
+    "tags": ["phb", "quatro-elementos", "disciplinas"],
+    "note": "Sintonia Elemental é conhecida de graça e não gasta uma das vagas de disciplina."
+  },
+  {
+    "id": "monk_kensei.kensei_weapons",
+    "name": "Armas Kensei",
+    "class_id": "monk",
+    "subclass_id": "monk_kensei",
+    "level": 3,
+    "feature": "Caminho do Kensei",
+    "source": "xge",
+    "edition": "2014",
+    "summary": "Duas armas no 3º nível e uma a mais no 6º, 11º e 17º.",
+    "kinds": ["known_list"],
+    "display": "attacks",
+    "replacement": {
+      "trigger": "new_pick",
+      "per_event": 1,
+      "note": "Ao escolher uma arma nova, pode trocar uma arma Kensei anterior."
+    },
+    "progression": [
+      { "level": 3, "picks": 2, "note": "Uma arma corpo a corpo e uma à distância" },
+      { "level": 6, "picks": 3, "note": "Um com a Lâmina: as armas Kensei contam como mágicas" },
+      { "level": 11, "picks": 4, "note": "Afiar a Lâmina fica disponível" },
+      { "level": 17, "picks": 5, "note": "Precisão Infalível fica disponível" }
+    ],
+    "options": [
+      { "id": "longsword", "name": "Espada Longa", "description": "Arma marcial corpo a corpo, sem as propriedades pesada ou especial." },
+      { "id": "shortsword", "name": "Espada Curta", "description": "Arma marcial corpo a corpo, já incluída nas armas de Monge." },
+      { "id": "scimitar", "name": "Cimitarra", "description": "Arma marcial corpo a corpo, sem as propriedades pesada ou especial." },
+      { "id": "rapier", "name": "Rapieira", "description": "Arma marcial corpo a corpo, sem as propriedades pesada ou especial." },
+      { "id": "battleaxe", "name": "Machado de Batalha", "description": "Arma marcial corpo a corpo, sem as propriedades pesada ou especial." },
+      { "id": "warhammer", "name": "Martelo de Guerra", "description": "Arma marcial corpo a corpo, sem as propriedades pesada ou especial." },
+      { "id": "trident", "name": "Tridente", "description": "Arma marcial corpo a corpo, sem as propriedades pesada ou especial." },
+      { "id": "war_pick", "name": "Picareta de Guerra", "description": "Arma marcial corpo a corpo, sem as propriedades pesada ou especial." },
+      { "id": "flail", "name": "Mangual", "description": "Arma marcial corpo a corpo, sem as propriedades pesada ou especial." },
+      { "id": "morningstar", "name": "Estrela da Manhã", "description": "Arma marcial corpo a corpo, sem as propriedades pesada ou especial." },
+      { "id": "whip", "name": "Chicote", "description": "Arma marcial corpo a corpo, sem as propriedades pesada ou especial." },
+      { "id": "longbow", "name": "Arco Longo", "description": "Arma marcial à distância. Permitida de forma explícita pela característica, apesar da propriedade pesada." },
+      { "id": "shortbow", "name": "Arco Curto", "description": "Arma simples à distância." },
+      { "id": "light_crossbow", "name": "Besta Leve", "description": "Arma simples à distância." },
+      { "id": "hand_crossbow", "name": "Besta de Mão", "description": "Arma marcial à distância, sem as propriedades pesada ou especial." },
+      { "id": "sling", "name": "Funda", "description": "Arma simples à distância." },
+      { "id": "blowgun", "name": "Zarabatana", "description": "Arma marcial à distância, sem as propriedades pesada ou especial." }
+    ],
+    "tags": ["xge", "kensei"],
+    "note": "As armas escolhidas não podem ter as propriedades pesada ou especial; o arco longo é a exceção declarada pela regra. Aparar com Agilidade concede +2 de CA quando você faz um golpe desarmado como parte da ação Atacar segurando uma arma Kensei corpo a corpo."
+  },
+  {
+    "id": "monk_astral_self.astral_self",
+    "name": "Eu Astral",
+    "class_id": "monk",
+    "subclass_id": "monk_astral_self",
+    "level": 3,
+    "feature": "Braços do Eu Astral",
+    "source": "tce",
+    "edition": "2014",
+    "summary": "Braços, Visagem e Corpo: estados sobrepostos, com efeitos derivados.",
+    "kinds": ["activatable_mode", "temporary_state"],
+    "display": "combat_actions",
+    "activation": "Ação bônus e 1 ponto de Ki para cada componente. No 11º nível o Corpo aparece sem ação se Braços e Visagem estiverem ativos.",
+    "duration": "10 minutos por componente.",
+    "progression": [
+      { "level": 3, "note": "Braços do Eu Astral" },
+      { "level": 6, "note": "Visagem do Eu Astral" },
+      { "level": 11, "note": "Corpo do Eu Astral: Defletir Energia e Braços Fortalecidos" },
+      { "level": 17, "note": "Eu Astral Desperto: ação bônus e 5 Ki invocam os três, +2 de CA e três ataques com os braços" }
+    ],
+    "options": [
+      {
+        "id": "arms",
+        "name": "Braços",
+        "summary": "Golpes com +1,5 m de alcance usando Sabedoria.",
+        "description": "Ação bônus e 1 ponto de Ki: criaturas à sua escolha visíveis a até 3 m fazem teste de resistência de Destreza ou sofrem dano de força igual a dois dados de Artes Marciais. Enquanto os braços durarem, pode usar Sabedoria em vez de Força em testes e resistências de Força, os braços fazem golpes desarmados com +1,5 m de alcance no seu turno, podem usar Sabedoria no ataque e no dano e causam dano de força.",
+        "mode": true,
+        "duration": "10 minutos",
+        "action": {
+          "type": "bonus",
+          "cost": "1 Ki"
+        },
+        "effects": [
+          {
+            "id": "monk_astral_self.arms",
+            "path": "attack.melee",
+            "operation": "grant",
+            "display": "attacks",
+            "label": "Braços do Eu Astral",
+            "note": "Golpe desarmado com +1,5 m de alcance, dano de força, podendo usar Sabedoria no ataque e no dano."
+          }
+        ]
+      },
+      {
+        "id": "visage",
+        "name": "Visagem",
+        "summary": "Visão astral, vantagem em Intuição e Intimidação, voz projetada.",
+        "description": "Ação bônus e 1 ponto de Ki, ou junto com a ação bônus que invoca os braços. Visão Astral: enxerga normalmente em escuridão mágica e não mágica a até 36 m. Sabedoria do Espírito: vantagem em testes de Intuição e de Intimidação. Palavra do Espírito: ao falar, pode fazer apenas uma criatura visível a até 18 m ouvi-lo, ou amplificar a voz para todas a até 180 m.",
+        "mode": true,
+        "duration": "10 minutos",
+        "prerequisites": {
+          "class_level": 6
+        },
+        "action": {
+          "type": "bonus",
+          "cost": "1 Ki"
+        }
+      },
+      {
+        "id": "body",
+        "name": "Corpo",
+        "summary": "Defletir Energia e Braços Fortalecidos.",
+        "description": "Se braços e visagem estiverem ativos, o corpo pode aparecer sem gastar ação. Defletir Energia: reação ao sofrer dano de ácido, frio, fogo, força, elétrico ou trovejante para reduzi-lo em 1d10 + modificador de Sabedoria, com mínimo de 1. Braços Fortalecidos: uma vez por turno, ao acertar com os braços, causa um dado de Artes Marciais adicional de dano.",
+        "mode": true,
+        "duration": "10 minutos",
+        "prerequisites": {
+          "class_level": 11,
+          "active_options": ["arms", "visage"]
+        },
+        "action": {
+          "type": "reaction",
+          "trigger": "Ao sofrer dano de ácido, frio, fogo, força, elétrico ou trovejante"
+        }
+      },
+      {
+        "id": "awakened",
+        "name": "Eu Astral Desperto",
+        "summary": "Os três componentes, +2 de CA e três ataques com os braços.",
+        "description": "Ação bônus e 5 pontos de Ki: invoca braços, visagem e corpo e desperta o Eu Astral por 10 minutos. Você recebe +2 de CA e, quando usaria Ataque Extra para fazer dois ataques, pode fazer três se todos forem com os braços astrais.",
+        "mode": true,
+        "duration": "10 minutos",
+        "prerequisites": {
+          "class_level": 17
+        },
+        "action": {
+          "type": "bonus",
+          "cost": "5 Ki"
+        },
+        "effects": [
+          {
+            "id": "monk_astral_self.awakened.ac",
+            "path": "ac.bonus",
+            "operation": "add",
+            "formula": "2",
+            "stacking": "sum",
+            "display": "armor_class",
+            "label": "Eu Astral Desperto"
+          }
+        ]
+      }
+    ],
+    "tags": ["tce", "eu-astral"],
+    "note": "Os componentes se sobrepõem: cada um é ligado e desligado por conta própria, e o Corpo exige Braços e Visagem ativos."
+  },
+  {
+    "id": "monk_ascendant_dragon.draconic_damage",
+    "name": "Dano Dracônico",
+    "class_id": "monk",
+    "subclass_id": "monk_ascendant_dragon",
+    "level": 3,
+    "feature": "Discípulo Dracônico",
+    "source": "ftd",
+    "edition": "2014",
+    "summary": "Ácido, frio, fogo, elétrico ou veneno, escolhido em cada uso.",
+    "kinds": ["per_use_choice"],
+    "display": "attacks",
+    "activation": "Ao causar dano com um golpe desarmado, ou ao usar o Sopro do Dragão.",
+    "options": [
+      { "id": "acid", "name": "Ácido", "description": "O dano do golpe desarmado ou do sopro passa a ser de ácido." },
+      { "id": "cold", "name": "Frio", "description": "O dano do golpe desarmado ou do sopro passa a ser de frio." },
+      { "id": "fire", "name": "Fogo", "description": "O dano do golpe desarmado ou do sopro passa a ser de fogo." },
+      { "id": "lightning", "name": "Elétrico", "description": "O dano do golpe desarmado ou do sopro passa a ser elétrico." },
+      { "id": "poison", "name": "Veneno", "description": "O dano do golpe desarmado ou do sopro passa a ser de veneno." }
+    ],
+    "tags": ["ftd", "dragao"],
+    "note": "O Sopro do Dragão usa a mesma lista de tipos e escolhe a geometria: cone de 6 m ou linha de 9 m por 1,5 m. No 17º nível, com 1 Ki adicional, vira cone de 18 m ou linha de 27 m."
+  },
+  {
+    "id": "monk_ascendant_dragon.wyrm_aspect",
+    "name": "Aspecto do Wyrm",
+    "class_id": "monk",
+    "subclass_id": "monk_ascendant_dragon",
+    "level": 11,
+    "feature": "Aspecto do Wyrm",
+    "source": "ftd",
+    "edition": "2014",
+    "summary": "Presença Aterradora ou Resistência, numa aura de 3 m.",
+    "kinds": ["per_use_choice", "activatable_mode", "limited_resource"],
+    "display": "combat_actions",
+    "activation": "Ação bônus. Gratuito uma vez por descanso longo; depois 3 pontos de Ki por uso.",
+    "duration": "1 minuto. Aura de raio 3 m.",
+    "recovery": "Descanso longo.",
+    "max_active": 1,
+    "action": {
+      "type": "bonus",
+      "uses": 1,
+      "recharge": "long",
+      "cost": "Gratuito uma vez por descanso longo; depois 3 Ki"
+    },
+    "options": [
+      {
+        "id": "frightful_presence",
+        "name": "Presença Aterradora",
+        "summary": "Amedronta uma criatura na aura por turno.",
+        "description": "Ao criar a aura e, nos turnos seguintes, como ação bônus, escolha uma criatura na aura: ela faz teste de resistência de Sabedoria e, na falha, fica amedrontada por 1 minuto, repetindo o teste no fim de cada turno dela.",
+        "mode": true,
+        "incompatible_with": ["resistance"],
+        "duration": "1 minuto"
+      },
+      {
+        "id": "resistance",
+        "name": "Resistência",
+        "summary": "Você e aliados na aura ganham resistência ao tipo escolhido.",
+        "description": "Escolha ácido, frio, fogo, elétrico ou veneno: você e seus aliados na aura têm resistência a esse tipo de dano enquanto a aura durar.",
+        "mode": true,
+        "incompatible_with": ["frightful_presence"],
+        "duration": "1 minuto"
+      }
+    ],
+    "tags": ["ftd", "dragao", "aura"],
+    "note": "No 17º nível, Fúria Explosiva permite que, ao ativar a aura, criaturas visíveis nela façam resistência de Destreza e sofram 3d10 do tipo escolhido na falha."
+  },
+  {
+    "id": "ranger_hunter.hunters_prey",
+    "name": "Presa do Caçador",
+    "class_id": "ranger",
+    "subclass_id": "ranger_hunter",
+    "level": 3,
+    "feature": "Presa do Caçador",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "Matador de Colossos, Matador de Gigantes ou Destruidor de Hordas.",
+    "kinds": ["permanent_choice"],
+    "display": "attacks",
+    "progression": [{ "level": 3, "picks": 1 }],
+    "options": [
+      {
+        "id": "colossus_slayer",
+        "name": "Matador de Colossos",
+        "summary": "+1d8 contra alvo ferido, uma vez por turno.",
+        "description": "Quando acerta uma criatura com uma arma e ela está abaixo do máximo de pontos de vida, causa 1d8 de dano adicional. No máximo uma vez por turno.",
+        "incompatible_with": ["giant_killer", "horde_breaker"]
+      },
+      {
+        "id": "giant_killer",
+        "name": "Matador de Gigantes",
+        "summary": "Reação para atacar criatura Grande ou maior.",
+        "description": "Quando uma criatura Grande ou maior a até 1,5 m acerta ou erra um ataque contra você, pode usar a reação para atacá-la imediatamente, desde que possa vê-la.",
+        "incompatible_with": ["colossus_slayer", "horde_breaker"],
+        "action": {
+          "type": "reaction",
+          "trigger": "Quando uma criatura Grande ou maior a até 1,5 m acerta ou erra um ataque contra você"
+        }
+      },
+      {
+        "id": "horde_breaker",
+        "name": "Destruidor de Hordas",
+        "summary": "Ataque adicional contra uma segunda criatura.",
+        "description": "Uma vez em cada um dos seus turnos, ao fazer um ataque com arma, pode fazer outro ataque com a mesma arma contra uma criatura diferente a até 1,5 m do alvo original e dentro do alcance da arma.",
+        "incompatible_with": ["colossus_slayer", "giant_killer"]
+      }
+    ],
+    "tags": ["phb", "cacador"]
+  },
+  {
+    "id": "ranger_hunter.defensive_tactics",
+    "name": "Táticas Defensivas",
+    "class_id": "ranger",
+    "subclass_id": "ranger_hunter",
+    "level": 7,
+    "feature": "Táticas Defensivas",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "Escapar da Horda, Defesa contra Múltiplos Ataques ou Vontade de Aço.",
+    "kinds": ["permanent_choice"],
+    "display": "defenses",
+    "progression": [{ "level": 7, "picks": 1 }],
+    "options": [
+      {
+        "id": "escape_the_horde",
+        "name": "Escapar da Horda",
+        "summary": "Ataques de oportunidade contra você têm desvantagem.",
+        "description": "Ataques de oportunidade contra você têm desvantagem.",
+        "incompatible_with": ["multiattack_defense", "steel_will"]
+      },
+      {
+        "id": "multiattack_defense",
+        "name": "Defesa contra Múltiplos Ataques",
+        "summary": "+4 de CA contra os ataques seguintes do mesmo inimigo.",
+        "description": "Quando uma criatura acerta você com um ataque, você recebe +4 de CA contra os ataques seguintes dela até o fim do turno.",
+        "incompatible_with": ["escape_the_horde", "steel_will"]
+      },
+      {
+        "id": "steel_will",
+        "name": "Vontade de Aço",
+        "summary": "Vantagem contra a condição amedrontado.",
+        "description": "Você tem vantagem em testes de resistência contra ficar amedrontado.",
+        "incompatible_with": ["escape_the_horde", "multiattack_defense"]
+      }
+    ],
+    "tags": ["phb", "cacador"]
+  },
+  {
+    "id": "ranger_hunter.multiattack",
+    "name": "Multiataque",
+    "class_id": "ranger",
+    "subclass_id": "ranger_hunter",
+    "level": 11,
+    "feature": "Multiataque",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "Saraivada ou Ataque Giratório.",
+    "kinds": ["permanent_choice"],
+    "display": "combat_actions",
+    "progression": [{ "level": 11, "picks": 1 }],
+    "options": [
+      {
+        "id": "volley",
+        "name": "Saraivada",
+        "summary": "Um ataque à distância por criatura num raio de 3 m.",
+        "description": "Use uma ação para fazer um ataque à distância separado contra qualquer quantidade de criaturas dentro de um raio de 3 m de um ponto visível dentro do alcance da arma. Precisa de munição para cada alvo.",
+        "incompatible_with": ["whirlwind_attack"],
+        "action": { "type": "action" }
+      },
+      {
+        "id": "whirlwind_attack",
+        "name": "Ataque Giratório",
+        "summary": "Um ataque corpo a corpo por criatura a até 1,5 m.",
+        "description": "Use uma ação para fazer um ataque corpo a corpo separado contra qualquer quantidade de criaturas a até 1,5 m de você.",
+        "incompatible_with": ["volley"],
+        "action": { "type": "action" }
+      }
+    ],
+    "tags": ["phb", "cacador"]
+  },
+  {
+    "id": "ranger_hunter.superior_defense",
+    "name": "Defesa Superior do Caçador",
+    "class_id": "ranger",
+    "subclass_id": "ranger_hunter",
+    "level": 15,
+    "feature": "Defesa Superior do Caçador",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "Evasão, Contra a Maré ou Esquiva Sobrenatural.",
+    "kinds": ["permanent_choice"],
+    "display": "defenses",
+    "progression": [{ "level": 15, "picks": 1 }],
+    "options": [
+      {
+        "id": "evasion",
+        "name": "Evasão",
+        "summary": "Nenhum dano no sucesso, metade na falha.",
+        "description": "Em efeitos que pedem resistência de Destreza para sofrer metade do dano, você não sofre dano nenhum no sucesso e metade na falha.",
+        "incompatible_with": ["stand_against_the_tide", "uncanny_dodge"]
+      },
+      {
+        "id": "stand_against_the_tide",
+        "name": "Contra a Maré",
+        "summary": "Redireciona o ataque que errou você.",
+        "description": "Quando uma criatura hostil erra um ataque corpo a corpo contra você, pode usar a reação para forçá-la a repetir o mesmo ataque contra outra criatura à sua escolha, exceto ela própria.",
+        "incompatible_with": ["evasion", "uncanny_dodge"],
+        "action": {
+          "type": "reaction",
+          "trigger": "Quando uma criatura hostil erra um ataque corpo a corpo contra você"
+        }
+      },
+      {
+        "id": "uncanny_dodge",
+        "name": "Esquiva Sobrenatural",
+        "summary": "Reduz pela metade o dano de um ataque.",
+        "description": "Quando um atacante que você vê acerta você, pode usar a reação para reduzir pela metade o dano do ataque.",
+        "incompatible_with": ["evasion", "stand_against_the_tide"],
+        "action": {
+          "type": "reaction",
+          "trigger": "Quando um atacante que você vê acerta você"
+        }
+      }
+    ],
+    "tags": ["phb", "cacador"]
+  },
+  {
+    "id": "ranger_beast_master.companion",
+    "name": "Companheiro Animal",
+    "class_id": "ranger",
+    "subclass_id": "ranger_beast_master",
+    "level": 3,
+    "feature": "Companheiro do Patrulheiro",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "Companheiro original por ND, ou Besta da Terra, do Mar ou do Céu.",
+    "kinds": ["permanent_choice", "lookup_table"],
+    "display": "features",
+    "activation": "O Companheiro Primal é invocado e pode ter a forma trocada ao fim de um descanso longo.",
+    "replacement": {
+      "trigger": "long_rest",
+      "per_event": 1,
+      "note": "A forma do Companheiro Primal pode ser escolhida de novo ao fim de um descanso longo. O companheiro da regra original exige encontrar outra besta e um vínculo de 8 horas."
+    },
+    "progression": [{ "level": 3, "picks": 1 }],
+    "table": {
+      "id": "ranger_beast_master.companion.table",
+      "title": "Companheiro Primal (Tasha)",
+      "columns": ["Besta", "Tamanho", "CA", "PV", "Deslocamento", "Ataque"],
+      "rows": [
+        { "id": "land", "label": "Besta da Terra", "option_id": "primal_land", "values": ["Média", "13 + PB", "5 + 5 × nível de Patrulheiro", "Caminhada 12 m, escalada 12 m", "Maul: 1d8 + 2 + PB cortante, alcance 1,5 m"] },
+        { "id": "sea", "label": "Besta do Mar", "option_id": "primal_sea", "values": ["Média", "13 + PB", "5 + 5 × nível de Patrulheiro", "Caminhada 1,5 m, natação 18 m", "Binding Strike: 1d6 + 2 + PB perfurante e agarra"] },
+        { "id": "sky", "label": "Besta do Céu", "option_id": "primal_sky", "values": ["Pequena", "13 + PB", "4 + 4 × nível de Patrulheiro", "Caminhada 3 m, voo 18 m", "Shred: 1d4 + 3 + PB cortante, alcance 1,5 m"] }
+      ],
+      "notes": [
+        "O ataque usa o seu modificador de ataque mágico.",
+        "Some o seu bônus de proficiência a todos os testes de atributo e testes de resistência da besta."
+      ]
+    },
+    "options": [
+      {
+        "id": "original",
+        "name": "Companheiro do Patrulheiro (regra original)",
+        "summary": "Besta Média ou menor, ND 1/4 ou menor.",
+        "description": "Escolha uma besta no máximo Média e com ND 1/4 ou menor. Adicione o seu bônus de proficiência à CA, às jogadas de ataque e dano, aos testes de resistência e às perícias em que a besta seja proficiente. O máximo de pontos de vida é o maior entre o valor normal e 4 × o seu nível de Patrulheiro. Ela usa a sua iniciativa. Você usa a sua ação para ordenar Atacar, Disparar, Desengajar ou Ajudar; com Ataque Extra, pode fazer um ataque seu ao ordenar que a besta ataque.",
+        "incompatible_with": ["primal_land", "primal_sea", "primal_sky"]
+      },
+      {
+        "id": "primal_land",
+        "name": "Besta da Terra",
+        "summary": "Média, escalada 12 m, investida que derruba.",
+        "description": "Média; CA 13 + bônus de proficiência; PV 5 + 5 × nível de Patrulheiro; caminhada 12 m e escalada 12 m; Força 14, Destreza 14, Constituição 15, Inteligência 8, Sabedoria 14, Carisma 11; visão no escuro 18 m. Charge: após mover 6 m em linha reta e acertar Maul no mesmo turno, causa 1d6 cortante adicional; se o alvo for Grande ou menor, faz resistência de Força contra a sua CD de magia ou fica caído. Maul: usa o seu modificador de ataque mágico, alcance 1,5 m, 1d8 + 2 + bônus de proficiência de dano cortante.",
+        "incompatible_with": ["original", "primal_sea", "primal_sky"],
+        "tags": ["tce"]
+      },
+      {
+        "id": "primal_sea",
+        "name": "Besta do Mar",
+        "summary": "Média, anfíbia, ataque que agarra.",
+        "description": "Média; CA 13 + bônus de proficiência; PV 5 + 5 × nível de Patrulheiro; caminhada 1,5 m e natação 18 m; mesmos atributos da Besta da Terra; anfíbia. Binding Strike: usa o seu modificador de ataque mágico, alcance 1,5 m, 1d6 + 2 + bônus de proficiência de dano perfurante, e o alvo fica agarrado com CD de fuga igual à sua CD de magia; enquanto agarra assim, não pode usar o ataque em outro alvo.",
+        "incompatible_with": ["original", "primal_land", "primal_sky"],
+        "tags": ["tce"]
+      },
+      {
+        "id": "primal_sky",
+        "name": "Besta do Céu",
+        "summary": "Pequena, voo 18 m, não provoca ataque de oportunidade.",
+        "description": "Pequena; CA 13 + bônus de proficiência; PV 4 + 4 × nível de Patrulheiro; caminhada 3 m e voo 18 m; Força 6, Destreza 16, Constituição 13, Inteligência 8, Sabedoria 14, Carisma 11; visão no escuro 18 m. Flyby: não provoca ataque de oportunidade ao sair do alcance. Shred: usa o seu modificador de ataque mágico, alcance 1,5 m, 1d4 + 3 + bônus de proficiência de dano cortante.",
+        "incompatible_with": ["original", "primal_land", "primal_sea"],
+        "tags": ["tce"]
+      }
+    ],
+    "tags": ["phb", "tce", "companheiro"],
+    "note": "A opção de Tasha substitui a característica original: as duas não coexistem. O bloco da besta não é criado como ficha própria; os números ficam aqui para consulta."
+  },
+  {
+    "id": "ranger_swarmkeeper.gathered_swarm",
+    "name": "Enxame Reunido",
+    "class_id": "ranger",
+    "subclass_id": "ranger_swarmkeeper",
+    "level": 3,
+    "feature": "Enxame Reunido",
+    "source": "tce",
+    "edition": "2014",
+    "summary": "Dano, deslocamento do alvo ou deslocamento próprio.",
+    "kinds": ["per_use_choice"],
+    "display": "attacks",
+    "activation": "Uma vez em cada turno, imediatamente depois de acertar uma criatura com um ataque.",
+    "progression": [
+      { "level": 3, "note": "+1d6 perfurante; o alvo é movido até 4,5 m; ou você é movido 1,5 m" },
+      { "level": 11, "note": "Enxame Poderoso: o dano passa a 1d8, o alvo também pode ficar caído e você ganha meia cobertura quando o enxame o move" }
+    ],
+    "options": [
+      {
+        "id": "damage",
+        "name": "Dano",
+        "summary": "+1d6 perfurante (1d8 no 11º nível).",
+        "description": "O alvo sofre 1d6 de dano perfurante adicional. Passa a 1d8 no 11º nível."
+      },
+      {
+        "id": "move_target",
+        "name": "Mover o alvo",
+        "summary": "Resistência de Força ou é movido até 4,5 m.",
+        "description": "O alvo faz teste de resistência de Força contra a sua CD de magia e, na falha, é movido horizontalmente até 4,5 m na direção que você escolher. No 11º nível, na falha ele também pode ficar caído."
+      },
+      {
+        "id": "move_self",
+        "name": "Mover-se",
+        "summary": "Você é movido 1,5 m.",
+        "description": "Você é movido horizontalmente 1,5 m na direção que escolher. No 11º nível, quando o enxame move você, você recebe meia cobertura até o início do seu próximo turno."
+      }
+    ],
+    "tags": ["tce", "enxame"]
+  },
+  {
+    "id": "ranger_drakewarden.draconic_essence",
+    "name": "Essência Dracônica",
+    "class_id": "ranger",
+    "subclass_id": "ranger_drakewarden",
+    "level": 3,
+    "feature": "Companheiro Dracônico",
+    "source": "ftd",
+    "edition": "2014",
+    "summary": "O elemento do draco define imunidade, Golpe Infundido e o sopro.",
+    "kinds": ["permanent_choice"],
+    "display": "features",
+    "activation": "Escolhido ao invocar o draco.",
+    "replacement": {
+      "trigger": "any_time",
+      "per_event": 1,
+      "note": "O elemento é escolhido de novo a cada invocação do draco."
+    },
+    "progression": [
+      { "level": 3, "picks": 1, "note": "Mordida 1d6 + PB perfurante e reação Golpe Infundido de +1d6 do elemento" },
+      { "level": 7, "note": "O draco vira Médio, ganha voo 12 m e a mordida ganha +1d6 do elemento; você ganha resistência a esse dano" },
+      { "level": 11, "note": "Sopro do Draco: cone de 9 m, 8d6 do elemento" },
+      { "level": 15, "note": "Vínculo Perfeito: o draco vira Grande, a mordida soma +2d6 do elemento e o sopro passa a 10d6" }
+    ],
+    "options": [
+      { "id": "acid", "name": "Ácido", "description": "O draco é imune a dano de ácido, o Golpe Infundido e o sopro causam ácido, e a partir do 7º nível você ganha resistência a ácido.", "incompatible_with": ["cold", "fire", "lightning", "poison"] },
+      { "id": "cold", "name": "Frio", "description": "O draco é imune a dano de frio, o Golpe Infundido e o sopro causam frio, e a partir do 7º nível você ganha resistência a frio.", "incompatible_with": ["acid", "fire", "lightning", "poison"] },
+      { "id": "fire", "name": "Fogo", "description": "O draco é imune a dano de fogo, o Golpe Infundido e o sopro causam fogo, e a partir do 7º nível você ganha resistência a fogo.", "incompatible_with": ["acid", "cold", "lightning", "poison"] },
+      { "id": "lightning", "name": "Elétrico", "description": "O draco é imune a dano elétrico, o Golpe Infundido e o sopro causam dano elétrico, e a partir do 7º nível você ganha resistência a dano elétrico.", "incompatible_with": ["acid", "cold", "fire", "poison"] },
+      { "id": "poison", "name": "Veneno", "description": "O draco é imune a dano de veneno, o Golpe Infundido e o sopro causam veneno, e a partir do 7º nível você ganha resistência a veneno.", "incompatible_with": ["acid", "cold", "fire", "lightning"] }
+    ],
+    "tags": ["ftd", "draco"]
+  },
+  {
+    "id": "rogue_phantom.soul_trinkets",
+    "name": "Símbolos dos Mortos",
+    "class_id": "rogue",
+    "subclass_id": "rogue_phantom",
+    "level": 9,
+    "feature": "Símbolos dos Mortos",
+    "source": "tce",
+    "edition": "2014",
+    "summary": "Vantagem defensiva, pergunta ao espírito ou combustível para Lamentos.",
+    "kinds": ["limited_resource", "per_use_choice"],
+    "display": "resources",
+    "counter": "accumulate",
+    "activation": "Reação quando uma criatura visível morre a até 9 m, com uma mão livre.",
+    "recovery": "Os símbolos não voltam com o descanso: eles são obtidos quando uma criatura morre perto de você. No 17º nível, um aparece na sua mão ao fim de um descanso longo se você não tiver nenhum.",
+    "action": {
+      "type": "reaction",
+      "uses_formula": "proficiency",
+      "recharge": "none",
+      "label": "Símbolos de alma guardados",
+      "trigger": "Quando uma criatura que você vê morre a até 9 m"
+    },
+    "options": [
+      {
+        "id": "death_saves",
+        "name": "Vantagem defensiva",
+        "summary": "Vantagem em testes contra a morte e resistências de Constituição.",
+        "description": "Enquanto estiver portando pelo menos um símbolo, você tem vantagem em testes contra a morte e em testes de resistência de Constituição. Não consome símbolo."
+      },
+      {
+        "id": "fuel_wails",
+        "name": "Combustível para Lamentos",
+        "summary": "Usa Lamentos da Sepultura sem gastar um uso.",
+        "description": "Ao causar Ataque Furtivo, destrua um símbolo para usar Lamentos da Sepultura sem gastar um dos usos daquela característica."
+      },
+      {
+        "id": "ask_spirit",
+        "name": "Pergunta ao espírito",
+        "summary": "Uma pergunta, com resposta curta e não necessariamente verdadeira.",
+        "description": "Use uma ação para destruir um símbolo e fazer uma pergunta ao espírito ligado a ele. A resposta é curta, no idioma que a criatura conhecia, não precisa ser verdadeira e só contém o conhecimento que ela possuía em vida.",
+        "action": { "type": "action" }
+      }
+    ],
+    "tags": ["tce", "fantasma"],
+    "note": "O contador mostra quantos símbolos você está portando, com teto igual ao bônus de proficiência. Ele começa em zero: símbolos só existem depois de alguém morrer perto de você."
+  },
+  {
+    "id": "sorcerer_draconic.draconic_ancestor",
+    "name": "Ancestral Dracônico",
+    "class_id": "sorcerer",
+    "subclass_id": "sorcerer_draconic",
+    "level": 1,
+    "feature": "Ancestralidade Dracônica",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "Dez ancestrais ligados a cinco tipos de dano.",
+    "kinds": ["permanent_choice", "lookup_table"],
+    "display": "features",
+    "progression": [{ "level": 1, "picks": 1 }],
+    "table": {
+      "id": "sorcerer_draconic.draconic_ancestor.table",
+      "title": "Ancestral Dracônico",
+      "columns": ["Dragão", "Tipo de dano"],
+      "rows": [
+        { "id": "black", "label": "Negro", "option_id": "black", "values": ["Ácido"] },
+        { "id": "blue", "label": "Azul", "option_id": "blue", "values": ["Elétrico"] },
+        { "id": "brass", "label": "Latão", "option_id": "brass", "values": ["Fogo"] },
+        { "id": "bronze", "label": "Bronze", "option_id": "bronze", "values": ["Elétrico"] },
+        { "id": "copper", "label": "Cobre", "option_id": "copper", "values": ["Ácido"] },
+        { "id": "gold", "label": "Ouro", "option_id": "gold", "values": ["Fogo"] },
+        { "id": "green", "label": "Verde", "option_id": "green", "values": ["Veneno"] },
+        { "id": "red", "label": "Vermelho", "option_id": "red", "values": ["Fogo"] },
+        { "id": "silver", "label": "Prata", "option_id": "silver", "values": ["Frio"] },
+        { "id": "white", "label": "Branco", "option_id": "white", "values": ["Frio"] }
+      ],
+      "notes": [
+        "O tipo de dano escolhido vale para Afinidade Elemental, no 6º nível."
+      ]
+    },
+    "options": [
+      { "id": "black", "name": "Negro", "summary": "Ácido.", "description": "A sua linhagem causa dano de ácido.", "incompatible_with": ["blue", "brass", "bronze", "copper", "gold", "green", "red", "silver", "white"] },
+      { "id": "blue", "name": "Azul", "summary": "Elétrico.", "description": "A sua linhagem causa dano elétrico.", "incompatible_with": ["black", "brass", "bronze", "copper", "gold", "green", "red", "silver", "white"] },
+      { "id": "brass", "name": "Latão", "summary": "Fogo.", "description": "A sua linhagem causa dano de fogo.", "incompatible_with": ["black", "blue", "bronze", "copper", "gold", "green", "red", "silver", "white"] },
+      { "id": "bronze", "name": "Bronze", "summary": "Elétrico.", "description": "A sua linhagem causa dano elétrico.", "incompatible_with": ["black", "blue", "brass", "copper", "gold", "green", "red", "silver", "white"] },
+      { "id": "copper", "name": "Cobre", "summary": "Ácido.", "description": "A sua linhagem causa dano de ácido.", "incompatible_with": ["black", "blue", "brass", "bronze", "gold", "green", "red", "silver", "white"] },
+      { "id": "gold", "name": "Ouro", "summary": "Fogo.", "description": "A sua linhagem causa dano de fogo.", "incompatible_with": ["black", "blue", "brass", "bronze", "copper", "green", "red", "silver", "white"] },
+      { "id": "green", "name": "Verde", "summary": "Veneno.", "description": "A sua linhagem causa dano de veneno.", "incompatible_with": ["black", "blue", "brass", "bronze", "copper", "gold", "red", "silver", "white"] },
+      { "id": "red", "name": "Vermelho", "summary": "Fogo.", "description": "A sua linhagem causa dano de fogo.", "incompatible_with": ["black", "blue", "brass", "bronze", "copper", "gold", "green", "silver", "white"] },
+      { "id": "silver", "name": "Prata", "summary": "Frio.", "description": "A sua linhagem causa dano de frio.", "incompatible_with": ["black", "blue", "brass", "bronze", "copper", "gold", "green", "red", "white"] },
+      { "id": "white", "name": "Branco", "summary": "Frio.", "description": "A sua linhagem causa dano de frio.", "incompatible_with": ["black", "blue", "brass", "bronze", "copper", "gold", "green", "red", "silver"] }
+    ],
+    "tags": ["phb", "draconico"]
+  },
+  {
+    "id": "sorcerer_wild_magic.wild_magic_surge",
+    "name": "Surto de Magia Selvagem",
+    "class_id": "sorcerer",
+    "subclass_id": "sorcerer_wild_magic",
+    "level": 1,
+    "feature": "Surto de Magia Selvagem",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "Tabela d100 completa. No 14º nível rola duas vezes e escolhe.",
+    "kinds": ["roll_table"],
+    "display": "spellcasting",
+    "activation": "Uma vez por turno, imediatamente após conjurar uma magia de Feiticeiro de 1º círculo ou superior, se o Mestre pedir um d20 e o resultado for 1.",
+    "progression": [
+      { "level": 1, "note": "Role 1d100 na tabela quando o Mestre pedir" },
+      { "level": 14, "note": "Caos Controlado: role duas vezes e escolha um dos resultados" }
+    ],
+    "table": {
+      "id": "sorcerer_wild_magic.wild_magic_surge.table",
+      "title": "Surto de Magia Selvagem (d100)",
+      "dice": "d100",
+      "columns": ["d100", "Efeito"],
+      "rows": [
+        { "id": "01_02", "label": "01–02", "min": 1, "max": 2, "values": ["Durante 1 minuto, no início de cada turno, role novamente nesta tabela; ignore este resultado em novas rolagens."] },
+        { "id": "03_04", "label": "03–04", "min": 3, "max": 4, "values": ["Por 1 minuto, pode enxergar criaturas invisíveis se tiver linha de visão."] },
+        { "id": "05_06", "label": "05–06", "min": 5, "max": 6, "values": ["Um modron escolhido e controlado pelo Mestre aparece em espaço desocupado a até 1,5 m e desaparece após 1 minuto."] },
+        { "id": "07_08", "label": "07–08", "min": 7, "max": 8, "values": ["Conjura Fireball como magia de 3º círculo centrada em si."] },
+        { "id": "09_10", "label": "09–10", "min": 9, "max": 10, "values": ["Conjura Magic Missile como magia de 5º círculo."] },
+        { "id": "11_12", "label": "11–12", "min": 11, "max": 12, "values": ["Role 1d10: resultado ímpar reduz sua altura nessa quantidade de polegadas; par aumenta. Remove Curse encerra a alteração."] },
+        { "id": "13_14", "label": "13–14", "min": 13, "max": 14, "values": ["Conjura Confusion centrada em si."] },
+        { "id": "15_16", "label": "15–16", "min": 15, "max": 16, "values": ["Durante 1 minuto, recupera 5 PV no início de cada turno."] },
+        { "id": "17_18", "label": "17–18", "min": 17, "max": 18, "values": ["Surge uma barba de penas; ela permanece até você espirrar, quando as penas explodem para fora."] },
+        { "id": "19_20", "label": "19–20", "min": 19, "max": 20, "values": ["Conjura Grease centrada em si."] },
+        { "id": "21_22", "label": "21–22", "min": 21, "max": 22, "values": ["Criaturas têm desvantagem nas resistências contra a próxima magia que você conjurar durante o próximo minuto."] },
+        { "id": "23_24", "label": "23–24", "min": 23, "max": 24, "values": ["Sua pele fica azul intensa; Remove Curse encerra a alteração."] },
+        { "id": "25_26", "label": "25–26", "min": 25, "max": 26, "values": ["Por 1 minuto, um olho aparece na testa e concede vantagem em Percepção baseada em visão."] },
+        { "id": "27_28", "label": "27–28", "min": 27, "max": 28, "values": ["Durante 1 minuto, magias com tempo de 1 ação passam a poder ser conjuradas com ação bônus."] },
+        { "id": "29_30", "label": "29–30", "min": 29, "max": 30, "values": ["Durante 1 minuto, pode usar ação bônus para teleportar até 18 m para espaço desocupado visível."] },
+        { "id": "31_32", "label": "31–32", "min": 31, "max": 32, "values": ["É transportado ao Plano Astral até o fim do próximo turno; então retorna ao espaço anterior ou ao mais próximo disponível."] },
+        { "id": "33_34", "label": "33–34", "min": 33, "max": 34, "values": ["A próxima magia que causar dano durante o próximo minuto causa o dano máximo possível."] },
+        { "id": "35_36", "label": "35–36", "min": 35, "max": 36, "values": ["Role 1d10: ímpar rejuvenesce essa quantidade de anos; par envelhece. A idade não pode ficar abaixo de 1 ano."] },
+        { "id": "37_38", "label": "37–38", "min": 37, "max": 38, "values": ["1d6 flumphs controlados pelo Mestre surgem a até 18 m, ficam amedrontados por você e desaparecem após 1 minuto."] },
+        { "id": "39_40", "label": "39–40", "min": 39, "max": 40, "values": ["Recupera 2d10 PV."] },
+        { "id": "41_42", "label": "41–42", "min": 41, "max": 42, "values": ["Até o início do próximo turno, transforma-se em planta envasada: fica incapacitado e vulnerável a todo dano; o vaso se quebra ao retornar."] },
+        { "id": "43_44", "label": "43–44", "min": 43, "max": 44, "values": ["Durante 1 minuto, pode usar ação bônus em cada turno para teleportar até 6 m."] },
+        { "id": "45_46", "label": "45–46", "min": 45, "max": 46, "values": ["Conjura Levitate em si."] },
+        { "id": "47_48", "label": "47–48", "min": 47, "max": 48, "values": ["Um unicórnio controlado pelo Mestre aparece a até 1,5 m e desaparece após 1 minuto."] },
+        { "id": "49_50", "label": "49–50", "min": 49, "max": 50, "values": ["Durante 1 minuto, não consegue falar; bolhas cor-de-rosa saem de sua boca sempre que tenta."] },
+        { "id": "51_52", "label": "51–52", "min": 51, "max": 52, "values": ["Por 1 minuto, recebe +2 de CA e imunidade a Magic Missile."] },
+        { "id": "53_54", "label": "53–54", "min": 53, "max": 54, "values": ["Fica imune aos efeitos intoxicantes do álcool durante 5d6 dias."] },
+        { "id": "55_56", "label": "55–56", "min": 55, "max": 56, "values": ["Seu cabelo cai e volta a crescer em 24 horas."] },
+        { "id": "57_58", "label": "57–58", "min": 57, "max": 58, "values": ["Um objeto inflamável aleatório a até 1,5 m que não esteja vestido nem carregado pega fogo."] },
+        { "id": "59_60", "label": "59–60", "min": 59, "max": 60, "values": ["Recupera o espaço de magia gasto de menor círculo."] },
+        { "id": "61_62", "label": "61–62", "min": 61, "max": 62, "values": ["Durante 1 minuto, só consegue falar gritando."] },
+        { "id": "63_64", "label": "63–64", "min": 63, "max": 64, "values": ["Conjura Fog Cloud centrada em si."] },
+        { "id": "65_66", "label": "65–66", "min": 65, "max": 66, "values": ["Até três criaturas escolhidas a até 9 m sofrem 4d10 de dano elétrico."] },
+        { "id": "67_68", "label": "67–68", "min": 67, "max": 68, "values": ["Fica amedrontado pela criatura mais próxima até o fim do próximo turno."] },
+        { "id": "69_70", "label": "69–70", "min": 69, "max": 70, "values": ["Cada criatura a até 9 m fica invisível por 1 minuto; para cada criatura, o efeito acaba quando ela ataca ou conjura magia."] },
+        { "id": "71_72", "label": "71–72", "min": 71, "max": 72, "values": ["Durante 1 minuto, adquire resistência a todo tipo de dano."] },
+        { "id": "73_74", "label": "73–74", "min": 73, "max": 74, "values": ["Uma criatura aleatória a até 18 m fica envenenada por 1d4 horas."] },
+        { "id": "75_76", "label": "75–76", "min": 75, "max": 76, "values": ["Durante 1 minuto, emite luz plena em 9 m e penumbra por mais 9 m; criatura que termina turno a até 1,5 m fica cega até o fim do próximo turno."] },
+        { "id": "77_78", "label": "77–78", "min": 77, "max": 78, "values": ["Conjura Polymorph em si; se falhar na resistência, vira uma ovelha pela duração da magia."] },
+        { "id": "79_80", "label": "79–80", "min": 79, "max": 80, "values": ["Borboletas ilusórias e pétalas preenchem o ar num raio de 3 m durante 1 minuto."] },
+        { "id": "81_82", "label": "81–82", "min": 81, "max": 82, "values": ["Pode realizar imediatamente uma ação adicional."] },
+        { "id": "83_84", "label": "83–84", "min": 83, "max": 84, "values": ["Cada criatura a até 9 m sofre 1d10 necrótico; você recupera PV iguais à soma do dano causado."] },
+        { "id": "85_86", "label": "85–86", "min": 85, "max": 86, "values": ["Conjura Mirror Image."] },
+        { "id": "87_88", "label": "87–88", "min": 87, "max": 88, "values": ["Conjura Fly em uma criatura aleatória a até 18 m."] },
+        { "id": "89_90", "label": "89–90", "min": 89, "max": 90, "values": ["Fica invisível por 1 minuto; outras criaturas também não conseguem ouvi-lo. Termina quando ataca ou conjura magia."] },
+        { "id": "91_92", "label": "91–92", "min": 91, "max": 92, "values": ["Se morrer no próximo minuto, retorna imediatamente à vida pela magia Reincarnate."] },
+        { "id": "93_94", "label": "93–94", "min": 93, "max": 94, "values": ["Seu tamanho aumenta em uma categoria por 1 minuto."] },
+        { "id": "95_96", "label": "95–96", "min": 95, "max": 96, "values": ["Durante 1 minuto, você e todas as criaturas a até 9 m ficam vulneráveis a dano perfurante."] },
+        { "id": "97_98", "label": "97–98", "min": 97, "max": 98, "values": ["Música etérea suave pode ser ouvida num raio de 18 m por 1 minuto."] },
+        { "id": "99_00", "label": "99–00", "min": 99, "max": 100, "values": ["Recupera todos os Pontos de Feitiçaria gastos."] }
+      ],
+      "notes": [
+        "Role 1d100; o resultado 00 conta como 100.",
+        "Se o resultado conjura uma magia, ela não usa Metamagia e, se normalmente exigiria concentração, aqui dura a duração completa sem concentração."
+      ]
+    },
+    "tags": ["phb", "magia-selvagem", "tabela"],
+    "note": "O resultado é registrado para consulta. Nada é aplicado automaticamente: metade dos efeitos depende de escolha de alvo e de decisão do Mestre."
+  },
+  {
+    "id": "sorcerer_divine_soul.divine_affinity",
+    "name": "Afinidade Divina",
+    "class_id": "sorcerer",
+    "subclass_id": "sorcerer_divine_soul",
+    "level": 1,
+    "feature": "Magia Divina",
+    "source": "xge",
+    "edition": "2014",
+    "summary": "Bem, Mal, Lei, Caos ou Neutralidade, cada uma com a magia inicial.",
+    "kinds": ["permanent_choice", "lookup_table"],
+    "display": "spellcasting",
+    "progression": [{ "level": 1, "picks": 1 }],
+    "table": {
+      "id": "sorcerer_divine_soul.divine_affinity.table",
+      "title": "Afinidade Divina",
+      "columns": ["Afinidade", "Magia bônus"],
+      "rows": [
+        { "id": "good", "label": "Bem", "option_id": "good", "values": ["Cure Wounds"] },
+        { "id": "evil", "label": "Mal", "option_id": "evil", "values": ["Inflict Wounds"] },
+        { "id": "law", "label": "Lei", "option_id": "law", "values": ["Bless"] },
+        { "id": "chaos", "label": "Caos", "option_id": "chaos", "values": ["Bane"] },
+        { "id": "neutrality", "label": "Neutralidade", "option_id": "neutrality", "values": ["Protection from Evil and Good"] }
+      ],
+      "notes": [
+        "Se substituir a magia bônus, a nova magia deve ser da lista de Clérigo."
+      ]
+    },
+    "options": [
+      { "id": "good", "name": "Bem", "summary": "Cure Wounds.", "description": "Você conhece Cure Wounds como magia bônus da afinidade.", "incompatible_with": ["evil", "law", "chaos", "neutrality"] },
+      { "id": "evil", "name": "Mal", "summary": "Inflict Wounds.", "description": "Você conhece Inflict Wounds como magia bônus da afinidade.", "incompatible_with": ["good", "law", "chaos", "neutrality"] },
+      { "id": "law", "name": "Lei", "summary": "Bless.", "description": "Você conhece Bless como magia bônus da afinidade.", "incompatible_with": ["good", "evil", "chaos", "neutrality"] },
+      { "id": "chaos", "name": "Caos", "summary": "Bane.", "description": "Você conhece Bane como magia bônus da afinidade.", "incompatible_with": ["good", "evil", "law", "neutrality"] },
+      { "id": "neutrality", "name": "Neutralidade", "summary": "Protection from Evil and Good.", "description": "Você conhece Protection from Evil and Good como magia bônus da afinidade.", "incompatible_with": ["good", "evil", "law", "chaos"] }
+    ],
+    "tags": ["xge", "alma-divina"],
+    "note": "A magia bônus não é adicionada ao livro automaticamente: acrescente-a na tela de magias depois de escolher a afinidade."
+  },
+  {
+    "id": "sorcerer_aberrant_mind.revelation_in_flesh",
+    "name": "Revelação da Carne",
+    "class_id": "sorcerer",
+    "subclass_id": "sorcerer_aberrant_mind",
+    "level": 14,
+    "feature": "Revelação da Carne",
+    "source": "tce",
+    "edition": "2014",
+    "summary": "Quatro modificações compradas individualmente com Pontos de Feitiçaria.",
+    "kinds": ["activatable_mode", "temporary_state"],
+    "display": "combat_actions",
+    "activation": "Ação bônus, gastando 1 ou mais Pontos de Feitiçaria: uma modificação por ponto gasto.",
+    "duration": "10 minutos",
+    "action": {
+      "type": "bonus",
+      "cost": "1 Ponto de Feitiçaria por modificação"
+    },
+    "options": [
+      {
+        "id": "see_invisible",
+        "name": "Ver o Invisível",
+        "summary": "Enxerga criaturas invisíveis a até 18 m.",
+        "description": "Você pode ver criaturas invisíveis a até 18 m que não estejam atrás de cobertura total.",
+        "mode": true,
+        "duration": "10 minutos"
+      },
+      {
+        "id": "flight",
+        "name": "Voo",
+        "summary": "Voo igual ao deslocamento, com capacidade de pairar.",
+        "description": "Você ganha deslocamento de voo igual ao seu deslocamento de caminhada e pode pairar.",
+        "mode": true,
+        "duration": "10 minutos",
+        "effects": [
+          {
+            "id": "sorcerer_aberrant_mind.revelation.flight",
+            "path": "speed.fly",
+            "operation": "grant",
+            "display": "features",
+            "label": "Voo da Revelação",
+            "note": "Voo igual ao deslocamento de caminhada, com capacidade de pairar, por 10 minutos."
+          }
+        ]
+      },
+      {
+        "id": "swim",
+        "name": "Natação",
+        "summary": "Natação dobrada e respirar sob água.",
+        "description": "Você ganha deslocamento de natação igual ao dobro do seu deslocamento de caminhada e pode respirar debaixo d'água.",
+        "mode": true,
+        "duration": "10 minutos"
+      },
+      {
+        "id": "squeeze",
+        "name": "Corpo Maleável",
+        "summary": "Atravessa abertura de 2,5 cm e escapa de restrições.",
+        "description": "Seu corpo e o equipamento atravessam uma abertura de 2,5 cm sem se espremer, e você gasta 1,5 m de movimento para escapar de restrições não mágicas ou da condição agarrado.",
+        "mode": true,
+        "duration": "10 minutos"
+      }
+    ],
+    "tags": ["tce", "mente-aberrante"],
+    "note": "As modificações se acumulam: cada ponto de Feitiçaria gasto liga uma delas, e várias podem ficar ativas ao mesmo tempo."
+  },
+  {
+    "id": "sorcerer_lunar.lunar_phase",
+    "name": "Fase Lunar",
+    "class_id": "sorcerer",
+    "subclass_id": "sorcerer_lunar",
+    "level": 1,
+    "feature": "Encarnação Lunar",
+    "source": "dsotdq",
+    "edition": "2014",
+    "summary": "Lua Cheia, Nova ou Crescente: magias, escolas, bônus e Fenômeno Lunar.",
+    "kinds": ["permanent_choice", "activatable_mode", "lookup_table"],
+    "display": "spellcasting",
+    "activation": "Escolhida ao fim de um descanso longo. A partir do 6º nível, troca com ação bônus e 1 Ponto de Feitiçaria.",
+    "max_active": 1,
+    "replacement": {
+      "trigger": "long_rest",
+      "per_event": 1,
+      "note": "A partir do 6º nível, Crescente e Minguante permite trocar de fase com uma ação bônus e 1 Ponto de Feitiçaria."
+    },
+    "progression": [
+      { "level": 1, "picks": 1, "note": "Pode conjurar a magia de 1º círculo da fase atual uma vez sem gastar espaço" },
+      { "level": 6, "note": "Dádivas Lunares e Crescente e Minguante: redução de Metamagia e troca de fase com ação bônus" },
+      { "level": 14, "note": "Fortalecimento Lunar: benefício passivo da fase atual" },
+      { "level": 18, "note": "Fenômeno Lunar: benefício ativo da fase, 1 vez por descanso longo ou 5 Pontos de Feitiçaria" }
+    ],
+    "table": {
+      "id": "sorcerer_lunar.lunar_phase.table",
+      "title": "Fases Lunares",
+      "columns": ["Fase", "Escolas (6º nível)", "1º", "3º", "5º", "7º", "9º"],
+      "rows": [
+        { "id": "full", "label": "Lua Cheia", "option_id": "full", "values": ["Abjuração e Adivinhação", "Shield", "Lesser Restoration", "Dispel Magic", "Death Ward", "Rary's Telepathic Bond"] },
+        { "id": "new", "label": "Lua Nova", "option_id": "new", "values": ["Encantamento e Necromancia", "Ray of Sickness", "Blindness/Deafness", "Vampiric Touch", "Confusion", "Hold Monster"] },
+        { "id": "crescent", "label": "Lua Crescente", "option_id": "crescent", "values": ["Ilusão e Transmutação", "Color Spray", "Alter Self", "Phantom Steed", "Hallucinatory Terrain", "Mislead"] }
+      ],
+      "notes": [
+        "A magia de 1º círculo da fase atual pode ser conjurada uma vez sem gastar espaço.",
+        "No 6º nível, usar Metamagia numa magia da escola ligada à fase atual reduz o custo em 1, com mínimo de 0, até o bônus de proficiência em vezes por descanso longo."
+      ]
+    },
+    "options": [
+      {
+        "id": "full",
+        "name": "Lua Cheia",
+        "summary": "Abjuração e Adivinhação; luz e vantagem em Investigação e Percepção.",
+        "description": "Magias: Shield, Lesser Restoration, Dispel Magic, Death Ward e Rary's Telepathic Bond. Escolas de Dádivas Lunares: Abjuração e Adivinhação. No 14º nível, ação bônus liga e desliga luz intensa de 3 m mais penumbra de 3 m; você e criaturas escolhidas na luz intensa têm vantagem em Investigação e Percepção. No 18º nível, criaturas escolhidas a até 9 m fazem resistência de Constituição e ficam cegas na falha, e uma criatura à escolha na área recupera 3d8 PV.",
+        "mode": true,
+        "incompatible_with": ["new", "crescent"]
+      },
+      {
+        "id": "new",
+        "name": "Lua Nova",
+        "summary": "Encantamento e Necromancia; furtividade e desvantagem contra você.",
+        "description": "Magias: Ray of Sickness, Blindness/Deafness, Vampiric Touch, Confusion e Hold Monster. Escolas de Dádivas Lunares: Encantamento e Necromancia. No 14º nível, vantagem em Furtividade e, se estiver inteiramente na escuridão, ataques contra você têm desvantagem. No 18º nível, criaturas escolhidas a até 9 m fazem resistência de Destreza, sofrendo 3d10 necrótico e deslocamento 0 na falha, e você fica invisível até o fim do seu próximo turno ou até atacar ou conjurar magia.",
+        "mode": true,
+        "incompatible_with": ["full", "crescent"]
+      },
+      {
+        "id": "crescent",
+        "name": "Lua Crescente",
+        "summary": "Ilusão e Transmutação; resistência a necrótico e radiante.",
+        "description": "Magias: Color Spray, Alter Self, Phantom Steed, Hallucinatory Terrain e Mislead. Escolas de Dádivas Lunares: Ilusão e Transmutação. No 14º nível, resistência a dano necrótico e radiante. No 18º nível, teleporta até 18 m para um espaço livre visível, podendo levar uma criatura voluntária a até 1,5 m; ambos ganham resistência a todo dano até o início do seu próximo turno.",
+        "mode": true,
+        "incompatible_with": ["full", "new"]
+      }
+    ],
+    "tags": ["dsotdq", "lunar", "tabela"],
+    "note": "Cada benefício do Fenômeno Lunar só pode ser usado uma vez por descanso longo de graça; depois custa 5 Pontos de Feitiçaria."
+  },
+  {
+    "id": "warlock_fiend.fiendish_resilience",
+    "name": "Resiliência Ínfera",
+    "class_id": "warlock",
+    "subclass_id": "warlock_fiend",
+    "level": 10,
+    "feature": "Resiliência Ínfera",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "Um tipo de dano escolhido, trocável em descanso curto ou longo.",
+    "kinds": ["permanent_choice"],
+    "display": "defenses",
+    "activation": "Escolhido ao terminar um descanso curto ou longo.",
+    "replacement": {
+      "trigger": "rest",
+      "per_event": 1,
+      "note": "O tipo de dano é escolhido de novo em cada descanso curto ou longo."
+    },
+    "progression": [{ "level": 10, "picks": 1 }],
+    "options": [
+      { "id": "acid", "name": "Ácido", "description": "Resistência a dano de ácido até escolher outro tipo." },
+      { "id": "bludgeoning", "name": "Contundente", "description": "Resistência a dano contundente até escolher outro tipo." },
+      { "id": "cold", "name": "Frio", "description": "Resistência a dano de frio até escolher outro tipo." },
+      { "id": "fire", "name": "Fogo", "description": "Resistência a dano de fogo até escolher outro tipo." },
+      { "id": "force", "name": "Força", "description": "Resistência a dano de força até escolher outro tipo." },
+      { "id": "lightning", "name": "Elétrico", "description": "Resistência a dano elétrico até escolher outro tipo." },
+      { "id": "necrotic", "name": "Necrótico", "description": "Resistência a dano necrótico até escolher outro tipo." },
+      { "id": "piercing", "name": "Perfurante", "description": "Resistência a dano perfurante até escolher outro tipo." },
+      { "id": "poison", "name": "Veneno", "description": "Resistência a dano de veneno até escolher outro tipo." },
+      { "id": "psychic", "name": "Psíquico", "description": "Resistência a dano psíquico até escolher outro tipo." },
+      { "id": "radiant", "name": "Radiante", "description": "Resistência a dano radiante até escolher outro tipo." },
+      { "id": "slashing", "name": "Cortante", "description": "Resistência a dano cortante até escolher outro tipo." },
+      { "id": "thunder", "name": "Trovejante", "description": "Resistência a dano trovejante até escolher outro tipo." }
+    ],
+    "tags": ["phb", "infero"],
+    "note": "Dano de armas mágicas ou prateadas ignora essa resistência."
+  },
+  {
+    "id": "warlock_genie.genie_kind",
+    "name": "Tipo de Gênio",
+    "class_id": "warlock",
+    "subclass_id": "warlock_genie",
+    "level": 1,
+    "feature": "Vaso do Gênio",
+    "source": "tce",
+    "edition": "2014",
+    "summary": "Dao, Djinni, Efreeti ou Marid: elemento, resistência e magias expandidas.",
+    "kinds": ["permanent_choice", "lookup_table"],
+    "display": "features",
+    "progression": [{ "level": 1, "picks": 1 }],
+    "table": {
+      "id": "warlock_genie.genie_kind.table",
+      "title": "Tipos de Gênio",
+      "columns": ["Gênio", "Elemento", "Tipo de dano", "Magia expandida (1º)", "Magia expandida (2º)"],
+      "rows": [
+        { "id": "dao", "label": "Dao", "option_id": "dao", "values": ["Terra", "Contundente", "Sanctuary", "Phantasmal Force"] },
+        { "id": "djinni", "label": "Djinni", "option_id": "djinni", "values": ["Ar", "Trovejante", "Thunderwave", "Wind Wall"] },
+        { "id": "efreeti", "label": "Efreeti", "option_id": "efreeti", "values": ["Fogo", "Fogo", "Burning Hands", "Flame Blade"] },
+        { "id": "marid", "label": "Marid", "option_id": "marid", "values": ["Água", "Frio", "Fog Cloud", "Blur"] }
+      ],
+      "notes": [
+        "O tipo de dano vale para Ira do Gênio e para a resistência de Dádiva Elemental, no 6º nível.",
+        "As magias expandidas entram na lista de magias de Bruxo disponíveis para você."
+      ]
+    },
+    "options": [
+      {
+        "id": "dao",
+        "name": "Dao",
+        "summary": "Terra, dano contundente.",
+        "description": "Ira do Gênio causa dano contundente. Dádiva Elemental concede resistência a dano contundente. Magias expandidas: Sanctuary e Phantasmal Force.",
+        "incompatible_with": ["djinni", "efreeti", "marid"]
+      },
+      {
+        "id": "djinni",
+        "name": "Djinni",
+        "summary": "Ar, dano trovejante.",
+        "description": "Ira do Gênio causa dano trovejante. Dádiva Elemental concede resistência a dano trovejante. Magias expandidas: Thunderwave e Wind Wall.",
+        "incompatible_with": ["dao", "efreeti", "marid"]
+      },
+      {
+        "id": "efreeti",
+        "name": "Efreeti",
+        "summary": "Fogo, dano de fogo.",
+        "description": "Ira do Gênio causa dano de fogo. Dádiva Elemental concede resistência a fogo. Magias expandidas: Burning Hands e Flame Blade.",
+        "incompatible_with": ["dao", "djinni", "marid"]
+      },
+      {
+        "id": "marid",
+        "name": "Marid",
+        "summary": "Água, dano de frio.",
+        "description": "Ira do Gênio causa dano de frio. Dádiva Elemental concede resistência a frio. Magias expandidas: Fog Cloud e Blur.",
+        "incompatible_with": ["dao", "djinni", "efreeti"]
+      }
+    ],
+    "tags": ["tce", "genio"],
+    "note": "Ira do Gênio causa dano igual ao bônus de proficiência, uma vez em cada turno, ao acertar uma jogada de ataque."
+  },
+  {
+    "id": "wizard_conjuration.benign_transposition",
+    "name": "Transposição Benigna",
+    "class_id": "wizard",
+    "subclass_id": "wizard_conjuration",
+    "level": 6,
+    "feature": "Transposição Benigna",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "Teleporte individual ou troca de lugar com um aliado voluntário.",
+    "kinds": ["per_use_choice", "limited_resource"],
+    "display": "combat_actions",
+    "activation": "Ação.",
+    "recovery": "Descanso longo, ou ao conjurar uma magia de Conjuração de 1º círculo ou superior.",
+    "action": {
+      "type": "action",
+      "uses": 1,
+      "recharge": "long"
+    },
+    "options": [
+      {
+        "id": "teleport",
+        "name": "Teleportar",
+        "summary": "Até 9 m para um espaço livre visível.",
+        "description": "Você teleporta até 9 m para um espaço desocupado que possa ver."
+      },
+      {
+        "id": "swap",
+        "name": "Trocar de lugar",
+        "summary": "Troca posições com uma criatura voluntária Pequena ou Média.",
+        "description": "Escolha um espaço no alcance ocupado por uma criatura Pequena ou Média voluntária e troque de posição com ela."
+      }
+    ],
+    "tags": ["phb", "conjuracao"],
+    "note": "O uso volta sozinho quando você conjura uma magia de Conjuração de 1º círculo ou superior, antes do descanso longo."
+  },
+  {
+    "id": "wizard_divination.third_eye",
+    "name": "Terceiro Olho",
+    "class_id": "wizard",
+    "subclass_id": "wizard_divination",
+    "level": 10,
+    "feature": "Terceiro Olho",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "Visão no Escuro, Visão Etérea, Compreensão Maior ou Ver Invisibilidade.",
+    "kinds": ["per_use_choice", "activatable_mode", "limited_resource"],
+    "display": "defenses",
+    "activation": "Ação.",
+    "duration": "Até você ficar incapacitado ou terminar um descanso curto ou longo.",
+    "recovery": "Descanso curto ou longo.",
+    "max_active": 1,
+    "action": {
+      "type": "action",
+      "uses": 1,
+      "recharge": "short"
+    },
+    "options": [
+      {
+        "id": "darkvision",
+        "name": "Visão no Escuro",
+        "summary": "Visão no escuro de 18 m.",
+        "description": "Você ganha visão no escuro de 18 m.",
+        "mode": true,
+        "incompatible_with": ["ethereal_sight", "greater_comprehension", "see_invisibility"],
+        "effects": [
+          {
+            "id": "wizard_divination.third_eye.darkvision",
+            "path": "sense.darkvision",
+            "operation": "max",
+            "formula": "18",
+            "display": "defenses",
+            "label": "Terceiro Olho",
+            "note": "Visão no escuro de 18 m enquanto o benefício estiver ativo."
+          }
+        ]
+      },
+      {
+        "id": "ethereal_sight",
+        "name": "Visão Etérea",
+        "summary": "Enxerga o Plano Etéreo a 18 m.",
+        "description": "Você enxerga o Plano Etéreo a até 18 m.",
+        "mode": true,
+        "incompatible_with": ["darkvision", "greater_comprehension", "see_invisibility"]
+      },
+      {
+        "id": "greater_comprehension",
+        "name": "Compreensão Maior",
+        "summary": "Lê qualquer idioma.",
+        "description": "Você pode ler qualquer idioma.",
+        "mode": true,
+        "incompatible_with": ["darkvision", "ethereal_sight", "see_invisibility"]
+      },
+      {
+        "id": "see_invisibility",
+        "name": "Ver Invisibilidade",
+        "summary": "Vê criaturas e objetos invisíveis a até 3 m.",
+        "description": "Você vê criaturas e objetos invisíveis a até 3 m que estejam na sua linha de visão.",
+        "mode": true,
+        "incompatible_with": ["darkvision", "ethereal_sight", "greater_comprehension"]
+      }
+    ],
+    "tags": ["phb", "adivinhacao"]
+  },
+  {
+    "id": "wizard_transmutation.transmuters_stone",
+    "name": "Pedra do Transmutador",
+    "class_id": "wizard",
+    "subclass_id": "wizard_transmutation",
+    "level": 6,
+    "feature": "Pedra do Transmutador",
+    "source": "phb",
+    "edition": "2014",
+    "summary": "Quatro benefícios; troca ao conjurar Transmutação com a pedra em mãos.",
+    "kinds": ["permanent_choice", "activatable_mode"],
+    "display": "features",
+    "activation": "Leva 8 horas para criar. O benefício é escolhido ao criar a pedra.",
+    "max_active": 1,
+    "replacement": {
+      "trigger": "any_time",
+      "per_event": 1,
+      "note": "Pode trocar o benefício sempre que conjurar uma magia de Transmutação de 1º círculo ou superior com a pedra em sua posse."
+    },
+    "progression": [
+      { "level": 6, "picks": 1 },
+      { "level": 14, "note": "Mestre Transmutador: a pedra pode ser consumida para um dos quatro efeitos maiores" }
+    ],
+    "options": [
+      {
+        "id": "darkvision",
+        "name": "Visão no Escuro",
+        "summary": "Visão no escuro de 18 m.",
+        "description": "O portador ganha visão no escuro de 18 m.",
+        "mode": true,
+        "incompatible_with": ["speed", "constitution_save", "resistance"],
+        "effects": [
+          {
+            "id": "wizard_transmutation.stone.darkvision",
+            "path": "sense.darkvision",
+            "operation": "max",
+            "formula": "18",
+            "display": "defenses",
+            "label": "Pedra do Transmutador",
+            "note": "Visão no escuro de 18 m enquanto este for o benefício ativo."
+          }
+        ]
+      },
+      {
+        "id": "speed",
+        "name": "Deslocamento",
+        "summary": "+3 m de deslocamento quando não sobrecarregado.",
+        "description": "O portador recebe +3 m de deslocamento enquanto não estiver sobrecarregado.",
+        "mode": true,
+        "incompatible_with": ["darkvision", "constitution_save", "resistance"],
+        "effects": [
+          {
+            "id": "wizard_transmutation.stone.speed",
+            "path": "speed.walk",
+            "operation": "add",
+            "formula": "3",
+            "display": "features",
+            "label": "Pedra do Transmutador",
+            "note": "+3 m de deslocamento enquanto não estiver sobrecarregado."
+          }
+        ]
+      },
+      {
+        "id": "constitution_save",
+        "name": "Resistência de Constituição",
+        "summary": "Proficiência em testes de resistência de Constituição.",
+        "description": "O portador ganha proficiência em testes de resistência de Constituição.",
+        "mode": true,
+        "incompatible_with": ["darkvision", "speed", "resistance"],
+        "effects": [
+          {
+            "id": "wizard_transmutation.stone.con_save",
+            "path": "saving_throw.proficiency",
+            "operation": "grant",
+            "abilities": ["constitution"],
+            "display": "abilities",
+            "label": "Pedra do Transmutador",
+            "note": "Marque a proficiência em Constituição na tela de proficiências enquanto este for o benefício ativo."
+          }
+        ]
+      },
+      {
+        "id": "resistance",
+        "name": "Resistência elemental",
+        "summary": "Resistência a ácido, frio, fogo, elétrico ou trovejante.",
+        "description": "O portador ganha resistência a um tipo de dano entre ácido, frio, fogo, elétrico e trovejante, escolhido ao definir este benefício.",
+        "mode": true,
+        "incompatible_with": ["darkvision", "speed", "constitution_save"]
+      }
+    ],
+    "tags": ["phb", "transmutacao"],
+    "note": "Criar uma pedra nova desativa a anterior."
+  },
+  {
+    "id": "wizard_graviturgy.adjust_density",
+    "name": "Ajustar Densidade",
+    "class_id": "wizard",
+    "subclass_id": "wizard_graviturgy",
+    "level": 2,
+    "feature": "Ajustar Densidade",
+    "source": "egtw",
+    "edition": "2014",
+    "summary": "Dobrar ou reduzir à metade o peso do alvo.",
+    "kinds": ["per_use_choice", "activatable_mode", "temporary_state"],
+    "display": "combat_actions",
+    "activation": "Ação, num objeto ou criatura Grande ou menor visível a até 9 m.",
+    "duration": "Até 1 minuto, exigindo concentração como uma magia.",
+    "max_active": 1,
+    "action": {
+      "type": "action"
+    },
+    "progression": [
+      { "level": 2, "note": "Afeta alvo Grande ou menor" },
+      { "level": 10, "note": "Passa a afetar alvo Enorme ou menor" }
+    ],
+    "options": [
+      {
+        "id": "halve",
+        "name": "Metade do peso",
+        "summary": "+3 m de deslocamento, saltos dobrados, desvantagem em Força.",
+        "description": "O peso do alvo passa à metade: o deslocamento dele aumenta em 3 m, a distância dos saltos dobra e ele tem desvantagem em testes e testes de resistência de Força.",
+        "mode": true,
+        "incompatible_with": ["double"],
+        "duration": "Até 1 minuto, com concentração"
+      },
+      {
+        "id": "double",
+        "name": "Dobro do peso",
+        "summary": "-3 m de deslocamento, vantagem em Força.",
+        "description": "O peso do alvo dobra: o deslocamento dele diminui em 3 m e ele tem vantagem em testes e testes de resistência de Força.",
+        "mode": true,
+        "incompatible_with": ["halve"],
+        "duration": "Até 1 minuto, com concentração"
+      }
+    ],
+    "tags": ["egtw", "graviturgia"]
+  },
+  {
+    "id": "wizard_order_of_scribes.awakened_spellbook",
+    "name": "Grimório Desperto",
+    "class_id": "wizard",
+    "subclass_id": "wizard_order_of_scribes",
+    "level": 2,
+    "feature": "Grimório Desperto",
+    "source": "tce",
+    "edition": "2014",
+    "summary": "Troca o tipo de dano usando outra magia do grimório do mesmo círculo.",
+    "kinds": ["per_use_choice", "lookup_table"],
+    "display": "spellcasting",
+    "activation": "Ao conjurar uma magia de Mago gastando um espaço, segurando o livro.",
+    "options": [
+      {
+        "id": "swap_damage_type",
+        "name": "Trocar o tipo de dano",
+        "summary": "Usa um tipo presente em outra magia do grimório do mesmo círculo.",
+        "description": "Ao conjurar uma magia de Mago gastando um espaço, pode trocar temporariamente o tipo de dano dela por um tipo presente em outra magia do seu grimório, desde que essa outra magia tenha o mesmo nível do espaço gasto."
+      },
+      {
+        "id": "ritual_without_delay",
+        "name": "Ritual sem demora",
+        "summary": "Conjura um ritual no tempo normal, uma vez por descanso longo.",
+        "description": "Ao conjurar um ritual de Mago, pode usar o tempo normal de conjuração, sem os 10 minutos adicionais. Uma vez por descanso longo.",
+        "action": {
+          "type": "special",
+          "uses": 1,
+          "recharge": "long"
+        }
+      }
+    ],
+    "tags": ["tce", "escribas"],
+    "note": "A troca é um seletor dinâmico: as opções dependem das magias que estão no seu grimório naquele momento, por isso a lista não é fixa no compêndio."
+  }
+]

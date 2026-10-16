@@ -1,9 +1,11 @@
-﻿import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
+import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
 import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
+import 'package:dnd_ficha_app/features/character/application/providers/class_mechanic_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/invocation_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/level_up_character_class.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/class_mechanic_resolver.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/subclass_choice.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/level_up_class_dialog.dart';
@@ -12,6 +14,7 @@ import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/back
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/character_portrait.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/character_spells_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/class_features_panel.dart';
+import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/class_mechanics_panel.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/collapsible_section.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/combat_panel_button.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/sheet/combat_summary_card.dart';
@@ -89,8 +92,10 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
     final equipped = items.where((item) => item.equipped).length;
     final label = '$count ${count == 1 ? 'item' : 'itens'}';
 
-    return equipped == 0 ? label : '$label · $equipped equipado'
-        '${equipped == 1 ? '' : 's'}';
+    return equipped == 0
+        ? label
+        : '$label · $equipped equipado'
+            '${equipped == 1 ? '' : 's'}';
   }
 
   /// Resumo de Testes contra a morte: o estado alcançado ou a contagem.
@@ -135,7 +140,10 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
 
     return [
       race.name,
-      if (traits == 1) '1 característica' else if (traits > 1) '$traits características',
+      if (traits == 1)
+        '1 característica'
+      else if (traits > 1)
+        '$traits características',
     ].join(' • ');
   }
 
@@ -147,12 +155,14 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
   String _classSummary(Character character, List<ClassEntry> classes) {
     if (character.classLevels.isEmpty) return 'Nenhuma classe';
 
-    return character.classLevels.map((classLevel) {
-      final match = classes.where((item) => item.id == classLevel.classId);
-      final name = match.isEmpty ? classLevel.classId : match.first.name;
+    return character.classLevels
+        .map((classLevel) {
+          final match = classes.where((item) => item.id == classLevel.classId);
+          final name = match.isEmpty ? classLevel.classId : match.first.name;
 
-      return '$name Nv. ${classLevel.level}';
-    }).join(' • ');
+          return '$name Nv. ${classLevel.level}';
+        })
+        .join(' • ');
   }
 
   @override
@@ -167,13 +177,14 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
           IconButton(
             tooltip: 'Exportar em PDF',
             onPressed: _exportingPdf ? null : _exportPdf,
-            icon: _exportingPdf
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.picture_as_pdf_outlined),
+            icon:
+                _exportingPdf
+                    ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                    : const Icon(Icons.picture_as_pdf_outlined),
           ),
         ],
       ),
@@ -245,8 +256,11 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                     title: 'Classes',
                     actionLabel: 'Editar nível',
                     actionIcon: Icons.upgrade,
-                    onPressed: () =>
-                        AppNavigator.toEditClassLevels(context, character: character),
+                    onPressed:
+                        () => AppNavigator.toEditClassLevels(
+                          context,
+                          character: character,
+                        ),
                   ),
                   Align(
                     alignment: Alignment.centerRight,
@@ -255,25 +269,27 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                       icon: Icons.arrow_circle_up_outlined,
                       // No teto o botão fica visível mas apagado: some da tela
                       // seria pior, o jogador ia procurar por ele.
-                      onPressed: (_levelingUp ||
-                              character.totalLevel >= maxCharacterLevel)
-                          ? null
-                          : () => _levelUp(character, classes),
+                      onPressed:
+                          (_levelingUp ||
+                                  character.totalLevel >= maxCharacterLevel)
+                              ? null
+                              : () => _levelUp(character, classes),
                     ),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: character.classLevels.map((classLevel) {
-                      final className = _classNameForId(
-                        classes,
-                        classLevel.classId,
-                      );
-                      return Chip(
-                        label: Text('$className Nv. ${classLevel.level}'),
-                      );
-                    }).toList(),
+                    children:
+                        character.classLevels.map((classLevel) {
+                          final className = _classNameForId(
+                            classes,
+                            classLevel.classId,
+                          );
+                          return Chip(
+                            label: Text('$className Nv. ${classLevel.level}'),
+                          );
+                        }).toList(),
                   ),
 
                   const SizedBox(height: 16),
@@ -281,18 +297,22 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                     title: 'Combate',
                     actionLabel: 'Editar HP',
                     actionIcon: Icons.favorite_border,
-                    onPressed: () =>
-                        AppNavigator.toEditHitPoints(context, character: character),
+                    onPressed:
+                        () => AppNavigator.toEditHitPoints(
+                          context,
+                          character: character,
+                        ),
                   ),
                   Align(
                     alignment: Alignment.centerRight,
                     child: SheetHeaderAction(
                       label: 'Calcular CA',
                       icon: Icons.shield_outlined,
-                      onPressed: () => AppNavigator.toEditArmorClass(
-                        context,
-                        character: character,
-                      ),
+                      onPressed:
+                          () => AppNavigator.toEditArmorClass(
+                            context,
+                            character: character,
+                          ),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -304,35 +324,37 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                   const SizedBox(height: 12),
                   CombatPanelButton(
                     character: character,
-                    onPressed: () => AppNavigator.toCombatPanel(
-                      context,
-                      characterId: character.id,
-                    ),
+                    onPressed:
+                        () => AppNavigator.toCombatPanel(
+                          context,
+                          characterId: character.id,
+                        ),
                   ),
 
                   const SizedBox(height: 16),
                   CollapsibleSection(
                     id: 'weapons',
                     title: 'Armas',
-                    summary: character.weapons.isEmpty
-                        ? 'Nenhuma arma cadastrada'
-                        : '${character.weapons.length} '
-                            '${character.weapons.length == 1 ? 'arma' : 'armas'}',
+                    summary:
+                        character.weapons.isEmpty
+                            ? 'Nenhuma arma cadastrada'
+                            : '${character.weapons.length} '
+                                '${character.weapons.length == 1 ? 'arma' : 'armas'}',
                     isExpanded: _isOpen('weapons'),
                     onExpansionChanged: (value) => _setOpen('weapons', value),
                     child: WeaponsPanel(
                       character: character,
-                      onManage: () => AppNavigator.toManageWeapons(
-                        context,
-                        characterId: character.id,
-                      ),
+                      onManage:
+                          () => AppNavigator.toManageWeapons(
+                            context,
+                            characterId: character.id,
+                          ),
                     ),
                   ),
 
                   // "Ações em combate", "Condições" e "Recursos e descanso"
                   // saíram daqui: viraram as abas do Painel de combate, aberto
                   // pelo botão acima. Os widgets são os mesmos, não há cópia.
-
                   const SizedBox(height: 16),
                   CollapsibleSection(
                     id: 'death_saves',
@@ -342,8 +364,8 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                     // é justamente quando ela precisa ser aberta a cada turno.
                     badge: _deathSavesBadge(character),
                     isExpanded: _isOpen('death_saves'),
-                    onExpansionChanged: (value) =>
-                        _setOpen('death_saves', value),
+                    onExpansionChanged:
+                        (value) => _setOpen('death_saves', value),
                     child: DeathSavesPanel(character: character),
                   ),
 
@@ -352,10 +374,11 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                     title: 'Atributos',
                     actionLabel: 'Editar',
                     actionIcon: Icons.tune,
-                    onPressed: () => AppNavigator.toEditAbilityScores(
-                      context,
-                      character: character,
-                    ),
+                    onPressed:
+                        () => AppNavigator.toEditAbilityScores(
+                          context,
+                          character: character,
+                        ),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
@@ -375,10 +398,11 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                     title: 'Proficiências',
                     actionLabel: 'Editar',
                     actionIcon: Icons.verified_outlined,
-                    onPressed: () => AppNavigator.toEditProficiencies(
-                      context,
-                      character: character,
-                    ),
+                    onPressed:
+                        () => AppNavigator.toEditProficiencies(
+                          context,
+                          character: character,
+                        ),
                   ),
                   const SizedBox(height: 8),
                   SavingThrowsPanel(character: character),
@@ -399,10 +423,12 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                   const SizedBox(height: 16),
                   _SectionHeader(
                     title: 'Conjuração',
-                    actionLabel: _showSpellcasting == true ? 'Ocultar' : 'Mostrar',
-                    actionIcon: _showSpellcasting == true
-                        ? Icons.expand_less
-                        : Icons.expand_more,
+                    actionLabel:
+                        _showSpellcasting == true ? 'Ocultar' : 'Mostrar',
+                    actionIcon:
+                        _showSpellcasting == true
+                            ? Icons.expand_less
+                            : Icons.expand_more,
                     onPressed: () {
                       setState(() {
                         _showSpellcasting = !(_showSpellcasting ?? false);
@@ -422,10 +448,11 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                     title: 'Magias do personagem',
                     actionLabel: 'Gerenciar',
                     actionIcon: Icons.auto_fix_high,
-                    onPressed: () => AppNavigator.toManageSpells(
-                      context,
-                      characterId: character.id,
-                    ),
+                    onPressed:
+                        () => AppNavigator.toManageSpells(
+                          context,
+                          characterId: character.id,
+                        ),
                   ),
                   const SizedBox(height: 8),
                   CharacterSpellsPanel(character: character),
@@ -435,10 +462,11 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                     title: 'Itens mágicos',
                     actionLabel: 'Gerenciar',
                     actionIcon: Icons.backpack_outlined,
-                    onPressed: () => AppNavigator.toManageMagicItems(
-                      context,
-                      characterId: character.id,
-                    ),
+                    onPressed:
+                        () => AppNavigator.toManageMagicItems(
+                          context,
+                          characterId: character.id,
+                        ),
                   ),
                   const SizedBox(height: 8),
                   MagicItemsPanel(character: character),
@@ -477,8 +505,8 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                     title: 'Idiomas',
                     actionLabel: 'Editar',
                     actionIcon: Icons.translate,
-                    onPressed: () =>
-                        AppNavigator.toEditLanguages(
+                    onPressed:
+                        () => AppNavigator.toEditLanguages(
                           context,
                           character: character,
                         ),
@@ -498,8 +526,8 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                     title: 'Características raciais',
                     summary: _racialSummary(character),
                     isExpanded: _isOpen('racial_traits'),
-                    onExpansionChanged: (value) =>
-                        _setOpen('racial_traits', value),
+                    onExpansionChanged:
+                        (value) => _setOpen('racial_traits', value),
                     child: RacialTraitsPanel(speciesId: character.speciesId),
                   ),
 
@@ -509,10 +537,18 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                     title: 'Características de classe',
                     summary: _classSummary(character, classes),
                     isExpanded: _isOpen('class_features'),
-                    onExpansionChanged: (value) =>
-                        _setOpen('class_features', value),
+                    onExpansionChanged:
+                        (value) => _setOpen('class_features', value),
                     child: ClassFeaturesPanel(character: character),
                   ),
+
+                  // Seção própria, logo depois das características: os
+                  // recursos de classe são o que o jogador OPERA (escolhe,
+                  // liga, gasta), enquanto a seção acima é o que ele LÊ.
+                  // Misturar as duas obrigaria a rolar a lista inteira de
+                  // características para achar o interruptor da Forma
+                  // Estelar.
+                  _ClassMechanicsSection(character: character),
 
                   const SizedBox(height: 16),
                   const _SectionHeader(title: 'Talentos'),
@@ -577,9 +613,9 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
       debugPrintStack(stackTrace: stackTrace);
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao gerar o PDF: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao gerar o PDF: $error')));
     } finally {
       if (mounted) {
         setState(() {
@@ -635,9 +671,9 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
       );
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_levelUpMessage(outcome))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(_levelUpMessage(outcome))));
 
       // A escolha da subclasse vem depois do aviso, e não em vez dele: o
       // jogador precisa ver que o nível entrou mesmo que feche o diálogo.
@@ -658,14 +694,20 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
       if (outcome.needsInvocationChoice && mounted) {
         await _promptInvocations(outcome.pendingInvocations);
       }
+
+      // As escolhas de classe vêm por último, e isso importa: subir de nível
+      // pode liberar a subclasse, e a subclasse é que traz as mecânicas. Numa
+      // ordem invertida, o Guerreiro que acabou de virar Mestre de Batalha não
+      // veria as manobras na mesma subida.
+      if (mounted) await _promptClassMechanics();
     } catch (error, stackTrace) {
       debugPrint('Falha ao subir de nível: $error');
       debugPrintStack(stackTrace: stackTrace);
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao subir de nível: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao subir de nível: $error')));
     } finally {
       if (mounted) {
         setState(() {
@@ -714,6 +756,79 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
     await AppNavigator.toManageEldritchInvocations(
       context,
       characterId: widget.characterId,
+    );
+  }
+
+  /// Oferece as escolhas de classe que o novo nível abriu.
+  ///
+  /// A etapa só aparece quando há pendência: o requisito é explícito em não
+  /// apresentar etapa vazia, e um Campeão que subiu para o 4º nível não tem o
+  /// que escolher.
+  ///
+  /// A lista é agrupada por característica responsável, com a quantidade que
+  /// falta em cada uma, para o jogador saber o tamanho da decisão antes de
+  /// abrir a tela. Recusar não perde nada: a pendência continua marcada na
+  /// seção "Recursos de classe".
+  Future<void> _promptClassMechanics() async {
+    final character = ref.read(characterByIdProvider(widget.characterId)).value;
+    if (character == null || !mounted) return;
+
+    final List<ResolvedClassMechanic> pending;
+    try {
+      pending = await ref.read(pendingClassMechanicsProvider(character).future);
+    } catch (error) {
+      // Best-effort, como a sincronização de magias: falha de leitura de asset
+      // não pode impedir o nível de entrar. A ficha continua mostrando a
+      // pendência quando o compêndio voltar a carregar.
+      debugPrint('Falha ao resolver escolhas de classe: $error');
+      return;
+    }
+
+    if (pending.isEmpty || !mounted) return;
+
+    final chosen = await showDialog<ResolvedClassMechanic>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Escolhas de classe'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Estas características estão com escolha em aberto:'),
+              const SizedBox(height: 8),
+              for (final mechanic in pending)
+                ListTile(
+                  key: ValueKey('level-up-mechanic-${mechanic.id}'),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(mechanic.name),
+                  subtitle: Text(
+                    '${mechanic.originLabel} • '
+                    '${mechanic.freeSlots == 1 ? '1 escolha' : '${mechanic.freeSlots} escolhas'}'
+                    ' em aberto',
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => Navigator.of(dialogContext).pop(mechanic),
+                ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Depois'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (chosen == null || !mounted) return;
+
+    await AppNavigator.toManageClassMechanic(
+      context,
+      characterId: widget.characterId,
+      mechanicId: chosen.id,
     );
   }
 
@@ -867,9 +982,8 @@ class _EldritchInvocationsSectionState
 
   @override
   Widget build(BuildContext context) {
-    final resolved = ref
-        .watch(resolvedInvocationsProvider(widget.character))
-        .value;
+    final resolved =
+        ref.watch(resolvedInvocationsProvider(widget.character)).value;
 
     if (resolved == null) return const SizedBox.shrink();
 
@@ -904,6 +1018,77 @@ class _EldritchInvocationsSectionState
   }
 }
 
+/// A seção de recursos de classe, que só aparece para quem tem algum.
+///
+/// Mesmo critério das Invocações Místicas: sem mecânica alcançada a seção não
+/// é mostrada, em vez de ocupar espaço com um cartão vazio. O resumo e o aviso
+/// do cabeçalho vêm do resolvedor, então a seção fechada já diz se há escolha
+/// pendente.
+class _ClassMechanicsSection extends ConsumerStatefulWidget {
+  const _ClassMechanicsSection({required this.character});
+
+  final Character character;
+
+  @override
+  ConsumerState<_ClassMechanicsSection> createState() =>
+      _ClassMechanicsSectionState();
+}
+
+class _ClassMechanicsSectionState
+    extends ConsumerState<_ClassMechanicsSection> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final resolved =
+        ref.watch(resolvedClassMechanicsProvider(widget.character)).value;
+
+    if (resolved == null) return const SizedBox.shrink();
+
+    final visible = resolved.visible;
+    if (visible.isEmpty) return const SizedBox.shrink();
+
+    final pending = resolved.pendingPickCount;
+
+    return Column(
+      children: [
+        const SizedBox(height: 16),
+        CollapsibleSection(
+          id: 'class_mechanics',
+          title: 'Recursos de classe',
+          summary: _summary(resolved),
+          badge: switch (resolved) {
+            final it when it.needsReview => 'revisar',
+            _ when pending > 0 =>
+              pending == 1
+                  ? '1 escolha pendente'
+                  : '$pending escolhas pendentes',
+            _ => null,
+          },
+          isExpanded: _expanded,
+          onExpansionChanged: (value) => setState(() => _expanded = value),
+          child: ClassMechanicsPanel(character: widget.character),
+        ),
+      ],
+    );
+  }
+
+  /// Uma linha com a contagem e os modos ligados, para a seção fechada já
+  /// dizer o essencial.
+  String _summary(ResolvedClassMechanics resolved) {
+    final count = resolved.visible.length;
+    final active = resolved.activeModes;
+
+    final parts = <String>[
+      count == 1 ? '1 recurso' : '$count recursos',
+      if (active.isNotEmpty)
+        'ativo: ${active.map((item) => item.name).join(', ')}',
+    ];
+
+    return parts.join(' • ');
+  }
+}
+
 class _SectionHeader extends StatelessWidget {
   const _SectionHeader({
     required this.title,
@@ -925,10 +1110,7 @@ class _SectionHeader extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: Text(
-            title,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          child: Text(title, style: Theme.of(context).textTheme.titleLarge),
         ),
         if (hasAction) ...[
           // A fonte decorativa é larga: sem esta folga o rótulo encosta no

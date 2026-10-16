@@ -1,4 +1,5 @@
 import 'package:dnd_ficha_app/core/di/providers.dart';
+import 'package:dnd_ficha_app/features/character/application/providers/class_mechanic_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/invocation_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/manage_ability_score_improvements.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
@@ -18,65 +19,93 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// chave que carrega as três.
 final resolvedFeaturesProvider = FutureProvider.family
     .autoDispose<ResolvedFeatures, Character>((ref, character) async {
-  final classes = await ref.watch(classEntriesProvider.future);
-  final classFeatures = await ref.watch(classFeaturesProvider.future);
-  final subclasses = await ref.watch(subclassEntriesProvider.future);
+      final classes = await ref.watch(classEntriesProvider.future);
+      final classFeatures = await ref.watch(classFeaturesProvider.future);
+      final subclasses = await ref.watch(subclassEntriesProvider.future);
 
-  return SpecialFeatureResolver.resolve(
-    character: character,
-    classes: classes,
-    classFeatures: classFeatures,
-    subclasses: subclasses,
-  );
-});
+      return SpecialFeatureResolver.resolve(
+        character: character,
+        classes: classes,
+        classFeatures: classFeatures,
+        subclasses: subclasses,
+      );
+    });
 
 /// A CA do personagem, já com a fórmula escolhida resolvida.
 ///
 /// Único ponto de verdade da CA derivada: a tela de cálculo, o resumo de
 /// combate e o painel de características leem daqui, e por isso não podem
 /// divergir.
-final armorClassSelectionProvider = FutureProvider.family
-    .autoDispose<ArmorClassSelection, Character>((ref, character) async {
+final armorClassSelectionProvider = FutureProvider.family.autoDispose<
+  ArmorClassSelection,
+  Character
+>((ref, character) async {
   final features = await ref.watch(resolvedFeaturesProvider(character).future);
+  final mechanics = await ref.watch(
+    resolvedClassMechanicsProvider(character).future,
+  );
+
+  final context = FeatureFormulaContext.fromCharacter(character);
+
+  // Os bônus de CA das mecânicas entram pelo bônus avulso, e não como fórmula
+  // base: eles SOMAM por cima da fórmula escolhida, como o anel de proteção.
+  //
+  // Só modo LIGADO conta — quem decide isso é
+  // `ResolvedClassMechanics.armorClassBonus`. É o que impede o +2 do Eu Astral
+  // Desperto de ficar na CA depois de o modo ser desligado, que é exatamente o
+  // "não aplique permanentemente um bônus de modo temporário".
+  final mechanicBonus = mechanics.armorClassBonus(context);
 
   return ArmorClassOptions.resolve(
     features: features,
     abilityScores: character.abilityScores,
     inventory: character.inventory,
-    context: FeatureFormulaContext.fromCharacter(character),
+    context: context,
     preferredFormulaId: character.armorClassFormulaId,
     // O bônus manual entra aqui para o número derivado ser o número final: a
     // ficha mostra este resultado direto, sem somar nada por cima.
-    otherBonus: character.armorClassOtherBonus,
+    otherBonus: character.armorClassOtherBonus + mechanicBonus,
   );
 });
 
 /// Os recursos limitados que as características concedem.
 ///
-/// Inclui as Invocações Místicas com usos limitados: elas declaram o mesmo
-/// bloco `action` das características, e o jogador não tem motivo para
-/// procurar "Tumba de Levistus" numa segunda lista de recursos.
+/// Inclui as Invocações Místicas e as mecânicas de classe com usos limitados:
+/// as três declaram o mesmo bloco `action` e gravam o gasto no mesmo
+/// `featureStates`, e o jogador não tem motivo para procurar "Tumba de
+/// Levistus" ou "Dados de Superioridade" numa segunda lista de recursos.
+///
+/// É também o que faz os botões de gastar e devolver funcionarem para os três
+/// sem código novo: eles escrevem por `FeatureResources`, que só conhece a
+/// chave do recurso.
 final featureResourcesProvider = FutureProvider.family
     .autoDispose<List<FeatureResource>, Character>((ref, character) async {
-  final features = await ref.watch(resolvedFeaturesProvider(character).future);
+      final features = await ref.watch(
+        resolvedFeaturesProvider(character).future,
+      );
 
-  final fromFeatures = FeatureResources.from(
-    character: character,
-    features: features,
-    context: FeatureFormulaContext.fromCharacter(character),
-  );
+      final fromFeatures = FeatureResources.from(
+        character: character,
+        features: features,
+        context: FeatureFormulaContext.fromCharacter(character),
+      );
 
-  final fromInvocations = await ref.watch(
-    invocationResourcesProvider(character).future,
-  );
+      final fromInvocations = await ref.watch(
+        invocationResourcesProvider(character).future,
+      );
 
-  if (fromInvocations.isEmpty) return fromFeatures;
+      final fromMechanics = await ref.watch(
+        classMechanicResourcesProvider(character).future,
+      );
 
-  return List<FeatureResource>.unmodifiable([
-    ...fromFeatures,
-    ...fromInvocations,
-  ]);
-});
+      if (fromInvocations.isEmpty && fromMechanics.isEmpty) return fromFeatures;
+
+      return List<FeatureResource>.unmodifiable([
+        ...fromFeatures,
+        ...fromInvocations,
+        ...fromMechanics,
+      ]);
+    });
 
 /// O teto de cada atributo, já com as exceções declaradas por característica.
 ///
@@ -84,33 +113,38 @@ final featureResourcesProvider = FutureProvider.family
 /// conhecer o Campeão Primal: ela pergunta o teto e obedece.
 final abilityMaximumsProvider = FutureProvider.family
     .autoDispose<Map<Ability, int>, Character>((ref, character) async {
-  final features = await ref.watch(resolvedFeaturesProvider(character).future);
+      final features = await ref.watch(
+        resolvedFeaturesProvider(character).future,
+      );
 
-  return features.abilityMaximums(
-    FeatureFormulaContext.fromCharacter(character),
-  );
-});
+      return features.abilityMaximums(
+        FeatureFormulaContext.fromCharacter(character),
+      );
+    });
 
 /// Escolhas de característica obrigatórias ainda em aberto.
 final pendingFeatureChoicesProvider = FutureProvider.family
     .autoDispose<List<PendingFeatureChoice>, Character>((ref, character) async {
-  final features = await ref.watch(resolvedFeaturesProvider(character).future);
+      final features = await ref.watch(
+        resolvedFeaturesProvider(character).future,
+      );
 
-  return features.pendingChoices(character.featureChoiceSelections);
-});
+      return features.pendingChoices(character.featureChoiceSelections);
+    });
 
 final manageAbilityScoreImprovementsProvider =
     Provider<ManageAbilityScoreImprovements>((ref) {
-  final repository = ref.watch(characterRepositoryProvider);
-  return ManageAbilityScoreImprovements(repository);
-});
+      final repository = ref.watch(characterRepositoryProvider);
+      return ManageAbilityScoreImprovements(repository);
+    });
 
 /// Gasta um uso de um recurso de característica.
 final spendFeatureUseProvider = Provider<
-    Future<void> Function({
-      required Character character,
-      required FeatureResource resource,
-    })>((ref) {
+  Future<void> Function({
+    required Character character,
+    required FeatureResource resource,
+  })
+>((ref) {
   final repository = ref.watch(characterRepositoryProvider);
 
   return ({
@@ -132,10 +166,11 @@ final spendFeatureUseProvider = Provider<
 
 /// Devolve um uso de um recurso de característica.
 final restoreFeatureUseProvider = Provider<
-    Future<void> Function({
-      required Character character,
-      required FeatureResource resource,
-    })>((ref) {
+  Future<void> Function({
+    required Character character,
+    required FeatureResource resource,
+  })
+>((ref) {
   final repository = ref.watch(characterRepositoryProvider);
 
   return ({
@@ -155,11 +190,12 @@ final restoreFeatureUseProvider = Provider<
 
 /// Grava a opção escolhida dentro de uma característica.
 final chooseFeatureOptionProvider = Provider<
-    Future<void> Function({
-      required Character character,
-      required String featureId,
-      required String optionId,
-    })>((ref) {
+  Future<void> Function({
+    required Character character,
+    required String featureId,
+    required String optionId,
+  })
+>((ref) {
   final repository = ref.watch(characterRepositoryProvider);
 
   return ({
@@ -183,11 +219,12 @@ final chooseFeatureOptionProvider = Provider<
 /// fórmula salva com o número antigo faria a ficha mostrar uma coisa e o
 /// gerenciamento de CA outra.
 final chooseArmorClassFormulaProvider = Provider<
-    Future<void> Function({
-      required Character character,
-      required String formulaId,
-      required int armorClass,
-    })>((ref) {
+  Future<void> Function({
+    required Character character,
+    required String formulaId,
+    required int armorClass,
+  })
+>((ref) {
   final repository = ref.watch(characterRepositoryProvider);
 
   return ({

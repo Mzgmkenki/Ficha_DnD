@@ -6,6 +6,8 @@ import 'package:dnd_ficha_app/features/character/domain/entities/ability_score_i
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart'
     as domain;
+import 'package:dnd_ficha_app/features/character/domain/entities/character_class_mechanic.dart'
+    as domain_mechanics;
 import 'package:dnd_ficha_app/features/character/domain/entities/character_eldritch_invocation.dart'
     as domain_invocations;
 import 'package:dnd_ficha_app/features/character/domain/entities/character_feat.dart'
@@ -40,6 +42,7 @@ class CharacterMapper {
     List<CharacterFeatureState> featureStates = const [],
     List<CharacterLanguage> languages = const [],
     List<CharacterEldritchInvocation> eldritchInvocations = const [],
+    List<CharacterClassMechanic> classMechanics = const [],
   }) {
     return domain.Character(
       id: character.id,
@@ -221,6 +224,31 @@ class CharacterMapper {
               chosenAtLevel: row.chosenAtLevel < 0 ? 0 : row.chosenAtLevel,
               replacedInvocationId: row.replacedInvocationId,
               replacedAtLevel: row.replacedAtLevel,
+            ),
+          )
+          .toList(growable: false),
+
+      classMechanics: classMechanics
+          .map(
+            (row) => domain_mechanics.CharacterClassMechanic(
+              localId: row.localId,
+              mechanicId: row.mechanicId,
+              // Opção vazia é tratada como ausente: linha com `''` vinda de
+              // base editada à mão não pode virar uma opção de id vazio na
+              // contagem de escolhas.
+              optionId: (row.optionId ?? '').isEmpty ? null : row.optionId,
+              isSelected: row.isSelected,
+              // Clamp na leitura: nível negativo em base editada à mão viraria
+              // histórico sem sentido na ficha.
+              chosenAtLevel: row.chosenAtLevel < 0 ? 0 : row.chosenAtLevel,
+              replacedOptionId:
+                  (row.replacedOptionId ?? '').isEmpty
+                      ? null
+                      : row.replacedOptionId,
+              replacedAtLevel: row.replacedAtLevel,
+              rollResult:
+                  (row.rollResult ?? '').isEmpty ? null : row.rollResult,
+              note: (row.note ?? '').isEmpty ? null : row.note,
             ),
           )
           .toList(growable: false),

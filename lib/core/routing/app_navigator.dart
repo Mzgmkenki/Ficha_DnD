@@ -108,6 +108,24 @@ class AppNavigator {
     );
   }
 
+  /// Abre o gerenciamento de uma mecânica de classe ou subclasse.
+  ///
+  /// Recebe os ids, e não a entidade, pelo mesmo motivo da tela de invocações:
+  /// a página grava a cada toque e precisa recontar as vagas.
+  static Future<void> toManageClassMechanic(
+    BuildContext context, {
+    required String characterId,
+    required String mechanicId,
+  }) {
+    return Navigator.of(context).pushNamed(
+      AppRoutes.classMechanic,
+      arguments: ManageClassMechanicArgs(
+        characterId: characterId,
+        mechanicId: mechanicId,
+      ),
+    );
+  }
+
   static Future<void> toEditInitiative(
     BuildContext context, {
     required Character character,
@@ -126,10 +144,9 @@ class AppNavigator {
     BuildContext context, {
     required String characterId,
   }) {
-    return Navigator.of(context).pushNamed(
-      AppRoutes.combatPanel,
-      arguments: CharacterIdArgs(characterId),
-    );
+    return Navigator.of(
+      context,
+    ).pushNamed(AppRoutes.combatPanel, arguments: CharacterIdArgs(characterId));
   }
 
   static Future<void> toEditClassLevels(

@@ -11,6 +11,7 @@ import 'package:dnd_ficha_app/features/compendium/domain/entities/background_per
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_equipment.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/class_mechanic_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/eldritch_invocation_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_prerequisite.dart';
@@ -75,9 +76,10 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
                 featLevelsRaw.isEmpty
                     ? ClassEntry.defaultFeatLevels
                     : featLevelsRaw,
-            invocationsKnown: invocationsKnown.isEmpty
-                ? const {}
-                : Map<int, int>.unmodifiable(invocationsKnown),
+            invocationsKnown:
+                invocationsKnown.isEmpty
+                    ? const {}
+                    : Map<int, int>.unmodifiable(invocationsKnown),
             variantOf: item['variant_of'] as String?,
             source: item['source'] as String? ?? 'srd',
             skillOptions: skillOptionsRaw
@@ -671,6 +673,21 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
   }
 
   @override
+  Future<List<ClassMechanicEntry>> loadClassMechanics() async {
+    final items = await _source.loadJsonList(
+      'assets/data/srd/class_mechanics.json',
+    );
+
+    // `tryParse` descarta entrada sem id, classe ou nível. Com 45 subclasses
+    // num arquivo só, uma linha errada não pode apagar o resto — mesma
+    // tolerância das outras leituras do compêndio.
+    return [
+      for (final item in items)
+        if (ClassMechanicEntry.tryParse(item) case final entry?) entry,
+    ];
+  }
+
+  @override
   Future<List<SubclassEntry>> loadSubclasses() async {
     final items = await _source.loadJsonList('assets/data/srd/subclasses.json');
 
@@ -1074,9 +1091,8 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
       choice: FeatureChoice.tryParse(item['choice']),
       languageGrants: LanguageGrant.parseList(
         item['language_grants'],
-        idPrefix: 'feature.${LanguageEntry.normalizeName(
-          item['name'] as String? ?? '',
-        )}',
+        idPrefix:
+            'feature.${LanguageEntry.normalizeName(item['name'] as String? ?? '')}',
       ),
     );
   }

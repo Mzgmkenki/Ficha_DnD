@@ -8,6 +8,8 @@ import 'package:dnd_ficha_app/features/character/data/mappers/magic_item_mapper.
 import 'package:dnd_ficha_app/features/character/data/mappers/weapon_mapper.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart'
     as domain;
+import 'package:dnd_ficha_app/features/character/domain/entities/character_class_mechanic.dart'
+    as domain_mechanics;
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart'
     as domain_items;
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item_spell.dart'
@@ -28,6 +30,63 @@ int _lvl(domain.Character character, domain_skill.Skill skill) {
   return character.skillProficiencies.levelFor(skill).dbValue;
 }
 
+/// Descarta registro de mecânica repetido antes de gravar.
+///
+/// Duas chaves diferentes, porque os dois tipos de linha são diferentes:
+///
+/// - registro de OPÇÃO é único por `mecânica + opção`. Repetir gastaria duas
+///   vagas sem o jogador ter escolhido duas vezes;
+/// - registro de MECÂNICA (resultado de tabela, anotação) é único por
+///   `mecânica`. Repetir criaria dois resultados para a mesma rolagem, e a
+///   leitura pegaria um deles por sorte.
+///
+/// É isso que torna abrir e salvar o mesmo personagem várias vezes seguro:
+/// a lista pode chegar com lixo de uma importação, e a gravação não o
+/// multiplica. Linha sem informação nenhuma também cai aqui, para a ficha não
+/// acumular registro vazio a cada abertura.
+List<domain_mechanics.CharacterClassMechanic> _dedupeMechanics(
+  List<domain_mechanics.CharacterClassMechanic> items,
+) {
+  final seen = <String>{};
+  final result = <domain_mechanics.CharacterClassMechanic>[];
+
+  for (final item in items) {
+    if (item.mechanicId.isEmpty) continue;
+    if (item.isPristine) continue;
+
+    final key =
+        item.hasOption
+            ? '${item.mechanicId}|${item.optionId}'
+            : '${item.mechanicId}|';
+
+    if (!seen.add(key)) continue;
+    result.add(item);
+  }
+
+  return result;
+}
+
+/// Monta o INSERT de um registro de mecânica de classe.
+db.CharacterClassMechanicsCompanion _mechanicInsert({
+  required String characterId,
+  required domain_mechanics.CharacterClassMechanic mechanic,
+}) {
+  return db.CharacterClassMechanicsCompanion.insert(
+    characterId: characterId,
+    mechanicId: mechanic.mechanicId,
+    optionId: drift.Value(mechanic.optionId),
+    isSelected: drift.Value(mechanic.isSelected),
+    // Clamp na gravação: nível negativo viraria histórico sem sentido.
+    chosenAtLevel: drift.Value(
+      mechanic.chosenAtLevel < 0 ? 0 : mechanic.chosenAtLevel,
+    ),
+    replacedOptionId: drift.Value(mechanic.replacedOptionId),
+    replacedAtLevel: drift.Value(mechanic.replacedAtLevel),
+    rollResult: drift.Value(mechanic.rollResult),
+    note: drift.Value(mechanic.note),
+  );
+}
+
 class CharacterRepositoryImpl implements CharacterRepository {
   CharacterRepositoryImpl(this._database);
 
@@ -36,7 +95,9 @@ class CharacterRepositoryImpl implements CharacterRepository {
   @override
   Future<void> create(domain.Character character) async {
     await _database.transaction(() async {
-      await _database.into(_database.characters).insert(
+      await _database
+          .into(_database.characters)
+          .insert(
             db.CharactersCompanion.insert(
               id: character.id,
               name: character.name,
@@ -44,12 +105,15 @@ class CharacterRepositoryImpl implements CharacterRepository {
               portraitPath: drift.Value(character.portraitPath),
               speciesId: drift.Value(character.speciesId),
               backgroundId: drift.Value(character.backgroundId),
-              customBackgroundName:
-                  drift.Value(character.customBackground.name),
-              customBackgroundSkills:
-                  drift.Value(character.customBackground.skillIdsAsCsv),
-              customBackgroundFeatures:
-                  drift.Value(character.customBackground.features),
+              customBackgroundName: drift.Value(
+                character.customBackground.name,
+              ),
+              customBackgroundSkills: drift.Value(
+                character.customBackground.skillIdsAsCsv,
+              ),
+              customBackgroundFeatures: drift.Value(
+                character.customBackground.features,
+              ),
               notes: drift.Value(character.notes),
               strength: drift.Value(character.abilityScores.strength),
               dexterity: drift.Value(character.abilityScores.dexterity),
@@ -79,84 +143,131 @@ class CharacterRepositoryImpl implements CharacterRepository {
               ),
               armorClass: drift.Value(character.combatStats.armorClass),
               armorClassFormulaId: drift.Value(character.armorClassFormulaId),
-              armorClassOtherBonus:
-                  drift.Value(character.armorClassOtherBonus),
-              initiativeBonus:
-                  drift.Value(character.combatStats.initiativeBonus),
+              armorClassOtherBonus: drift.Value(character.armorClassOtherBonus),
+              initiativeBonus: drift.Value(
+                character.combatStats.initiativeBonus,
+              ),
               speed: drift.Value(character.combatStats.speedInMeters.round()),
               speedMeters: drift.Value(character.combatStats.speedInMeters),
               maxHitPoints: drift.Value(character.hitPoints.maximum),
               currentHitPoints: drift.Value(character.hitPoints.current),
               temporaryHitPoints: drift.Value(character.hitPoints.temporary),
-              saveStrength:
-                  drift.Value(character.savingThrowProficiencies.strength),
-              saveDexterity:
-                  drift.Value(character.savingThrowProficiencies.dexterity),
-              saveConstitution:
-                  drift.Value(character.savingThrowProficiencies.constitution),
-              saveIntelligence:
-                  drift.Value(character.savingThrowProficiencies.intelligence),
-              saveWisdom:
-                  drift.Value(character.savingThrowProficiencies.wisdom),
-              saveCharisma:
-                  drift.Value(character.savingThrowProficiencies.charisma),
-              skillAcrobatics:
-                  drift.Value(character.skillProficiencies.acrobatics),
-              skillAnimalHandling:
-                  drift.Value(character.skillProficiencies.animalHandling),
+              saveStrength: drift.Value(
+                character.savingThrowProficiencies.strength,
+              ),
+              saveDexterity: drift.Value(
+                character.savingThrowProficiencies.dexterity,
+              ),
+              saveConstitution: drift.Value(
+                character.savingThrowProficiencies.constitution,
+              ),
+              saveIntelligence: drift.Value(
+                character.savingThrowProficiencies.intelligence,
+              ),
+              saveWisdom: drift.Value(
+                character.savingThrowProficiencies.wisdom,
+              ),
+              saveCharisma: drift.Value(
+                character.savingThrowProficiencies.charisma,
+              ),
+              skillAcrobatics: drift.Value(
+                character.skillProficiencies.acrobatics,
+              ),
+              skillAnimalHandling: drift.Value(
+                character.skillProficiencies.animalHandling,
+              ),
               skillArcana: drift.Value(character.skillProficiencies.arcana),
-              skillAthletics:
-                  drift.Value(character.skillProficiencies.athletics),
-              skillDeception:
-                  drift.Value(character.skillProficiencies.deception),
+              skillAthletics: drift.Value(
+                character.skillProficiencies.athletics,
+              ),
+              skillDeception: drift.Value(
+                character.skillProficiencies.deception,
+              ),
               skillHistory: drift.Value(character.skillProficiencies.history),
               skillInsight: drift.Value(character.skillProficiencies.insight),
-              skillIntimidation:
-                  drift.Value(character.skillProficiencies.intimidation),
-              skillInvestigation:
-                  drift.Value(character.skillProficiencies.investigation),
+              skillIntimidation: drift.Value(
+                character.skillProficiencies.intimidation,
+              ),
+              skillInvestigation: drift.Value(
+                character.skillProficiencies.investigation,
+              ),
               skillMedicine: drift.Value(character.skillProficiencies.medicine),
               skillNature: drift.Value(character.skillProficiencies.nature),
-              skillPerception:
-                  drift.Value(character.skillProficiencies.perception),
-              skillPerformance:
-                  drift.Value(character.skillProficiencies.performance),
-              skillPersuasion:
-                  drift.Value(character.skillProficiencies.persuasion),
+              skillPerception: drift.Value(
+                character.skillProficiencies.perception,
+              ),
+              skillPerformance: drift.Value(
+                character.skillProficiencies.performance,
+              ),
+              skillPersuasion: drift.Value(
+                character.skillProficiencies.persuasion,
+              ),
               skillReligion: drift.Value(character.skillProficiencies.religion),
-              skillSleightOfHand:
-                  drift.Value(character.skillProficiencies.sleightOfHand),
+              skillSleightOfHand: drift.Value(
+                character.skillProficiencies.sleightOfHand,
+              ),
               skillStealth: drift.Value(character.skillProficiencies.stealth),
               skillSurvival: drift.Value(character.skillProficiencies.survival),
-              lvlAcrobatics: drift.Value(_lvl(character, domain_skill.Skill.acrobatics)),
-              lvlAnimalHandling:
-                  drift.Value(_lvl(character, domain_skill.Skill.animalHandling)),
-              lvlArcana: drift.Value(_lvl(character, domain_skill.Skill.arcana)),
-              lvlAthletics: drift.Value(_lvl(character, domain_skill.Skill.athletics)),
-              lvlDeception: drift.Value(_lvl(character, domain_skill.Skill.deception)),
-              lvlHistory: drift.Value(_lvl(character, domain_skill.Skill.history)),
-              lvlInsight: drift.Value(_lvl(character, domain_skill.Skill.insight)),
-              lvlIntimidation:
-                  drift.Value(_lvl(character, domain_skill.Skill.intimidation)),
-              lvlInvestigation:
-                  drift.Value(_lvl(character, domain_skill.Skill.investigation)),
-              lvlMedicine: drift.Value(_lvl(character, domain_skill.Skill.medicine)),
-              lvlNature: drift.Value(_lvl(character, domain_skill.Skill.nature)),
-              lvlPerception: drift.Value(_lvl(character, domain_skill.Skill.perception)),
-              lvlPerformance:
-                  drift.Value(_lvl(character, domain_skill.Skill.performance)),
-              lvlPersuasion: drift.Value(_lvl(character, domain_skill.Skill.persuasion)),
-              lvlReligion: drift.Value(_lvl(character, domain_skill.Skill.religion)),
-              lvlSleightOfHand:
-                  drift.Value(_lvl(character, domain_skill.Skill.sleightOfHand)),
-              lvlStealth: drift.Value(_lvl(character, domain_skill.Skill.stealth)),
-              lvlSurvival: drift.Value(_lvl(character, domain_skill.Skill.survival)),
+              lvlAcrobatics: drift.Value(
+                _lvl(character, domain_skill.Skill.acrobatics),
+              ),
+              lvlAnimalHandling: drift.Value(
+                _lvl(character, domain_skill.Skill.animalHandling),
+              ),
+              lvlArcana: drift.Value(
+                _lvl(character, domain_skill.Skill.arcana),
+              ),
+              lvlAthletics: drift.Value(
+                _lvl(character, domain_skill.Skill.athletics),
+              ),
+              lvlDeception: drift.Value(
+                _lvl(character, domain_skill.Skill.deception),
+              ),
+              lvlHistory: drift.Value(
+                _lvl(character, domain_skill.Skill.history),
+              ),
+              lvlInsight: drift.Value(
+                _lvl(character, domain_skill.Skill.insight),
+              ),
+              lvlIntimidation: drift.Value(
+                _lvl(character, domain_skill.Skill.intimidation),
+              ),
+              lvlInvestigation: drift.Value(
+                _lvl(character, domain_skill.Skill.investigation),
+              ),
+              lvlMedicine: drift.Value(
+                _lvl(character, domain_skill.Skill.medicine),
+              ),
+              lvlNature: drift.Value(
+                _lvl(character, domain_skill.Skill.nature),
+              ),
+              lvlPerception: drift.Value(
+                _lvl(character, domain_skill.Skill.perception),
+              ),
+              lvlPerformance: drift.Value(
+                _lvl(character, domain_skill.Skill.performance),
+              ),
+              lvlPersuasion: drift.Value(
+                _lvl(character, domain_skill.Skill.persuasion),
+              ),
+              lvlReligion: drift.Value(
+                _lvl(character, domain_skill.Skill.religion),
+              ),
+              lvlSleightOfHand: drift.Value(
+                _lvl(character, domain_skill.Skill.sleightOfHand),
+              ),
+              lvlStealth: drift.Value(
+                _lvl(character, domain_skill.Skill.stealth),
+              ),
+              lvlSurvival: drift.Value(
+                _lvl(character, domain_skill.Skill.survival),
+              ),
               inspiration: drift.Value(character.inspiration),
               exhaustion: drift.Value(character.exhaustion),
-              conditions:
-                  drift.Value(domain_condition.Condition.toCsv(character.conditions)),
-              deathSaveSuccesses:
-                  drift.Value(character.deathSaves.successes),
+              conditions: drift.Value(
+                domain_condition.Condition.toCsv(character.conditions),
+              ),
+              deathSaveSuccesses: drift.Value(character.deathSaves.successes),
               deathSaveFailures: drift.Value(character.deathSaves.failures),
               alignment: drift.Value(character.alignment?.id),
               hitDiceUsed: drift.Value(character.hitDiceUsed),
@@ -171,22 +282,28 @@ class CharacterRepositoryImpl implements CharacterRepository {
           );
 
       for (final classLevel in character.classLevels) {
-        await _database.into(_database.characterClassLevels).insert(
+        await _database
+            .into(_database.characterClassLevels)
+            .insert(
               db.CharacterClassLevelsCompanion.insert(
                 characterId: character.id,
                 classId: classLevel.classId,
                 subclassId: drift.Value(classLevel.subclassId),
                 level: classLevel.level,
-                spellcastingAbility:
-                    drift.Value(classLevel.spellcastingAbility?.name),
-                spellcastingType:
-                    drift.Value(classLevel.spellcastingType?.name),
+                spellcastingAbility: drift.Value(
+                  classLevel.spellcastingAbility?.name,
+                ),
+                spellcastingType: drift.Value(
+                  classLevel.spellcastingType?.name,
+                ),
               ),
             );
       }
 
       for (final spell in character.spells) {
-        await _database.into(_database.characterSpells).insert(
+        await _database
+            .into(_database.characterSpells)
+            .insert(
               db.CharacterSpellsCompanion.insert(
                 characterId: character.id,
                 spellId: spell.spellId,
@@ -202,7 +319,9 @@ class CharacterRepositoryImpl implements CharacterRepository {
       }
 
       for (final feat in character.feats) {
-        await _database.into(_database.characterFeats).insert(
+        await _database
+            .into(_database.characterFeats)
+            .insert(
               db.CharacterFeatsCompanion.insert(
                 characterId: character.id,
                 featId: feat.featId,
@@ -219,7 +338,9 @@ class CharacterRepositoryImpl implements CharacterRepository {
       }
 
       for (final improvement in character.abilityImprovements) {
-        await _database.into(_database.characterAbilityImprovements).insert(
+        await _database
+            .into(_database.characterAbilityImprovements)
+            .insert(
               db.CharacterAbilityImprovementsCompanion.insert(
                 characterId: character.id,
                 classId: improvement.classId,
@@ -233,7 +354,9 @@ class CharacterRepositoryImpl implements CharacterRepository {
       }
 
       for (final state in character.featureStates) {
-        await _database.into(_database.characterFeatureStates).insert(
+        await _database
+            .into(_database.characterFeatureStates)
+            .insert(
               db.CharacterFeatureStatesCompanion.insert(
                 characterId: character.id,
                 featureId: state.featureId,
@@ -245,7 +368,9 @@ class CharacterRepositoryImpl implements CharacterRepository {
       }
 
       for (final language in character.languages) {
-        await _database.into(_database.characterLanguages).insert(
+        await _database
+            .into(_database.characterLanguages)
+            .insert(
               db.CharacterLanguagesCompanion.insert(
                 characterId: character.id,
                 languageId: language.languageId,
@@ -258,7 +383,9 @@ class CharacterRepositoryImpl implements CharacterRepository {
       }
 
       for (final invocation in character.eldritchInvocations) {
-        await _database.into(_database.characterEldritchInvocations).insert(
+        await _database
+            .into(_database.characterEldritchInvocations)
+            .insert(
               db.CharacterEldritchInvocationsCompanion.insert(
                 characterId: character.id,
                 invocationId: invocation.invocationId,
@@ -271,27 +398,34 @@ class CharacterRepositoryImpl implements CharacterRepository {
             );
       }
 
+      for (final mechanic in _dedupeMechanics(character.classMechanics)) {
+        await _database
+            .into(_database.characterClassMechanics)
+            .insert(
+              _mechanicInsert(characterId: character.id, mechanic: mechanic),
+            );
+      }
+
       for (final weapon in character.weapons) {
-        await _database.into(_database.characterWeapons).insert(
-              WeaponMapper.toInsert(
-                characterId: character.id,
-                weapon: weapon,
-              ),
+        await _database
+            .into(_database.characterWeapons)
+            .insert(
+              WeaponMapper.toInsert(characterId: character.id, weapon: weapon),
             );
       }
 
       // Antes os itens mágicos eram descartados silenciosamente aqui.
       for (final item in character.magicItems) {
-        final insertedId =
-            await _database.into(_database.characterMagicItems).insert(
-                  MagicItemMapper.toInsert(
-                    characterId: character.id,
-                    item: item,
-                  ),
-                );
+        final insertedId = await _database
+            .into(_database.characterMagicItems)
+            .insert(
+              MagicItemMapper.toInsert(characterId: character.id, item: item),
+            );
 
         for (final itemSpell in item.spells) {
-          await _database.into(_database.characterMagicItemSpells).insert(
+          await _database
+              .into(_database.characterMagicItemSpells)
+              .insert(
                 db.CharacterMagicItemSpellsCompanion.insert(
                   magicItemId: insertedId,
                   spellId: itemSpell.spellId,
@@ -305,16 +439,17 @@ class CharacterRepositoryImpl implements CharacterRepository {
       }
 
       for (final item in character.inventory) {
-        await _database.into(_database.characterInventoryItems).insert(
-              InventoryMapper.toInsert(
-                characterId: character.id,
-                item: item,
-              ),
+        await _database
+            .into(_database.characterInventoryItems)
+            .insert(
+              InventoryMapper.toInsert(characterId: character.id, item: item),
             );
       }
 
       for (final grant in character.currencyGrants) {
-        await _database.into(_database.characterCurrencyGrants).insert(
+        await _database
+            .into(_database.characterCurrencyGrants)
+            .insert(
               CurrencyGrantMapper.toInsert(
                 characterId: character.id,
                 grant: grant,
@@ -329,135 +464,121 @@ class CharacterRepositoryImpl implements CharacterRepository {
     // Sem esta limpeza explícita as tabelas filhas ficam com registros órfãos
     // (não há ON DELETE CASCADE nem enforcement de foreign keys ativo).
     await _database.transaction(() async {
-      final itemIds = await (_database.select(_database.characterMagicItems)
-            ..where((tbl) => tbl.characterId.equals(id)))
-          .map((row) => row.localId)
-          .get();
+      final itemIds =
+          await (_database.select(_database.characterMagicItems)..where(
+            (tbl) => tbl.characterId.equals(id),
+          )).map((row) => row.localId).get();
 
       if (itemIds.isNotEmpty) {
         await (_database.delete(_database.characterMagicItemSpells)
-              ..where((tbl) => tbl.magicItemId.isIn(itemIds)))
-            .go();
+          ..where((tbl) => tbl.magicItemId.isIn(itemIds))).go();
       }
 
       await (_database.delete(_database.characterMagicItems)
-            ..where((tbl) => tbl.characterId.equals(id)))
-          .go();
+        ..where((tbl) => tbl.characterId.equals(id))).go();
 
       await (_database.delete(_database.characterSpells)
-            ..where((tbl) => tbl.characterId.equals(id)))
-          .go();
+        ..where((tbl) => tbl.characterId.equals(id))).go();
 
       await (_database.delete(_database.characterWeapons)
-            ..where((tbl) => tbl.characterId.equals(id)))
-          .go();
+        ..where((tbl) => tbl.characterId.equals(id))).go();
 
       await (_database.delete(_database.characterSpellSlotsUsage)
-            ..where((tbl) => tbl.characterId.equals(id)))
-          .go();
+        ..where((tbl) => tbl.characterId.equals(id))).go();
 
       await (_database.delete(_database.characterFeats)
-            ..where((tbl) => tbl.characterId.equals(id)))
-          .go();
+        ..where((tbl) => tbl.characterId.equals(id))).go();
 
       await (_database.delete(_database.characterAbilityImprovements)
-            ..where((tbl) => tbl.characterId.equals(id)))
-          .go();
+        ..where((tbl) => tbl.characterId.equals(id))).go();
 
       await (_database.delete(_database.characterFeatureStates)
-            ..where((tbl) => tbl.characterId.equals(id)))
-          .go();
+        ..where((tbl) => tbl.characterId.equals(id))).go();
 
       await (_database.delete(_database.characterLanguages)
-            ..where((tbl) => tbl.characterId.equals(id)))
-          .go();
+        ..where((tbl) => tbl.characterId.equals(id))).go();
 
       await (_database.delete(_database.characterEldritchInvocations)
-            ..where((tbl) => tbl.characterId.equals(id)))
-          .go();
+        ..where((tbl) => tbl.characterId.equals(id))).go();
+
+      await (_database.delete(_database.characterClassMechanics)
+        ..where((tbl) => tbl.characterId.equals(id))).go();
 
       await (_database.delete(_database.characterInventoryItems)
-            ..where((tbl) => tbl.characterId.equals(id)))
-          .go();
+        ..where((tbl) => tbl.characterId.equals(id))).go();
 
       await (_database.delete(_database.characterCurrencyGrants)
-            ..where((tbl) => tbl.characterId.equals(id)))
-          .go();
+        ..where((tbl) => tbl.characterId.equals(id))).go();
 
       await (_database.delete(_database.characterClassLevels)
-            ..where((tbl) => tbl.characterId.equals(id)))
-          .go();
+        ..where((tbl) => tbl.characterId.equals(id))).go();
 
       await (_database.delete(_database.characters)
-            ..where((tbl) => tbl.id.equals(id)))
-          .go();
+        ..where((tbl) => tbl.id.equals(id))).go();
     });
   }
 
   @override
   Future<domain.Character?> findById(String id) async {
-    final characterRow = await (_database.select(_database.characters)
-          ..where((tbl) => tbl.id.equals(id)))
-        .getSingleOrNull();
+    final characterRow =
+        await (_database.select(_database.characters)
+          ..where((tbl) => tbl.id.equals(id))).getSingleOrNull();
 
     if (characterRow == null) return null;
 
     final classLevelRows =
         await (_database.select(_database.characterClassLevels)
-              ..where((tbl) => tbl.characterId.equals(id)))
-            .get();
+          ..where((tbl) => tbl.characterId.equals(id))).get();
 
-    final spellRows = await (_database.select(_database.characterSpells)
-          ..where((tbl) => tbl.characterId.equals(id)))
-        .get();
+    final spellRows =
+        await (_database.select(_database.characterSpells)
+          ..where((tbl) => tbl.characterId.equals(id))).get();
 
-    final weaponRows = await (_database.select(_database.characterWeapons)
-          ..where((tbl) => tbl.characterId.equals(id)))
-        .get();
+    final weaponRows =
+        await (_database.select(_database.characterWeapons)
+          ..where((tbl) => tbl.characterId.equals(id))).get();
 
-    final itemRows = await (_database.select(_database.characterMagicItems)
-          ..where((tbl) => tbl.characterId.equals(id)))
-        .get();
+    final itemRows =
+        await (_database.select(_database.characterMagicItems)
+          ..where((tbl) => tbl.characterId.equals(id))).get();
 
-    final featRows = await (_database.select(_database.characterFeats)
-          ..where((tbl) => tbl.characterId.equals(id)))
-        .get();
+    final featRows =
+        await (_database.select(_database.characterFeats)
+          ..where((tbl) => tbl.characterId.equals(id))).get();
 
     final improvementRows =
         await (_database.select(_database.characterAbilityImprovements)
-              ..where((tbl) => tbl.characterId.equals(id)))
-            .get();
+          ..where((tbl) => tbl.characterId.equals(id))).get();
 
     final featureStateRows =
         await (_database.select(_database.characterFeatureStates)
-              ..where((tbl) => tbl.characterId.equals(id)))
-            .get();
+          ..where((tbl) => tbl.characterId.equals(id))).get();
 
-    final languageRows = await (_database.select(_database.characterLanguages)
-          ..where((tbl) => tbl.characterId.equals(id)))
-        .get();
+    final languageRows =
+        await (_database.select(_database.characterLanguages)
+          ..where((tbl) => tbl.characterId.equals(id))).get();
 
     final invocationRows =
         await (_database.select(_database.characterEldritchInvocations)
-              ..where((tbl) => tbl.characterId.equals(id)))
-            .get();
+          ..where((tbl) => tbl.characterId.equals(id))).get();
+
+    final mechanicRows =
+        await (_database.select(_database.characterClassMechanics)
+          ..where((tbl) => tbl.characterId.equals(id))).get();
 
     final inventoryRows =
         await (_database.select(_database.characterInventoryItems)
-              ..where((tbl) => tbl.characterId.equals(id)))
-            .get();
+          ..where((tbl) => tbl.characterId.equals(id))).get();
 
     final currencyGrantRows =
         await (_database.select(_database.characterCurrencyGrants)
-              ..where((tbl) => tbl.characterId.equals(id)))
-            .get();
+          ..where((tbl) => tbl.characterId.equals(id))).get();
 
     final magicItems = <domain_items.CharacterMagicItem>[];
     for (final itemRow in itemRows) {
       final itemSpellRows =
           await (_database.select(_database.characterMagicItemSpells)
-                ..where((tbl) => tbl.magicItemId.equals(itemRow.localId)))
-              .get();
+            ..where((tbl) => tbl.magicItemId.equals(itemRow.localId))).get();
 
       magicItems.add(
         MagicItemMapper.fromDatabase(
@@ -485,6 +606,7 @@ class CharacterRepositoryImpl implements CharacterRepository {
       featureStates: featureStateRows,
       languages: languageRows,
       eldritchInvocations: invocationRows,
+      classMechanics: mechanicRows,
     );
 
     return mapped.copyWith(
@@ -526,13 +648,11 @@ class CharacterRepositoryImpl implements CharacterRepository {
 
     // Condição montada de uma só vez: chamar `where` duas vezes poderia
     // sobrescrever o filtro anterior em vez de combiná-lo.
-    await (_database.delete(_database.characterSpellSlotsUsage)
-          ..where((tbl) {
-            final sameCharacter = tbl.characterId.equals(characterId);
-            if (slotLevels == null) return sameCharacter;
-            return sameCharacter & tbl.slotLevel.isIn(slotLevels);
-          }))
-        .go();
+    await (_database.delete(_database.characterSpellSlotsUsage)..where((tbl) {
+      final sameCharacter = tbl.characterId.equals(characterId);
+      if (slotLevels == null) return sameCharacter;
+      return sameCharacter & tbl.slotLevel.isIn(slotLevels);
+    })).go();
   }
 
   /// Reemite a cada mudança nas tabelas que compõem o agregado. O `findById`
@@ -565,6 +685,7 @@ class CharacterRepositoryImpl implements CharacterRepository {
       _database.characterFeatureStates,
       _database.characterLanguages,
       _database.characterEldritchInvocations,
+      _database.characterClassMechanics,
       _database.characterInventoryItems,
       _database.characterCurrencyGrants,
     ]);
@@ -585,8 +706,7 @@ class CharacterRepositoryImpl implements CharacterRepository {
   Future<void> update(domain.Character character) async {
     await _database.transaction(() async {
       await (_database.update(_database.characters)
-            ..where((tbl) => tbl.id.equals(character.id)))
-          .write(
+        ..where((tbl) => tbl.id.equals(character.id))).write(
         db.CharactersCompanion(
           name: drift.Value(character.name),
           playerName: drift.Value(character.playerName),
@@ -594,10 +714,12 @@ class CharacterRepositoryImpl implements CharacterRepository {
           speciesId: drift.Value(character.speciesId),
           backgroundId: drift.Value(character.backgroundId),
           customBackgroundName: drift.Value(character.customBackground.name),
-          customBackgroundSkills:
-              drift.Value(character.customBackground.skillIdsAsCsv),
-          customBackgroundFeatures:
-              drift.Value(character.customBackground.features),
+          customBackgroundSkills: drift.Value(
+            character.customBackground.skillIdsAsCsv,
+          ),
+          customBackgroundFeatures: drift.Value(
+            character.customBackground.features,
+          ),
           notes: drift.Value(character.notes),
           strength: drift.Value(character.abilityScores.strength),
           dexterity: drift.Value(character.abilityScores.dexterity),
@@ -628,79 +750,105 @@ class CharacterRepositoryImpl implements CharacterRepository {
           armorClass: drift.Value(character.combatStats.armorClass),
           armorClassFormulaId: drift.Value(character.armorClassFormulaId),
           armorClassOtherBonus: drift.Value(character.armorClassOtherBonus),
-          initiativeBonus:
-              drift.Value(character.combatStats.initiativeBonus),
+          initiativeBonus: drift.Value(character.combatStats.initiativeBonus),
           speed: drift.Value(character.combatStats.speedInMeters.round()),
           speedMeters: drift.Value(character.combatStats.speedInMeters),
           maxHitPoints: drift.Value(character.hitPoints.maximum),
           currentHitPoints: drift.Value(character.hitPoints.current),
           temporaryHitPoints: drift.Value(character.hitPoints.temporary),
-          saveStrength:
-              drift.Value(character.savingThrowProficiencies.strength),
-          saveDexterity:
-              drift.Value(character.savingThrowProficiencies.dexterity),
-          saveConstitution:
-              drift.Value(character.savingThrowProficiencies.constitution),
-          saveIntelligence:
-              drift.Value(character.savingThrowProficiencies.intelligence),
-          saveWisdom:
-              drift.Value(character.savingThrowProficiencies.wisdom),
-          saveCharisma:
-              drift.Value(character.savingThrowProficiencies.charisma),
-          skillAcrobatics:
-              drift.Value(character.skillProficiencies.acrobatics),
-          skillAnimalHandling:
-              drift.Value(character.skillProficiencies.animalHandling),
+          saveStrength: drift.Value(
+            character.savingThrowProficiencies.strength,
+          ),
+          saveDexterity: drift.Value(
+            character.savingThrowProficiencies.dexterity,
+          ),
+          saveConstitution: drift.Value(
+            character.savingThrowProficiencies.constitution,
+          ),
+          saveIntelligence: drift.Value(
+            character.savingThrowProficiencies.intelligence,
+          ),
+          saveWisdom: drift.Value(character.savingThrowProficiencies.wisdom),
+          saveCharisma: drift.Value(
+            character.savingThrowProficiencies.charisma,
+          ),
+          skillAcrobatics: drift.Value(character.skillProficiencies.acrobatics),
+          skillAnimalHandling: drift.Value(
+            character.skillProficiencies.animalHandling,
+          ),
           skillArcana: drift.Value(character.skillProficiencies.arcana),
-          skillAthletics:
-              drift.Value(character.skillProficiencies.athletics),
-          skillDeception:
-              drift.Value(character.skillProficiencies.deception),
+          skillAthletics: drift.Value(character.skillProficiencies.athletics),
+          skillDeception: drift.Value(character.skillProficiencies.deception),
           skillHistory: drift.Value(character.skillProficiencies.history),
           skillInsight: drift.Value(character.skillProficiencies.insight),
-          skillIntimidation:
-              drift.Value(character.skillProficiencies.intimidation),
-          skillInvestigation:
-              drift.Value(character.skillProficiencies.investigation),
+          skillIntimidation: drift.Value(
+            character.skillProficiencies.intimidation,
+          ),
+          skillInvestigation: drift.Value(
+            character.skillProficiencies.investigation,
+          ),
           skillMedicine: drift.Value(character.skillProficiencies.medicine),
           skillNature: drift.Value(character.skillProficiencies.nature),
-          skillPerception:
-              drift.Value(character.skillProficiencies.perception),
-          skillPerformance:
-              drift.Value(character.skillProficiencies.performance),
-          skillPersuasion:
-              drift.Value(character.skillProficiencies.persuasion),
+          skillPerception: drift.Value(character.skillProficiencies.perception),
+          skillPerformance: drift.Value(
+            character.skillProficiencies.performance,
+          ),
+          skillPersuasion: drift.Value(character.skillProficiencies.persuasion),
           skillReligion: drift.Value(character.skillProficiencies.religion),
-          skillSleightOfHand:
-              drift.Value(character.skillProficiencies.sleightOfHand),
+          skillSleightOfHand: drift.Value(
+            character.skillProficiencies.sleightOfHand,
+          ),
           skillStealth: drift.Value(character.skillProficiencies.stealth),
           skillSurvival: drift.Value(character.skillProficiencies.survival),
-          lvlAcrobatics: drift.Value(_lvl(character, domain_skill.Skill.acrobatics)),
-          lvlAnimalHandling:
-              drift.Value(_lvl(character, domain_skill.Skill.animalHandling)),
+          lvlAcrobatics: drift.Value(
+            _lvl(character, domain_skill.Skill.acrobatics),
+          ),
+          lvlAnimalHandling: drift.Value(
+            _lvl(character, domain_skill.Skill.animalHandling),
+          ),
           lvlArcana: drift.Value(_lvl(character, domain_skill.Skill.arcana)),
-          lvlAthletics: drift.Value(_lvl(character, domain_skill.Skill.athletics)),
-          lvlDeception: drift.Value(_lvl(character, domain_skill.Skill.deception)),
+          lvlAthletics: drift.Value(
+            _lvl(character, domain_skill.Skill.athletics),
+          ),
+          lvlDeception: drift.Value(
+            _lvl(character, domain_skill.Skill.deception),
+          ),
           lvlHistory: drift.Value(_lvl(character, domain_skill.Skill.history)),
           lvlInsight: drift.Value(_lvl(character, domain_skill.Skill.insight)),
-          lvlIntimidation:
-              drift.Value(_lvl(character, domain_skill.Skill.intimidation)),
-          lvlInvestigation:
-              drift.Value(_lvl(character, domain_skill.Skill.investigation)),
-          lvlMedicine: drift.Value(_lvl(character, domain_skill.Skill.medicine)),
+          lvlIntimidation: drift.Value(
+            _lvl(character, domain_skill.Skill.intimidation),
+          ),
+          lvlInvestigation: drift.Value(
+            _lvl(character, domain_skill.Skill.investigation),
+          ),
+          lvlMedicine: drift.Value(
+            _lvl(character, domain_skill.Skill.medicine),
+          ),
           lvlNature: drift.Value(_lvl(character, domain_skill.Skill.nature)),
-          lvlPerception: drift.Value(_lvl(character, domain_skill.Skill.perception)),
-          lvlPerformance: drift.Value(_lvl(character, domain_skill.Skill.performance)),
-          lvlPersuasion: drift.Value(_lvl(character, domain_skill.Skill.persuasion)),
-          lvlReligion: drift.Value(_lvl(character, domain_skill.Skill.religion)),
-          lvlSleightOfHand:
-              drift.Value(_lvl(character, domain_skill.Skill.sleightOfHand)),
+          lvlPerception: drift.Value(
+            _lvl(character, domain_skill.Skill.perception),
+          ),
+          lvlPerformance: drift.Value(
+            _lvl(character, domain_skill.Skill.performance),
+          ),
+          lvlPersuasion: drift.Value(
+            _lvl(character, domain_skill.Skill.persuasion),
+          ),
+          lvlReligion: drift.Value(
+            _lvl(character, domain_skill.Skill.religion),
+          ),
+          lvlSleightOfHand: drift.Value(
+            _lvl(character, domain_skill.Skill.sleightOfHand),
+          ),
           lvlStealth: drift.Value(_lvl(character, domain_skill.Skill.stealth)),
-          lvlSurvival: drift.Value(_lvl(character, domain_skill.Skill.survival)),
+          lvlSurvival: drift.Value(
+            _lvl(character, domain_skill.Skill.survival),
+          ),
           inspiration: drift.Value(character.inspiration),
           exhaustion: drift.Value(character.exhaustion),
-          conditions:
-              drift.Value(domain_condition.Condition.toCsv(character.conditions)),
+          conditions: drift.Value(
+            domain_condition.Condition.toCsv(character.conditions),
+          ),
           deathSaveSuccesses: drift.Value(character.deathSaves.successes),
           deathSaveFailures: drift.Value(character.deathSaves.failures),
           alignment: drift.Value(character.alignment?.id),
@@ -727,24 +875,23 @@ class CharacterRepositoryImpl implements CharacterRepository {
       // tela sempre relê pelo `watchById` depois de gravar, e nada guarda o id
       // entre sessões.
       await (_database.delete(_database.characterInventoryItems)
-            ..where((tbl) => tbl.characterId.equals(character.id)))
-          .go();
+        ..where((tbl) => tbl.characterId.equals(character.id))).go();
 
       for (final item in character.inventory) {
-        await _database.into(_database.characterInventoryItems).insert(
-              InventoryMapper.toInsert(
-                characterId: character.id,
-                item: item,
-              ),
+        await _database
+            .into(_database.characterInventoryItems)
+            .insert(
+              InventoryMapper.toInsert(characterId: character.id, item: item),
             );
       }
 
       await (_database.delete(_database.characterCurrencyGrants)
-            ..where((tbl) => tbl.characterId.equals(character.id)))
-          .go();
+        ..where((tbl) => tbl.characterId.equals(character.id))).go();
 
       for (final grant in character.currencyGrants) {
-        await _database.into(_database.characterCurrencyGrants).insert(
+        await _database
+            .into(_database.characterCurrencyGrants)
+            .insert(
               CurrencyGrantMapper.toInsert(
                 characterId: character.id,
                 grant: grant,
@@ -756,11 +903,12 @@ class CharacterRepositoryImpl implements CharacterRepository {
       // curta e vem inteira no agregado, então reconciliar linha a linha só
       // acrescentaria caminho para errar.
       await (_database.delete(_database.characterFeats)
-            ..where((tbl) => tbl.characterId.equals(character.id)))
-          .go();
+        ..where((tbl) => tbl.characterId.equals(character.id))).go();
 
       for (final feat in character.feats) {
-        await _database.into(_database.characterFeats).insert(
+        await _database
+            .into(_database.characterFeats)
+            .insert(
               db.CharacterFeatsCompanion.insert(
                 characterId: character.id,
                 featId: feat.featId,
@@ -780,11 +928,12 @@ class CharacterRepositoryImpl implements CharacterRepository {
       // igual aos talentos e pelo mesmo motivo. As duas listas são curtas, vêm
       // inteiras no agregado e já foram resolvidas pelo domínio.
       await (_database.delete(_database.characterAbilityImprovements)
-            ..where((tbl) => tbl.characterId.equals(character.id)))
-          .go();
+        ..where((tbl) => tbl.characterId.equals(character.id))).go();
 
       for (final improvement in character.abilityImprovements) {
-        await _database.into(_database.characterAbilityImprovements).insert(
+        await _database
+            .into(_database.characterAbilityImprovements)
+            .insert(
               db.CharacterAbilityImprovementsCompanion.insert(
                 characterId: character.id,
                 classId: improvement.classId,
@@ -798,8 +947,7 @@ class CharacterRepositoryImpl implements CharacterRepository {
       }
 
       await (_database.delete(_database.characterFeatureStates)
-            ..where((tbl) => tbl.characterId.equals(character.id)))
-          .go();
+        ..where((tbl) => tbl.characterId.equals(character.id))).go();
 
       for (final state in character.featureStates) {
         // Estado sem nada guardado não vira linha: um personagem com 200
@@ -807,7 +955,9 @@ class CharacterRepositoryImpl implements CharacterRepository {
         // ativo, nada escolhido". A ausência de linha JÁ é esse estado.
         if (state.isPristine) continue;
 
-        await _database.into(_database.characterFeatureStates).insert(
+        await _database
+            .into(_database.characterFeatureStates)
+            .insert(
               db.CharacterFeatureStatesCompanion.insert(
                 characterId: character.id,
                 featureId: state.featureId,
@@ -823,11 +973,12 @@ class CharacterRepositoryImpl implements CharacterRepository {
       // decide o que perdeu a vaga é `LanguageSelection.pruneDropped`, não
       // esta camada.
       await (_database.delete(_database.characterLanguages)
-            ..where((tbl) => tbl.characterId.equals(character.id)))
-          .go();
+        ..where((tbl) => tbl.characterId.equals(character.id))).go();
 
       for (final language in character.languages) {
-        await _database.into(_database.characterLanguages).insert(
+        await _database
+            .into(_database.characterLanguages)
+            .insert(
               db.CharacterLanguagesCompanion.insert(
                 characterId: character.id,
                 languageId: language.languageId,
@@ -846,14 +997,15 @@ class CharacterRepositoryImpl implements CharacterRepository {
       // razão: id duplicado gastaria duas vagas sem o jogador ter escolhido
       // duas invocações.
       await (_database.delete(_database.characterEldritchInvocations)
-            ..where((tbl) => tbl.characterId.equals(character.id)))
-          .go();
+        ..where((tbl) => tbl.characterId.equals(character.id))).go();
 
       final insertedInvocations = <String>{};
       for (final invocation in character.eldritchInvocations) {
         if (!insertedInvocations.add(invocation.invocationId)) continue;
 
-        await _database.into(_database.characterEldritchInvocations).insert(
+        await _database
+            .into(_database.characterEldritchInvocations)
+            .insert(
               db.CharacterEldritchInvocationsCompanion.insert(
                 characterId: character.id,
                 invocationId: invocation.invocationId,
@@ -866,21 +1018,44 @@ class CharacterRepositoryImpl implements CharacterRepository {
             );
       }
 
+      // Mecânicas de classe: apaga e reinsere, como as listas acima. Quem
+      // decide o que entra, o que sai e o que virou substituição é
+      // `ClassMechanicSelection`, no domínio — esta camada só grava o que
+      // chegou no agregado.
+      //
+      // A deduplicação é o que torna "abrir e salvar o mesmo personagem várias
+      // vezes" seguro: par mecânica + opção repetido gastaria duas vagas sem o
+      // jogador ter escolhido duas vezes, e um segundo registro de mecânica
+      // criaria dois resultados de tabela para a mesma rolagem.
+      await (_database.delete(_database.characterClassMechanics)
+        ..where((tbl) => tbl.characterId.equals(character.id))).go();
+
+      for (final mechanic in _dedupeMechanics(character.classMechanics)) {
+        await _database
+            .into(_database.characterClassMechanics)
+            .insert(
+              _mechanicInsert(characterId: character.id, mechanic: mechanic),
+            );
+      }
+
       await (_database.delete(_database.characterClassLevels)
-            ..where((tbl) => tbl.characterId.equals(character.id)))
-          .go();
+        ..where((tbl) => tbl.characterId.equals(character.id))).go();
 
       for (final classLevel in character.classLevels) {
-        await _database.into(_database.characterClassLevels).insert(
+        await _database
+            .into(_database.characterClassLevels)
+            .insert(
               db.CharacterClassLevelsCompanion.insert(
                 characterId: character.id,
                 classId: classLevel.classId,
                 subclassId: drift.Value(classLevel.subclassId),
                 level: classLevel.level,
-                spellcastingAbility:
-                    drift.Value(classLevel.spellcastingAbility?.name),
-                spellcastingType:
-                    drift.Value(classLevel.spellcastingType?.name),
+                spellcastingAbility: drift.Value(
+                  classLevel.spellcastingAbility?.name,
+                ),
+                spellcastingType: drift.Value(
+                  classLevel.spellcastingType?.name,
+                ),
               ),
             );
       }
@@ -891,21 +1066,22 @@ class CharacterRepositoryImpl implements CharacterRepository {
       final currentClassIds =
           character.classLevels.map((item) => item.classId).toSet();
 
-      final classSpellRows = await (_database.select(_database.characterSpells)
-            ..where((tbl) =>
+      final classSpellRows =
+          await (_database.select(_database.characterSpells)..where(
+            (tbl) =>
                 tbl.characterId.equals(character.id) &
-                tbl.sourceType.equals('class')))
-          .get();
+                tbl.sourceType.equals('class'),
+          )).get();
 
-      final staleSpellIds = classSpellRows
-          .where((row) => !currentClassIds.contains(row.sourceId))
-          .map((row) => row.localId)
-          .toList();
+      final staleSpellIds =
+          classSpellRows
+              .where((row) => !currentClassIds.contains(row.sourceId))
+              .map((row) => row.localId)
+              .toList();
 
       if (staleSpellIds.isNotEmpty) {
         await (_database.delete(_database.characterSpells)
-              ..where((tbl) => tbl.localId.isIn(staleSpellIds)))
-            .go();
+          ..where((tbl) => tbl.localId.isIn(staleSpellIds))).go();
       }
     });
   }
@@ -915,7 +1091,9 @@ class CharacterRepositoryImpl implements CharacterRepository {
     required String characterId,
     required domain_spells.CharacterSpell spell,
   }) async {
-    await _database.into(_database.characterSpells).insert(
+    await _database
+        .into(_database.characterSpells)
+        .insert(
           db.CharacterSpellsCompanion.insert(
             characterId: characterId,
             spellId: spell.spellId,
@@ -937,13 +1115,13 @@ class CharacterRepositoryImpl implements CharacterRepository {
     required String sourceType,
     required String sourceId,
   }) async {
-    await (_database.delete(_database.characterSpells)
-          ..where((tbl) =>
-              tbl.characterId.equals(characterId) &
-              tbl.spellId.equals(spellId) &
-              tbl.sourceType.equals(sourceType) &
-              tbl.sourceId.equals(sourceId)))
-        .go();
+    await (_database.delete(_database.characterSpells)..where(
+      (tbl) =>
+          tbl.characterId.equals(characterId) &
+          tbl.spellId.equals(spellId) &
+          tbl.sourceType.equals(sourceType) &
+          tbl.sourceId.equals(sourceId),
+    )).go();
   }
 
   @override
@@ -951,7 +1129,9 @@ class CharacterRepositoryImpl implements CharacterRepository {
     required String characterId,
     required domain_weapons.CharacterWeapon weapon,
   }) async {
-    await _database.into(_database.characterWeapons).insert(
+    await _database
+        .into(_database.characterWeapons)
+        .insert(
           WeaponMapper.toInsert(characterId: characterId, weapon: weapon),
         );
   }
@@ -965,25 +1145,24 @@ class CharacterRepositoryImpl implements CharacterRepository {
       throw ArgumentError('Arma sem localId não pode ser atualizada.');
     }
 
-    await (_database.update(_database.characterWeapons)
-          ..where((tbl) => tbl.localId.equals(localId)))
-        .write(WeaponMapper.toUpdate(weapon));
+    await (_database.update(_database.characterWeapons)..where(
+      (tbl) => tbl.localId.equals(localId),
+    )).write(WeaponMapper.toUpdate(weapon));
   }
 
   @override
   Future<void> deleteWeapon({required int weaponLocalId}) async {
     await (_database.delete(_database.characterWeapons)
-          ..where((tbl) => tbl.localId.equals(weaponLocalId)))
-        .go();
+      ..where((tbl) => tbl.localId.equals(weaponLocalId))).go();
   }
 
   @override
   Future<void> updateMagicItem({
     required domain_items.CharacterMagicItem item,
   }) async {
-    await (_database.update(_database.characterMagicItems)
-          ..where((tbl) => tbl.localId.equals(item.localId)))
-        .write(MagicItemMapper.toUpdate(item));
+    await (_database.update(_database.characterMagicItems)..where(
+      (tbl) => tbl.localId.equals(item.localId),
+    )).write(MagicItemMapper.toUpdate(item));
   }
 
   @override
@@ -991,13 +1170,14 @@ class CharacterRepositoryImpl implements CharacterRepository {
     required String characterId,
     required domain_items.CharacterMagicItem item,
   }) async {
-    final insertedId =
-        await _database.into(_database.characterMagicItems).insert(
-              MagicItemMapper.toInsert(characterId: characterId, item: item),
-            );
+    final insertedId = await _database
+        .into(_database.characterMagicItems)
+        .insert(MagicItemMapper.toInsert(characterId: characterId, item: item));
 
     for (final spell in item.spells) {
-      await _database.into(_database.characterMagicItemSpells).insert(
+      await _database
+          .into(_database.characterMagicItemSpells)
+          .insert(
             db.CharacterMagicItemSpellsCompanion.insert(
               magicItemId: insertedId,
               spellId: spell.spellId,
@@ -1015,27 +1195,19 @@ class CharacterRepositoryImpl implements CharacterRepository {
     required int magicItemId,
     required int? charges,
   }) async {
-    await (_database.update(_database.characterMagicItems)
-          ..where((tbl) => tbl.localId.equals(magicItemId)))
-        .write(
-      db.CharacterMagicItemsCompanion(
-        charges: drift.Value(charges),
-      ),
-    );
+    await (_database.update(_database.characterMagicItems)..where(
+      (tbl) => tbl.localId.equals(magicItemId),
+    )).write(db.CharacterMagicItemsCompanion(charges: drift.Value(charges)));
   }
 
   @override
-  Future<void> deleteMagicItem({
-    required int magicItemId,
-  }) async {
+  Future<void> deleteMagicItem({required int magicItemId}) async {
     await _database.transaction(() async {
       await (_database.delete(_database.characterMagicItemSpells)
-            ..where((tbl) => tbl.magicItemId.equals(magicItemId)))
-          .go();
+        ..where((tbl) => tbl.magicItemId.equals(magicItemId))).go();
 
       await (_database.delete(_database.characterMagicItems)
-            ..where((tbl) => tbl.localId.equals(magicItemId)))
-          .go();
+        ..where((tbl) => tbl.localId.equals(magicItemId))).go();
     });
   }
 
@@ -1044,7 +1216,9 @@ class CharacterRepositoryImpl implements CharacterRepository {
     required int magicItemId,
     required domain_item_spells.CharacterMagicItemSpell spell,
   }) async {
-    await _database.into(_database.characterMagicItemSpells).insert(
+    await _database
+        .into(_database.characterMagicItemSpells)
+        .insert(
           db.CharacterMagicItemSpellsCompanion.insert(
             magicItemId: magicItemId,
             spellId: spell.spellId,
@@ -1061,18 +1235,17 @@ class CharacterRepositoryImpl implements CharacterRepository {
     required int magicItemId,
     required int spellId,
   }) async {
-    await (_database.delete(_database.characterMagicItemSpells)
-          ..where((tbl) =>
-              tbl.magicItemId.equals(magicItemId) &
-              tbl.spellId.equals(spellId)))
-        .go();
+    await (_database.delete(_database.characterMagicItemSpells)..where(
+      (tbl) =>
+          tbl.magicItemId.equals(magicItemId) & tbl.spellId.equals(spellId),
+    )).go();
   }
 
   @override
   Future<Map<int, int>> getUsedSpellSlots(String characterId) async {
-    final rows = await (_database.select(_database.characterSpellSlotsUsage)
-          ..where((tbl) => tbl.characterId.equals(characterId)))
-        .get();
+    final rows =
+        await (_database.select(_database.characterSpellSlotsUsage)
+          ..where((tbl) => tbl.characterId.equals(characterId))).get();
 
     final map = <int, int>{};
 
@@ -1097,14 +1270,18 @@ class CharacterRepositoryImpl implements CharacterRepository {
     await _database.transaction(() async {
       final existing =
           await (_database.select(_database.characterSpellSlotsUsage)
-                ..where((tbl) =>
-                    tbl.characterId.equals(characterId) &
-                    tbl.slotLevel.equals(slotLevel))
+                ..where(
+                  (tbl) =>
+                      tbl.characterId.equals(characterId) &
+                      tbl.slotLevel.equals(slotLevel),
+                )
                 ..limit(1))
               .getSingleOrNull();
 
       if (existing == null) {
-        await _database.into(_database.characterSpellSlotsUsage).insert(
+        await _database
+            .into(_database.characterSpellSlotsUsage)
+            .insert(
               db.CharacterSpellSlotsUsageCompanion.insert(
                 characterId: characterId,
                 slotLevel: slotLevel,
@@ -1114,11 +1291,8 @@ class CharacterRepositoryImpl implements CharacterRepository {
             );
       } else {
         await (_database.update(_database.characterSpellSlotsUsage)
-              ..where((tbl) => tbl.localId.equals(existing.localId)))
-            .write(
-          db.CharacterSpellSlotsUsageCompanion(
-            used: drift.Value(safeUsed),
-          ),
+          ..where((tbl) => tbl.localId.equals(existing.localId))).write(
+          db.CharacterSpellSlotsUsageCompanion(used: drift.Value(safeUsed)),
         );
       }
     });
@@ -1126,16 +1300,14 @@ class CharacterRepositoryImpl implements CharacterRepository {
 
   @override
   Stream<List<domain.Character>> watchAll() {
-    return _database
-        .select(_database.characters)
-        .watch()
-        .asyncMap((rows) async {
+    return _database.select(_database.characters).watch().asyncMap((
+      rows,
+    ) async {
       final items = <domain.Character>[];
       for (final row in rows) {
         final classLevels =
             await (_database.select(_database.characterClassLevels)
-                  ..where((tbl) => tbl.characterId.equals(row.id)))
-                .get();
+              ..where((tbl) => tbl.characterId.equals(row.id))).get();
 
         final mapped = CharacterMapper.fromDatabase(
           character: row,

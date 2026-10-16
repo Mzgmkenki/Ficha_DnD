@@ -1,6 +1,7 @@
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_score_improvement.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/background_personality_choice.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_class_mechanic.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_eldritch_invocation.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_feat.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_feature_state.dart';
@@ -67,6 +68,7 @@ class Character {
     this.featureStates = const [],
     this.languages = const [],
     this.eldritchInvocations = const [],
+    this.classMechanics = const [],
     this.armorClassFormulaId,
     this.armorClassOtherBonus = 0,
   });
@@ -153,6 +155,23 @@ class Character {
   /// normal. Personagem anterior ao schema 23 também: ele nunca teve invocação
   /// gravada, e a seção simplesmente não aparece na ficha.
   final List<CharacterEldritchInvocation> eldritchInvocations;
+
+  /// Escolhas internas de mecânicas de classe e subclasse.
+  ///
+  /// Manobras do Mestre de Batalha, runas do Cavaleiro Rúnico, ambiente do
+  /// Arauto da Tempestade, resultado registrado do Surto de Magia Selvagem.
+  ///
+  /// Só a ESCOLHA e o histórico: nome, limite, pré-requisito e efeito vêm do
+  /// catálogo a cada leitura, por `ClassMechanicResolver` — mesma razão de
+  /// [featureStates] e [eldritchInvocations]. Os usos gastos e o estado ativo
+  /// ficam em [featureStates], sob a chave de
+  /// `ClassMechanicEntry.mechanicFeatureId`, para reaproveitar o motor de
+  /// recursos em vez de criar um segundo contador.
+  ///
+  /// Personagem anterior ao schema 24 chega com a lista vazia, e isso é um
+  /// estado válido: ele nunca teve mecânica gravada, e as vagas do nível dele
+  /// aparecem pendentes em vez de preenchidas por palpite.
+  final List<CharacterClassMechanic> classMechanics;
 
   /// Fórmula de CA-base que o jogador escolheu usar.
   ///
@@ -299,6 +318,13 @@ class Character {
     return null;
   }
 
+  /// Os registros de uma mecânica de classe, na ordem em que foram gravados.
+  List<CharacterClassMechanic> classMechanicsFor(String mechanicId) {
+    return classMechanics
+        .where((item) => item.mechanicId == mechanicId)
+        .toList(growable: false);
+  }
+
   /// As escolhas internas de característica já feitas, por id de
   /// característica. É o formato que `ResolvedFeatures.pendingChoices` espera.
   Map<String, String> get featureChoiceSelections {
@@ -338,6 +364,7 @@ class Character {
     List<CharacterFeatureState>? featureStates,
     List<CharacterLanguage>? languages,
     List<CharacterEldritchInvocation>? eldritchInvocations,
+    List<CharacterClassMechanic>? classMechanics,
     Object? armorClassFormulaId = _sentinel,
     int? armorClassOtherBonus,
     bool? inspiration,
@@ -394,14 +421,16 @@ class Character {
       abilityImprovements: abilityImprovements ?? this.abilityImprovements,
       featureStates: featureStates ?? this.featureStates,
       languages: languages ?? this.languages,
-      // Sem sentinela: limpar é passar lista vazia, não null.
+      // Sem sentinela nas duas: limpar é passar lista vazia, não null.
       eldritchInvocations: eldritchInvocations ?? this.eldritchInvocations,
+      classMechanics: classMechanics ?? this.classMechanics,
       // Sentinela é obrigatória: voltar para "nunca escolheu" é setar null, e
       // com `?? this.armorClassFormulaId` isso seria impossível — a troca de
       // classe precisa poder soltar uma fórmula que não existe mais.
-      armorClassFormulaId: armorClassFormulaId == _sentinel
-          ? this.armorClassFormulaId
-          : armorClassFormulaId as String?,
+      armorClassFormulaId:
+          armorClassFormulaId == _sentinel
+              ? this.armorClassFormulaId
+              : armorClassFormulaId as String?,
       // Sem sentinela: zerar o bônus é passar 0, que não é null.
       armorClassOtherBonus: armorClassOtherBonus ?? this.armorClassOtherBonus,
       inspiration: inspiration ?? this.inspiration,

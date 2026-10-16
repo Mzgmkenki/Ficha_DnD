@@ -631,6 +631,40 @@ MigrationStrategy buildMigrationStrategy(AppDatabase db) {
         // repetido devolve "already exists", que `_tryCreateTable` engole.
         await _tryCreateTable(m, db.characterEldritchInvocations);
       }
+
+      if (from < 24) {
+        // Mecânicas internas de classe e subclasse: manobras, runas,
+        // disciplinas, ambientes, modelos de armadura, resultados de tabela.
+        //
+        // A tabela nasce VAZIA, e isso não perde nada: até aqui o app nunca
+        // gravou nenhuma dessas escolhas. As mecânicas existiam apenas como
+        // texto da característica no compêndio — "Aprende três manobras" era
+        // uma frase, sem lista, sem limite e sem efeito. Não existe, portanto,
+        // seleção antiga para preservar, deduplicar ou revalidar.
+        //
+        // O que o personagem antigo ganha ao abrir depois desta versão: as
+        // vagas do nível dele ficam disponíveis, o catálogo inteiro aparece
+        // com o que está liberado e o que está bloqueado, os contadores de uso
+        // passam a existir e as tabelas ficam consultáveis.
+        //
+        // O que ele NÃO ganha: escolha feita por conta própria. Deduzir quais
+        // das 23 manobras o jogador teria pego é impossível, e gravar um
+        // palpite mudaria a ficha de quem não pediu nada. A ficha mostra
+        // "0 de 3 conhecidas" e pede a escolha.
+        //
+        // Por que não há backfill a partir de `character_feature_states`: as
+        // duas tabelas não se sobrepõem. Lá moram usos e estado ativo por
+        // CARACTERÍSTICA, com chaves `class.*`, `subclass.*` e `invocation.*`;
+        // as chaves de mecânica são `mechanic.*` e nunca foram gravadas. Um
+        // personagem antigo não tem nenhuma linha com esse prefixo, então ler
+        // de lá devolveria o mesmo vazio — com o custo de uma leitura dentro
+        // da transação de migração, que é justamente o que trava a abertura do
+        // banco (ver o comentário no topo deste arquivo).
+        //
+        // Idempotente pelo mesmo mecanismo do resto do arquivo: `CREATE TABLE`
+        // repetido devolve "already exists", que `_tryCreateTable` engole.
+        await _tryCreateTable(m, db.characterClassMechanics);
+      }
     },
     beforeOpen: (details) async {
       // Roda fora da transação de migração, então aqui é seguro usar `db`.

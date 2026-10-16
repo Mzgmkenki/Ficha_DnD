@@ -1,6 +1,8 @@
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_class_mechanic.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_feat.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_feature_state.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_spell.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
@@ -57,6 +59,8 @@ Character characterFixture({
   List<CharacterSpell> spells = const [],
   List<CharacterFeat> feats = const [],
   List<CharacterMagicItem> magicItems = const [],
+  List<CharacterFeatureState> featureStates = const [],
+  List<CharacterClassMechanic> classMechanics = const [],
   String? backgroundId,
   String? speciesId,
   int exhaustion = 0,
@@ -71,16 +75,15 @@ Character characterFixture({
     abilityScores: abilityScores ?? flatScores,
     classLevels: classLevels,
     hitPoints: hitPoints,
-    combatStats: combatStats ??
-        const CombatStats(
-          armorClass: 10,
-          initiativeBonus: 0,
-          speedInMeters: 9,
-        ),
+    combatStats:
+        combatStats ??
+        const CombatStats(armorClass: 10, initiativeBonus: 0, speedInMeters: 9),
     skillProficiencies: skillProficiencies,
     spells: spells,
     feats: feats,
     magicItems: magicItems,
+    featureStates: featureStates,
+    classMechanics: classMechanics,
     backgroundId: backgroundId,
     speciesId: speciesId,
     exhaustion: exhaustion,

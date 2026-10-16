@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_score_improvement.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/ability_scores.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/character_class_mechanic.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_eldritch_invocation.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_feat.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_feature_state.dart';
@@ -343,6 +344,24 @@ class CharacterJsonCodec {
             'replacedAtLevel': invocation.replacedAtLevel,
           },
       ],
+      // Mecânicas de classe: só os ids escolhidos, o histórico da troca e o
+      // resultado de tabela registrado. Nome, limite, pré-requisito e efeito
+      // vêm do catálogo na importação, pela mesma razão das invocações. Os
+      // usos gastos e o estado ativo viajam em `featureStates`, que já é
+      // exportado acima — eles não são duplicados aqui.
+      'classMechanics': [
+        for (final mechanic in character.classMechanics)
+          <String, dynamic>{
+            'mechanicId': mechanic.mechanicId,
+            'optionId': mechanic.optionId,
+            'isSelected': mechanic.isSelected,
+            'chosenAtLevel': mechanic.chosenAtLevel,
+            'replacedOptionId': mechanic.replacedOptionId,
+            'replacedAtLevel': mechanic.replacedAtLevel,
+            'rollResult': mechanic.rollResult,
+            'note': mechanic.note,
+          },
+      ],
       'armorClassFormulaId': character.armorClassFormulaId,
       'armorClassOtherBonus': character.armorClassOtherBonus,
       'inspiration': character.inspiration,
@@ -438,9 +457,12 @@ class CharacterJsonCodec {
       eldritchInvocations: _parseEldritchInvocations(
         map['eldritchInvocations'],
       ),
+      classMechanics: _parseClassMechanics(map['classMechanics']),
       armorClassFormulaId: _asString(map['armorClassFormulaId']),
-      armorClassOtherBonus:
-          (_asInt(map['armorClassOtherBonus']) ?? 0).clamp(-20, 20),
+      armorClassOtherBonus: (_asInt(map['armorClassOtherBonus']) ?? 0).clamp(
+        -20,
+        20,
+      ),
       inspiration: _asBool(map['inspiration']),
       exhaustion: (_asInt(map['exhaustion']) ?? 0).clamp(0, 6),
       conditions: _parseConditions(map['conditions']),
@@ -751,10 +773,64 @@ class CharacterJsonCodec {
           // Clamp: nível negativo num arquivo editado à mão viraria histórico
           // sem sentido na ficha.
           chosenAtLevel: (_asInt(map['chosenAtLevel']) ?? 0).clamp(0, 20),
-          replacedInvocationId: replaced == null || replaced.isEmpty
-              ? null
-              : replaced,
+          replacedInvocationId:
+              replaced == null || replaced.isEmpty ? null : replaced,
           replacedAtLevel: _asInt(map['replacedAtLevel']),
+        ),
+      );
+    }
+
+    return result;
+  }
+
+  static List<CharacterClassMechanic> _parseClassMechanics(Object? raw) {
+    final result = <CharacterClassMechanic>[];
+    final seen = <String>{};
+
+    for (final item in _asList(raw)) {
+      final map = _asMap(item);
+      final mechanicId = _asString(map['mechanicId'])?.trim();
+      // Sem id não há mecânica: o nome traduzido do arquivo não serve de
+      // identificador, então o registro é descartado em vez de adivinhado.
+      if (mechanicId == null || mechanicId.isEmpty) continue;
+
+      final optionId = _asString(map['optionId'])?.trim();
+      final hasOption = optionId != null && optionId.isNotEmpty;
+
+      // Duplicata no arquivo entra uma vez só, com as mesmas duas chaves da
+      // gravação: é o que impede um import repetido de gastar duas vagas com
+      // a mesma opção ou de criar dois resultados para a mesma tabela.
+      final key = hasOption ? '$mechanicId|$optionId' : '$mechanicId|';
+      if (!seen.add(key)) continue;
+
+      final replaced = _asString(map['replacedOptionId'])?.trim();
+      final rollResult = _asString(map['rollResult'])?.trim();
+      final note = _asString(map['note'])?.trim();
+
+      // Registro que não guarda nada é descartado: importar linha vazia só
+      // acumularia lixo que a ficha teria de ignorar depois.
+      if (!hasOption &&
+          (rollResult == null || rollResult.isEmpty) &&
+          (note == null || note.isEmpty)) {
+        continue;
+      }
+
+      result.add(
+        CharacterClassMechanic(
+          mechanicId: mechanicId,
+          optionId: hasOption ? optionId : null,
+          // Registro sem opção nunca conta como escolha, mesmo que o arquivo
+          // diga que conta: contagem de vaga depende de haver opção.
+          isSelected: hasOption && map['isSelected'] != false,
+          // Clamp: nível negativo num arquivo editado à mão viraria histórico
+          // sem sentido na ficha.
+          chosenAtLevel: (_asInt(map['chosenAtLevel']) ?? 0).clamp(0, 20),
+          replacedOptionId:
+              replaced == null || replaced.isEmpty ? null : replaced,
+          replacedAtLevel: _asInt(map['replacedAtLevel']),
+          rollResult:
+              rollResult == null || rollResult.isEmpty ? null : rollResult,
+          note: note == null || note.isEmpty ? null : note,
         ),
       );
     }
@@ -788,10 +864,11 @@ class CharacterJsonCodec {
           languageId: languageId,
           // Escolha sem vaga gravada não tem como ser validada contra origem
           // nenhuma; entra como legado, que é o estado honesto.
-          kind: kind == LanguageOriginKind.choice &&
-                  (slotId == null || slotId.isEmpty)
-              ? LanguageOriginKind.legacy
-              : kind,
+          kind:
+              kind == LanguageOriginKind.choice &&
+                      (slotId == null || slotId.isEmpty)
+                  ? LanguageOriginKind.legacy
+                  : kind,
           slotId: slotId == null || slotId.isEmpty ? null : slotId,
           sourceId: sourceId == null || sourceId.isEmpty ? null : sourceId,
           sourceLabel:

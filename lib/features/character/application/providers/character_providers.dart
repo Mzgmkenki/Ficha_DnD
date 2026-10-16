@@ -1,6 +1,7 @@
 import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/core/utils/dice_roller.dart';
+import 'package:dnd_ficha_app/features/character/application/providers/class_mechanic_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/feature_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/invocation_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/choose_subclass.dart';
@@ -46,44 +47,46 @@ final createCharacterProvider = Provider<CreateCharacter>((ref) {
 
 /// Stream reativo: qualquer escrita no banco reflete na ficha sozinha.
 /// `autoDispose` evita manter em cache todo personagem já visitado.
-final characterByIdProvider =
-    StreamProvider.autoDispose.family<Character?, String>((ref, id) {
-  final repository = ref.watch(characterRepositoryProvider);
-  return repository.watchById(id);
-});
+final characterByIdProvider = StreamProvider.autoDispose
+    .family<Character?, String>((ref, id) {
+      final repository = ref.watch(characterRepositoryProvider);
+      return repository.watchById(id);
+    });
 
 final updateCharacterAbilityScoresProvider =
     Provider<UpdateCharacterAbilityScores>((ref) {
-  final repository = ref.watch(characterRepositoryProvider);
-  return UpdateCharacterAbilityScores(repository);
-});
+      final repository = ref.watch(characterRepositoryProvider);
+      return UpdateCharacterAbilityScores(repository);
+    });
 
-final updateCharacterHitPointsProvider =
-    Provider<UpdateCharacterHitPoints>((ref) {
+final updateCharacterHitPointsProvider = Provider<UpdateCharacterHitPoints>((
+  ref,
+) {
   final repository = ref.watch(characterRepositoryProvider);
   return UpdateCharacterHitPoints(repository);
 });
 
 final updateCharacterProficienciesProvider =
     Provider<UpdateCharacterProficiencies>((ref) {
-  final repository = ref.watch(characterRepositoryProvider);
-  return UpdateCharacterProficiencies(repository);
-});
+      final repository = ref.watch(characterRepositoryProvider);
+      return UpdateCharacterProficiencies(repository);
+    });
 
-final updateCharacterIdentityProvider =
-    Provider<UpdateCharacterIdentity>((ref) {
+final updateCharacterIdentityProvider = Provider<UpdateCharacterIdentity>((
+  ref,
+) {
   final repository = ref.watch(characterRepositoryProvider);
   return UpdateCharacterIdentity(repository);
 });
 
-final manageCharacterFeatsProvider =
-    Provider<ManageCharacterFeats>((ref) {
+final manageCharacterFeatsProvider = Provider<ManageCharacterFeats>((ref) {
   final repository = ref.watch(characterRepositoryProvider);
   return ManageCharacterFeats(repository);
 });
 
-final updateCharacterPortraitProvider =
-    Provider<UpdateCharacterPortrait>((ref) {
+final updateCharacterPortraitProvider = Provider<UpdateCharacterPortrait>((
+  ref,
+) {
   final repository = ref.watch(characterRepositoryProvider);
   final storage = ref.watch(portraitStorageProvider);
   return UpdateCharacterPortrait(repository, storage);
@@ -93,8 +96,9 @@ final updateCharacterPortraitProvider =
 ///
 /// Devolve uma função em vez do caso de uso porque a tela não deveria precisar
 /// saber quais listas do compêndio o PDF consome.
-final exportCharacterPdfProvider =
-    Provider<Future<CharacterPdf> Function(String)>((ref) {
+final exportCharacterPdfProvider = Provider<
+  Future<CharacterPdf> Function(String)
+>((ref) {
   final repository = ref.watch(characterRepositoryProvider);
 
   return (String characterId) async {
@@ -132,11 +136,12 @@ final deleteCharacterProvider = Provider<Future<void> Function(String)>((ref) {
   return (String id) => repository.delete(id);
 });
 
-final updateCharacterClassLevelsProvider =
-    Provider<UpdateCharacterClassLevels>((ref) {
-  final repository = ref.watch(characterRepositoryProvider);
-  return UpdateCharacterClassLevels(repository);
-});
+final updateCharacterClassLevelsProvider = Provider<UpdateCharacterClassLevels>(
+  (ref) {
+    final repository = ref.watch(characterRepositoryProvider);
+    return UpdateCharacterClassLevels(repository);
+  },
+);
 
 final chooseSubclassProvider = Provider<ChooseSubclass>((ref) {
   return ChooseSubclass(
@@ -170,30 +175,26 @@ final spellNameIndexProvider = FutureProvider<SpellNameIndex>((ref) async {
 });
 
 final addCharacterSpellProvider = Provider<
-    Future<void> Function({
-      required String characterId,
-      required CharacterSpell spell,
-    })>((ref) {
-  final repository = ref.watch(characterRepositoryProvider);
-
-  return ({
+  Future<void> Function({
     required String characterId,
     required CharacterSpell spell,
-  }) {
-    return repository.addCharacterSpell(
-      characterId: characterId,
-      spell: spell,
-    );
+  })
+>((ref) {
+  final repository = ref.watch(characterRepositoryProvider);
+
+  return ({required String characterId, required CharacterSpell spell}) {
+    return repository.addCharacterSpell(characterId: characterId, spell: spell);
   };
 });
 
 final removeCharacterSpellProvider = Provider<
-    Future<void> Function({
-      required String characterId,
-      required int spellId,
-      required String sourceType,
-      required String sourceId,
-    })>((ref) {
+  Future<void> Function({
+    required String characterId,
+    required int spellId,
+    required String sourceType,
+    required String sourceId,
+  })
+>((ref) {
   final repository = ref.watch(characterRepositoryProvider);
 
   return ({
@@ -212,20 +213,15 @@ final removeCharacterSpellProvider = Provider<
 });
 
 final addCharacterMagicItemProvider = Provider<
-    Future<void> Function({
-      required String characterId,
-      required CharacterMagicItem item,
-    })>((ref) {
-  final repository = ref.watch(characterRepositoryProvider);
-
-  return ({
+  Future<void> Function({
     required String characterId,
     required CharacterMagicItem item,
-  }) {
-    return repository.addMagicItem(
-      characterId: characterId,
-      item: item,
-    );
+  })
+>((ref) {
+  final repository = ref.watch(characterRepositoryProvider);
+
+  return ({required String characterId, required CharacterMagicItem item}) {
+    return repository.addMagicItem(characterId: characterId, item: item);
   };
 });
 
@@ -234,28 +230,21 @@ final addCharacterMagicItemProvider = Provider<
 /// Separado do provider de cargas de propósito. Gastar uma carga em mesa é o
 /// caminho rápido e não pode arrastar o resto do item; editar a configuração do
 /// item é o caminho completo e precisa gravar tudo.
-final updateCharacterMagicItemProvider = Provider<
-    Future<void> Function({
-      required CharacterMagicItem item,
-    })>((ref) {
-  final repository = ref.watch(characterRepositoryProvider);
+final updateCharacterMagicItemProvider =
+    Provider<Future<void> Function({required CharacterMagicItem item})>((ref) {
+      final repository = ref.watch(characterRepositoryProvider);
 
-  return ({required CharacterMagicItem item}) {
-    return repository.updateMagicItem(item: item);
-  };
-});
+      return ({required CharacterMagicItem item}) {
+        return repository.updateMagicItem(item: item);
+      };
+    });
 
 final updateCharacterMagicItemChargesProvider = Provider<
-    Future<void> Function({
-      required int magicItemId,
-      required int? charges,
-    })>((ref) {
+  Future<void> Function({required int magicItemId, required int? charges})
+>((ref) {
   final repository = ref.watch(characterRepositoryProvider);
 
-  return ({
-    required int magicItemId,
-    required int? charges,
-  }) {
+  return ({required int magicItemId, required int? charges}) {
     return repository.updateMagicItemCharges(
       magicItemId: magicItemId,
       charges: charges,
@@ -263,50 +252,34 @@ final updateCharacterMagicItemChargesProvider = Provider<
   };
 });
 
-final deleteCharacterMagicItemProvider = Provider<
-    Future<void> Function({
-      required int magicItemId,
-    })>((ref) {
-  final repository = ref.watch(characterRepositoryProvider);
+final deleteCharacterMagicItemProvider =
+    Provider<Future<void> Function({required int magicItemId})>((ref) {
+      final repository = ref.watch(characterRepositoryProvider);
 
-  return ({
-    required int magicItemId,
-  }) {
-    return repository.deleteMagicItem(
-      magicItemId: magicItemId,
-    );
-  };
-});
+      return ({required int magicItemId}) {
+        return repository.deleteMagicItem(magicItemId: magicItemId);
+      };
+    });
 
 final addMagicItemSpellProvider = Provider<
-    Future<void> Function({
-      required int magicItemId,
-      required CharacterMagicItemSpell spell,
-    })>((ref) {
-  final repository = ref.watch(characterRepositoryProvider);
-
-  return ({
+  Future<void> Function({
     required int magicItemId,
     required CharacterMagicItemSpell spell,
-  }) {
-    return repository.addMagicItemSpell(
-      magicItemId: magicItemId,
-      spell: spell,
-    );
+  })
+>((ref) {
+  final repository = ref.watch(characterRepositoryProvider);
+
+  return ({required int magicItemId, required CharacterMagicItemSpell spell}) {
+    return repository.addMagicItemSpell(magicItemId: magicItemId, spell: spell);
   };
 });
 
 final removeMagicItemSpellProvider = Provider<
-    Future<void> Function({
-      required int magicItemId,
-      required int spellId,
-    })>((ref) {
+  Future<void> Function({required int magicItemId, required int spellId})
+>((ref) {
   final repository = ref.watch(characterRepositoryProvider);
 
-  return ({
-    required int magicItemId,
-    required int spellId,
-  }) {
+  return ({required int magicItemId, required int spellId}) {
     return repository.removeMagicItemSpell(
       magicItemId: magicItemId,
       spellId: spellId,
@@ -314,11 +287,11 @@ final removeMagicItemSpellProvider = Provider<
   };
 });
 
-final characterUsedSpellSlotsProvider =
-    StreamProvider.autoDispose.family<Map<int, int>, String>((ref, characterId) {
-  final repository = ref.watch(characterRepositoryProvider);
-  return repository.watchUsedSpellSlots(characterId);
-});
+final characterUsedSpellSlotsProvider = StreamProvider.autoDispose
+    .family<Map<int, int>, String>((ref, characterId) {
+      final repository = ref.watch(characterRepositoryProvider);
+      return repository.watchUsedSpellSlots(characterId);
+    });
 
 /// As características cujos usos voltam com estas recargas.
 ///
@@ -336,9 +309,7 @@ Future<Set<String>> _featureIdsRestoredBy(
   if (character.featureStates.isEmpty) return const {};
 
   try {
-    final features = await ref.read(
-      resolvedFeaturesProvider(character).future,
-    );
+    final features = await ref.read(resolvedFeaturesProvider(character).future);
 
     final result = <String>{
       ...FeatureResources.featureIdsRestoredBy(
@@ -361,6 +332,17 @@ Future<Set<String>> _featureIdsRestoredBy(
       ),
     );
 
+    // As mecânicas de classe entram pela terceira porta, com o mesmo
+    // vocabulário: os Dados de Superioridade e as invocações de runa declaram
+    // `recharge`, e um descanso curto tem de devolver os dois junto com o
+    // resto. O resolvedor devolve as chaves de `featureStates`, que é onde os
+    // usos de mecânica moram.
+    final mechanics = await ref.read(
+      resolvedClassMechanicsProvider(character).future,
+    );
+
+    result.addAll(mechanics.featureIdsRestoredBy(recharges));
+
     return result;
   } catch (error) {
     // Só a mensagem: `SrdAssetSource` já imprime arquivo e stack quando a
@@ -374,10 +356,11 @@ Future<Set<String>> _featureIdsRestoredBy(
 /// dos itens mágicos recarregadas, metade dos dados de vida recuperados e 1
 /// nível de exaustão removido.
 final longRestProvider = Provider<
-    Future<String> Function({
-      required Character character,
-      required int totalHitDice,
-    })>((ref) {
+  Future<String> Function({
+    required Character character,
+    required int totalHitDice,
+  })
+>((ref) {
   final repository = ref.watch(characterRepositoryProvider);
 
   return ({required Character character, required int totalHitDice}) async {
@@ -411,10 +394,11 @@ final longRestProvider = Provider<
 
 /// Aplica um descanso curto: apenas os espaços de Magia de Pacto voltam.
 final shortRestProvider = Provider<
-    Future<String> Function({
-      required Character character,
-      required List<int> pactSlotUsageKeys,
-    })>((ref) {
+  Future<String> Function({
+    required Character character,
+    required List<int> pactSlotUsageKeys,
+  })
+>((ref) {
   final repository = ref.watch(characterRepositoryProvider);
 
   return ({
@@ -446,11 +430,12 @@ final shortRestProvider = Provider<
 
 /// Gasta um dado de vida e cura o valor rolado + modificador de Constituição.
 final spendHitDieProvider = Provider<
-    Future<void> Function({
-      required Character character,
-      required int rolled,
-      required int totalHitDice,
-    })>((ref) {
+  Future<void> Function({
+    required Character character,
+    required int rolled,
+    required int totalHitDice,
+  })
+>((ref) {
   final repository = ref.watch(characterRepositoryProvider);
 
   return ({
@@ -471,8 +456,9 @@ final spendHitDieProvider = Provider<
 });
 
 /// Alterna a inspiração heroica.
-final toggleInspirationProvider =
-    Provider<Future<void> Function(Character)>((ref) {
+final toggleInspirationProvider = Provider<Future<void> Function(Character)>((
+  ref,
+) {
   final repository = ref.watch(characterRepositoryProvider);
 
   return (Character character) {
@@ -486,8 +472,9 @@ final toggleInspirationProvider =
 });
 
 /// Define o nível de exaustão (0 a 6).
-final setExhaustionProvider =
-    Provider<Future<void> Function(Character, int)>((ref) {
+final setExhaustionProvider = Provider<Future<void> Function(Character, int)>((
+  ref,
+) {
   final repository = ref.watch(characterRepositoryProvider);
 
   return (Character character, int level) {
@@ -506,20 +493,20 @@ final setExhaustionProvider =
 /// grava. O clamp de 0 a 3 mora no próprio `DeathSaves`.
 final setDeathSavesProvider =
     Provider<Future<void> Function(Character, DeathSaves)>((ref) {
-  final repository = ref.watch(characterRepositoryProvider);
+      final repository = ref.watch(characterRepositoryProvider);
 
-  return (Character character, DeathSaves saves) {
-    return repository.update(
-      character.copyWith(
-        deathSaves: DeathSaves(
-          successes: saves.successes.clamp(0, DeathSaves.maxMarks),
-          failures: saves.failures.clamp(0, DeathSaves.maxMarks),
-        ),
-        updatedAt: DateTime.now(),
-      ),
-    );
-  };
-});
+      return (Character character, DeathSaves saves) {
+        return repository.update(
+          character.copyWith(
+            deathSaves: DeathSaves(
+              successes: saves.successes.clamp(0, DeathSaves.maxMarks),
+              failures: saves.failures.clamp(0, DeathSaves.maxMarks),
+            ),
+            updatedAt: DateTime.now(),
+          ),
+        );
+      };
+    });
 
 /// Aplica um d20 já rolado às regras do teste contra a morte.
 ///
@@ -527,24 +514,23 @@ final setDeathSavesProvider =
 /// o dado, e para o `20` natural conseguir devolver 1 ponto de vida na mesma
 /// gravação — dois `update` seguidos fariam a ficha piscar entre dois estados.
 final rollDeathSaveProvider = Provider<
-    Future<DeathSaveOutcome> Function({
-      required Character character,
-      required DiceRollResult roll,
-    })>((ref) {
-  final repository = ref.watch(characterRepositoryProvider);
-
-  return ({
+  Future<DeathSaveOutcome> Function({
     required Character character,
     required DiceRollResult roll,
-  }) async {
+  })
+>((ref) {
+  final repository = ref.watch(characterRepositoryProvider);
+
+  return ({required Character character, required DiceRollResult roll}) async {
     final outcome = DeathSaveService.applyRoll(
       current: character.deathSaves,
       roll: roll,
     );
 
-    final hitPoints = outcome.regainsHitPoint && character.hitPoints.current <= 0
-        ? character.hitPoints.copyWith(current: 1)
-        : character.hitPoints;
+    final hitPoints =
+        outcome.regainsHitPoint && character.hitPoints.current <= 0
+            ? character.hitPoints.copyWith(current: 1)
+            : character.hitPoints;
 
     await repository.update(
       character.copyWith(
@@ -565,38 +551,33 @@ final rollDeathSaveProvider = Provider<
 /// leitura, senão desmarcar Paralisado deixaria Incapacitado para trás.
 final toggleConditionProvider =
     Provider<Future<void> Function(Character, Condition)>((ref) {
-  final repository = ref.watch(characterRepositoryProvider);
+      final repository = ref.watch(characterRepositoryProvider);
 
-  return (Character character, Condition condition) {
-    final updated = {...character.conditions};
+      return (Character character, Condition condition) {
+        final updated = {...character.conditions};
 
-    if (!updated.remove(condition)) {
-      updated.add(condition);
-    }
+        if (!updated.remove(condition)) {
+          updated.add(condition);
+        }
 
-    return repository.update(
-      character.copyWith(
-        conditions: updated,
-        updatedAt: DateTime.now(),
-      ),
-    );
-  };
-});
+        return repository.update(
+          character.copyWith(conditions: updated, updatedAt: DateTime.now()),
+        );
+      };
+    });
 
 /// Desmarca todas as condições de uma vez.
 ///
 /// Existe porque no fim de um combate o jogador costuma sair de várias ao
 /// mesmo tempo, e desmarcar uma a uma seriam vários toques e várias gravações.
-final clearConditionsProvider =
-    Provider<Future<void> Function(Character)>((ref) {
+final clearConditionsProvider = Provider<Future<void> Function(Character)>((
+  ref,
+) {
   final repository = ref.watch(characterRepositoryProvider);
 
   return (Character character) {
     return repository.update(
-      character.copyWith(
-        conditions: const {},
-        updatedAt: DateTime.now(),
-      ),
+      character.copyWith(conditions: const {}, updatedAt: DateTime.now()),
     );
   };
 });

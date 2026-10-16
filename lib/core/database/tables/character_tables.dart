@@ -617,6 +617,77 @@ class CharacterEldritchInvocations extends Table {
   IntColumn get replacedAtLevel => integer().nullable()();
 }
 
+/// Escolhas internas das mecânicas de classe e subclasse.
+///
+/// Manobras do Mestre de Batalha, runas do Cavaleiro Rúnico, ambiente do
+/// Arauto da Tempestade, resultado registrado do Surto de Magia Selvagem.
+///
+/// Guarda só a ESCOLHA e o histórico, pela mesma razão de
+/// [CharacterFeatureStates]: nome, limite, pré-requisito e efeito continuam no
+/// catálogo e são resolvidos a cada leitura. Corrigir o catálogo corrige todas
+/// as fichas, e perder nível na classe simplesmente faz a escolha aparecer
+/// acima do limite — sem rotina de limpeza e sem apagar a decisão do jogador
+/// em silêncio.
+///
+/// Os USOS GASTOS e o ESTADO ATIVO não ficam aqui: eles já têm lugar em
+/// [CharacterFeatureStates], indexados por
+/// `ClassMechanicEntry.mechanicFeatureId`. Reaproveitar aquele armazenamento é
+/// o que faz o painel de Recursos e descanso, o descanso curto e o descanso
+/// longo funcionarem sem nenhum código novo — é o mesmo caminho que as
+/// Invocações Místicas com usos limitados já usam.
+///
+/// Tabela filha, e não CSV numa coluna, porque cada linha carrega histórico
+/// próprio: o nível em que foi escolhida e qual opção ela substituiu.
+class CharacterClassMechanics extends Table {
+  IntColumn get localId => integer().autoIncrement()();
+  TextColumn get characterId => text().references(Characters, #id)();
+
+  /// Id da mecânica no catálogo (`fighter_battle_master.maneuvers`).
+  ///
+  /// Id, nunca nome: corrigir a tradução de "Manobras" no catálogo não pode
+  /// fazer o personagem perder as escolhas.
+  TextColumn get mechanicId => text()();
+
+  /// Id da opção escolhida dentro da mecânica (`riposte`).
+  ///
+  /// Nulo é um registro de MECÂNICA, não de opção: é assim que o resultado de
+  /// uma tabela de rolagem fica guardado, porque o Surto de Magia Selvagem não
+  /// tem opção escolhida, tem resultado.
+  TextColumn get optionId => text().nullable()();
+
+  /// Se o registro conta contra o limite de escolhas.
+  ///
+  /// Falso no registro de mecânica. Sem esta coluna, o resultado "3" do Surto
+  /// Selvagem viraria uma manobra escolhida na contagem.
+  BoolColumn get isSelected => boolean().withDefault(const Constant(true))();
+
+  /// Nível NA CLASSE responsável em que a opção foi escolhida.
+  ///
+  /// Zero é "não registrado", o que acontece em ficha importada sem este dado.
+  /// Serve para o histórico, não para a validação — quem valida usa o nível
+  /// atual.
+  IntColumn get chosenAtLevel => integer().withDefault(const Constant(0))();
+
+  /// Id da opção que esta substituiu, quando houve substituição.
+  ///
+  /// O histórico fica na própria linha porque a pergunta da ficha é sempre
+  /// "esta veio de uma troca?", e isso é um campo, não uma consulta a uma
+  /// tabela de eventos.
+  TextColumn get replacedOptionId => text().nullable()();
+
+  /// Nível em que a substituição aconteceu.
+  IntColumn get replacedAtLevel => integer().nullable()();
+
+  /// Resultado registrado de uma tabela de rolagem, pelo id da LINHA.
+  ///
+  /// Id da linha, e não o número rolado, pela mesma razão de [optionId]: a
+  /// faixa `01–02` é apresentação e muda com a formatação.
+  TextColumn get rollResult => text().nullable()();
+
+  /// Anotação livre do jogador sobre esta escolha.
+  TextColumn get note => text().nullable()();
+}
+
 class CharacterSpellSlotsUsage extends Table {
   IntColumn get localId => integer().autoIncrement()();
   TextColumn get characterId => text().references(Characters, #id)();

@@ -36,10 +36,7 @@ class EditAbilityScoresArgs {
 }
 
 class EditHitPointsArgs {
-  const EditHitPointsArgs({
-    required this.characterId,
-    required this.hitPoints,
-  });
+  const EditHitPointsArgs({required this.characterId, required this.hitPoints});
 
   final String characterId;
   final HitPoints hitPoints;
@@ -75,6 +72,21 @@ class ManageEldritchInvocationsArgs {
   /// Só o id: a tela grava a cada escolha e precisa recontar as vagas, então
   /// uma cópia do personagem ficaria velha no primeiro toque.
   final String characterId;
+}
+
+class ManageClassMechanicArgs {
+  const ManageClassMechanicArgs({
+    required this.characterId,
+    required this.mechanicId,
+  });
+
+  /// Só os ids, pelo mesmo motivo da tela de invocações: a página grava a cada
+  /// toque e recalcula as vagas, então uma cópia do personagem ficaria velha
+  /// na primeira escolha.
+  final String characterId;
+
+  /// Id da mecânica no catálogo (`fighter_battle_master.maneuvers`).
+  final String mechanicId;
 }
 
 class EditLanguagesArgs {
