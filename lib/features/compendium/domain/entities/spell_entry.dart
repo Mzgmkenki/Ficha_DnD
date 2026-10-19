@@ -1,3 +1,5 @@
+import 'package:dnd_ficha_app/core/utils/pt_collation.dart';
+
 /// Rótulo em português de cada classe conjuradora, pelo id interno.
 ///
 /// [SpellEntry.classes] guarda o id em inglês, que é o que os filtros comparam
@@ -23,6 +25,18 @@ const Map<String, String> spellClassLabels = {
 /// Traduz um id de classe. Devolve o próprio id quando não conhece, para um id
 /// novo aparecer na tela em vez de desaparecer sem aviso.
 String spellClassLabel(String id) => spellClassLabels[id] ?? id;
+
+/// Compara duas magias pelo nome em português.
+///
+/// Existe aqui para as cinco listas de magia do app usarem a mesma ordem. Pelo
+/// nome TRADUZIDO, nunca pelo original: ordenar por `nameOriginal` produziria
+/// uma lista alfabética em inglês com rótulos em português na tela.
+int compareSpellsByName(SpellEntry a, SpellEntry b) => compareDisplayNames(
+  nameA: a.namePt,
+  idA: '${a.id}',
+  nameB: b.namePt,
+  idB: '${b.id}',
+);
 
 class SpellEntry {
   const SpellEntry({

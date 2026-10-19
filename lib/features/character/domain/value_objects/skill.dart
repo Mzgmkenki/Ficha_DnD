@@ -1,3 +1,4 @@
+import 'package:dnd_ficha_app/core/utils/pt_collation.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 
 /// As 18 perícias de D&D 5e, cada uma com o atributo que a governa.
@@ -43,9 +44,21 @@ enum Skill {
 
   /// Perícias ordenadas alfabeticamente pelo rótulo em português, que é a
   /// ordem esperada numa ficha brasileira.
-  static List<Skill> get sortedByLabel {
-    final list = [...Skill.values];
-    list.sort((a, b) => a.label.compareTo(b.label));
-    return list;
-  }
+  ///
+  /// Ordenado uma vez e reaproveitado: este getter é lido dentro de `build`
+  /// na ficha, na tela de proficiências e no PDF, e reordenar 18 itens a cada
+  /// quadro é trabalho jogado fora.
+  static List<Skill> get sortedByLabel => _skillsByLabel;
 }
+
+/// Cache da ordem alfabética das perícias.
+///
+/// Usa a colação do projeto em vez de `compareTo` cru: comparar ponto de
+/// código trata o acento como letra diferente, e é o que colocaria "Bárbaro"
+/// depois de "Bardo" numa lista de classes. Aqui nenhum rótulo começa com
+/// acento hoje, mas a comparação certa é a mesma em toda lista do app.
+final List<Skill> _skillsByLabel = sortedByDisplayName(
+  Skill.values,
+  name: (item) => item.label,
+  id: (item) => item.id,
+);

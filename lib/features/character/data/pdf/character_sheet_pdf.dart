@@ -1,6 +1,7 @@
 import 'package:dnd_ficha_app/core/branding/app_branding.dart';
 import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/core/utils/distance_format.dart';
+import 'package:dnd_ficha_app/core/utils/pt_collation.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/sync_invocation_spells.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/sync_subclass_spells.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
@@ -1269,9 +1270,16 @@ class CharacterSheetPdf {
     for (final level in levels) {
       final list =
           grouped[level]!..sort((a, b) {
-            final nameA = byId[a.spellId]?.namePt ?? '';
-            final nameB = byId[b.spellId]?.namePt ?? '';
-            return nameA.compareTo(nameB);
+            // Mesma colação da tela, para a ficha impressa e a ficha do app
+            // não apresentarem a mesma lista em duas ordens diferentes.
+            // Magia sem entrada no compêndio cai para nome vazio e vai ao
+            // topo, em vez de derrubar a exportação.
+            return compareDisplayNames(
+              nameA: byId[a.spellId]?.namePt ?? '',
+              idA: '${a.spellId}',
+              nameB: byId[b.spellId]?.namePt ?? '',
+              idB: '${b.spellId}',
+            );
           });
 
       widgets

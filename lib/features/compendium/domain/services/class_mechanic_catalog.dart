@@ -1,4 +1,23 @@
+import 'package:dnd_ficha_app/core/utils/pt_collation.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_mechanic_entry.dart';
+
+/// Nível primeiro, nome depois.
+///
+/// O nível vem antes de propósito e não é alfabético: a lista de recursos de
+/// classe é lida como progressão, e o jogador de 5º nível espera ver o que
+/// ganhou no 1º acima do que ganhou no 5º. O alfabético só resolve o empate
+/// dentro do mesmo nível.
+int _byLevelThenName(ClassMechanicEntry a, ClassMechanicEntry b) {
+  final byLevel = a.level.compareTo(b.level);
+  if (byLevel != 0) return byLevel;
+
+  return compareDisplayNames(
+    nameA: a.name,
+    idA: a.id,
+    nameB: b.name,
+    idB: b.id,
+  );
+}
 
 /// Uma duplicidade descartada ao montar o catálogo de mecânicas.
 ///
@@ -35,7 +54,9 @@ class ClassMechanicDuplicate {
 /// indexação por classe e subclasse mora — dois índices diferentes é o mesmo
 /// que nenhum.
 class ClassMechanicCatalog {
-  const ClassMechanicCatalog._(
+  /// Não é `const` por causa do cache de ordenação: um campo `late final` não
+  /// convive com construtor gerador constante.
+  ClassMechanicCatalog._(
     this._byId,
     this._byClass,
     this._bySubclass,
@@ -46,11 +67,11 @@ class ClassMechanicCatalog {
   ///
   /// Falha de leitura NÃO pode derrubar a ficha: sem mecânicas, a seção
   /// simplesmente não aparece e o resto do personagem continua acessível.
-  factory ClassMechanicCatalog.empty() => const ClassMechanicCatalog._(
-    <String, ClassMechanicEntry>{},
-    <String, List<ClassMechanicEntry>>{},
-    <String, List<ClassMechanicEntry>>{},
-    <ClassMechanicDuplicate>[],
+  factory ClassMechanicCatalog.empty() => ClassMechanicCatalog._(
+    const <String, ClassMechanicEntry>{},
+    const <String, List<ClassMechanicEntry>>{},
+    const <String, List<ClassMechanicEntry>>{},
+    const [],
   );
 
   /// Monta o catálogo descartando duplicatas.
@@ -100,14 +121,7 @@ class ClassMechanicCatalog {
     final byClass = <String, List<ClassMechanicEntry>>{};
     final bySubclass = <String, List<ClassMechanicEntry>>{};
 
-    final ordered =
-        byId.values.toList()..sort((a, b) {
-          final byLevel = a.level.compareTo(b.level);
-          if (byLevel != 0) return byLevel;
-          return ClassMechanicEntry.normalizeName(
-            a.name,
-          ).compareTo(ClassMechanicEntry.normalizeName(b.name));
-        });
+    final ordered = byId.values.toList()..sort(_byLevelThenName);
 
     for (final entry in ordered) {
       byClass
@@ -143,6 +157,12 @@ class ClassMechanicCatalog {
   /// Duplicidades descartadas ao montar o catálogo.
   final List<ClassMechanicDuplicate> duplicates;
 
+  /// A lista ordenada, calculada no primeiro acesso e reaproveitada.
+  late final List<ClassMechanicEntry> _sorted =
+      List<ClassMechanicEntry>.unmodifiable(
+        _byId.values.toList()..sort(_byLevelThenName),
+      );
+
   bool get isEmpty => _byId.isEmpty;
 
   bool get isNotEmpty => _byId.isNotEmpty;
@@ -150,18 +170,7 @@ class ClassMechanicCatalog {
   int get length => _byId.length;
 
   /// Todas as mecânicas, ordenadas por nível e nome.
-  List<ClassMechanicEntry> get all {
-    final result =
-        _byId.values.toList()..sort((a, b) {
-          final byLevel = a.level.compareTo(b.level);
-          if (byLevel != 0) return byLevel;
-          return ClassMechanicEntry.normalizeName(
-            a.name,
-          ).compareTo(ClassMechanicEntry.normalizeName(b.name));
-        });
-
-    return List<ClassMechanicEntry>.unmodifiable(result);
-  }
+  List<ClassMechanicEntry> get all => _sorted;
 
   ClassMechanicEntry? byId(String? id) {
     if (id == null || id.isEmpty) return null;
@@ -208,13 +217,7 @@ class ClassMechanicCatalog {
       ...forSubclass(subclassId),
     ];
 
-    result.sort((a, b) {
-      final byLevel = a.level.compareTo(b.level);
-      if (byLevel != 0) return byLevel;
-      return ClassMechanicEntry.normalizeName(
-        a.name,
-      ).compareTo(ClassMechanicEntry.normalizeName(b.name));
-    });
+    result.sort(_byLevelThenName);
 
     return List<ClassMechanicEntry>.unmodifiable(result);
   }

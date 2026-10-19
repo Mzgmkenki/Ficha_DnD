@@ -1,4 +1,5 @@
 import 'package:dnd_ficha_app/core/theme/app_colors.dart';
+import 'package:dnd_ficha_app/core/utils/pt_collation.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/subclass_choice.dart';
 import 'package:dnd_ficha_app/features/character/presentation/widgets/subclass_summary.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/subclass_entry.dart';
@@ -31,10 +32,21 @@ Future<String?> showSubclassChoiceDialog({
 
   return showDialog<String>(
     context: context,
-    builder: (dialogContext) => _SubclassChoiceDialog(
-      choice: choice,
-      options: options,
-    ),
+    builder:
+        (dialogContext) => _SubclassChoiceDialog(
+          choice: choice,
+          // Ordena aqui, e uma vez só: este é o ponto por onde passam os dois
+          // caminhos que pedem subclasse (a subida de nível da ficha e a tela de
+          // níveis), então ordenar aqui evita que eles divirjam.
+          //
+          // É seguro porque o diálogo não pré-seleciona nada e resolve a escolha
+          // por id: mudar a ordem de exibição não muda o que ele devolve.
+          options: sortedByDisplayName(
+            options,
+            name: (item) => item.name,
+            id: (item) => item.id,
+          ),
+        ),
   );
 }
 
@@ -122,9 +134,10 @@ class _SubclassChoiceDialogState extends State<_SubclassChoiceDialog> {
           child: const Text('Escolher depois'),
         ),
         FilledButton(
-          onPressed: selected == null
-              ? null
-              : () => Navigator.of(context).pop(selected.id),
+          onPressed:
+              selected == null
+                  ? null
+                  : () => Navigator.of(context).pop(selected.id),
           child: const Text('Confirmar'),
         ),
       ],

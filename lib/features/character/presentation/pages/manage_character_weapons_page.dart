@@ -16,10 +16,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// vêm de lá. O que se edita aqui é só o que é decisão do jogador — apelido,
 /// bônus mágico, atributo nas armas com Acuidade, empunhadura e proficiência.
 class ManageCharacterWeaponsPage extends ConsumerStatefulWidget {
-  const ManageCharacterWeaponsPage({
-    required this.characterId,
-    super.key,
-  });
+  const ManageCharacterWeaponsPage({required this.characterId, super.key});
 
   final String characterId;
 
@@ -33,7 +30,12 @@ class _ManageCharacterWeaponsPageState
   @override
   Widget build(BuildContext context) {
     final characterAsync = ref.watch(characterByIdProvider(widget.characterId));
-    final weaponsAsync = ref.watch(compendium.weaponEntriesProvider);
+    // Catálogo em ordem alfabética: esta tela só EXIBE e resolve por id, e a
+    // arma pré-selecionada do editor é só o primeiro item do dropdown, que o
+    // jogador troca em seguida. A ordem do livro continua disponível em
+    // `weaponEntriesProvider` para quem depende dela — o equipamento inicial
+    // de classe, por exemplo.
+    final weaponsAsync = ref.watch(compendium.sortedWeaponEntriesProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Gerenciar armas')),
@@ -45,15 +47,15 @@ class _ManageCharacterWeaponsPageState
 
           return weaponsAsync.when(
             data: (catalog) => _body(character, catalog),
-            error: (error, _) => Center(
-              child: Text('Erro ao carregar as armas: $error'),
-            ),
+            error:
+                (error, _) =>
+                    Center(child: Text('Erro ao carregar as armas: $error')),
             loading: () => const Center(child: CircularProgressIndicator()),
           );
         },
-        error: (error, stackTrace) => Center(
-          child: Text('Erro ao carregar personagem: $error'),
-        ),
+        error:
+            (error, stackTrace) =>
+                Center(child: Text('Erro ao carregar personagem: $error')),
         loading: () => const Center(child: CircularProgressIndicator()),
       ),
     );
@@ -65,7 +67,10 @@ class _ManageCharacterWeaponsPageState
     return ListView(
       padding: context.scrollContentPadding(),
       children: [
-        Text('Armas do personagem', style: Theme.of(context).textTheme.titleLarge),
+        Text(
+          'Armas do personagem',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
         const SizedBox(height: 8),
         if (character.weapons.isEmpty)
           const Card(
@@ -112,9 +117,10 @@ class _ManageCharacterWeaponsPageState
     final custom = weapon.name?.trim();
     final base = entry?.name ?? weapon.weaponId;
 
-    final name = (custom == null || custom.isEmpty)
-        ? (weapon.magicBonus == 0 ? base : '$base +${weapon.magicBonus}')
-        : custom;
+    final name =
+        (custom == null || custom.isEmpty)
+            ? (weapon.magicBonus == 0 ? base : '$base +${weapon.magicBonus}')
+            : custom;
 
     // Quantidade no nome: os dez dardos do Monge são uma linha só, e sem o
     // "x10" a ficha não diria quantos ele tem.
@@ -178,10 +184,8 @@ class _ManageCharacterWeaponsPageState
     return showModalBottomSheet<CharacterWeapon>(
       context: context,
       isScrollControlled: true,
-      builder: (sheetContext) => _WeaponEditor(
-        catalog: catalog,
-        initial: initial,
-      ),
+      builder:
+          (sheetContext) => _WeaponEditor(catalog: catalog, initial: initial),
     );
   }
 }
@@ -259,17 +263,18 @@ class _WeaponEditorState extends State<_WeaponEditor> {
               initialValue: _weaponId,
               isExpanded: true,
               decoration: const InputDecoration(labelText: 'Arma'),
-              items: widget.catalog
-                  .map(
-                    (item) => DropdownMenuItem<String>(
-                      value: item.id,
-                      child: Text(
-                        '${item.name} (${item.category.label})',
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  )
-                  .toList(),
+              items:
+                  widget.catalog
+                      .map(
+                        (item) => DropdownMenuItem<String>(
+                          value: item.id,
+                          child: Text(
+                            '${item.name} (${item.category.label})',
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      )
+                      .toList(),
               onChanged: (value) {
                 if (value == null) return;
                 setState(() {
@@ -330,10 +335,13 @@ class _WeaponEditorState extends State<_WeaponEditor> {
                       child: Text(ability.label),
                     ),
                 ],
-                onChanged: (value) => setState(() {
-                  _chosenAbility =
-                      value == null || value.isEmpty ? null : Ability.fromName(value);
-                }),
+                onChanged:
+                    (value) => setState(() {
+                      _chosenAbility =
+                          value == null || value.isEmpty
+                              ? null
+                              : Ability.fromName(value);
+                    }),
               ),
             ],
             if (entry.isVersatile) ...[
@@ -360,13 +368,14 @@ class _WeaponEditorState extends State<_WeaponEditor> {
                 DropdownMenuItem(value: 'yes', child: Text('Tem proficiência')),
                 DropdownMenuItem(value: 'no', child: Text('Sem proficiência')),
               ],
-              onChanged: (value) => setState(() {
-                _proficiencyOverride = switch (value) {
-                  'yes' => true,
-                  'no' => false,
-                  _ => null,
-                };
-              }),
+              onChanged:
+                  (value) => setState(() {
+                    _proficiencyOverride = switch (value) {
+                      'yes' => true,
+                      'no' => false,
+                      _ => null,
+                    };
+                  }),
             ),
             const SizedBox(height: 16),
             TextField(

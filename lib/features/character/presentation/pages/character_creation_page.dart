@@ -277,6 +277,27 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
         ref.watch(compendium_providers.backgroundEntriesProvider).value ??
         const <BackgroundEntry>[];
 
+    // As listas acima ficam na ordem do compêndio, e as de baixo são as
+    // ordenadas que vão para os dropdowns.
+    //
+    // A separação é necessária: `_resolveSelectedBaseRaceId` e
+    // `_resolveSelectedClassId` usam a PRIMEIRA entrada como padrão da tela, e
+    // no compêndio a primeira raça é Humano e a primeira classe é Bárbaro.
+    // Ordenar a lista canônica trocaria o padrão por Aarakocra sem ninguém ter
+    // pedido.
+    //
+    // Vêm de provider, e não de um `sort` aqui, porque este `build` roda a cada
+    // tecla digitada no nome do personagem.
+    final sortedClasses =
+        ref.watch(compendium_providers.sortedClassEntriesProvider).value ??
+        const <ClassEntry>[];
+    final sortedRaces =
+        ref.watch(compendium_providers.sortedRaceEntriesProvider).value ??
+        const <RaceEntry>[];
+    final sortedBackgrounds =
+        ref.watch(compendium_providers.sortedBackgroundEntriesProvider).value ??
+        backgrounds;
+
     // Mesma tolerância: enquanto as subclasses carregam, o seletor não aparece
     // e o resto do formulário segue utilizável.
     final subclasses =
@@ -325,6 +346,19 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                 );
               }
 
+              // As mesmas raças base, em ordem alfabética, só para o dropdown.
+              // Cai na lista canônica enquanto a ordenada não carregou, para o
+              // seletor nunca ficar vazio.
+              final baseRaceOptions =
+                  sortedRaces.isEmpty
+                      ? baseRaces
+                      : sortedRaces
+                          .where((race) => !race.shouldBeTreatedAsSubrace)
+                          .toList(growable: false);
+
+              final classOptions =
+                  sortedClasses.isEmpty ? classes : sortedClasses;
+
               final effectiveClassId = _resolveSelectedClassId(classes);
               final effectiveRaceId = _resolveSelectedBaseRaceId(baseRaces);
 
@@ -339,6 +373,15 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
               final subraces = races
                   .where((race) => race.parentRaceId == selectedRace.id)
                   .toList(growable: false);
+
+              // Sub-raças ordenadas, só para o dropdown. A lista `subraces`
+              // acima continua resolvendo o padrão e o lookup por id.
+              final subraceOptions =
+                  sortedRaces.isEmpty
+                      ? subraces
+                      : sortedRaces
+                          .where((race) => race.parentRaceId == selectedRace.id)
+                          .toList(growable: false);
 
               final effectiveSubraceId = _resolveSelectedSubraceId(subraces);
               final selectedSubrace =
@@ -356,6 +399,20 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
               final classSubclasses = subclasses
                   .where((item) => item.classId == selectedClass.id)
                   .toList(growable: false);
+
+              // As mesmas subclasses em ordem alfabética, só para o dropdown.
+              // A lista acima continua decidindo o padrão, pela mesma razão de
+              // raça e classe: o padrão é o do compêndio, e ordenar a
+              // apresentação não pode trocá-lo.
+              final classSubclassOptions =
+                  ref
+                      .watch(
+                        compendium_providers.sortedSubclassesByClassProvider(
+                          selectedClass.id,
+                        ),
+                      )
+                      .value ??
+                  classSubclasses;
 
               // O dropdown auto-seleciona a primeira opção, então o id que vai
               // para o personagem tem que ser o resolvido, não o que está no
@@ -465,7 +522,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                       initialValue: effectiveRaceId,
                       decoration: const InputDecoration(labelText: 'Raça base'),
                       items:
-                          baseRaces
+                          baseRaceOptions
                               .map(
                                 (item) => DropdownMenuItem<String>(
                                   value: item.id,
@@ -497,7 +554,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                           labelText: 'Sub-raça / linhagem',
                         ),
                         items:
-                            subraces
+                            subraceOptions
                                 .map(
                                   (item) => DropdownMenuItem<String>(
                                     value: item.id,
@@ -528,7 +585,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                           labelText: 'Antecedente',
                         ),
                         items:
-                            backgrounds
+                            sortedBackgrounds
                                 .map(
                                   (item) => DropdownMenuItem<String>(
                                     value: item.id,
@@ -594,7 +651,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                       initialValue: effectiveClassId,
                       decoration: const InputDecoration(labelText: 'Classe'),
                       items:
-                          classes
+                          classOptions
                               .map(
                                 (item) => DropdownMenuItem<String>(
                                   value: item.id,
@@ -627,7 +684,11 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                         return null;
                       },
                     ),
-                    ..._buildSubclassSection(selectedClass, classSubclasses),
+                    ..._buildSubclassSection(
+                      selectedClass,
+                      classSubclasses,
+                      classSubclassOptions,
+                    ),
                     ClassEquipmentForm(
                       equipment: selectedEquipment,
                       weapons: weaponCatalog,
@@ -1287,9 +1348,13 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
   /// quem escolhe já no 1º (Clérigo, Feiticeiro, Bruxo). Nas outras classes
   /// fica o aviso do nível em que a escolha vai acontecer, para o jogador não
   /// procurar por uma opção que ainda não existe.
+  /// [options] é a lista canônica, que resolve o padrão e o lookup por id.
+  /// [displayOptions] é a mesma lista em ordem alfabética, que vai para o
+  /// dropdown.
   List<Widget> _buildSubclassSection(
     ClassEntry classEntry,
     List<SubclassEntry> options,
+    List<SubclassEntry> displayOptions,
   ) {
     final label = classEntry.subclassLabelOrDefault;
 
@@ -1328,7 +1393,7 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
         initialValue: effectiveId,
         decoration: InputDecoration(labelText: label),
         items:
-            options
+            displayOptions
                 .map(
                   (item) => DropdownMenuItem<String>(
                     value: item.id,

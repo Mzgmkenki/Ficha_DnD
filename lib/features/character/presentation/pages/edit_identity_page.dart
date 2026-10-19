@@ -1,4 +1,4 @@
-﻿import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
+import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/custom_background.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/alignment.dart';
@@ -58,8 +58,9 @@ class _EditIdentityPageState extends ConsumerState<EditIdentityPage> {
     super.initState();
 
     _nameController = TextEditingController(text: widget.initialName);
-    _playerController =
-        TextEditingController(text: widget.initialPlayerName ?? '');
+    _playerController = TextEditingController(
+      text: widget.initialPlayerName ?? '',
+    );
     _notesController = TextEditingController(text: widget.initialNotes);
     _customNameController = TextEditingController(
       text: widget.initialCustomBackground.name ?? '',
@@ -93,7 +94,12 @@ class _EditIdentityPageState extends ConsumerState<EditIdentityPage> {
   Widget build(BuildContext context) {
     // Não bloqueia o formulário: se o compêndio ainda estiver carregando, o
     // seletor de antecedente simplesmente não aparece e o resto é editável.
-    final backgrounds = ref.watch(backgroundEntriesProvider).value ??
+    //
+    // Lista já ordenada: aqui a ordem não decide nada além da exibição, porque
+    // `_resolveSelectedBackgroundId` devolve o id SALVO (ou nulo) em vez de
+    // cair na primeira entrada.
+    final backgrounds =
+        ref.watch(sortedBackgroundEntriesProvider).value ??
         const <BackgroundEntry>[];
 
     return Scaffold(
@@ -130,8 +136,7 @@ class _EditIdentityPageState extends ConsumerState<EditIdentityPage> {
             AlignmentField(
               value: _selectedAlignment,
               border: true,
-              onChanged: (value) =>
-                  setState(() => _selectedAlignment = value),
+              onChanged: (value) => setState(() => _selectedAlignment = value),
             ),
             if (backgrounds.isNotEmpty) ...[
               const SizedBox(height: 20),
@@ -146,14 +151,15 @@ class _EditIdentityPageState extends ConsumerState<EditIdentityPage> {
                   labelText: 'Antecedente',
                   border: OutlineInputBorder(),
                 ),
-                items: backgrounds
-                    .map(
-                      (item) => DropdownMenuItem<String>(
-                        value: item.id,
-                        child: Text(item.name),
-                      ),
-                    )
-                    .toList(),
+                items:
+                    backgrounds
+                        .map(
+                          (item) => DropdownMenuItem<String>(
+                            value: item.id,
+                            child: Text(item.name),
+                          ),
+                        )
+                        .toList(),
                 onChanged: (value) {
                   setState(() => _selectedBackgroundId = value);
                 },
@@ -176,26 +182,23 @@ class _EditIdentityPageState extends ConsumerState<EditIdentityPage> {
                       _customSkillTwo = two;
                     });
                   },
-                  footnote: 'As perícias do antecedente são marcadas como '
+                  footnote:
+                      'As perícias do antecedente são marcadas como '
                       'proficientes ao salvar. Nada é desmarcado: ajuste o '
                       'resto em Perícias.',
                 )
               else
-                _BackgroundSkillsNote(
-                  background: _findBackground(backgrounds),
-                ),
+                _BackgroundSkillsNote(background: _findBackground(backgrounds)),
             ],
             const SizedBox(height: 20),
-            Text(
-              'Anotações',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text('Anotações', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 8),
             TextFormField(
               controller: _notesController,
               decoration: const InputDecoration(
                 labelText: 'Anotações da ficha',
-                hintText: 'Aliados, objetivos, itens, o que combinou na mesa...',
+                hintText:
+                    'Aliados, objetivos, itens, o que combinou na mesa...',
                 alignLabelWithHint: true,
                 border: OutlineInputBorder(),
               ),
@@ -207,13 +210,14 @@ class _EditIdentityPageState extends ConsumerState<EditIdentityPage> {
             const SizedBox(height: 24),
             FilledButton.icon(
               onPressed: _saving ? null : _save,
-              icon: _saving
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.save),
+              icon:
+                  _saving
+                      ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                      : const Icon(Icons.save),
               label: Text(_saving ? 'Salvando...' : 'Salvar identidade'),
             ),
           ],
@@ -269,13 +273,16 @@ class _EditIdentityPageState extends ConsumerState<EditIdentityPage> {
     }
 
     final customBackground =
-        _isCustomBackground ? _buildCustomBackground() : const CustomBackground();
+        _isCustomBackground
+            ? _buildCustomBackground()
+            : const CustomBackground();
 
-    final backgrounds = ref.read(backgroundEntriesProvider).value ??
-        const <BackgroundEntry>[];
-    final grantedSkills = _isCustomBackground
-        ? customBackground.skills
-        : (_findBackground(backgrounds)?.skills ?? const <Skill>[]);
+    final backgrounds =
+        ref.read(backgroundEntriesProvider).value ?? const <BackgroundEntry>[];
+    final grantedSkills =
+        _isCustomBackground
+            ? customBackground.skills
+            : (_findBackground(backgrounds)?.skills ?? const <Skill>[]);
 
     setState(() {
       _saving = true;

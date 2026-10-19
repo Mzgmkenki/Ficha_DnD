@@ -1,4 +1,5 @@
 import 'package:dnd_ficha_app/core/di/providers.dart';
+import 'package:dnd_ficha_app/core/utils/pt_collation.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_equipment.dart';
@@ -230,4 +231,89 @@ final spellSlotProgressionByTableAndLevelProvider = FutureProvider.family
         }
       }
       return null;
+    });
+
+// --------------------------------------------------------------------------
+// Listas em ordem alfabética, para apresentação.
+//
+// Por que são providers separados, e não um `..sort()` na lista base:
+//
+// 1. A ordem do arquivo tem usos legítimos. `_resolveSelectedBaseRaceId` usa a
+//    primeira raça como padrão da criação de personagem, e no compêndio a
+//    primeira é Humano. Ordenar a lista base trocaria esse padrão por
+//    Aarakocra sem ninguém ter pedido.
+// 2. Ordenar é trabalho repetido se feito dentro de `build`. O provider
+//    calcula uma vez e devolve o mesmo resultado enquanto o compêndio não
+//    mudar.
+// 3. `sortedByDisplayName` devolve CÓPIA imutável. A lista do compêndio é
+//    compartilhada entre telas, e reordená-la no lugar mudaria a ordem para
+//    todo mundo.
+//
+// A seleção continua sendo o id em toda parte, então reordenar a exibição não
+// mexe em nada do que fica salvo.
+// --------------------------------------------------------------------------
+
+/// As classes em ordem alfabética do nome em português.
+final sortedClassEntriesProvider = FutureProvider<List<ClassEntry>>((
+  ref,
+) async {
+  final classes = await ref.watch(classEntriesProvider.future);
+
+  return sortedByDisplayName(
+    classes,
+    name: (item) => item.name,
+    id: (item) => item.id,
+  );
+});
+
+/// As raças em ordem alfabética do nome em português.
+///
+/// Inclui raça base e sub-raça: quem monta a tela separa as duas por
+/// `parentRaceId`, e as duas listas resultantes já saem ordenadas.
+final sortedRaceEntriesProvider = FutureProvider<List<RaceEntry>>((ref) async {
+  final races = await ref.watch(raceEntriesProvider.future);
+
+  return sortedByDisplayName(
+    races,
+    name: (item) => item.name,
+    id: (item) => item.id,
+  );
+});
+
+/// Os antecedentes em ordem alfabética do nome em português.
+final sortedBackgroundEntriesProvider = FutureProvider<List<BackgroundEntry>>((
+  ref,
+) async {
+  final backgrounds = await ref.watch(backgroundEntriesProvider.future);
+
+  return sortedByDisplayName(
+    backgrounds,
+    name: (item) => item.name,
+    id: (item) => item.id,
+  );
+});
+
+/// Os talentos em ordem alfabética do nome em português.
+final sortedFeatEntriesProvider = FutureProvider<List<FeatEntry>>((ref) async {
+  final feats = await ref.watch(featEntriesProvider.future);
+
+  return sortedByDisplayName(
+    feats,
+    name: (item) => item.name,
+    id: (item) => item.id,
+  );
+});
+
+/// As subclasses de uma classe em ordem alfabética do nome em português.
+final sortedSubclassesByClassProvider =
+    FutureProvider.family<List<SubclassEntry>, String>((ref, classId) async {
+      final options = await ref.watch(
+        subclassesByClassProvider(classId).future,
+      );
+
+      return sortedByDisplayName(
+        options,
+        name: (item) => item.name,
+        id: (item) => item.id,
+      );
     });

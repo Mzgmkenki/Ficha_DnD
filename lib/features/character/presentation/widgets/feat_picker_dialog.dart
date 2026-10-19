@@ -1,3 +1,4 @@
+import 'package:dnd_ficha_app/core/utils/pt_collation.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/feat_entry.dart';
@@ -33,8 +34,19 @@ Future<FeatChoice?> showFeatPickerDialog({
     context: context,
     barrierDismissible: barrierDismissible,
     builder:
-        (dialogContext) =>
-            _FeatPickerDialog(available: available, slotLabel: slotLabel),
+        (dialogContext) => _FeatPickerDialog(
+          // Alfabético, ordenado uma vez antes de abrir. Com 105 talentos, a ordem
+          // do asset deixa o dropdown impossível de varrer com o olho.
+          //
+          // Seguro porque nada vem pré-selecionado e a escolha volta como
+          // `FeatEntry`, nunca pela posição na lista.
+          available: sortedByDisplayName(
+            available,
+            name: (item) => item.name,
+            id: (item) => item.id,
+          ),
+          slotLabel: slotLabel,
+        ),
   );
 }
 

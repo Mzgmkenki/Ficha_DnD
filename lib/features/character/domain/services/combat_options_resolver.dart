@@ -1,3 +1,4 @@
+import 'package:dnd_ficha_app/core/utils/pt_collation.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/combat_option.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/casting_time_parser.dart';
@@ -59,10 +60,7 @@ class CombatOptionsResolver {
         classes: classes,
         classFeatures: classFeatures,
       ),
-      ..._fromSubclassFeatures(
-        character: character,
-        subclasses: subclasses,
-      ),
+      ..._fromSubclassFeatures(character: character, subclasses: subclasses),
       ..._fromSpells(character: character, spells: spells),
       ..._fromMagicItems(character),
     ];
@@ -76,10 +74,7 @@ class CombatOptionsResolver {
     final withAttacks = _describeAttackAction(consolidated, attacks);
     final blocked = _applyConditions(withAttacks, character);
 
-    return CombatOptions(
-      byType: _group(blocked),
-      attacksPerAction: attacks,
-    );
+    return CombatOptions(byType: _group(blocked), attacksPerAction: attacks);
   }
 
   // ------------------------------------------------------ características
@@ -266,9 +261,10 @@ class CombatOptionsResolver {
           actionType: timing.actionType!,
           source: CombatOptionSource.spell,
           sourceLabel: known.sourceName,
-          cost: spell.level == 0
-              ? 'Truque, não gasta espaço'
-              : 'Espaço de ${spell.level}º círculo',
+          cost:
+              spell.level == 0
+                  ? 'Truque, não gasta espaço'
+                  : 'Espaço de ${spell.level}º círculo',
           trigger: timing.trigger,
           requirement: spell.concentration ? 'Exige Concentração.' : null,
           priority: 60 + spell.level,
@@ -316,7 +312,8 @@ class CombatOptionsResolver {
           sourceLabel: 'Item mágico',
           maxUses: max,
           remainingUses: left,
-          recharge: ActionRecharge.fromId(item.rechargeRule) ??
+          recharge:
+              ActionRecharge.fromId(item.rechargeRule) ??
               ActionRecharge.longRest,
           isAvailable: left == null || left > 0,
           unavailableReason:
@@ -398,13 +395,15 @@ class CombatOptionsResolver {
   ) {
     if (attacks <= 1) return options;
 
-    return options.map((option) {
-      if (option.id != UniversalCombatActions.attackId) return option;
+    return options
+        .map((option) {
+          if (option.id != UniversalCombatActions.attackId) return option;
 
-      return option.copyWith(
-        summary: '$attacks ataques, corpo a corpo ou à distância.',
-      );
-    }).toList(growable: false);
+          return option.copyWith(
+            summary: '$attacks ataques, corpo a corpo ou à distância.',
+          );
+        })
+        .toList(growable: false);
   }
 
   // --------------------------------------------------------- condições
@@ -423,7 +422,8 @@ class CombatOptionsResolver {
     if (active.isEmpty) return options;
 
     final incapacitated = active.contains(Condition.incapacitated);
-    final speedZero = active.contains(Condition.grappled) ||
+    final speedZero =
+        active.contains(Condition.grappled) ||
         active.contains(Condition.restrained) ||
         active.contains(Condition.paralyzed) ||
         active.contains(Condition.stunned) ||
@@ -431,38 +431,42 @@ class CombatOptionsResolver {
         active.contains(Condition.petrified);
 
     // O nome da condição que causou o bloqueio, para o motivo ser específico.
-    final blocker = active.contains(Condition.unconscious)
-        ? Condition.unconscious
-        : active.contains(Condition.paralyzed)
+    final blocker =
+        active.contains(Condition.unconscious)
+            ? Condition.unconscious
+            : active.contains(Condition.paralyzed)
             ? Condition.paralyzed
             : active.contains(Condition.petrified)
-                ? Condition.petrified
-                : active.contains(Condition.stunned)
-                    ? Condition.stunned
-                    : Condition.incapacitated;
+            ? Condition.petrified
+            : active.contains(Condition.stunned)
+            ? Condition.stunned
+            : Condition.incapacitated;
 
-    return options.map((option) {
-      if (incapacitated &&
-          (option.actionType == CombatActionType.action ||
-              option.actionType == CombatActionType.bonusAction ||
-              option.actionType == CombatActionType.reaction)) {
-        return option.blocked(
-          '${blocker.label}: não pode realizar ações nem reações.',
-        );
-      }
+    return options
+        .map((option) {
+          if (incapacitated &&
+              (option.actionType == CombatActionType.action ||
+                  option.actionType == CombatActionType.bonusAction ||
+                  option.actionType == CombatActionType.reaction)) {
+            return option.blocked(
+              '${blocker.label}: não pode realizar ações nem reações.',
+            );
+          }
 
-      if (speedZero && option.actionType == CombatActionType.movement) {
-        final cause = active.contains(Condition.grappled)
-            ? Condition.grappled
-            : active.contains(Condition.restrained)
-                ? Condition.restrained
-                : blocker;
+          if (speedZero && option.actionType == CombatActionType.movement) {
+            final cause =
+                active.contains(Condition.grappled)
+                    ? Condition.grappled
+                    : active.contains(Condition.restrained)
+                    ? Condition.restrained
+                    : blocker;
 
-        return option.blocked('${cause.label}: deslocamento zero.');
-      }
+            return option.blocked('${cause.label}: deslocamento zero.');
+          }
 
-      return option;
-    }).toList(growable: false);
+          return option;
+        })
+        .toList(growable: false);
   }
 
   // ------------------------------------------------------------ helpers
@@ -473,12 +477,22 @@ class CombatOptionsResolver {
     final grouped = <CombatActionType, List<CombatOption>>{};
 
     for (final type in CombatActionType.values) {
-      final list = options.where((item) => item.actionType == type).toList()
-        ..sort((a, b) {
-          final byPriority = a.priority.compareTo(b.priority);
-          if (byPriority != 0) return byPriority;
-          return a.name.compareTo(b.name);
-        });
+      final list =
+          options.where((item) => item.actionType == type).toList()
+            // Prioridade primeiro, e isso NÃO é alfabético de propósito: ela é
+            // o que põe Atacar no topo da lista de ações, acima de Ajudar e
+            // Esquivar. O alfabético só resolve o empate dentro da mesma
+            // prioridade.
+            ..sort((a, b) {
+              final byPriority = a.priority.compareTo(b.priority);
+              if (byPriority != 0) return byPriority;
+              return compareDisplayNames(
+                nameA: a.name,
+                idA: a.id,
+                nameB: b.name,
+                idB: b.id,
+              );
+            });
 
       grouped[type] = list;
     }

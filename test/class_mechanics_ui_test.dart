@@ -155,7 +155,17 @@ void main() {
         findsOne,
       );
       expect(find.text('Novas escolhas disponíveis: 2'), findsOne);
+
+      // As opções saem em ordem alfabética do nome em português, e não na
+      // ordem do asset. "Céu" é a primeira, então é ela que está visível sem
+      // rolar — no asset a primeira era "Nuvem".
+      expect(find.byKey(const ValueKey('manage-option-sky')), findsOne);
+
+      // "Nuvem" continua lá, agora na sexta posição: a lista é construída por
+      // demanda, então ela só existe depois de rolar até perto dela.
+      await _reveal(tester, const ValueKey('manage-option-cloud'));
       expect(find.byKey(const ValueKey('manage-option-cloud')), findsOne);
+
       expect(tester.takeException(), isNull);
     });
 

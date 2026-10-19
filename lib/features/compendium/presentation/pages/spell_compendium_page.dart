@@ -256,9 +256,11 @@ class _SpellCompendiumPageState extends ConsumerState<SpellCompendiumPage> {
         return true;
       })
       .toList(growable: false)..sort((a, b) {
+      // Círculo primeiro, e isso não é alfabético de propósito: a lista de
+      // magias é lida por círculo. O alfabético ordena dentro de cada um.
       final levelCompare = a.level.compareTo(b.level);
       if (levelCompare != 0) return levelCompare;
-      return a.namePt.compareTo(b.namePt);
+      return compareSpellsByName(a, b);
     });
   }
 

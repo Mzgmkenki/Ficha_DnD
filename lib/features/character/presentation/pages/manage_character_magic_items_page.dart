@@ -1,4 +1,4 @@
-﻿import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
+import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_magic_item.dart';
@@ -12,10 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ManageCharacterMagicItemsPage extends ConsumerStatefulWidget {
-  const ManageCharacterMagicItemsPage({
-    required this.characterId,
-    super.key,
-  });
+  const ManageCharacterMagicItemsPage({required this.characterId, super.key});
 
   final String characterId;
 
@@ -60,9 +57,7 @@ class _ManageCharacterMagicItemsPageState
     final characterAsync = ref.watch(characterByIdProvider(widget.characterId));
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Gerenciar itens mágicos'),
-      ),
+      appBar: AppBar(title: const Text('Gerenciar itens mágicos')),
       body: characterAsync.when(
         data: (character) {
           if (character == null) {
@@ -79,13 +74,9 @@ class _ManageCharacterMagicItemsPageState
           );
         },
         error: (error, stackTrace) {
-          return Center(
-            child: Text('Erro ao carregar personagem: $error'),
-          );
+          return Center(child: Text('Erro ao carregar personagem: $error'));
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
+        loading: () => const Center(child: CircularProgressIndicator()),
       ),
     );
   }
@@ -207,29 +198,31 @@ class _ManageCharacterMagicItemsPageState
                 requiresAttunement: _requiresAttunement,
                 isAttuned: _isAttuned,
                 onBonusChanged: (value) => setState(() => _bonus = value),
-                onTargetToggled: (target, selected) => setState(() {
-                  if (selected) {
-                    _bonusTargets.add(target);
-                  } else {
-                    _bonusTargets.remove(target);
-                  }
-                }),
-                onEquippedChanged: (value) =>
-                    setState(() => _isEquipped = value),
-                onRequiresAttunementChanged: (value) =>
-                    setState(() => _requiresAttunement = value),
+                onTargetToggled:
+                    (target, selected) => setState(() {
+                      if (selected) {
+                        _bonusTargets.add(target);
+                      } else {
+                        _bonusTargets.remove(target);
+                      }
+                    }),
+                onEquippedChanged:
+                    (value) => setState(() => _isEquipped = value),
+                onRequiresAttunementChanged:
+                    (value) => setState(() => _requiresAttunement = value),
                 onAttunedChanged: (value) => setState(() => _isAttuned = value),
               ),
               const SizedBox(height: 20),
               FilledButton.icon(
                 onPressed: _saving ? null : () => _saveItem(character),
-                icon: _saving
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.add),
+                icon:
+                    _saving
+                        ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                        : const Icon(Icons.add),
                 label: Text(
                   _saving ? 'Salvando item...' : 'Adicionar item mágico',
                 ),
@@ -304,16 +297,12 @@ class _ManageCharacterMagicItemsPageState
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Item mágico adicionado com sucesso.'),
-        ),
+        const SnackBar(content: Text('Item mágico adicionado com sucesso.')),
       );
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erro ao adicionar item mágico: $error'),
-        ),
+        SnackBar(content: Text('Erro ao adicionar item mágico: $error')),
       );
     } finally {
       if (mounted) {
@@ -337,9 +326,7 @@ class _ManageCharacterMagicItemsPageState
 }
 
 class _CurrentItemsCard extends ConsumerWidget {
-  const _CurrentItemsCard({
-    required this.character,
-  });
+  const _CurrentItemsCard({required this.character});
 
   final Character character;
 
@@ -354,65 +341,65 @@ class _CurrentItemsCard extends ConsumerWidget {
           data: (spellEntries) {
             return character.magicItems.isEmpty
                 ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Itens atuais',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 12),
-                      const Text('Nenhum item mágico cadastrado ainda.'),
-                    ],
-                  )
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Itens atuais',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 12),
+                    const Text('Nenhum item mágico cadastrado ainda.'),
+                  ],
+                )
                 : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Itens atuais',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 12),
-                      ...character.magicItems.map(
-                        (item) => Padding(
-                          padding: const EdgeInsets.only(bottom: 20),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Theme.of(context)
-                                    .dividerColor
-                                    .withValues(alpha: 0.5),
-                              ),
-                              borderRadius: BorderRadius.circular(12),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Itens atuais',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 12),
+                    ...character.magicItems.map(
+                      (item) => Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Theme.of(
+                                context,
+                              ).dividerColor.withValues(alpha: 0.5),
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.name,
+                                  style: Theme.of(context).textTheme.titleSmall,
+                                ),
+                                if (item.description.isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Text(item.description),
+                                ],
+                                const SizedBox(height: 8),
+                                _ItemConfigSummary(item: item),
+                                const SizedBox(height: 8),
+                                if (item.maxCharges != null) ...[
                                   Text(
-                                    item.name,
-                                    style:
-                                        Theme.of(context).textTheme.titleSmall,
+                                    'Cargas: ${item.charges ?? 0}/${item.maxCharges}',
                                   ),
-                                  if (item.description.isNotEmpty) ...[
-                                    const SizedBox(height: 4),
-                                    Text(item.description),
-                                  ],
                                   const SizedBox(height: 8),
-                                  _ItemConfigSummary(item: item),
-                                  const SizedBox(height: 8),
-                                  if (item.maxCharges != null) ...[
-                                    Text(
-                                      'Cargas: ${item.charges ?? 0}/${item.maxCharges}',
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Wrap(
-                                      spacing: 8,
-                                      runSpacing: 8,
-                                      children: [
-                                        OutlinedButton.icon(
-                                          onPressed: (item.charges ?? 0) > 0
-                                              ? () async {
+                                  Wrap(
+                                    spacing: 8,
+                                    runSpacing: 8,
+                                    children: [
+                                      OutlinedButton.icon(
+                                        onPressed:
+                                            (item.charges ?? 0) > 0
+                                                ? () async {
                                                   final updateCharges = ref.read(
                                                     updateCharacterMagicItemChargesProvider,
                                                   );
@@ -423,115 +410,109 @@ class _CurrentItemsCard extends ConsumerWidget {
                                                         (item.charges ?? 0) - 1,
                                                   );
                                                 }
-                                              : null,
-                                          icon: const Icon(Icons.remove),
-                                          label: const Text('Gastar 1'),
-                                        ),
-                                        OutlinedButton.icon(
-                                          onPressed:
-                                              ((item.maxCharges ?? 0) > 0 &&
-                                                      (item.charges ?? 0) <
-                                                          (item.maxCharges ??
-                                                              0))
-                                                  ? () async {
-                                                      final updateCharges =
-                                                          ref.read(
-                                                        updateCharacterMagicItemChargesProvider,
-                                                      );
-
-                                                      await updateCharges(
-                                                        magicItemId:
-                                                            item.localId,
-                                                        charges:
-                                                            (item.charges ??
-                                                                    0) +
-                                                                1,
-                                                      );
-                                                    }
-                                                  : null,
-                                          icon: const Icon(Icons.add),
-                                          label: const Text('Recuperar 1'),
-                                        ),
-                                        OutlinedButton(
-                                          onPressed: () async {
-                                            final updateCharges = ref.read(
-                                              updateCharacterMagicItemChargesProvider,
-                                            );
-
-                                            await updateCharges(
-                                              magicItemId: item.localId,
-                                              charges: 0,
-                                            );
-                                          },
-                                          child: const Text('Zerar'),
-                                        ),
-                                        OutlinedButton(
-                                          onPressed: () async {
-                                            final updateCharges = ref.read(
-                                              updateCharacterMagicItemChargesProvider,
-                                            );
-
-                                            await updateCharges(
-                                              magicItemId: item.localId,
-                                              charges: item.maxCharges,
-                                            );
-                                          },
-                                          child: const Text('Restaurar tudo'),
-                                        ),
-                                      ],
-                                    ),
-                                  ] else ...[
-                                    const Text('Este item não usa cargas.'),
-                                  ],
-                                  if (item.rechargeRule != null &&
-                                      item.rechargeRule!.isNotEmpty) ...[
-                                    const SizedBox(height: 8),
-                                    Text('Recarga: ${item.rechargeRule}'),
-                                  ],
-                                  const SizedBox(height: 12),
-                                  _ItemSpellsSection(
-                                    characterId: character.id,
-                                    item: item,
-                                    spellEntries: spellEntries,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Wrap(
-                                    spacing: 8,
-                                    children: [
-                                      TextButton.icon(
-                                        onPressed: () =>
-                                            showMagicItemBonusSheet(
-                                          context: context,
-                                          ref: ref,
-                                          item: item,
-                                        ),
-                                        icon: const Icon(Icons.tune, size: 18),
-                                        label: const Text('Editar bônus'),
+                                                : null,
+                                        icon: const Icon(Icons.remove),
+                                        label: const Text('Gastar 1'),
                                       ),
-                                      TextButton.icon(
+                                      OutlinedButton.icon(
+                                        onPressed:
+                                            ((item.maxCharges ?? 0) > 0 &&
+                                                    (item.charges ?? 0) <
+                                                        (item.maxCharges ?? 0))
+                                                ? () async {
+                                                  final updateCharges = ref.read(
+                                                    updateCharacterMagicItemChargesProvider,
+                                                  );
+
+                                                  await updateCharges(
+                                                    magicItemId: item.localId,
+                                                    charges:
+                                                        (item.charges ?? 0) + 1,
+                                                  );
+                                                }
+                                                : null,
+                                        icon: const Icon(Icons.add),
+                                        label: const Text('Recuperar 1'),
+                                      ),
+                                      OutlinedButton(
                                         onPressed: () async {
-                                          final deleteItem = ref.read(
-                                            deleteCharacterMagicItemProvider,
+                                          final updateCharges = ref.read(
+                                            updateCharacterMagicItemChargesProvider,
                                           );
 
-                                          await deleteItem(
+                                          await updateCharges(
                                             magicItemId: item.localId,
+                                            charges: 0,
                                           );
                                         },
-                                        icon:
-                                            const Icon(Icons.delete_outline),
-                                        label: const Text('Excluir item'),
+                                        child: const Text('Zerar'),
+                                      ),
+                                      OutlinedButton(
+                                        onPressed: () async {
+                                          final updateCharges = ref.read(
+                                            updateCharacterMagicItemChargesProvider,
+                                          );
+
+                                          await updateCharges(
+                                            magicItemId: item.localId,
+                                            charges: item.maxCharges,
+                                          );
+                                        },
+                                        child: const Text('Restaurar tudo'),
                                       ),
                                     ],
                                   ),
+                                ] else ...[
+                                  const Text('Este item não usa cargas.'),
                                 ],
-                              ),
+                                if (item.rechargeRule != null &&
+                                    item.rechargeRule!.isNotEmpty) ...[
+                                  const SizedBox(height: 8),
+                                  Text('Recarga: ${item.rechargeRule}'),
+                                ],
+                                const SizedBox(height: 12),
+                                _ItemSpellsSection(
+                                  characterId: character.id,
+                                  item: item,
+                                  spellEntries: spellEntries,
+                                ),
+                                const SizedBox(height: 8),
+                                Wrap(
+                                  spacing: 8,
+                                  children: [
+                                    TextButton.icon(
+                                      onPressed:
+                                          () => showMagicItemBonusSheet(
+                                            context: context,
+                                            ref: ref,
+                                            item: item,
+                                          ),
+                                      icon: const Icon(Icons.tune, size: 18),
+                                      label: const Text('Editar bônus'),
+                                    ),
+                                    TextButton.icon(
+                                      onPressed: () async {
+                                        final deleteItem = ref.read(
+                                          deleteCharacterMagicItemProvider,
+                                        );
+
+                                        await deleteItem(
+                                          magicItemId: item.localId,
+                                        );
+                                      },
+                                      icon: const Icon(Icons.delete_outline),
+                                      label: const Text('Excluir item'),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       ),
-                    ],
-                  );
+                    ),
+                  ],
+                );
           },
           error: (error, stackTrace) {
             return Text('Erro ao carregar compêndio de magias: $error');
@@ -567,20 +548,21 @@ class _ItemSpellsSectionState extends ConsumerState<_ItemSpellsSection> {
 
   @override
   Widget build(BuildContext context) {
-    final availableSpells = widget.spellEntries
-        .where(
-          (spell) => !widget.item.spells.any(
-            (itemSpell) => itemSpell.spellId == spell.id,
-          ),
-        )
-        .toList()
-      ..sort((a, b) => a.namePt.compareTo(b.namePt));
+    final availableSpells =
+        widget.spellEntries
+            .where(
+              (spell) =>
+                  !widget.item.spells.any(
+                    (itemSpell) => itemSpell.spellId == spell.id,
+                  ),
+            )
+            .toList()
+          ..sort(compareSpellsByName);
 
-    final validSelectedSpellId = availableSpells.any(
-      (spell) => spell.id == _selectedSpellId,
-    )
-        ? _selectedSpellId
-        : (availableSpells.isNotEmpty ? availableSpells.first.id : null);
+    final validSelectedSpellId =
+        availableSpells.any((spell) => spell.id == _selectedSpellId)
+            ? _selectedSpellId
+            : (availableSpells.isNotEmpty ? availableSpells.first.id : null);
 
     if (validSelectedSpellId != _selectedSpellId) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -594,10 +576,7 @@ class _ItemSpellsSectionState extends ConsumerState<_ItemSpellsSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Magias do item',
-          style: Theme.of(context).textTheme.titleSmall,
-        ),
+        Text('Magias do item', style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: 8),
         if (widget.item.spells.isEmpty)
           const Text('Nenhuma magia vinculada ainda.')
@@ -606,10 +585,7 @@ class _ItemSpellsSectionState extends ConsumerState<_ItemSpellsSection> {
             final spell = widget.spellEntries
                 .where((s) => s.id == itemSpell.spellId)
                 .cast<SpellEntry?>()
-                .firstWhere(
-                  (s) => s != null,
-                  orElse: () => null,
-                );
+                .firstWhere((s) => s != null, orElse: () => null);
 
             final spellName = spell?.namePt ?? 'Magia #${itemSpell.spellId}';
 
@@ -629,7 +605,9 @@ class _ItemSpellsSectionState extends ConsumerState<_ItemSpellsSection> {
               child: Container(
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: Theme.of(context).dividerColor.withValues(alpha: 0.4),
+                    color: Theme.of(
+                      context,
+                    ).dividerColor.withValues(alpha: 0.4),
                   ),
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -640,16 +618,18 @@ class _ItemSpellsSectionState extends ConsumerState<_ItemSpellsSection> {
                     vertical: 4,
                   ),
                   title: InkWell(
-                    onTap: spell == null
-                        ? null
-                        : () => showSpellDetailsBottomSheet(context, spell),
+                    onTap:
+                        spell == null
+                            ? null
+                            : () => showSpellDetailsBottomSheet(context, spell),
                     child: Text(
                       spellName,
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        decoration: spell == null
-                            ? TextDecoration.none
-                            : TextDecoration.underline,
+                        decoration:
+                            spell == null
+                                ? TextDecoration.none
+                                : TextDecoration.underline,
                       ),
                     ),
                   ),
@@ -691,17 +671,18 @@ class _ItemSpellsSectionState extends ConsumerState<_ItemSpellsSection> {
                     labelText: 'Magia do compêndio',
                     border: OutlineInputBorder(),
                   ),
-                  items: availableSpells
-                      .map(
-                        (spell) => DropdownMenuItem<int>(
-                          value: spell.id,
-                          child: Text(
-                            spell.namePt,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      )
-                      .toList(),
+                  items:
+                      availableSpells
+                          .map(
+                            (spell) => DropdownMenuItem<int>(
+                              value: spell.id,
+                              child: Text(
+                                spell.namePt,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          )
+                          .toList(),
                   onChanged: (value) {
                     setState(() {
                       _selectedSpellId = value;
@@ -767,30 +748,32 @@ class _ItemSpellsSectionState extends ConsumerState<_ItemSpellsSection> {
                   ),
                 if (_usesCharges && !_isAtWill) const SizedBox(height: 12),
                 FilledButton.icon(
-                  onPressed: validSelectedSpellId == null
-                      ? null
-                      : () async {
-                          final add = ref.read(addMagicItemSpellProvider);
+                  onPressed:
+                      validSelectedSpellId == null
+                          ? null
+                          : () async {
+                            final add = ref.read(addMagicItemSpellProvider);
 
-                          await add(
-                            magicItemId: widget.item.localId,
-                            spell: CharacterMagicItemSpell(
-                              spellId: validSelectedSpellId,
-                              usesCharges: _isAtWill ? false : _usesCharges,
-                              chargeCost: _isAtWill ? 0 : _chargeCost,
-                              isAtWill: _isAtWill,
-                              isAlwaysAvailable: _isAlwaysAvailable,
-                            ),
-                          );
+                            await add(
+                              magicItemId: widget.item.localId,
+                              spell: CharacterMagicItemSpell(
+                                spellId: validSelectedSpellId,
+                                usesCharges: _isAtWill ? false : _usesCharges,
+                                chargeCost: _isAtWill ? 0 : _chargeCost,
+                                isAtWill: _isAtWill,
+                                isAlwaysAvailable: _isAlwaysAvailable,
+                              ),
+                            );
 
-                          if (!context.mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content:
-                                  Text('Magia vinculada ao item com sucesso.'),
-                            ),
-                          );
-                        },
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Magia vinculada ao item com sucesso.',
+                                ),
+                              ),
+                            );
+                          },
                   icon: const Icon(Icons.add),
                   label: const Text('Vincular magia ao item'),
                 ),
@@ -897,7 +880,9 @@ class _MagicItemBonusSheetState extends ConsumerState<_MagicItemBonusSheet> {
     // e o degrau em "sem bônus": as estatísticas são a parte que dá para
     // aproveitar, o número é justamente o que não cabe nas opções.
     _bonus = item.bonus;
-    _targets = {...item.needsBonusReview ? item.declaredTargets : item.bonusTargets};
+    _targets = {
+      ...item.needsBonusReview ? item.declaredTargets : item.bonusTargets,
+    };
     _isEquipped = item.isEquipped;
     _requiresAttunement = item.requiresAttunement;
     _isAttuned = item.isAttuned;
@@ -931,16 +916,17 @@ class _MagicItemBonusSheetState extends ConsumerState<_MagicItemBonusSheet> {
               legacyBonuses: _legacy,
               onClearLegacy: () => setState(() => _legacy = null),
               onBonusChanged: (value) => setState(() => _bonus = value),
-              onTargetToggled: (target, selected) => setState(() {
-                if (selected) {
-                  _targets.add(target);
-                } else {
-                  _targets.remove(target);
-                }
-              }),
+              onTargetToggled:
+                  (target, selected) => setState(() {
+                    if (selected) {
+                      _targets.add(target);
+                    } else {
+                      _targets.remove(target);
+                    }
+                  }),
               onEquippedChanged: (value) => setState(() => _isEquipped = value),
-              onRequiresAttunementChanged: (value) =>
-                  setState(() => _requiresAttunement = value),
+              onRequiresAttunementChanged:
+                  (value) => setState(() => _requiresAttunement = value),
               onAttunedChanged: (value) => setState(() => _isAttuned = value),
             ),
             const SizedBox(height: 20),
@@ -948,21 +934,20 @@ class _MagicItemBonusSheetState extends ConsumerState<_MagicItemBonusSheet> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  onPressed: _saving
-                      ? null
-                      : () => Navigator.of(context).pop(),
+                  onPressed: _saving ? null : () => Navigator.of(context).pop(),
                   child: const Text('Cancelar'),
                 ),
                 const SizedBox(width: 8),
                 FilledButton.icon(
                   onPressed: _saving ? null : _save,
-                  icon: _saving
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.check),
+                  icon:
+                      _saving
+                          ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                          : const Icon(Icons.check),
                   label: Text(_saving ? 'Salvando...' : 'Salvar'),
                 ),
               ],
@@ -993,9 +978,9 @@ class _MagicItemBonusSheetState extends ConsumerState<_MagicItemBonusSheet> {
     } catch (error) {
       if (!mounted) return;
       setState(() => _saving = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao salvar o item: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao salvar o item: $error')));
     }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:dnd_ficha_app/core/utils/pt_collation.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/language_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/language_grant.dart';
 
@@ -90,11 +91,14 @@ class LanguageImportResult {
 /// existe?". Deixar isso espalhado faria cada tela normalizar nome do seu
 /// jeito, e duas normalizações diferentes é o mesmo que nenhuma.
 class LanguageCatalog {
-  const LanguageCatalog._(this._byId, this.duplicates);
+  /// Não é `const` por causa do cache de ordenação: um campo `late final` não
+  /// convive com construtor gerador constante. O catálogo é montado uma vez
+  /// por carga do compêndio, então a troca não custa nada.
+  LanguageCatalog._(this._byId, this.duplicates);
 
   /// Catálogo vazio, para estado de carregamento e falha de asset.
   factory LanguageCatalog.empty() =>
-      const LanguageCatalog._(<String, LanguageEntry>{}, <LanguageDuplicate>[]);
+      LanguageCatalog._(const <String, LanguageEntry>{}, const []);
 
   /// Monta o catálogo descartando duplicatas.
   ///
@@ -166,21 +170,27 @@ class LanguageCatalog {
   /// Duplicidades descartadas ao montar o catálogo.
   final List<LanguageDuplicate> duplicates;
 
+  /// A lista ordenada, calculada no primeiro acesso e reaproveitada.
+  ///
+  /// `all` é lido dentro de `build` no formulário de idiomas; sem o cache, os
+  /// 100 e tantos idiomas eram reordenados a cada quadro.
+  late final List<LanguageEntry> _sorted = sortedByDisplayName(
+    _byId.values,
+    name: (item) => item.name,
+    id: (item) => item.id,
+  );
+
   bool get isEmpty => _byId.isEmpty;
 
   int get length => _byId.length;
 
   /// Todos os idiomas, em ordem alfabética do nome exibido.
-  List<LanguageEntry> get all {
-    final result = _byId.values.toList();
-    result.sort(
-      (a, b) =>
-          LanguageEntry.normalizeName(a.name).compareTo(
-            LanguageEntry.normalizeName(b.name),
-          ),
-    );
-    return List<LanguageEntry>.unmodifiable(result);
-  }
+  ///
+  /// Ordena pela colação do projeto, e não por `normalizeName`: aquela
+  /// normalização existe para CASAR nome (ela apaga pontuação e acento para
+  /// achar o registro), e usá-la para ordenar jogava fora o desempate estável
+  /// por id.
+  List<LanguageEntry> get all => _sorted;
 
   LanguageEntry? byId(String? id) {
     if (id == null || id.isEmpty) return null;
@@ -240,8 +250,8 @@ class LanguageCatalog {
                 ? !entry.availability.requiresExplicitGrant ||
                     grant.options.contains(entry.id)
                 : includeGated
-                    ? entry.availability.isOfferedWhenGatedShown
-                    : entry.availability.isOfferedByDefault))
+                ? entry.availability.isOfferedWhenGatedShown
+                : entry.availability.isOfferedByDefault))
           entry,
     ];
 
@@ -442,7 +452,11 @@ class LanguageCatalog {
     if (aliases.length != current.aliases.length) changed = true;
 
     if (!changed) {
-      return _MergeOutcome(entry: current, changed: false, conflicts: conflicts);
+      return _MergeOutcome(
+        entry: current,
+        changed: false,
+        conflicts: conflicts,
+      );
     }
 
     return _MergeOutcome(

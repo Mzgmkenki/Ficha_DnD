@@ -1,3 +1,4 @@
+import 'package:dnd_ficha_app/core/utils/pt_collation.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/eldritch_invocation_entry.dart';
 
 /// Uma duplicidade encontrada ao montar o catálogo de invocações.
@@ -88,14 +89,15 @@ class InvocationImportResult {
 /// e não em cada tela, que a normalização de nome para busca mora — duas
 /// normalizações diferentes é o mesmo que nenhuma.
 class EldritchInvocationCatalog {
-  const EldritchInvocationCatalog._(this._byId, this.duplicates);
+  /// Não é `const` por causa do cache de ordenação: um campo `late final` não
+  /// convive com construtor gerador constante.
+  EldritchInvocationCatalog._(this._byId, this.duplicates);
 
   /// Catálogo vazio, para estado de carregamento e falha de asset.
-  factory EldritchInvocationCatalog.empty() =>
-      const EldritchInvocationCatalog._(
-        <String, EldritchInvocationEntry>{},
-        <InvocationDuplicate>[],
-      );
+  factory EldritchInvocationCatalog.empty() => EldritchInvocationCatalog._(
+    const <String, EldritchInvocationEntry>{},
+    const [],
+  );
 
   /// Monta o catálogo descartando duplicatas.
   ///
@@ -171,20 +173,22 @@ class EldritchInvocationCatalog {
   /// Duplicidades descartadas ao montar o catálogo.
   final List<InvocationDuplicate> duplicates;
 
+  /// A lista ordenada, calculada no primeiro acesso e reaproveitada.
+  late final List<EldritchInvocationEntry> _sorted = sortedByDisplayName(
+    _byId.values,
+    name: (item) => item.name,
+    id: (item) => item.id,
+  );
+
   bool get isEmpty => _byId.isEmpty;
 
   int get length => _byId.length;
 
   /// Todas as invocações, em ordem alfabética do nome exibido.
-  List<EldritchInvocationEntry> get all {
-    final result = _byId.values.toList();
-    result.sort(
-      (a, b) => EldritchInvocationEntry.normalizeName(
-        a.name,
-      ).compareTo(EldritchInvocationEntry.normalizeName(b.name)),
-    );
-    return List<EldritchInvocationEntry>.unmodifiable(result);
-  }
+  ///
+  /// Ordena pela colação do projeto, e não por `normalizeName`: aquela
+  /// normalização serve para CASAR nome na busca, não para ordenar.
+  List<EldritchInvocationEntry> get all => _sorted;
 
   EldritchInvocationEntry? byId(String? id) {
     if (id == null || id.isEmpty) return null;

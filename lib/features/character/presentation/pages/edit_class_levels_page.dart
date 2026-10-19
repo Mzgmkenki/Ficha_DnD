@@ -2,6 +2,7 @@ import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
 import 'package:dnd_ficha_app/core/routing/app_navigator.dart';
 import 'package:dnd_ficha_app/core/theme/app_colors.dart';
+import 'package:dnd_ficha_app/core/utils/pt_collation.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/class_mechanic_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/feature_providers.dart';
@@ -183,11 +184,16 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
                             classes,
                             classLevel.classId,
                           ),
-                          options: subclasses
-                              .where(
-                                (item) => item.classId == classLevel.classId,
-                              )
-                              .toList(growable: false),
+                          // Alfabético. Seguro porque este seletor não
+                          // pré-seleciona nada: o valor sai do `subclassId`
+                          // gravado, ou fica nulo.
+                          options: sortedByDisplayName(
+                            subclasses.where(
+                              (item) => item.classId == classLevel.classId,
+                            ),
+                            name: (item) => item.name,
+                            id: (item) => item.id,
+                          ),
                         ),
                       ],
                     ),
@@ -232,8 +238,15 @@ class _EditClassLevelsPageState extends ConsumerState<EditClassLevelsPage> {
     List<ClassEntry> classes,
   ) async {
     final usedClassIds = _classLevels.map((e) => e.classId).toSet();
-    final availableClasses =
-        classes.where((item) => !usedClassIds.contains(item.id)).toList();
+
+    // Alfabético: aqui a ordem é só de apresentação, e a "primeira" classe
+    // serve apenas como valor inicial do dropdown. Ordenar a lista e o padrão
+    // juntos mantém o campo mostrando o primeiro item visível.
+    final availableClasses = sortedByDisplayName(
+      classes.where((item) => !usedClassIds.contains(item.id)),
+      name: (item) => item.name,
+      id: (item) => item.id,
+    );
 
     if (availableClasses.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(

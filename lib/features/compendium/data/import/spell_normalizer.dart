@@ -13,6 +13,8 @@
 /// que existe coloca a mesma magia duas vezes na lista do jogador.
 library;
 
+import 'package:dnd_ficha_app/core/utils/pt_collation.dart';
+
 /// Dobra o nome de uma magia para a forma de comparação.
 ///
 /// Remove acento, caixa, pontuação, hífen, apóstrofo e espaço repetido. O
@@ -32,47 +34,14 @@ String normalizeSpellName(String value) {
 
 /// Troca letra acentuada pela equivalente sem acento.
 ///
-/// Feito à mão em vez de `unorm`/ICU porque o projeto não tem dependência de
-/// normalização Unicode e o conjunto de letras do português e do inglês cabe
-/// numa tabela.
-String foldAccents(String value) {
-  const map = {
-    'á': 'a',
-    'à': 'a',
-    'â': 'a',
-    'ã': 'a',
-    'ä': 'a',
-    'å': 'a',
-    'é': 'e',
-    'è': 'e',
-    'ê': 'e',
-    'ë': 'e',
-    'í': 'i',
-    'ì': 'i',
-    'î': 'i',
-    'ï': 'i',
-    'ó': 'o',
-    'ò': 'o',
-    'ô': 'o',
-    'õ': 'o',
-    'ö': 'o',
-    'ú': 'u',
-    'ù': 'u',
-    'û': 'u',
-    'ü': 'u',
-    'ç': 'c',
-    'ñ': 'n',
-    'ý': 'y',
-    'ÿ': 'y',
-  };
-
-  final buffer = StringBuffer();
-  for (final rune in value.runes) {
-    final char = String.fromCharCode(rune);
-    buffer.write(map[char] ?? char);
-  }
-  return buffer.toString();
-}
+/// Delega para [foldPtAccents], que é a tabela única do projeto. Mantido como
+/// nome próprio porque o importador já o usa em vários pontos, e porque é aqui
+/// que a intenção "dobrar para comparar" faz sentido no vocabulário do módulo.
+///
+/// Duas tabelas separadas eram um risco silencioso: a ordenação da interface e
+/// a detecção de magia duplicada passariam a discordar sobre o que é a mesma
+/// letra assim que uma das duas recebesse um caractere novo.
+String foldAccents(String value) => foldPtAccents(value);
 
 /// Remove o possessivo do autor do nome da magia.
 ///

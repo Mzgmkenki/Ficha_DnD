@@ -1,3 +1,4 @@
+import 'package:dnd_ficha_app/core/utils/pt_collation.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/character_class_mechanic.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
@@ -689,14 +690,23 @@ class ClassMechanicResolver {
       }
     }
 
+    // Classe, nível e nome, nesta ordem. As duas primeiras não são
+    // alfabéticas de propósito: a seção é lida como progressão por classe. O
+    // alfabético resolve o empate dentro do mesmo nível, e aí usa a colação do
+    // projeto para o acento não jogar a mecânica para o fim da lista.
     resolved.sort((a, b) {
       final byClass = a.classId.compareTo(b.classId);
       if (byClass != 0) return byClass;
+
       final byLevel = a.entry.level.compareTo(b.entry.level);
       if (byLevel != 0) return byLevel;
-      return ClassMechanicEntry.normalizeName(
-        a.name,
-      ).compareTo(ClassMechanicEntry.normalizeName(b.name));
+
+      return compareDisplayNames(
+        nameA: a.name,
+        idA: a.id,
+        nameB: b.name,
+        idB: b.id,
+      );
     });
 
     return ResolvedClassMechanics(
@@ -989,7 +999,19 @@ class ClassMechanicResolver {
       classId: classId,
       classLevel: classLevel,
       originLabel: originLabel,
-      options: List<ResolvedMechanicOption>.unmodifiable(options),
+      // Opções em ordem alfabética. É aqui, e não em cada tela, porque três
+      // lugares as leem: o gerenciador, o dropdown de escolha única e o painel
+      // da ficha. Resolvido uma vez por personagem, em provider com cache.
+      //
+      // A ordem do asset não tem significado de regra: os 11 Estilos de
+      // Combate, as manobras do Mestre de Batalha e os espíritos de totem são
+      // conjuntos sem sequência. Quem tem ordem de regra é a PROGRESSÃO
+      // (`entry.progression`), que continua por nível e não passa por aqui.
+      options: sortedByDisplayName(
+        options,
+        name: (item) => item.name,
+        id: (item) => item.id,
+      ),
       blocks: blocks,
       resource:
           blocks.isEmpty

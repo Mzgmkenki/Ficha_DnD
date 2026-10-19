@@ -1,3 +1,5 @@
+import 'package:dnd_ficha_app/core/utils/pt_collation.dart';
+
 /// As condições de D&D 5e (PHB, Apêndice A).
 ///
 /// Exaustão fica de fora de propósito: ela tem níveis acumulativos em vez de
@@ -83,9 +85,7 @@ enum Condition {
               'alcance dele.',
         ];
       case Condition.incapacitated:
-        return const [
-          'Não pode realizar ações nem reações.',
-        ];
+        return const ['Não pode realizar ações nem reações.'];
       case Condition.invisible:
         return const [
           'Impossível de ver sem magia ou sentido especial; conta como muito '
@@ -110,9 +110,7 @@ enum Condition {
               'agiam ficam suspensas.',
         ];
       case Condition.poisoned:
-        return const [
-          'Desvantagem em ataques e em testes de atributo.',
-        ];
+        return const ['Desvantagem em ataques e em testes de atributo.'];
       case Condition.prone:
         return const [
           'Só consegue se arrastar, a menos que gaste movimento para se '
@@ -158,11 +156,10 @@ enum Condition {
 
   /// Condições ordenadas pelo rótulo em português, que é a ordem esperada
   /// numa ficha brasileira.
-  static List<Condition> get sortedByLabel {
-    final list = [...Condition.values];
-    list.sort((a, b) => a.label.compareTo(b.label));
-    return list;
-  }
+  ///
+  /// Ordenado uma vez e reaproveitado: `ActiveEffects` percorre esta lista a
+  /// cada resolução de efeito e o PDF a usa para desenhar as caixas.
+  static List<Condition> get sortedByLabel => _conditionsByLabel;
 
   /// Ids separados por vírgula, no formato gravado na coluna do banco.
   ///
@@ -203,3 +200,14 @@ enum Condition {
     return result;
   }
 }
+
+/// Cache da ordem alfabética das condições.
+///
+/// A ordem de declaração do enum NÃO é alfabética, e não pode ser: ela é o que
+/// mantém estável o CSV gravado por `toCsv`. Por isso a lista de exibição é
+/// derivada aqui em vez de reordenar o enum.
+final List<Condition> _conditionsByLabel = sortedByDisplayName(
+  Condition.values,
+  name: (item) => item.label,
+  id: (item) => item.id,
+);

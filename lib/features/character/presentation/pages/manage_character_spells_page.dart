@@ -1,4 +1,4 @@
-﻿import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
+import 'package:dnd_ficha_app/core/extensions/context_extensions.dart';
 import 'package:dnd_ficha_app/core/extensions/int_extensions.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/sync_invocation_spells.dart';
@@ -15,10 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ManageCharacterSpellsPage extends ConsumerStatefulWidget {
-  const ManageCharacterSpellsPage({
-    required this.characterId,
-    super.key,
-  });
+  const ManageCharacterSpellsPage({required this.characterId, super.key});
 
   final String characterId;
 
@@ -65,9 +62,7 @@ class _ManageCharacterSpellsPageState
     final classesAsync = ref.watch(classEntriesProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Gerenciar magias'),
-      ),
+      appBar: AppBar(title: const Text('Gerenciar magias')),
       body: characterAsync.when(
         data: (character) {
           if (character == null) {
@@ -78,14 +73,16 @@ class _ManageCharacterSpellsPageState
             data: (classes) {
               return spellsAsync.when(
                 data: (spells) {
-                  _selectedClassSourceId ??= character.classLevels.isNotEmpty
-                      ? character.classLevels.first.classId
-                      : (classes.isNotEmpty ? classes.first.id : null);
+                  _selectedClassSourceId ??=
+                      character.classLevels.isNotEmpty
+                          ? character.classLevels.first.classId
+                          : (classes.isNotEmpty ? classes.first.id : null);
 
                   final filteredSpells = _applySpellFilters(spells, classes);
-                  final classLimit = _selectedSourceType == 'class'
-                      ? _buildClassLimitInfo(character, classes, spells)
-                      : null;
+                  final classLimit =
+                      _selectedSourceType == 'class'
+                          ? _buildClassLimitInfo(character, classes, spells)
+                          : null;
 
                   return ListView(
                     padding: context.scrollContentPadding(),
@@ -104,33 +101,21 @@ class _ManageCharacterSpellsPageState
                   );
                 },
                 error: (error, stackTrace) {
-                  return Center(
-                    child: Text('Erro ao carregar magias: $error'),
-                  );
+                  return Center(child: Text('Erro ao carregar magias: $error'));
                 },
-                loading: () => const Center(
-                  child: CircularProgressIndicator(),
-                ),
+                loading: () => const Center(child: CircularProgressIndicator()),
               );
             },
             error: (error, stackTrace) {
-              return Center(
-                child: Text('Erro ao carregar classes: $error'),
-              );
+              return Center(child: Text('Erro ao carregar classes: $error'));
             },
-            loading: () => const Center(
-              child: CircularProgressIndicator(),
-            ),
+            loading: () => const Center(child: CircularProgressIndicator()),
           );
         },
         error: (error, stackTrace) {
-          return Center(
-            child: Text('Erro ao carregar personagem: $error'),
-          );
+          return Center(child: Text('Erro ao carregar personagem: $error'));
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
+        loading: () => const Center(child: CircularProgressIndicator()),
       ),
     );
   }
@@ -198,9 +183,9 @@ class _ManageCharacterSpellsPageState
                           child: Container(
                             decoration: BoxDecoration(
                               border: Border.all(
-                                color: Theme.of(context)
-                                    .dividerColor
-                                    .withValues(alpha: 0.4),
+                                color: Theme.of(
+                                  context,
+                                ).dividerColor.withValues(alpha: 0.4),
                               ),
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -210,9 +195,10 @@ class _ManageCharacterSpellsPageState
                                 vertical: 4,
                               ),
                               title: InkWell(
-                                onTap: spell == null
-                                    ? null
-                                    : () => showSpellDetailsBottomSheet(
+                                onTap:
+                                    spell == null
+                                        ? null
+                                        : () => showSpellDetailsBottomSheet(
                                           context,
                                           spell,
                                         ),
@@ -220,21 +206,22 @@ class _ManageCharacterSpellsPageState
                                   spellName,
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
-                                    decoration: spell == null
-                                        ? TextDecoration.none
-                                        : TextDecoration.underline,
+                                    decoration:
+                                        spell == null
+                                            ? TextDecoration.none
+                                            : TextDecoration.underline,
                                   ),
                                 ),
                               ),
-                              subtitle: tags.isEmpty
-                                  ? null
-                                  : Text(tags.join(' • ')),
+                              subtitle:
+                                  tags.isEmpty ? null : Text(tags.join(' • ')),
                               trailing: IconButton(
                                 tooltip: 'Remover magia',
                                 onPressed: () async {
                                   try {
-                                    final removeSpell =
-                                        ref.read(removeCharacterSpellProvider);
+                                    final removeSpell = ref.read(
+                                      removeCharacterSpellProvider,
+                                    );
 
                                     await removeSpell(
                                       characterId: character.id,
@@ -246,8 +233,9 @@ class _ManageCharacterSpellsPageState
                                     if (!context.mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content:
-                                            Text('Magia removida: $spellName'),
+                                        content: Text(
+                                          'Magia removida: $spellName',
+                                        ),
                                       ),
                                     );
                                   } catch (error) {
@@ -287,15 +275,13 @@ class _ManageCharacterSpellsPageState
   }) {
     final groupedSpells = _groupSpellsByLevel(spells);
     final sortedLevels = groupedSpells.keys.toList()..sort();
-    final selectedClassEntry = _selectedClassSourceId == null
-        ? null
-        : classes
-            .where((item) => item.id == _selectedClassSourceId)
-            .cast<ClassEntry?>()
-            .firstWhere(
-              (item) => item != null,
-              orElse: () => null,
-            );
+    final selectedClassEntry =
+        _selectedClassSourceId == null
+            ? null
+            : classes
+                .where((item) => item.id == _selectedClassSourceId)
+                .cast<ClassEntry?>()
+                .firstWhere((item) => item != null, orElse: () => null);
     final isWizardSelected = _isWizardClassId(_selectedClassSourceId);
 
     return Card(
@@ -314,17 +300,18 @@ class _ManageCharacterSpellsPageState
               decoration: InputDecoration(
                 labelText: 'Buscar magia',
                 prefixIcon: const Icon(Icons.search),
-                suffixIcon: _search.isEmpty
-                    ? null
-                    : IconButton(
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() {
-                            _search = '';
-                          });
-                        },
-                        icon: const Icon(Icons.clear),
-                      ),
+                suffixIcon:
+                    _search.isEmpty
+                        ? null
+                        : IconButton(
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() {
+                              _search = '';
+                            });
+                          },
+                          icon: const Icon(Icons.clear),
+                        ),
                 border: const OutlineInputBorder(),
               ),
               onChanged: (value) {
@@ -345,26 +332,14 @@ class _ManageCharacterSpellsPageState
                     border: OutlineInputBorder(),
                   ),
                   items: const [
-                    DropdownMenuItem(
-                      value: 'class',
-                      child: Text('Classe'),
-                    ),
+                    DropdownMenuItem(value: 'class', child: Text('Classe')),
                     DropdownMenuItem(
                       value: 'grimorio',
                       child: Text('Grimório'),
                     ),
-                    DropdownMenuItem(
-                      value: 'item',
-                      child: Text('Item mágico'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'race',
-                      child: Text('Raça'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'feat',
-                      child: Text('Talento'),
-                    ),
+                    DropdownMenuItem(value: 'item', child: Text('Item mágico')),
+                    DropdownMenuItem(value: 'race', child: Text('Raça')),
+                    DropdownMenuItem(value: 'feat', child: Text('Talento')),
                     DropdownMenuItem(
                       value: 'custom',
                       child: Text('Origem customizada'),
@@ -389,50 +364,17 @@ class _ManageCharacterSpellsPageState
                     border: OutlineInputBorder(),
                   ),
                   items: const [
-                    DropdownMenuItem<int?>(
-                      value: null,
-                      child: Text('Todos'),
-                    ),
-                    DropdownMenuItem<int?>(
-                      value: 0,
-                      child: Text('Truque'),
-                    ),
-                    DropdownMenuItem<int?>(
-                      value: 1,
-                      child: Text('1º círculo'),
-                    ),
-                    DropdownMenuItem<int?>(
-                      value: 2,
-                      child: Text('2º círculo'),
-                    ),
-                    DropdownMenuItem<int?>(
-                      value: 3,
-                      child: Text('3º círculo'),
-                    ),
-                    DropdownMenuItem<int?>(
-                      value: 4,
-                      child: Text('4º círculo'),
-                    ),
-                    DropdownMenuItem<int?>(
-                      value: 5,
-                      child: Text('5º círculo'),
-                    ),
-                    DropdownMenuItem<int?>(
-                      value: 6,
-                      child: Text('6º círculo'),
-                    ),
-                    DropdownMenuItem<int?>(
-                      value: 7,
-                      child: Text('7º círculo'),
-                    ),
-                    DropdownMenuItem<int?>(
-                      value: 8,
-                      child: Text('8º círculo'),
-                    ),
-                    DropdownMenuItem<int?>(
-                      value: 9,
-                      child: Text('9º círculo'),
-                    ),
+                    DropdownMenuItem<int?>(value: null, child: Text('Todos')),
+                    DropdownMenuItem<int?>(value: 0, child: Text('Truque')),
+                    DropdownMenuItem<int?>(value: 1, child: Text('1º círculo')),
+                    DropdownMenuItem<int?>(value: 2, child: Text('2º círculo')),
+                    DropdownMenuItem<int?>(value: 3, child: Text('3º círculo')),
+                    DropdownMenuItem<int?>(value: 4, child: Text('4º círculo')),
+                    DropdownMenuItem<int?>(value: 5, child: Text('5º círculo')),
+                    DropdownMenuItem<int?>(value: 6, child: Text('6º círculo')),
+                    DropdownMenuItem<int?>(value: 7, child: Text('7º círculo')),
+                    DropdownMenuItem<int?>(value: 8, child: Text('8º círculo')),
+                    DropdownMenuItem<int?>(value: 9, child: Text('9º círculo')),
                   ],
                   onChanged: (value) {
                     setState(() {
@@ -491,19 +433,21 @@ class _ManageCharacterSpellsPageState
               DropdownButtonFormField<String>(
                 initialValue: _selectedClassSourceId,
                 decoration: InputDecoration(
-                  labelText: _selectedSourceType == 'grimorio'
-                      ? 'Classe do grimório'
-                      : 'Classe de origem',
+                  labelText:
+                      _selectedSourceType == 'grimorio'
+                          ? 'Classe do grimório'
+                          : 'Classe de origem',
                   border: const OutlineInputBorder(),
                 ),
-                items: classes
-                    .map(
-                      (item) => DropdownMenuItem<String>(
-                        value: item.id,
-                        child: Text(item.name),
-                      ),
-                    )
-                    .toList(),
+                items:
+                    classes
+                        .map(
+                          (item) => DropdownMenuItem<String>(
+                            value: item.id,
+                            child: Text(item.name),
+                          ),
+                        )
+                        .toList(),
                 onChanged: (value) {
                   setState(() {
                     _selectedClassSourceId = value;
@@ -598,27 +542,29 @@ class _ManageCharacterSpellsPageState
               contentPadding: EdgeInsets.zero,
               title: const Text('Conhecida'),
               value: _effectiveIsKnown(isWizardSelected),
-              onChanged: (_selectedSourceType == 'grimorio' ||
-                      (_selectedSourceType == 'class' && isWizardSelected))
-                  ? null
-                  : (value) {
-                      setState(() {
-                        _isKnown = value ?? true;
-                      });
-                    },
+              onChanged:
+                  (_selectedSourceType == 'grimorio' ||
+                          (_selectedSourceType == 'class' && isWizardSelected))
+                      ? null
+                      : (value) {
+                        setState(() {
+                          _isKnown = value ?? true;
+                        });
+                      },
             ),
             CheckboxListTile(
               contentPadding: EdgeInsets.zero,
               title: const Text('Preparada'),
               value: _effectiveIsPrepared(isWizardSelected),
-              onChanged: (_selectedSourceType == 'grimorio' ||
-                      (_selectedSourceType == 'class' && isWizardSelected))
-                  ? null
-                  : (value) {
-                      setState(() {
-                        _isPrepared = value ?? false;
-                      });
-                    },
+              onChanged:
+                  (_selectedSourceType == 'grimorio' ||
+                          (_selectedSourceType == 'class' && isWizardSelected))
+                      ? null
+                      : (value) {
+                        setState(() {
+                          _isPrepared = value ?? false;
+                        });
+                      },
             ),
             CheckboxListTile(
               contentPadding: EdgeInsets.zero,
@@ -639,8 +585,8 @@ class _ManageCharacterSpellsPageState
                 child: ListView(
                   children: [
                     ...sortedLevels.map((level) {
-                      final levelSpells = groupedSpells[level]!
-                        ..sort((a, b) => a.namePt.compareTo(b.namePt));
+                      final levelSpells =
+                          groupedSpells[level]!..sort(compareSpellsByName);
 
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 12),
@@ -649,9 +595,7 @@ class _ManageCharacterSpellsPageState
                           children: [
                             Text(
                               '${_levelLabel(level)} (${levelSpells.length})',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall
+                              style: Theme.of(context).textTheme.titleSmall
                                   ?.copyWith(fontWeight: FontWeight.w600),
                             ),
                             const SizedBox(height: 6),
@@ -661,9 +605,9 @@ class _ManageCharacterSpellsPageState
                                 child: Container(
                                   decoration: BoxDecoration(
                                     border: Border.all(
-                                      color: Theme.of(context)
-                                          .dividerColor
-                                          .withValues(alpha: 0.5),
+                                      color: Theme.of(
+                                        context,
+                                      ).dividerColor.withValues(alpha: 0.5),
                                     ),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -673,11 +617,11 @@ class _ManageCharacterSpellsPageState
                                       vertical: 4,
                                     ),
                                     title: InkWell(
-                                      onTap: () =>
-                                          showSpellDetailsBottomSheet(
-                                        context,
-                                        spell,
-                                      ),
+                                      onTap:
+                                          () => showSpellDetailsBottomSheet(
+                                            context,
+                                            spell,
+                                          ),
                                       child: Text(
                                         spell.namePt,
                                         style: const TextStyle(
@@ -695,11 +639,13 @@ class _ManageCharacterSpellsPageState
                                     trailing: IconButton(
                                       tooltip: 'Adicionar magia',
                                       onPressed: () async {
-                                        final sourceData =
-                                            _buildSourceData(classes);
+                                        final sourceData = _buildSourceData(
+                                          classes,
+                                        );
                                         if (sourceData == null) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
                                             const SnackBar(
                                               content: Text(
                                                 'Preencha a origem da magia.',
@@ -709,19 +655,20 @@ class _ManageCharacterSpellsPageState
                                           return;
                                         }
 
-                                        final alreadyExists =
-                                            character.spells.any(
-                                          (item) =>
-                                              item.spellId == spell.id &&
-                                              item.sourceType ==
-                                                  sourceData.type &&
-                                              item.sourceId ==
-                                                  sourceData.id,
-                                        );
+                                        final alreadyExists = character.spells
+                                            .any(
+                                              (item) =>
+                                                  item.spellId == spell.id &&
+                                                  item.sourceType ==
+                                                      sourceData.type &&
+                                                  item.sourceId ==
+                                                      sourceData.id,
+                                            );
 
                                         if (alreadyExists) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
                                             const SnackBar(
                                               content: Text(
                                                 'Essa magia já foi adicionada nessa origem.',
@@ -734,12 +681,13 @@ class _ManageCharacterSpellsPageState
                                         if (classLimit != null) {
                                           final blockReason =
                                               _validateAgainstClassLimit(
-                                            classLimit: classLimit,
-                                            spell: spell,
-                                          );
+                                                classLimit: classLimit,
+                                                spell: spell,
+                                              );
                                           if (blockReason != null) {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
                                               SnackBar(
                                                 content: Text(blockReason),
                                               ),
@@ -750,7 +698,7 @@ class _ManageCharacterSpellsPageState
 
                                         final isWizardClass =
                                             sourceData.type == 'class' &&
-                                                _isWizardClassId(sourceData.id);
+                                            _isWizardClassId(sourceData.id);
                                         final isGrimorio =
                                             sourceData.type == 'grimorio';
 
@@ -766,24 +714,27 @@ class _ManageCharacterSpellsPageState
                                               sourceType: sourceData.type,
                                               sourceId: sourceData.id,
                                               sourceName: sourceData.name,
-                                              isPrepared: isGrimorio
-                                                  ? false
-                                                  : (isWizardClass
-                                                      ? true
-                                                      : _isPrepared),
-                                              isKnown: isGrimorio
-                                                  ? true
-                                                  : (isWizardClass
+                                              isPrepared:
+                                                  isGrimorio
                                                       ? false
-                                                      : _isKnown),
+                                                      : (isWizardClass
+                                                          ? true
+                                                          : _isPrepared),
+                                              isKnown:
+                                                  isGrimorio
+                                                      ? true
+                                                      : (isWizardClass
+                                                          ? false
+                                                          : _isKnown),
                                               isAlwaysAvailable:
                                                   _isAlwaysAvailable,
                                             ),
                                           );
 
                                           if (!context.mounted) return;
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
                                             SnackBar(
                                               content: Text(
                                                 'Magia adicionada: ${spell.namePt}',
@@ -792,8 +743,9 @@ class _ManageCharacterSpellsPageState
                                           );
                                         } catch (error) {
                                           if (!context.mounted) return;
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
                                             SnackBar(
                                               content: Text(
                                                 'Erro ao adicionar magia: $error',
@@ -884,63 +836,61 @@ class _ManageCharacterSpellsPageState
     List<SpellEntry> spells,
     List<ClassEntry> classes,
   ) {
-    return spells.where((spell) {
-      if (_search.isNotEmpty) {
-        final matchPt = spell.namePt.toLowerCase().contains(_search);
-        final matchOriginal =
-            spell.nameOriginal.toLowerCase().contains(_search);
-        if (!matchPt && !matchOriginal) {
+    return spells
+      .where((spell) {
+        if (_search.isNotEmpty) {
+          final matchPt = spell.namePt.toLowerCase().contains(_search);
+          final matchOriginal = spell.nameOriginal.toLowerCase().contains(
+            _search,
+          );
+          if (!matchPt && !matchOriginal) {
+            return false;
+          }
+        }
+
+        if (_selectedSpellLevel != null && spell.level != _selectedSpellLevel) {
           return false;
         }
-      }
 
-      if (_selectedSpellLevel != null && spell.level != _selectedSpellLevel) {
-        return false;
-      }
+        if (_selectedSpellClassFilter != null) {
+          final selectedClassId = _selectedSpellClassFilter!;
+          final normalizedSelectedIds = _classAliasesForId(
+            selectedClassId,
+            classes,
+          );
 
-      if (_selectedSpellClassFilter != null) {
-        final selectedClassId = _selectedSpellClassFilter!;
-        final normalizedSelectedIds = _classAliasesForId(
-          selectedClassId,
-          classes,
-        );
+          final normalizedSpellClasses =
+              spell.classes
+                  .map(_normalizeClassText)
+                  .whereType<String>()
+                  .toSet();
 
-        final normalizedSpellClasses = spell.classes
-            .map(_normalizeClassText)
-            .whereType<String>()
-            .toSet();
+          final hasMatch = normalizedSelectedIds.any(
+            (item) => normalizedSpellClasses.contains(item),
+          );
 
-        final hasMatch = normalizedSelectedIds.any(
-          (item) => normalizedSpellClasses.contains(item),
-        );
-
-        if (!hasMatch) {
-          return false;
+          if (!hasMatch) {
+            return false;
+          }
         }
-      }
 
-      return true;
-    }).toList(growable: false)
-      ..sort((a, b) {
-        final levelCompare = a.level.compareTo(b.level);
-        if (levelCompare != 0) return levelCompare;
-        return a.namePt.compareTo(b.namePt);
-      });
+        return true;
+      })
+      .toList(growable: false)..sort((a, b) {
+      // Círculo primeiro, alfabético dentro dele.
+      final levelCompare = a.level.compareTo(b.level);
+      if (levelCompare != 0) return levelCompare;
+      return compareSpellsByName(a, b);
+    });
   }
 
-  Set<String> _classAliasesForId(
-    String classId,
-    List<ClassEntry> classes,
-  ) {
+  Set<String> _classAliasesForId(String classId, List<ClassEntry> classes) {
     final aliases = <String>{};
 
     ClassEntry? findById(String id) => classes
         .where((item) => item.id == id)
         .cast<ClassEntry?>()
-        .firstWhere(
-          (item) => item != null,
-          orElse: () => null,
-        );
+        .firstWhere((item) => item != null, orElse: () => null);
 
     final entry = findById(classId);
 
@@ -1035,10 +985,7 @@ class _ManageCharacterSpellsPageState
         final classEntry = classes
             .where((item) => item.id == _selectedClassSourceId)
             .cast<ClassEntry?>()
-            .firstWhere(
-              (item) => item != null,
-              orElse: () => null,
-            );
+            .firstWhere((item) => item != null, orElse: () => null);
 
         return _SourceData(
           type: 'class',
@@ -1052,10 +999,7 @@ class _ManageCharacterSpellsPageState
         final classEntry = classes
             .where((item) => item.id == _selectedClassSourceId)
             .cast<ClassEntry?>()
-            .firstWhere(
-              (item) => item != null,
-              orElse: () => null,
-            );
+            .firstWhere((item) => item != null, orElse: () => null);
 
         final className = classEntry?.name ?? _selectedClassSourceId!;
         return _SourceData(
@@ -1067,38 +1011,22 @@ class _ManageCharacterSpellsPageState
       case 'item':
         final name = _itemSourceNameController.text.trim();
         if (name.isEmpty) return null;
-        return _SourceData(
-          type: 'item',
-          id: _slugify(name),
-          name: name,
-        );
+        return _SourceData(type: 'item', id: _slugify(name), name: name);
 
       case 'race':
         final name = _raceSourceNameController.text.trim();
         if (name.isEmpty) return null;
-        return _SourceData(
-          type: 'race',
-          id: _slugify(name),
-          name: name,
-        );
+        return _SourceData(type: 'race', id: _slugify(name), name: name);
 
       case 'feat':
         final name = _featSourceNameController.text.trim();
         if (name.isEmpty) return null;
-        return _SourceData(
-          type: 'feat',
-          id: _slugify(name),
-          name: name,
-        );
+        return _SourceData(type: 'feat', id: _slugify(name), name: name);
 
       case 'custom':
         final name = _customSourceNameController.text.trim();
         if (name.isEmpty) return null;
-        return _SourceData(
-          type: 'custom',
-          id: _slugify(name),
-          name: name,
-        );
+        return _SourceData(type: 'custom', id: _slugify(name), name: name);
 
       default:
         return null;
@@ -1117,26 +1045,22 @@ class _ManageCharacterSpellsPageState
     final classEntry = classes
         .where((item) => item.id == classId)
         .cast<ClassEntry?>()
-        .firstWhere(
-          (item) => item != null,
-          orElse: () => null,
-        );
+        .firstWhere((item) => item != null, orElse: () => null);
 
     final className = classEntry?.name ?? classId;
     final classLevel = character.classLevels
         .where((item) => item.classId == classId)
         .cast<dynamic>()
-        .firstWhere(
-          (item) => item != null,
-          orElse: () => null,
-        );
+        .firstWhere((item) => item != null, orElse: () => null);
 
     final level = classLevel?.level as int?;
     if (level == null) return null;
 
-    final classSpells = character.spells.where((spell) {
-      return spell.sourceType == 'class' && spell.sourceId == classId;
-    }).toList(growable: false);
+    final classSpells = character.spells
+        .where((spell) {
+          return spell.sourceType == 'class' && spell.sourceId == classId;
+        })
+        .toList(growable: false);
 
     int countKnownLevel1Plus() {
       return classSpells.where((spell) {
@@ -1144,10 +1068,7 @@ class _ManageCharacterSpellsPageState
         final entry = allSpells
             .where((s) => s.id == spell.spellId)
             .cast<SpellEntry?>()
-            .firstWhere(
-              (s) => s != null,
-              orElse: () => null,
-            );
+            .firstWhere((s) => s != null, orElse: () => null);
         return (entry?.level ?? 0) > 0;
       }).length;
     }
@@ -1158,10 +1079,7 @@ class _ManageCharacterSpellsPageState
         final entry = allSpells
             .where((s) => s.id == spell.spellId)
             .cast<SpellEntry?>()
-            .firstWhere(
-              (s) => s != null,
-              orElse: () => null,
-            );
+            .firstWhere((s) => s != null, orElse: () => null);
         return (entry?.level ?? 0) > 0;
       }).length;
     }
@@ -1171,10 +1089,7 @@ class _ManageCharacterSpellsPageState
         final entry = allSpells
             .where((s) => s.id == spell.spellId)
             .cast<SpellEntry?>()
-            .firstWhere(
-              (s) => s != null,
-              orElse: () => null,
-            );
+            .firstWhere((s) => s != null, orElse: () => null);
         return (entry?.level ?? 1) == 0;
       }).length;
     }
@@ -1204,9 +1119,10 @@ class _ManageCharacterSpellsPageState
               'Magias preparadas dessa classe: ${countPreparedLevel1Plus()}/$limit',
           current: countPreparedLevel1Plus(),
           limit: limit,
-          cantripSummary: cantripLimit == null
-              ? null
-              : 'Truques dessa classe: $currentCantrips/$cantripLimit',
+          cantripSummary:
+              cantripLimit == null
+                  ? null
+                  : 'Truques dessa classe: $currentCantrips/$cantripLimit',
           currentCantrips: currentCantrips,
           cantripLimit: cantripLimit,
           note: 'Outras origens não entram nesses limites.',
@@ -1222,9 +1138,10 @@ class _ManageCharacterSpellsPageState
               'Magias preparadas dessa classe: ${countPreparedLevel1Plus()}/$limit',
           current: countPreparedLevel1Plus(),
           limit: limit,
-          cantripSummary: cantripLimit == null
-              ? null
-              : 'Truques dessa classe: $currentCantrips/$cantripLimit',
+          cantripSummary:
+              cantripLimit == null
+                  ? null
+                  : 'Truques dessa classe: $currentCantrips/$cantripLimit',
           currentCantrips: currentCantrips,
           cantripLimit: cantripLimit,
           note: 'Outras origens não entram nesses limites.',
@@ -1239,16 +1156,19 @@ class _ManageCharacterSpellsPageState
             summary: 'Essa classe ainda não possui magia nesse nível.',
             current: 0,
             limit: 0,
-            cantripSummary: cantripLimit == null
-                ? null
-                : 'Truques dessa classe: $currentCantrips/$cantripLimit',
+            cantripSummary:
+                cantripLimit == null
+                    ? null
+                    : 'Truques dessa classe: $currentCantrips/$cantripLimit',
             currentCantrips: currentCantrips,
             cantripLimit: cantripLimit,
             note: 'Outras origens não entram nesses limites.',
           );
         }
-        final limit =
-            (abilityModifier(Ability.charisma) + (level ~/ 2)).clamp(1, 999);
+        final limit = (abilityModifier(Ability.charisma) + (level ~/ 2)).clamp(
+          1,
+          999,
+        );
         return _ClassLimitInfo(
           mode: _ClassLimitMode.prepared,
           title: className,
@@ -1256,9 +1176,10 @@ class _ManageCharacterSpellsPageState
               'Magias preparadas dessa classe: ${countPreparedLevel1Plus()}/$limit',
           current: countPreparedLevel1Plus(),
           limit: limit,
-          cantripSummary: cantripLimit == null
-              ? null
-              : 'Truques dessa classe: $currentCantrips/$cantripLimit',
+          cantripSummary:
+              cantripLimit == null
+                  ? null
+                  : 'Truques dessa classe: $currentCantrips/$cantripLimit',
           currentCantrips: currentCantrips,
           cantripLimit: cantripLimit,
           note: 'Outras origens não entram nesses limites.',
@@ -1266,8 +1187,10 @@ class _ManageCharacterSpellsPageState
 
       case 'wizard':
       case 'mago':
-        final limit =
-            (abilityModifier(Ability.intelligence) + level).clamp(1, 999);
+        final limit = (abilityModifier(Ability.intelligence) + level).clamp(
+          1,
+          999,
+        );
         return _ClassLimitInfo(
           mode: _ClassLimitMode.prepared,
           title: className,
@@ -1275,9 +1198,10 @@ class _ManageCharacterSpellsPageState
               'Magias preparadas dessa classe: ${countPreparedLevel1Plus()}/$limit',
           current: countPreparedLevel1Plus(),
           limit: limit,
-          cantripSummary: cantripLimit == null
-              ? null
-              : 'Truques dessa classe: $currentCantrips/$cantripLimit',
+          cantripSummary:
+              cantripLimit == null
+                  ? null
+                  : 'Truques dessa classe: $currentCantrips/$cantripLimit',
           currentCantrips: currentCantrips,
           cantripLimit: cantripLimit,
           note:
@@ -1294,9 +1218,10 @@ class _ManageCharacterSpellsPageState
               'Magias conhecidas dessa classe: ${countKnownLevel1Plus()}/$limit',
           current: countKnownLevel1Plus(),
           limit: limit,
-          cantripSummary: cantripLimit == null
-              ? null
-              : 'Truques dessa classe: $currentCantrips/$cantripLimit',
+          cantripSummary:
+              cantripLimit == null
+                  ? null
+                  : 'Truques dessa classe: $currentCantrips/$cantripLimit',
           currentCantrips: currentCantrips,
           cantripLimit: cantripLimit,
           note: 'Outras origens não entram nesses limites.',
@@ -1312,9 +1237,10 @@ class _ManageCharacterSpellsPageState
               'Magias conhecidas dessa classe: ${countKnownLevel1Plus()}/$limit',
           current: countKnownLevel1Plus(),
           limit: limit,
-          cantripSummary: cantripLimit == null
-              ? null
-              : 'Truques dessa classe: $currentCantrips/$cantripLimit',
+          cantripSummary:
+              cantripLimit == null
+                  ? null
+                  : 'Truques dessa classe: $currentCantrips/$cantripLimit',
           currentCantrips: currentCantrips,
           cantripLimit: cantripLimit,
           note: 'Outras origens não entram nesses limites.',
@@ -1330,9 +1256,10 @@ class _ManageCharacterSpellsPageState
               'Magias conhecidas dessa classe: ${countKnownLevel1Plus()}/$limit',
           current: countKnownLevel1Plus(),
           limit: limit,
-          cantripSummary: cantripLimit == null
-              ? null
-              : 'Truques dessa classe: $currentCantrips/$cantripLimit',
+          cantripSummary:
+              cantripLimit == null
+                  ? null
+                  : 'Truques dessa classe: $currentCantrips/$cantripLimit',
           currentCantrips: currentCantrips,
           cantripLimit: cantripLimit,
           note: 'Outras origens não entram nesses limites.',
@@ -1347,9 +1274,10 @@ class _ManageCharacterSpellsPageState
             summary: 'Essa classe ainda não possui magia nesse nível.',
             current: 0,
             limit: 0,
-            cantripSummary: cantripLimit == null
-                ? null
-                : 'Truques dessa classe: $currentCantrips/$cantripLimit',
+            cantripSummary:
+                cantripLimit == null
+                    ? null
+                    : 'Truques dessa classe: $currentCantrips/$cantripLimit',
             currentCantrips: currentCantrips,
             cantripLimit: cantripLimit,
             note: 'Outras origens não entram nesses limites.',
@@ -1363,9 +1291,10 @@ class _ManageCharacterSpellsPageState
               'Magias conhecidas dessa classe: ${countKnownLevel1Plus()}/$limit',
           current: countKnownLevel1Plus(),
           limit: limit,
-          cantripSummary: cantripLimit == null
-              ? null
-              : 'Truques dessa classe: $currentCantrips/$cantripLimit',
+          cantripSummary:
+              cantripLimit == null
+                  ? null
+                  : 'Truques dessa classe: $currentCantrips/$cantripLimit',
           currentCantrips: currentCantrips,
           cantripLimit: cantripLimit,
           note: 'Outras origens não entram nesses limites.',
@@ -1555,10 +1484,7 @@ class _ManageCharacterSpellsPageState
   }
 }
 
-enum _ClassLimitMode {
-  known,
-  prepared,
-}
+enum _ClassLimitMode { known, prepared }
 
 class _ClassLimitInfo {
   const _ClassLimitInfo({
@@ -1585,11 +1511,7 @@ class _ClassLimitInfo {
 }
 
 class _SourceData {
-  const _SourceData({
-    required this.type,
-    required this.id,
-    required this.name,
-  });
+  const _SourceData({required this.type, required this.id, required this.name});
 
   final String type;
   final String id;

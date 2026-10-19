@@ -1,4 +1,4 @@
-﻿import 'package:dnd_ficha_app/core/di/providers.dart';
+import 'package:dnd_ficha_app/core/di/providers.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/character_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/sync_invocation_spells.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/sync_subclass_spells.dart';
@@ -18,10 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CharacterSpellsPanel extends ConsumerStatefulWidget {
-  const CharacterSpellsPanel({
-    required this.character,
-    super.key,
-  });
+  const CharacterSpellsPanel({required this.character, super.key});
 
   final Character character;
 
@@ -44,8 +41,9 @@ class _CharacterSpellsPanelState extends ConsumerState<CharacterSpellsPanel> {
     final spellsAsync = ref.watch(spellEntriesProvider);
     final classesAsync = ref.watch(classEntriesProvider);
     final progressionsAsync = ref.watch(spellSlotProgressionsProvider);
-    final usedSlotsAsync =
-        ref.watch(characterUsedSpellSlotsProvider(character.id));
+    final usedSlotsAsync = ref.watch(
+      characterUsedSpellSlotsProvider(character.id),
+    );
 
     return Card(
       child: Padding(
@@ -162,7 +160,9 @@ class _CharacterSpellsPanelState extends ConsumerState<CharacterSpellsPanel> {
                                     child: Text(
                                       'Magias do Grimório (${grimorioSpells.length})',
                                       style:
-                                          Theme.of(context).textTheme.titleSmall,
+                                          Theme.of(
+                                            context,
+                                          ).textTheme.titleSmall,
                                     ),
                                   ),
                                   TextButton.icon(
@@ -247,15 +247,16 @@ class _CharacterSpellsPanelState extends ConsumerState<CharacterSpellsPanel> {
                       error: (error, stackTrace) {
                         return Text('Erro ao carregar uso de slots: $error');
                       },
-                      loading: () =>
-                          const Center(child: CircularProgressIndicator()),
+                      loading:
+                          () =>
+                              const Center(child: CircularProgressIndicator()),
                     );
                   },
                   error: (error, stackTrace) {
                     return Text('Erro ao carregar progressão de slots: $error');
                   },
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
+                  loading:
+                      () => const Center(child: CircularProgressIndicator()),
                 );
               },
               error: (error, stackTrace) {
@@ -267,9 +268,7 @@ class _CharacterSpellsPanelState extends ConsumerState<CharacterSpellsPanel> {
           error: (error, stackTrace) {
             return Text('Erro ao carregar magias: $error');
           },
-          loading: () => const Center(
-            child: CircularProgressIndicator(),
-          ),
+          loading: () => const Center(child: CircularProgressIndicator()),
         ),
       ),
     );
@@ -292,15 +291,18 @@ class _CharacterSpellsPanelState extends ConsumerState<CharacterSpellsPanel> {
     return _SpellcastingSummaryData(
       // Os círculos sem espaço ficam fora do mapa. Quem consome lê por chave
       // com `?? 0`, então some do mapa e valer zero dão no mesmo.
-      standardSlots: standardSlots == null
-          ? const {}
-          : SpellSlotCalculator.slotsByLevel(standardSlots),
-      pactSlotLevel: pactSlots == null
-          ? null
-          : SpellSlotCalculator.pactSlotLevel(pactSlots),
-      pactSlotCount: pactSlots == null
-          ? null
-          : SpellSlotCalculator.pactSlotCount(pactSlots),
+      standardSlots:
+          standardSlots == null
+              ? const {}
+              : SpellSlotCalculator.slotsByLevel(standardSlots),
+      pactSlotLevel:
+          pactSlots == null
+              ? null
+              : SpellSlotCalculator.pactSlotLevel(pactSlots),
+      pactSlotCount:
+          pactSlots == null
+              ? null
+              : SpellSlotCalculator.pactSlotCount(pactSlots),
     );
   }
 }
@@ -332,10 +334,7 @@ class _OriginSection extends StatelessWidget {
       final spell = spellEntries
           .where((s) => s.id == entry.spellId)
           .cast<SpellEntry?>()
-          .firstWhere(
-            (s) => s != null,
-            orElse: () => null,
-          );
+          .firstWhere((s) => s != null, orElse: () => null);
 
       if (spell == null) continue;
 
@@ -391,8 +390,10 @@ class _OriginSection extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   ...sortedLevels.map((level) {
-                    final spellsAtLevel = byLevel[level]!
-                      ..sort((a, b) => a.spell.namePt.compareTo(b.spell.namePt));
+                    final spellsAtLevel =
+                        byLevel[level]!..sort(
+                          (a, b) => compareSpellsByName(a.spell, b.spell),
+                        );
 
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 12),
@@ -411,9 +412,9 @@ class _OriginSection extends StatelessWidget {
                               child: Container(
                                 decoration: BoxDecoration(
                                   border: Border.all(
-                                    color: Theme.of(context)
-                                        .dividerColor
-                                        .withValues(alpha: 0.5),
+                                    color: Theme.of(
+                                      context,
+                                    ).dividerColor.withValues(alpha: 0.5),
                                   ),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -425,13 +426,14 @@ class _OriginSection extends StatelessWidget {
                                     children: [
                                       Expanded(
                                         child: InkWell(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          onTap: () =>
-                                              showSpellDetailsBottomSheet(
-                                            context,
-                                            spellData.spell,
+                                          borderRadius: BorderRadius.circular(
+                                            8,
                                           ),
+                                          onTap:
+                                              () => showSpellDetailsBottomSheet(
+                                                context,
+                                                spellData.spell,
+                                              ),
                                           child: Padding(
                                             padding: const EdgeInsets.symmetric(
                                               vertical: 6,
@@ -457,9 +459,10 @@ class _OriginSection extends StatelessWidget {
                                                 const SizedBox(height: 2),
                                                 Text(
                                                   _buildSubtitle(spellData),
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .bodySmall,
+                                                  style:
+                                                      Theme.of(
+                                                        context,
+                                                      ).textTheme.bodySmall,
                                                 ),
                                               ],
                                             ),
@@ -566,9 +569,7 @@ class _CastSpellButton extends ConsumerWidget {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            '${spellData.spell.namePt} conjurada sem gastar slot.',
-          ),
+          content: Text('${spellData.spell.namePt} conjurada sem gastar slot.'),
         ),
       );
       return;
@@ -594,15 +595,16 @@ class _CastSpellButton extends ConsumerWidget {
           title: Text('Conjurar ${spellData.spell.namePt}'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            children: options.map((option) {
-              return ListTile(
-                title: Text(option.label),
-                subtitle: Text(
-                  'Restantes: ${option.remaining}/${option.max}',
-                ),
-                onTap: () => Navigator.of(dialogContext).pop(option),
-              );
-            }).toList(),
+            children:
+                options.map((option) {
+                  return ListTile(
+                    title: Text(option.label),
+                    subtitle: Text(
+                      'Restantes: ${option.remaining}/${option.max}',
+                    ),
+                    onTap: () => Navigator.of(dialogContext).pop(option),
+                  );
+                }).toList(),
           ),
         );
       },
@@ -612,7 +614,9 @@ class _CastSpellButton extends ConsumerWidget {
 
     final used = usedSlots[chosen.usageKey] ?? 0;
 
-    await ref.read(characterRepositoryProvider).updateUsedSpellSlot(
+    await ref
+        .read(characterRepositoryProvider)
+        .updateUsedSpellSlot(
           characterId: character.id,
           slotLevel: chosen.usageKey,
           used: used + 1,
@@ -635,9 +639,7 @@ class _CastSpellButton extends ConsumerWidget {
   /// é melhor que dar conjuração gratuita por causa de falha de leitura.
   Future<bool> _isGrantedAtWill(WidgetRef ref) async {
     try {
-      final catalog = await ref.read(
-        eldritchInvocationCatalogProvider.future,
-      );
+      final catalog = await ref.read(eldritchInvocationCatalogProvider.future);
 
       final invocation = catalog.byId(spellData.sourceId);
       if (invocation == null) return false;
@@ -665,9 +667,7 @@ class _CastSpellButton extends ConsumerWidget {
     if (item == null) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Item mágico de origem não encontrado.'),
-        ),
+        const SnackBar(content: Text('Item mágico de origem não encontrado.')),
       );
       return;
     }
@@ -702,9 +702,7 @@ class _CastSpellButton extends ConsumerWidget {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'O item ${item.name} não possui cargas suficientes.',
-          ),
+          content: Text('O item ${item.name} não possui cargas suficientes.'),
         ),
       );
       return;
@@ -752,9 +750,9 @@ class _CastSpellButton extends ConsumerWidget {
     if (confirmed != true) return;
 
     await ref.read(updateCharacterMagicItemChargesProvider)(
-          magicItemId: item.localId,
-          charges: currentCharges - cost,
-        );
+      magicItemId: item.localId,
+      charges: currentCharges - cost,
+    );
 
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -885,10 +883,7 @@ class _SpellcastingSummaryData {
 }
 
 class _DetailLine extends StatelessWidget {
-  const _DetailLine({
-    required this.label,
-    required this.value,
-  });
+  const _DetailLine({required this.label, required this.value});
 
   final String label;
   final String value;
@@ -975,7 +970,8 @@ void showSpellDetailsBottomSheet(BuildContext context, SpellEntry spell) {
                   ),
                   const SizedBox(height: 8),
                   Text(spell.description),
-                  if (spell.upcast != null && spell.upcast!.trim().isNotEmpty) ...[
+                  if (spell.upcast != null &&
+                      spell.upcast!.trim().isNotEmpty) ...[
                     const SizedBox(height: 16),
                     Text(
                       'Conjuração em nível superior',
