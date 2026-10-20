@@ -67,6 +67,10 @@ class ExportCharacterPdf {
       classes: classes,
       classFeatures: classFeatures,
       subclasses: subclasses,
+      // A raça entra aqui para a CA impressa considerar a Armadura Natural.
+      // Sem isto o PDF de um Tartaruga sairia com a CA da fórmula comum,
+      // divergindo do número que a ficha mostra na tela.
+      races: races,
     );
 
     final armorClass = ArmorClassOptions.resolve(

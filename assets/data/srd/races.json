@@ -1233,6 +1233,19 @@
       "Armadura Natural: sem outra armadura, CA = 13 + Destreza. Pode usar esse cálculo se a armadura vestida produzir CA menor; escudo continua funcionando.",
       "Intuição da Natureza: proficiência em duas entre Adestrar Animais, Medicina, Natureza, Percepção, Furtividade e Sobrevivência."
     ],
+    "natural_armor": {
+      "effect": {
+        "id": "lizardfolk.natural_armor",
+        "path": "ac.base",
+        "operation": "grant",
+        "formula": "13 + mod.dexterity",
+        "conditions": { "armor": "any", "shield": "allowed" },
+        "stacking": "exclusive",
+        "group": "ac.base",
+        "label": "Armadura Natural",
+        "note": "A regra permite usar este cálculo quando a armadura vestida daria CA menor, então a fórmula continua disponível mesmo com armadura. O escudo soma por cima."
+      }
+    },
     "choice_groups": [],
     "tags": ["motm", "reptiliano"]
   },
@@ -1534,6 +1547,20 @@
       "Intuição da Natureza: proficiência em Adestrar Animais, Medicina, Natureza, Percepção, Furtividade ou Sobrevivência.",
       "Defesa do Casco: como ação, recolhe-se no casco. Recebe +4 CA e vantagem em salvaguardas de Força e Constituição. Enquanto recolhido, fica caído, tem deslocamento 0, desvantagem em salvaguardas de Destreza, não pode usar reações e só pode usar uma ação bônus para emergir."
     ],
+    "natural_armor": {
+      "forbids_armor": true,
+      "effect": {
+        "id": "tortle.natural_armor",
+        "path": "ac.base",
+        "operation": "grant",
+        "formula": "17",
+        "conditions": { "armor": "any", "shield": "allowed" },
+        "stacking": "exclusive",
+        "group": "ac.base",
+        "label": "Armadura Natural",
+        "note": "A carapaça dá CA base 17, e a Destreza não altera esse número. O escudo soma por cima. A regra não permite vestir armadura."
+      }
+    },
     "choice_groups": [],
     "tags": ["motm", "tartaruga"]
   },
@@ -1743,6 +1770,19 @@
       "Revitalização sem Sono: não precisa dormir e permanece consciente durante um descanso longo.",
       "Telepatia Thri-kreen: comunica-se mentalmente com qualquer quantidade de criaturas voluntárias visíveis a até 36 m. A criatura precisa conhecer pelo menos um idioma. O vínculo termina se a distância ultrapassar 36 m, se alguém ficar incapacitado ou se qualquer participante o encerrar mentalmente."
     ],
+    "natural_armor": {
+      "effect": {
+        "id": "thri_kreen.chameleon_carapace",
+        "path": "ac.base",
+        "operation": "grant",
+        "formula": "13 + mod.dexterity",
+        "conditions": { "armor": "none", "shield": "allowed" },
+        "stacking": "exclusive",
+        "group": "ac.base",
+        "label": "Carapaça Camaleônica",
+        "note": "A fórmula exige estar sem armadura. O escudo soma por cima."
+      }
+    },
     "choice_groups": [],
     "tags": ["aag", "insetoide", "telepatia"]
   },
@@ -2092,6 +2132,19 @@
       "Limitações da Tromba: não empunha armas ou escudos e não realiza trabalhos de precisão, como usar ferramentas, itens mágicos ou componentes somáticos.",
       "Olfato Aguçado: vantagem em Percepção, Sobrevivência e Investigação quando o olfato for relevante."
     ],
+    "natural_armor": {
+      "effect": {
+        "id": "loxodon.natural_armor",
+        "path": "ac.base",
+        "operation": "grant",
+        "formula": "12 + mod.constitution",
+        "conditions": { "armor": "none", "shield": "allowed" },
+        "stacking": "exclusive",
+        "group": "ac.base",
+        "label": "Armadura Natural",
+        "note": "A fórmula exige estar sem armadura e usa Constituição, não Destreza. O escudo soma por cima."
+      }
+    },
     "choice_groups": [],
     "tags": ["ggr", "loxodon"]
   },

@@ -21,6 +21,7 @@ import 'package:dnd_ficha_app/features/compendium/domain/entities/language_entry
 import 'package:dnd_ficha_app/features/compendium/domain/entities/language_grant.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_choice_group.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/race_natural_armor.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_skill_choice.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_slot_progression_entry.dart';
@@ -159,6 +160,7 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
                 .where((e) => e.trim().isNotEmpty)
                 .toList(growable: false),
             initiative: InitiativeRule.tryParse(item['initiative']),
+            naturalArmor: RaceNaturalArmor.tryParse(item['natural_armor']),
 
             parentRaceId: item['parent_race_id'] as String?,
             isSubrace: _asBool(item['is_subrace']),

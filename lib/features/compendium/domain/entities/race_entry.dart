@@ -2,6 +2,7 @@ import 'package:dnd_ficha_app/features/compendium/domain/entities/ability_bonus_
 import 'package:dnd_ficha_app/features/compendium/domain/entities/initiative_rule.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/language_grant.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_choice_group.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/race_natural_armor.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_skill_choice.dart';
 
 class RaceEntry {
@@ -19,6 +20,7 @@ class RaceEntry {
     this.grantsFeat = false,
     this.skillChoice,
     this.traits = const [],
+    this.naturalArmor,
     this.initiative,
     this.parentRaceId,
     this.isSubrace = false,
@@ -81,6 +83,17 @@ class RaceEntry {
   /// hoje só o Gatilho de Lebre do harengon.
   final InitiativeRule? initiative;
 
+  /// A Armadura Natural da raça, quando ela concede uma.
+  ///
+  /// Mesmo arranjo de [initiative], e pelo mesmo motivo: campo tipado no nível
+  /// da raça em vez de estrutura dentro de [traits], que é texto puro. A prosa
+  /// do traço continua em [traits] para o resumo e o PDF.
+  ///
+  /// Nulo é o caso normal — só Tartaruga, Povo-Lagarto, Thri-kreen e Loxodon
+  /// declaram. Sem este campo a fórmula racial não existia para o sistema de
+  /// CA, que descobre fórmulas varrendo efeitos `ac.base` e nunca lê prosa.
+  final RaceNaturalArmor? naturalArmor;
+
   final String? parentRaceId;
   final bool isSubrace;
 
@@ -130,6 +143,7 @@ class RaceEntry {
     bool? grantsFeat,
     RaceSkillChoice? skillChoice,
     List<String>? traits,
+    RaceNaturalArmor? naturalArmor,
     InitiativeRule? initiative,
     String? parentRaceId,
     bool? isSubrace,
@@ -156,6 +170,7 @@ class RaceEntry {
       grantsFeat: grantsFeat ?? this.grantsFeat,
       skillChoice: skillChoice ?? this.skillChoice,
       traits: traits ?? this.traits,
+      naturalArmor: naturalArmor ?? this.naturalArmor,
       initiative: initiative ?? this.initiative,
       parentRaceId: parentRaceId ?? this.parentRaceId,
       isSubrace: isSubrace ?? this.isSubrace,

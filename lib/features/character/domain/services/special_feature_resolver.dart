@@ -7,6 +7,7 @@ import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.da
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/feature_effect.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/subclass_entry.dart';
 
 /// De onde a característica veio.
@@ -22,7 +23,15 @@ enum FeatureOrigin {
   /// NÃO produz este valor: quem monta as invocações é
   /// `EldritchInvocationResolver`, e é por isso que elas não aparecem
   /// duplicadas na seção de características de classe.
-  invocation('invocation', 'Invocação Mística');
+  invocation('invocation', 'Invocação Mística'),
+
+  /// Traço racial com efeito calculado — hoje só a Armadura Natural.
+  ///
+  /// Existe para a fórmula de CA da raça entrar no MESMO sistema de fórmulas
+  /// alternativas das classes, em vez de um caminho paralelo. Sem esta origem,
+  /// `ArmorClassOptions` não tinha como enxergar a carapaça do Tartaruga: ela
+  /// vive em `RaceEntry.traits`, que é texto puro.
+  racialTrait('race', 'Raça');
 
   const FeatureOrigin(this.id, this.label);
 
@@ -50,6 +59,7 @@ class ResolvedFeature {
     this.action,
     this.choice,
     this.supersededBy,
+    this.forbidsWornArmor = false,
   });
 
   /// Identificador estável desta característica NESTE personagem.
@@ -67,7 +77,12 @@ class ResolvedFeature {
 
   /// Classe que concedeu. No multiclasse é o que diz qual linha de
   /// `classLevels` pagou por esta característica.
-  final String classId;
+  ///
+  /// Nulo quando a característica não vem de classe nenhuma — hoje só a
+  /// Armadura Natural da raça. Preencher com uma classe qualquer faria a
+  /// regra de multiclasse e os painéis por classe tratarem a carapaça como se
+  /// ela tivesse sido paga por um nível de classe.
+  final String? classId;
 
   /// Id da fonte: a classe, ou a subclasse quando vem dela.
   final String originId;
@@ -99,6 +114,18 @@ class ResolvedFeature {
     final text = description;
     return text != null && text.trim().isNotEmpty;
   }
+
+  /// Se esta característica impede o personagem de se beneficiar de armadura
+  /// vestida.
+  ///
+  /// Verdadeiro só na Armadura Natural do Tartaruga, cuja regra é explícita:
+  /// "Não pode usar armadura, mas pode usar escudo". É o que faz
+  /// `ArmorClassOptions` marcar a fórmula do equipamento como indisponível em
+  /// vez de somar a CA de uma armadura que a regra não permite vestir.
+  ///
+  /// A armadura NÃO é apagada do inventário por causa disto: ela continua lá,
+  /// pode ser desequipada, e só não entra na conta.
+  final bool forbidsWornArmor;
 
   /// Origem e nível, como a ficha escreve: `Bárbaro, nível 1`.
   String get sourceLabel => '$originLabel, nível $level';
@@ -133,6 +160,10 @@ class ResolvedFeature {
       action: action,
       choice: choice,
       supersededBy: supersededBy ?? this.supersededBy,
+      // Precisa vir junto: `copyWith` é o caminho da regra de multiclasse, e
+      // perder a proibição aqui devolveria a CA da armadura a quem a regra não
+      // deixa vestir armadura.
+      forbidsWornArmor: forbidsWornArmor,
     );
   }
 }
@@ -362,13 +393,25 @@ class ResolvedFeatures {
 class SpecialFeatureResolver {
   const SpecialFeatureResolver._();
 
+  /// [races] é opcional e default vazio de propósito: quem só precisa das
+  /// características de classe (o resolvedor de bônus de atributo, por
+  /// exemplo) continua chamando sem passar o compêndio de raças, e o resultado
+  /// é idêntico ao de antes.
   static ResolvedFeatures resolve({
     required Character character,
     required List<ClassEntry> classes,
     required List<ClassFeatureEntry> classFeatures,
     List<SubclassEntry> subclasses = const [],
+    List<RaceEntry> races = const [],
   }) {
     final resolved = <ResolvedFeature>[];
+
+    // A raça vem ANTES das classes, e isso é só apresentação: a Armadura
+    // Natural é a característica mais antiga do personagem. Não há disputa de
+    // precedência com a Defesa sem Armadura — as duas são fórmulas
+    // alternativas, e quem escolhe entre elas é `ArmorClassOptions`.
+    final naturalArmor = _naturalArmorFor(character, races);
+    if (naturalArmor != null) resolved.add(naturalArmor);
 
     // A ordem das classes é a ordem de aquisição, e importa: é ela que decide
     // qual Defesa sem Armadura vale num Bárbaro/Monge.
@@ -437,6 +480,72 @@ class SpecialFeatureResolver {
     }
 
     return ResolvedFeatures(features: _applyUniqueRule(resolved));
+  }
+
+  /// A Armadura Natural da raça do personagem, quando ela concede uma.
+  ///
+  /// A raça é achada por `speciesId` contra `RaceEntry.id` — identificador
+  /// estável, nunca o nome. Comparar nome quebraria em duas frentes: a
+  /// tradução ("Tortle" contra "Tartaruga") e as variantes de fonte.
+  ///
+  /// Devolve nulo quando o personagem não tem raça, quando a raça não está no
+  /// compêndio carregado ou quando ela não declara Armadura Natural — os três
+  /// são estados normais, não erro.
+  static ResolvedFeature? _naturalArmorFor(
+    Character character,
+    List<RaceEntry> races,
+  ) {
+    final speciesId = character.speciesId;
+    if (speciesId == null || speciesId.isEmpty) return null;
+    if (races.isEmpty) return null;
+
+    RaceEntry? race;
+    for (final item in races) {
+      if (item.id == speciesId) {
+        race = item;
+        break;
+      }
+    }
+
+    // Sub-raça herda a Armadura Natural da raça base, como herda os traços: é
+    // a base que declara o bloco, e nenhuma sub-raça o sobrescreve hoje.
+    var natural = race?.naturalArmor;
+    final parentId = race?.parentRaceId;
+    if (natural == null && parentId != null && parentId.isNotEmpty) {
+      for (final item in races) {
+        if (item.id == parentId) {
+          natural = item.naturalArmor;
+          break;
+        }
+      }
+    }
+
+    if (race == null || natural == null) return null;
+
+    final effect = natural.effect;
+
+    return ResolvedFeature(
+      id: featureId(
+        origin: FeatureOrigin.racialTrait,
+        originId: race.id,
+        // Nível 1: a raça concede desde a criação do personagem. É o que faz a
+        // fórmula valer para um Tartaruga de 1º nível sem classe nenhuma.
+        level: 1,
+        name: effect.label ?? 'Armadura Natural',
+      ),
+      name: effect.label ?? 'Armadura Natural',
+      description: null,
+      origin: FeatureOrigin.racialTrait,
+      // Sem `classId`: a característica não é de nenhuma linha de classe, e
+      // preencher isso faria a regra de multiclasse tentar compará-la com a
+      // Defesa sem Armadura.
+      classId: null,
+      originId: race.id,
+      originLabel: race.name,
+      level: 1,
+      effects: [effect],
+      forbidsWornArmor: natural.forbidsArmor,
+    );
   }
 
   /// Identificador estável de uma característica.

@@ -170,6 +170,15 @@ class ArmorClassOptions {
       stealthDisadvantage: armor.stealthDisadvantage,
     );
 
+    // Raça que não pode vestir armadura — hoje só o Tartaruga, cuja regra diz
+    // "Não pode usar armadura, mas pode usar escudo". A fórmula do equipamento
+    // deixa de valer, com o motivo à vista, em vez de somar a CA de uma peça
+    // que a regra não permite usar. A armadura continua no inventário e pode
+    // ser desequipada; ela só não entra na conta.
+    final forbidsArmor = features.features.any(
+      (feature) => feature.forbidsWornArmor,
+    );
+
     final result = <ArmorClassFormulaOption>[
       ArmorClassFormulaOption(
         id: armorClassEquipmentFormulaId,
@@ -179,7 +188,11 @@ class ArmorClassOptions {
         // A armadura sempre conviveu com escudo; é a fórmula de característica
         // que pode proibir.
         allowsShield: true,
-        isAvailable: true,
+        isAvailable: !forbidsArmor,
+        unavailableReason:
+            forbidsArmor
+                ? 'sua raça não pode se beneficiar de armadura vestida'
+                : null,
       ),
     ];
 

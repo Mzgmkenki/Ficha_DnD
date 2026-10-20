@@ -12,6 +12,7 @@ import 'package:dnd_ficha_app/features/character/domain/services/feature_resourc
 import 'package:dnd_ficha_app/features/character/domain/services/special_feature_resolver.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/race_entry.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// As características especiais que o personagem realmente tem.
@@ -26,11 +27,24 @@ final resolvedFeaturesProvider = FutureProvider.family
       final classFeatures = await ref.watch(classFeaturesProvider.future);
       final subclasses = await ref.watch(subclassEntriesProvider.future);
 
+      // As raças entram porque a Armadura Natural é uma fórmula de CA, e é
+      // deste provider que `armorClassSelectionProvider` tira as fórmulas
+      // disponíveis. Falhar a leitura cai numa lista vazia em vez de derrubar
+      // a ficha: sem o compêndio de raças o personagem perde só a fórmula
+      // racial, e as de classe continuam valendo.
+      List<RaceEntry> races;
+      try {
+        races = await ref.watch(raceEntriesProvider.future);
+      } catch (_) {
+        races = const [];
+      }
+
       return SpecialFeatureResolver.resolve(
         character: character,
         classes: classes,
         classFeatures: classFeatures,
         subclasses: subclasses,
+        races: races,
       );
     });
 
