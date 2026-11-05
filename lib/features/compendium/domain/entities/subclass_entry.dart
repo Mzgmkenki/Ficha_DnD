@@ -2,6 +2,7 @@ import 'package:dnd_ficha_app/features/compendium/domain/entities/class_feature_
 import 'package:dnd_ficha_app/features/compendium/domain/entities/feature_effect.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/initiative_rule.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/language_grant.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/spellcasting_progression.dart';
 
 /// Magias que a subclasse concede num nível de classe.
 ///
@@ -16,6 +17,34 @@ class SubclassSpellGrant {
   final int level;
 
   final List<String> spellNames;
+}
+
+/// Conjuração concedida pela subclasse, e não pela classe.
+///
+/// É o caso do Trapaceiro Arcano e do Cavaleiro Arcano: Ladino e Guerreiro não
+/// conjuram, mas essas duas subclasses conjuram magias de mago como
+/// um-terço-conjuradores a partir do 3º nível. Sem isto, os espaços de magia
+/// desses personagens eram calculados a partir da classe, que declara
+/// `spellcasting_type: null`, e o resultado era zero espaço.
+class SubclassSpellcasting {
+  const SubclassSpellcasting({required this.type, this.ability, this.spellList});
+
+  /// Tipo de progressão, nos mesmos valores de `ClassEntry.spellcastingType`.
+  /// Ver [SpellcastingProgression].
+  final String type;
+
+  /// Atributo de conjuração, quando o asset declara. Inteligência nos dois
+  /// casos atuais, porque ambos conjuram da lista do mago.
+  final String? ability;
+
+  /// Lista de magias de onde a subclasse conjura, quando declarada.
+  final String? spellList;
+
+  /// Nível de classe a partir do qual a conjuração existe: 3 para um-terço.
+  int get startLevel => SpellcastingProgression.startLevel(type);
+
+  /// Se o tipo declarado é uma progressão de conjuração reconhecida.
+  bool get isCasting => SpellcastingProgression.isCasting(type);
 }
 
 /// Característica que a subclasse concede num nível específico.
@@ -75,6 +104,7 @@ class SubclassEntry {
     this.features = const [],
     this.spells = const [],
     this.tags = const [],
+    this.spellcasting,
   });
 
   final String id;
@@ -91,6 +121,13 @@ class SubclassEntry {
   final List<SubclassSpellGrant> spells;
 
   final List<String> tags;
+
+  /// Conjuração que a subclasse concede, quando concede. Nulo é o caso normal:
+  /// a maioria das subclasses não muda nada na conjuração da classe.
+  final SubclassSpellcasting? spellcasting;
+
+  /// Se esta subclasse concede conjuração por conta própria.
+  bool get grantsSpellcasting => spellcasting?.isCasting ?? false;
 
   /// Características já liberadas para quem tem [level] níveis na classe.
   List<SubclassFeature> featuresUpTo(int level) {
@@ -120,6 +157,7 @@ class SubclassEntry {
       features: features,
       spells: spells,
       tags: tags,
+      spellcasting: spellcasting,
     );
   }
 

@@ -25,6 +25,7 @@ import 'package:dnd_ficha_app/features/compendium/domain/entities/race_natural_a
 import 'package:dnd_ficha_app/features/compendium/domain/entities/race_skill_choice.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_slot_progression_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/spellcasting_progression.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/subclass_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/weapon_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/weapon_proficiencies.dart';
@@ -734,6 +735,26 @@ class CompendiumRepositoryImpl implements CompendiumRepository {
           .map((e) => _parseSubclassSpellGrant(Map<String, dynamic>.from(e)))
           .toList(growable: false),
       tags: rawTags.map((e) => e.toString()).toList(growable: false),
+      spellcasting: _parseSubclassSpellcasting(item['spellcasting']),
+    );
+  }
+
+  /// Bloco `spellcasting` da subclasse, quando existe.
+  ///
+  /// Tipo desconhecido é descartado em vez de virar uma progressão inventada:
+  /// é melhor a subclasse seguir sem conjuração do que o cálculo de espaços
+  /// procurar uma tabela que não existe em `spell_slots.json`.
+  SubclassSpellcasting? _parseSubclassSpellcasting(Object? raw) {
+    if (raw is! Map) return null;
+
+    final item = Map<String, dynamic>.from(raw);
+    final type = SpellcastingProgression.normalize(item['type'] as String?);
+    if (type == null) return null;
+
+    return SubclassSpellcasting(
+      type: type,
+      ability: (item['ability'] as String?)?.trim(),
+      spellList: (item['spell_list'] as String?)?.trim(),
     );
   }
 

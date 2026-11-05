@@ -1725,6 +1725,11 @@
     "name": "Cavaleiro Arcano",
     "source": "phb",
     "description": "Guerreiro que estuda magia de proteção e destruição para somá-la à espada.",
+    "spellcasting": {
+      "type": "third",
+      "ability": "intelligence",
+      "spell_list": "wizard"
+    },
     "spells": [],
     "features": [
       {
@@ -3143,6 +3148,11 @@
     "name": "Trapaceiro Arcano",
     "source": "phb",
     "description": "Ladino que junta ilusão e encantamento à ladinagem, para roubar sem nunca encostar no alvo.",
+    "spellcasting": {
+      "type": "third",
+      "ability": "intelligence",
+      "spell_list": "wizard"
+    },
     "spells": [{ "level": 3, "names": ["Mage Hand"] }],
     "features": [
       {

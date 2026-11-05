@@ -210,9 +210,15 @@ Future<void> _selectBackground(
   WidgetTester tester, {
   String id = 'acolyte',
 }) async {
+  // O antecedente vem depois dos blocos de raça, classe e atributos, então em
+  // tela pequena a `ListView` ainda não o montou: é preciso rolar até ele
+  // antes de ler o campo.
+  final label = find.text('Antecedente');
+  await _reveal(tester, label);
+
   final dropdown = tester.widget<DropdownButtonFormField<String>>(
     find.ancestor(
-      of: find.text('Antecedente'),
+      of: label,
       matching: find.byType(DropdownButtonFormField<String>),
     ),
   );

@@ -486,6 +486,20 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                   // sistema no fim da rolagem.
                   padding: context.scrollContentPadding(),
                   children: [
+                    // A ordem das seções é a ordem da criação, e segue a
+                    // sequência do livro: identidade, raça, classe, atributos,
+                    // antecedente e idiomas.
+                    //
+                    // Cada bloco é contíguo de propósito. Antes, o antecedente
+                    // caía no meio do bloco de raça — entre a sub-raça e o
+                    // resumo racial — e os atributos vinham antes da classe,
+                    // então o jogador distribuía o conjunto padrão sem saber
+                    // ainda o que a classe pede.
+                    //
+                    // Seção que não tem pendência devolve lista vazia e
+                    // simplesmente não aparece.
+
+                    // --------------------------------------------- identidade
                     TextFormField(
                       controller: _nameController,
                       decoration: const InputDecoration(
@@ -518,6 +532,8 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                       onClear: () => setState(() => _portraitBytes = null),
                     ),
                     const SizedBox(height: 12),
+
+                    // ---------------------------------------------------- raça
                     DropdownButtonFormField<String>(
                       initialValue: effectiveRaceId,
                       decoration: const InputDecoration(labelText: 'Raça base'),
@@ -577,6 +593,92 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                         },
                       ),
                     ],
+                    const SizedBox(height: 12),
+                    _RaceSummaryCard(
+                      race: combinedRace,
+                      bonuses: _allBonusesOf(combinedRace),
+                    ),
+                    const SizedBox(height: 12),
+                    ..._buildRaceSkillSection(combinedRace, creationSkills),
+                    const SizedBox(height: 12),
+
+                    // -------------------------------------------------- classe
+                    DropdownButtonFormField<String>(
+                      initialValue: effectiveClassId,
+                      decoration: const InputDecoration(labelText: 'Classe'),
+                      items:
+                          classOptions
+                              .map(
+                                (item) => DropdownMenuItem<String>(
+                                  value: item.id,
+                                  child: Text('${item.name} (${item.hitDie})'),
+                                ),
+                              )
+                              .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          final previous = selectedClass;
+                          _selectedClassId = value;
+                          // A subclasse pertence à classe anterior.
+                          _selectedSubclassId = null;
+                          // As perícias marcadas dentro da lista da classe
+                          // anterior também: manter faria um Ladino nascer com
+                          // as quatro escolhas de um Bardo já gastas.
+                          final next = classes.firstWhere(
+                            (item) => item.id == value,
+                            orElse: () => previous,
+                          );
+                          _classSkillIds.retainWhere(
+                            next.skillOptions.contains,
+                          );
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Selecione uma classe.';
+                        }
+                        return null;
+                      },
+                    ),
+                    ..._buildSubclassSection(
+                      selectedClass,
+                      classSubclasses,
+                      classSubclassOptions,
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'Perícias',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    ..._buildClassSkillSection(selectedClass, creationSkills),
+                    ..._buildExtraSkillSection(selectedClass, creationSkills),
+                    const SizedBox(height: 12),
+                    // Fecha o bloco da classe: o equipamento inicial depende
+                    // da classe escolhida, e vem depois das perícias dela.
+                    ClassEquipmentForm(
+                      equipment: selectedEquipment,
+                      weapons: weaponCatalog,
+                      selection: _classEquipment,
+                      onChanged:
+                          (value) => _applyClassEquipment(
+                            classId: effectiveClassId,
+                            className: selectedClass.name,
+                            equipment: selectedEquipment,
+                            weaponCatalog: weaponCatalog,
+                            selection: value,
+                          ),
+                    ),
+
+                    // ----------------------------------------------- atributos
+                    // Depois da classe, não antes: o conjunto padrão é
+                    // distribuído sabendo o que a classe pede. O bônus de
+                    // origem aparece junto porque é o outro lado da mesma
+                    // conta — a ficha guarda valor-base e bônus separados.
+                    const SizedBox(height: 12),
+                    ..._buildAbilityBonusSection(combinedRace),
+                    ..._buildStandardArraySection(combinedRace),
+
+                    // --------------------------------------------- antecedente
                     if (backgrounds.isNotEmpty) ...[
                       const SizedBox(height: 12),
                       DropdownButtonFormField<String>(
@@ -637,78 +739,8 @@ class _CharacterCreationPageState extends ConsumerState<CharacterCreationPage> {
                           ),
                         ),
                     ],
-                    const SizedBox(height: 12),
-                    _RaceSummaryCard(
-                      race: combinedRace,
-                      bonuses: _allBonusesOf(combinedRace),
-                    ),
-                    const SizedBox(height: 12),
-                    ..._buildAbilityBonusSection(combinedRace),
-                    ..._buildStandardArraySection(combinedRace),
-                    ..._buildRaceSkillSection(combinedRace, creationSkills),
-                    const SizedBox(height: 12),
-                    DropdownButtonFormField<String>(
-                      initialValue: effectiveClassId,
-                      decoration: const InputDecoration(labelText: 'Classe'),
-                      items:
-                          classOptions
-                              .map(
-                                (item) => DropdownMenuItem<String>(
-                                  value: item.id,
-                                  child: Text('${item.name} (${item.hitDie})'),
-                                ),
-                              )
-                              .toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          final previous = selectedClass;
-                          _selectedClassId = value;
-                          // A subclasse pertence à classe anterior.
-                          _selectedSubclassId = null;
-                          // As perícias marcadas dentro da lista da classe
-                          // anterior também: manter faria um Ladino nascer com
-                          // as quatro escolhas de um Bardo já gastas.
-                          final next = classes.firstWhere(
-                            (item) => item.id == value,
-                            orElse: () => previous,
-                          );
-                          _classSkillIds.retainWhere(
-                            next.skillOptions.contains,
-                          );
-                        });
-                      },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Selecione uma classe.';
-                        }
-                        return null;
-                      },
-                    ),
-                    ..._buildSubclassSection(
-                      selectedClass,
-                      classSubclasses,
-                      classSubclassOptions,
-                    ),
-                    ClassEquipmentForm(
-                      equipment: selectedEquipment,
-                      weapons: weaponCatalog,
-                      selection: _classEquipment,
-                      onChanged:
-                          (value) => _applyClassEquipment(
-                            classId: effectiveClassId,
-                            className: selectedClass.name,
-                            equipment: selectedEquipment,
-                            weaponCatalog: weaponCatalog,
-                            selection: value,
-                          ),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      'Perícias',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    ..._buildClassSkillSection(selectedClass, creationSkills),
-                    ..._buildExtraSkillSection(selectedClass, creationSkills),
+
+                    // -------------------------------------------------- idiomas
                     // Depois de raça, sub-raça, antecedente, classe e
                     // subclasse, que são as etapas que determinam o que o
                     // personagem recebe em idioma.

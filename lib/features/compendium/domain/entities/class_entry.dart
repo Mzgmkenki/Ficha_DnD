@@ -1,3 +1,4 @@
+import 'package:dnd_ficha_app/features/compendium/domain/entities/spellcasting_progression.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/weapon_proficiencies.dart';
 
 class ClassEntry {
@@ -174,31 +175,11 @@ class ClassEntry {
 
   bool get isVariant => variantOf != null;
 
-  bool get isSpellcaster {
-    final type = spellcastingType?.trim().toLowerCase();
-    return type == 'full' ||
-        type == 'half' ||
-        type == 'third' ||
-        type == 'pact' ||
-        type == 'artificer';
-  }
+  bool get isSpellcaster =>
+      SpellcastingProgression.isCasting(spellcastingType);
 
   /// Nível de classe a partir do qual a classe realmente conjura.
   /// Meio-conjuradores começam no 2, um-terço-conjuradores no 3.
-  int get spellcastingStartLevel {
-    switch (spellcastingType?.trim().toLowerCase()) {
-      case 'half':
-        return 2;
-      case 'third':
-        return 3;
-      case 'full':
-      case 'pact':
-      // O artífice conjura desde o 1º nível, diferente dos outros
-      // meio-conjuradores.
-      case 'artificer':
-        return 1;
-      default:
-        return 0;
-    }
-  }
+  int get spellcastingStartLevel =>
+      SpellcastingProgression.startLevel(spellcastingType);
 }

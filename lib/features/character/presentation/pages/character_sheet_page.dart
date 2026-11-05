@@ -228,6 +228,12 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
     final characterAsync = ref.watch(characterByIdProvider(widget.characterId));
     final classesAsync = ref.watch(classEntriesProvider);
 
+    // Tolerante ao carregamento, como nas outras telas: o painel de conjuração
+    // usa as subclasses para enxergar quem conjura por concessão delas
+    // (Trapaceiro Arcano, Cavaleiro Arcano).
+    final subclasses =
+        ref.watch(subclassEntriesProvider).value ?? const <SubclassEntry>[];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Ficha do personagem'),
@@ -498,6 +504,7 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
                     SpellcastingSummaryPanel(
                       character: character,
                       classes: classes,
+                      subclasses: subclasses,
                     ),
                   ],
 

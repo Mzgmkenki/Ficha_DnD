@@ -14,6 +14,7 @@ import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.da
 import 'package:dnd_ficha_app/features/compendium/domain/entities/eldritch_invocation_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_slot_progression_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/subclass_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -45,6 +46,13 @@ class _CharacterSpellsPanelState extends ConsumerState<CharacterSpellsPanel> {
       characterUsedSpellSlotsProvider(character.id),
     );
 
+    // Entram na conta dos espaços porque Trapaceiro Arcano e Cavaleiro Arcano
+    // recebem a progressão de um-terço da subclasse, não da classe. Tolerante
+    // ao carregamento: sem elas o cálculo ainda resolve quem conjura pela
+    // classe.
+    final subclasses =
+        ref.watch(subclassEntriesProvider).value ?? const <SubclassEntry>[];
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -70,6 +78,7 @@ class _CharacterSpellsPanelState extends ConsumerState<CharacterSpellsPanel> {
                           character.classLevels,
                           classes,
                           progressions,
+                          subclasses,
                         );
 
                         final classSpells = <CharacterSpell>[];
@@ -278,11 +287,13 @@ class _CharacterSpellsPanelState extends ConsumerState<CharacterSpellsPanel> {
     List<ClassLevel> classLevels,
     List<ClassEntry> classes,
     List<SpellSlotProgressionEntry> rows,
+    List<SubclassEntry> subclasses,
   ) {
     final summary = SpellSlotCalculator.summarize(
       classLevels: classLevels,
       classes: classes,
       progressions: rows,
+      subclasses: subclasses,
     );
 
     final standardSlots = summary.standardSlots;

@@ -4,6 +4,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dar
 import 'package:dnd_ficha_app/features/character/domain/services/spell_slot_calculator.dart';
 import 'package:dnd_ficha_app/features/compendium/application/providers/class_providers.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_slot_progression_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/subclass_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -28,6 +29,13 @@ class SpellSlotsPanel extends ConsumerWidget {
     final progressionsAsync = ref.watch(spellSlotProgressionsProvider);
     final usedSlotsAsync = ref.watch(characterUsedSpellSlotsProvider(characterId));
 
+    // Tolerante ao carregamento, como nas outras telas que leem o compêndio
+    // de subclasses: sem elas o painel ainda resolve quem conjura pela classe.
+    // Entram na conta porque Trapaceiro Arcano e Cavaleiro Arcano recebem a
+    // progressão de um-terço da subclasse, não da classe.
+    final subclasses =
+        ref.watch(subclassEntriesProvider).value ?? const <SubclassEntry>[];
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -39,6 +47,7 @@ class SpellSlotsPanel extends ConsumerWidget {
                   classLevels: classLevels,
                   classes: classes,
                   progressions: rows,
+                  subclasses: subclasses,
                 );
 
                 return usedSlotsAsync.when(

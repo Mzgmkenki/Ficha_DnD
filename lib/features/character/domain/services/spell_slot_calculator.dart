@@ -1,6 +1,9 @@
 import 'package:dnd_ficha_app/features/character/domain/entities/class_level.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/spellcasting_source.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/spell_slot_progression_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/spellcasting_progression.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/subclass_entry.dart';
 
 /// Espaços de magia que o personagem tem, resolvidos a partir das classes.
 class SpellSlotSummary {
@@ -88,12 +91,23 @@ class SpellSlotCalculator {
     required List<ClassLevel> classLevels,
     required List<ClassEntry> classes,
     required List<SpellSlotProgressionEntry> progressions,
+    List<SubclassEntry> subclasses = const [],
   }) {
     ClassEntry? classForId(String id) {
       for (final item in classes) {
         if (item.id == id) return item;
       }
       return null;
+    }
+
+    /// De onde sai a conjuração desta linha: da classe ou da subclasse.
+    /// Trapaceiro Arcano e Cavaleiro Arcano caem no segundo caso.
+    SpellcastingSource? sourceOf(ClassLevel classLevel) {
+      return SpellcastingSourceResolver.resolve(
+        classLevel: classLevel,
+        classes: classes,
+        subclasses: subclasses,
+      );
     }
 
     SpellSlotProgressionEntry? findRow(String tableId, int level) {
@@ -112,7 +126,7 @@ class SpellSlotCalculator {
     var castingClassCount = 0;
 
     for (final classLevel in classLevels) {
-      switch (classForId(classLevel.classId)?.spellcastingType) {
+      switch (sourceOf(classLevel)?.type) {
         case 'full':
           fullCasterLevels += classLevel.level;
           castingClassCount++;
@@ -150,8 +164,15 @@ class SpellSlotCalculator {
 
     if (classLevels.length == 1) {
       final classLevel = classLevels.first;
-      final classEntry = classForId(classLevel.classId);
-      final type = classEntry?.spellcastingType;
+      final source = sourceOf(classLevel);
+      final type = source?.type;
+
+      // Quando a conjuração vem da subclasse, é o nome dela que o jogador
+      // reconhece: "Progressão de Trapaceiro Arcano" diz mais que
+      // "Progressão de Ladino", que nem conjura.
+      final sourceName =
+          source?.name ?? classForId(classLevel.classId)?.name ??
+              classLevel.classId;
 
       if (type == 'full' ||
           type == 'half' ||
@@ -159,7 +180,7 @@ class SpellSlotCalculator {
           type == 'artificer') {
         standardSlots = findRow(type!, classLevel.level);
         effectiveCasterLevel = classLevel.level;
-        modeLabel = 'Progressão de ${classEntry?.name ?? classLevel.classId}';
+        modeLabel = 'Progressão de $sourceName';
         // Separador em bullet para não mudar o que a ficha já mostrava quando
         // esta conta morava dentro do painel.
         explanation = 'Tabela usada: ${tableLabel(type)} • '
@@ -241,20 +262,6 @@ class SpellSlotCalculator {
     };
   }
 
-  static String tableLabel(String type) {
-    switch (type) {
-      case 'full':
-        return 'conjurador completo';
-      case 'half':
-        return 'meio conjurador';
-      case 'artificer':
-        return 'meio conjurador (artífice)';
-      case 'third':
-        return 'um-terço conjurador';
-      case 'pact':
-        return 'magia de pacto';
-      default:
-        return type;
-    }
-  }
+  static String tableLabel(String type) =>
+      SpellcastingProgression.tableLabel(type);
 }

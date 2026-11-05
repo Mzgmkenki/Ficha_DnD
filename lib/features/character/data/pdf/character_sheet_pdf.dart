@@ -14,6 +14,7 @@ import 'package:dnd_ficha_app/features/character/domain/services/initiative_calc
 import 'package:dnd_ficha_app/features/character/domain/services/skill_calculator.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/spell_slot_calculator.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/spellcasting_service.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/spellcasting_source.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/weapon_attack_calculator.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/condition.dart';
@@ -1103,6 +1104,7 @@ class CharacterSheetPdf {
       classLevels: character.classLevels,
       classes: data.classes,
       progressions: data.spellSlots,
+      subclasses: data.subclasses,
     );
 
     if (!summary.hasAnyCasting) {
@@ -1116,11 +1118,18 @@ class CharacterSheetPdf {
     final itemBonus = SpellcastingService.itemBonuses(character.magicItems);
 
     for (final classLevel in character.classLevels) {
-      final entry = _classEntry(data, classLevel.classId);
-      if (entry == null || !entry.isSpellcaster) continue;
-      if (classLevel.level < entry.spellcastingStartLevel) continue;
+      // Resolve classe E subclasse: sem isto, o Trapaceiro Arcano e o
+      // Cavaleiro Arcano saíam do PDF sem CD nem ataque mágico, porque Ladino
+      // e Guerreiro não declaram conjuração.
+      final source = SpellcastingSourceResolver.resolve(
+        classLevel: classLevel,
+        classes: data.classes,
+        subclasses: data.subclasses,
+      );
+      // Meio-conjurador só conjura no 2º nível, um-terço no 3º.
+      if (source == null || !source.isActiveAt(classLevel.level)) continue;
 
-      final ability = Ability.fromName(entry.spellcastingAbility);
+      final ability = Ability.fromName(source.ability);
       if (ability == null) continue;
 
       final dc = SpellcastingService.spellSaveDc(
@@ -1137,7 +1146,7 @@ class CharacterSheetPdf {
       );
 
       widgets
-        ..add(_subTitle(entry.name))
+        ..add(_subTitle(source.name))
         ..add(pw.SizedBox(height: 3))
         ..add(
           _boxRow([

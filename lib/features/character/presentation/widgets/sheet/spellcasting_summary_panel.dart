@@ -1,18 +1,25 @@
 ﻿import 'package:dnd_ficha_app/features/character/domain/entities/character.dart';
 import 'package:dnd_ficha_app/features/character/domain/services/spellcasting_service.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/spellcasting_source.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/ability.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/class_entry.dart';
+import 'package:dnd_ficha_app/features/compendium/domain/entities/subclass_entry.dart';
 import 'package:flutter/material.dart';
 
 class SpellcastingSummaryPanel extends StatelessWidget {
   const SpellcastingSummaryPanel({
     required this.character,
     required this.classes,
+    this.subclasses = const [],
     super.key,
   });
 
   final Character character;
   final List<ClassEntry> classes;
+
+  /// Compêndio de subclasses, para o painel enxergar quem conjura por
+  /// concessão da subclasse: Trapaceiro Arcano e Cavaleiro Arcano.
+  final List<SubclassEntry> subclasses;
 
   @override
   Widget build(BuildContext context) {
@@ -95,29 +102,33 @@ class SpellcastingSummaryPanel extends StatelessWidget {
     final itemBonus = SpellcastingService.itemBonuses(character.magicItems);
 
     for (final classLevel in character.classLevels) {
-      final classEntry = _findClassEntry(classLevel.classId);
+      // Só conjuradores entram no painel, e o resolvedor já aplica as duas
+      // regras: um Bárbaro puro não entra, e meio-conjurador antes do 2º nível
+      // (um-terço antes do 3º) também não.
+      //
+      // Resolve classe E subclasse. Enquanto olhava apenas a classe, o
+      // Trapaceiro Arcano e o Cavaleiro Arcano ficavam de fora do painel,
+      // porque Ladino e Guerreiro declaram `spellcasting_type: null`.
+      final source = SpellcastingSourceResolver.resolve(
+        classLevel: classLevel,
+        classes: classes,
+        subclasses: subclasses,
+      );
 
-      // Só conjuradores entram no painel. Antes, um Bárbaro puro aparecia
-      // com "CD de magia" porque a checagem era apenas pelo atributo.
-      if (classEntry != null && !classEntry.isSpellcaster) continue;
-
-      // Meio-conjurador só conjura no nível 2, um-terço no 3.
-      if (classEntry != null &&
-          classLevel.level < classEntry.spellcastingStartLevel) {
-        continue;
-      }
+      // Meio-conjurador só conjura no 2º nível, um-terço no 3º: antes disso
+      // não há CD nem ataque mágico para mostrar.
+      if (source == null || !source.isActiveAt(classLevel.level)) continue;
 
       final ability = _resolveSpellcastingAbility(
         classId: classLevel.classId,
-        classEntry: classEntry,
+        declaredAbility: source.ability,
       );
 
       if (ability == null) continue;
 
       rows.add(
         _ClassSpellcastingRow(
-          title:
-              '${classEntry?.name ?? classLevel.classId} • Nv. ${classLevel.level}',
+          title: '${source.name} • Nv. ${classLevel.level}',
           abilityLabel: ability.label,
           saveDc: SpellcastingService.spellSaveDc(
             proficiencyBonus: character.proficiencyBonus,
@@ -166,29 +177,24 @@ class SpellcastingSummaryPanel extends StatelessWidget {
     return rows;
   }
 
-  ClassEntry? _findClassEntry(String classId) {
-    for (final item in classes) {
-      if (item.id == classId) return item;
-    }
-    return null;
-  }
-
   Ability? _resolveSpellcastingAbility({
     required String classId,
-    required ClassEntry? classEntry,
+    required String? declaredAbility,
   }) {
-    // O campo dedicado tem prioridade. Usar `primaryAbility` aqui fazia o
-    // Patrulheiro conjurar com Destreza em vez de Sabedoria.
-    final declared = _parseAbility(classEntry?.spellcastingAbility);
+    // O que o asset declarou tem prioridade — e para quem conjura pela
+    // subclasse é a própria subclasse que declara. Usar `primaryAbility` aqui
+    // fazia o Patrulheiro conjurar com Destreza em vez de Sabedoria.
+    final declared = _parseAbility(declaredAbility);
     if (declared != null) return declared;
 
+    // Rede de segurança para entrada de compêndio sem o campo preenchido.
+    // Só ids de CLASSE entram aqui: id de subclasse nunca chega a este
+    // `switch`, porque a subclasse que conjura declara o atributo dela.
     switch (classId.trim().toLowerCase()) {
       case 'wizard':
       case 'mago':
       case 'artificer':
       case 'artífice':
-      case 'eldritch_knight':
-      case 'arcane_trickster':
         return Ability.intelligence;
 
       case 'cleric':
