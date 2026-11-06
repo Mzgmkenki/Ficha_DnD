@@ -69,17 +69,64 @@ class _SkillRow extends StatelessWidget {
   final Skill skill;
   final String? disadvantageReason;
 
+  /// De onde a proficiência veio, para o jogador poder consultar.
+  ///
+  /// Lê o registro de origem gravado na criação (ou completado ao abrir a
+  /// ficha). Vem vazio nas fichas antigas em que a origem não pôde ser
+  /// determinada com segurança — nesse caso a linha simplesmente não aparece,
+  /// que é melhor que exibir um palpite.
+  ///
+  /// Mais de uma fonte pode conceder a mesma perícia. Todas são listadas, mas
+  /// a perícia aparece UMA vez e o bônus é somado uma vez: quem decide isso é
+  /// o nível em `SkillProficiencies`, não a quantidade de origens.
+  String? get _originLabel {
+    final labels = <String>[];
+
+    for (final grant in character.skillProficiencyGrants) {
+      if (grant.skill != skill) continue;
+      if (labels.contains(grant.sourceLabel)) continue;
+      labels.add(grant.sourceLabel);
+    }
+
+    if (labels.isEmpty) return null;
+
+    return 'Concedida por: ${labels.join(', ')}';
+  }
+
   @override
   Widget build(BuildContext context) {
     final label = '${skill.label} (${skill.abbreviation})';
     final bonus = SkillCalculator.skillBonus(character, skill);
 
-    return DerivedValueRow(
+    final row = DerivedValueRow(
       label: label,
       value: bonus,
       level: character.skillProficiencies.levelFor(skill),
       disadvantageReason: disadvantageReason,
       onRoll: () => showDiceRollSheet(context, label: label, modifier: bonus),
+    );
+
+    // Só quem é proficiente tem origem a mostrar: numa perícia sem
+    // proficiência a linha seria ruído em 18 itens.
+    final origin =
+        character.skillProficiencies.isProficient(skill) ? _originLabel : null;
+
+    if (origin == null) return row;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        row,
+        Padding(
+          padding: const EdgeInsets.only(left: 26, top: 2),
+          child: Text(
+            origin,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

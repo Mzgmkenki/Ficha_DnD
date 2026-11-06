@@ -6,6 +6,7 @@ import 'package:dnd_ficha_app/features/character/domain/entities/combat_stats.da
 import 'package:dnd_ficha_app/features/character/domain/entities/custom_background.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/hit_points.dart';
 import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiencies.dart';
+import 'package:dnd_ficha_app/features/character/domain/entities/skill_proficiency_grant.dart';
 import 'package:dnd_ficha_app/features/character/domain/repositories/character_repository.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/proficiency_level.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
@@ -23,7 +24,16 @@ const _acolyte = BackgroundEntry(
   description: 'Serviu um templo.',
 );
 
-const _backgrounds = [_acolyte, BackgroundEntry.customOption];
+/// Antecedente de partida nos testes de troca: concede duas perícias que o
+/// Acólito não concede, então dá para ver o que sai e o que entra.
+const _criminal = BackgroundEntry(
+  id: 'criminal',
+  name: 'Criminoso',
+  skillIds: ['stealth', 'deception'],
+  description: 'Viveu fora da lei.',
+);
+
+const _backgrounds = [_acolyte, _criminal, BackgroundEntry.customOption];
 
 /// Repositório em memória: `findById` alimenta o use case e `update` guarda o
 /// resultado para as asserções.
@@ -55,6 +65,7 @@ Character _character({
   CustomBackground customBackground = const CustomBackground(),
   String notes = '',
   SkillProficiencies skills = const SkillProficiencies(),
+  List<SkillProficiencyGrant> grants = const [],
 }) {
   final now = DateTime(2026, 1, 1);
 
@@ -66,6 +77,7 @@ Character _character({
     customBackground: customBackground,
     notes: notes,
     skillProficiencies: skills,
+    skillProficiencyGrants: grants,
     abilityScores: const AbilityScores(
       strength: 10,
       dexterity: 10,
@@ -154,8 +166,9 @@ Future<void> _tapSave(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('carrega os dados atuais do personagem no formulário',
-      (tester) async {
+  testWidgets('carrega os dados atuais do personagem no formulário', (
+    tester,
+  ) async {
     await _pumpEditor(
       tester,
       _character(
@@ -174,7 +187,10 @@ void main() {
     );
     // Antecedente do compêndio não abre o formulário do customizável.
     expect(find.text('Monte o seu antecedente'), findsNothing);
-    expect(find.text('Perícias concedidas: Intuição, Religião'), findsOneWidget);
+    expect(
+      find.text('Perícias concedidas: Intuição, Religião'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('salva nome, jogador e anotações', (tester) async {
@@ -207,17 +223,15 @@ void main() {
     expect(saved.backgroundId, 'acolyte');
   });
 
-  testWidgets('limpar o campo do jogador volta o valor para null',
-      (tester) async {
+  testWidgets('limpar o campo do jogador volta o valor para null', (
+    tester,
+  ) async {
     final repository = await _pumpEditor(
       tester,
       _character(playerName: 'Marcos', backgroundId: 'acolyte'),
     );
 
-    await tester.enterText(
-      find.widgetWithText(TextFormField, 'Marcos'),
-      '   ',
-    );
+    await tester.enterText(find.widgetWithText(TextFormField, 'Marcos'), '   ');
     await tester.pumpAndSettle();
 
     await _tapSave(tester);
@@ -232,11 +246,7 @@ void main() {
       _character(backgroundId: 'acolyte'),
     );
 
-    await _selectInDropdown(
-      tester,
-      'Antecedente',
-      BackgroundEntry.customId,
-    );
+    await _selectInDropdown(tester, 'Antecedente', BackgroundEntry.customId);
 
     expect(find.text('Monte o seu antecedente'), findsOneWidget);
 
@@ -258,10 +268,10 @@ void main() {
     final saved = repository.updated!;
     expect(saved.backgroundId, BackgroundEntry.customId);
     expect(saved.customBackground.name, 'Caçador de Recompensas');
-    expect(
-      saved.customBackground.skillIds,
-      [Skill.stealth.id, Skill.survival.id],
-    );
+    expect(saved.customBackground.skillIds, [
+      Skill.stealth.id,
+      Skill.survival.id,
+    ]);
     expect(saved.customBackground.features, 'Mandado sempre em aberto.');
     expect(
       saved.skillProficiencies.levelFor(Skill.stealth),
@@ -273,48 +283,167 @@ void main() {
     );
   });
 
-  testWidgets('voltar para um antecedente do compêndio descarta o customizado',
-      (tester) async {
+  testWidgets(
+    'voltar para um antecedente do compêndio descarta o customizado',
+    (tester) async {
+      final repository = await _pumpEditor(
+        tester,
+        _character(
+          backgroundId: BackgroundEntry.customId,
+          customBackground: const CustomBackground(
+            name: 'Caçador de Recompensas',
+            skillIds: ['stealth', 'survival'],
+            features: 'Mandado em aberto.',
+          ),
+        ),
+      );
+
+      // O formulário do customizável já vem aberto e preenchido.
+      expect(find.text('Monte o seu antecedente'), findsOneWidget);
+      expect(
+        find.widgetWithText(TextFormField, 'Caçador de Recompensas'),
+        findsOneWidget,
+      );
+
+      await _selectInDropdown(tester, 'Antecedente', 'acolyte');
+      await _tapSave(tester);
+
+      final saved = repository.updated!;
+      expect(saved.backgroundId, 'acolyte');
+      expect(saved.customBackground.isEmpty, isTrue);
+      // As perícias do novo antecedente entram, com a origem registrada.
+      expect(
+        saved.skillProficiencies.levelFor(Skill.insight),
+        ProficiencyLevel.proficient,
+      );
+      expect(
+        saved.skillProficiencyGrants
+            .where((grant) => grant.skill == Skill.insight)
+            .map((grant) => grant.sourceId),
+        contains('acolyte'),
+      );
+    },
+  );
+
+  testWidgets('trocar de antecedente tira o que só o anterior sustentava', (
+    tester,
+  ) async {
+    // Criminoso concedia Furtividade e Enganação; nenhuma outra fonte as
+    // sustenta, então as duas saem ao trocar para Acólito.
     final repository = await _pumpEditor(
       tester,
       _character(
-        backgroundId: BackgroundEntry.customId,
-        customBackground: const CustomBackground(
-          name: 'Caçador de Recompensas',
-          skillIds: ['stealth', 'survival'],
-          features: 'Mandado em aberto.',
+        backgroundId: 'criminal',
+        skills: const SkillProficiencies(
+          levels: {
+            Skill.stealth: ProficiencyLevel.proficient,
+            Skill.deception: ProficiencyLevel.proficient,
+          },
         ),
+        grants: const [
+          SkillProficiencyGrant(
+            skill: Skill.stealth,
+            source: SkillGrantSource.backgroundAutomatic,
+            sourceId: 'criminal',
+            sourceLabel: 'antecedente Criminoso',
+            automatic: true,
+          ),
+          SkillProficiencyGrant(
+            skill: Skill.deception,
+            source: SkillGrantSource.backgroundAutomatic,
+            sourceId: 'criminal',
+            sourceLabel: 'antecedente Criminoso',
+            automatic: true,
+          ),
+        ],
       ),
-    );
-
-    // O formulário do customizável já vem aberto e preenchido.
-    expect(find.text('Monte o seu antecedente'), findsOneWidget);
-    expect(
-      find.widgetWithText(TextFormField, 'Caçador de Recompensas'),
-      findsOneWidget,
     );
 
     await _selectInDropdown(tester, 'Antecedente', 'acolyte');
     await _tapSave(tester);
 
     final saved = repository.updated!;
-    expect(saved.backgroundId, 'acolyte');
-    expect(saved.customBackground.isEmpty, isTrue);
-    // As perícias do novo antecedente entram...
+
+    // Entram as do Acólito.
     expect(
       saved.skillProficiencies.levelFor(Skill.insight),
       ProficiencyLevel.proficient,
     );
-    // ...e as do antigo não são removidas, porque não há como saber se vieram
-    // do antecedente ou de outra fonte.
+    expect(
+      saved.skillProficiencies.levelFor(Skill.religion),
+      ProficiencyLevel.proficient,
+    );
+
+    // Saem as do Criminoso, junto com o registro de origem delas.
     expect(
       saved.skillProficiencies.levelFor(Skill.stealth),
       ProficiencyLevel.none,
     );
+    expect(
+      saved.skillProficiencies.levelFor(Skill.deception),
+      ProficiencyLevel.none,
+    );
+    expect(
+      saved.skillProficiencyGrants.where(
+        (grant) => grant.sourceId == 'criminal',
+      ),
+      isEmpty,
+    );
   });
 
-  testWidgets('não rebaixa uma proficiência que já era especialista',
-      (tester) async {
+  testWidgets('trocar de antecedente preserva perícia que a classe também dá', (
+    tester,
+  ) async {
+    // Furtividade vem do antecedente E da classe. Trocar de antecedente não
+    // pode tirá-la: a origem da classe continua sustentando.
+    final repository = await _pumpEditor(
+      tester,
+      _character(
+        backgroundId: 'criminal',
+        skills: const SkillProficiencies(
+          levels: {Skill.stealth: ProficiencyLevel.proficient},
+        ),
+        grants: const [
+          SkillProficiencyGrant(
+            skill: Skill.stealth,
+            source: SkillGrantSource.backgroundAutomatic,
+            sourceId: 'criminal',
+            sourceLabel: 'antecedente Criminoso',
+            automatic: true,
+          ),
+          SkillProficiencyGrant(
+            skill: Skill.stealth,
+            source: SkillGrantSource.characterClass,
+            sourceId: 'rogue',
+            sourceLabel: 'classe Ladino',
+            automatic: false,
+          ),
+        ],
+      ),
+    );
+
+    await _selectInDropdown(tester, 'Antecedente', 'acolyte');
+    await _tapSave(tester);
+
+    final saved = repository.updated!;
+
+    expect(
+      saved.skillProficiencies.levelFor(Skill.stealth),
+      ProficiencyLevel.proficient,
+      reason: 'a classe ainda concede Furtividade',
+    );
+    // A origem da classe fica; a do antecedente antigo sai.
+    expect(
+      saved.skillProficiencyGrants
+          .where((grant) => grant.skill == Skill.stealth)
+          .map((grant) => grant.sourceId),
+      ['rogue'],
+    );
+  });
+
+  testWidgets('não rebaixa uma proficiência que já era especialista', (
+    tester,
+  ) async {
     final repository = await _pumpEditor(
       tester,
       _character(
@@ -354,11 +483,7 @@ void main() {
       _character(backgroundId: 'acolyte'),
     );
 
-    await _selectInDropdown(
-      tester,
-      'Antecedente',
-      BackgroundEntry.customId,
-    );
+    await _selectInDropdown(tester, 'Antecedente', BackgroundEntry.customId);
     await _selectInDropdown(tester, 'Primeira perícia', Skill.stealth.id);
     await _tapSave(tester);
 

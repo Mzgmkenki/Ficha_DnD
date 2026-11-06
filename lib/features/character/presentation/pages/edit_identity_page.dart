@@ -279,10 +279,11 @@ class _EditIdentityPageState extends ConsumerState<EditIdentityPage> {
 
     final backgrounds =
         ref.read(backgroundEntriesProvider).value ?? const <BackgroundEntry>[];
+    final selectedBackground = _findBackground(backgrounds);
     final grantedSkills =
         _isCustomBackground
             ? customBackground.skills
-            : (_findBackground(backgrounds)?.skills ?? const <Skill>[]);
+            : (selectedBackground?.skills ?? const <Skill>[]);
 
     setState(() {
       _saving = true;
@@ -298,6 +299,7 @@ class _EditIdentityPageState extends ConsumerState<EditIdentityPage> {
         notes: _notesController.text.trim(),
         playerName: playerName.isEmpty ? null : playerName,
         backgroundId: _selectedBackgroundId,
+        backgroundName: selectedBackground?.name,
         customBackground: customBackground,
         grantedSkills: grantedSkills,
         alignment: _selectedAlignment,

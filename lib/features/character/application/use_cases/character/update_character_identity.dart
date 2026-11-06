@@ -1,6 +1,6 @@
 import 'package:dnd_ficha_app/features/character/domain/entities/custom_background.dart';
 import 'package:dnd_ficha_app/features/character/domain/repositories/character_repository.dart';
-import 'package:dnd_ficha_app/features/character/domain/services/granted_skills.dart';
+import 'package:dnd_ficha_app/features/character/domain/services/background_skill_origins.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/alignment.dart';
 import 'package:dnd_ficha_app/features/character/domain/value_objects/skill.dart';
 import 'package:dnd_ficha_app/features/compendium/domain/entities/background_entry.dart';
@@ -11,16 +11,20 @@ class UpdateCharacterIdentity {
 
   final CharacterRepository _repository;
 
-  /// [grantedSkills] são as perícias do antecedente escolhido. Elas viram
-  /// proficiência, mas nada é rebaixado: sem rastrear a origem de cada
-  /// proficiência, remover a perícia do antecedente antigo apagaria também o
-  /// que veio de classe, raça ou escolha do jogador.
+  /// [grantedSkills] são as perícias do antecedente escolhido, e
+  /// [backgroundName] é o nome dele, que entra no rótulo da origem.
+  ///
+  /// A troca de antecedente é resolvida por origem, não por força bruta: sai o
+  /// que o antecedente anterior sustentava sozinho, fica o que classe, raça,
+  /// talento ou escolha do jogador também concedem, e o registro de origem é
+  /// reescrito para o antecedente novo. Ver [BackgroundSkillOrigins.reapply].
   Future<void> call({
     required String characterId,
     required String name,
     required String notes,
     String? playerName,
     String? backgroundId,
+    String? backgroundName,
     CustomBackground customBackground = const CustomBackground(),
     List<Skill> grantedSkills = const [],
     CharacterAlignment? alignment,
@@ -37,9 +41,13 @@ class UpdateCharacterIdentity {
     final effectiveCustomBackground =
         isCustom ? customBackground : const CustomBackground();
 
-    final skills = GrantedSkills.apply(
-      character.skillProficiencies,
-      grantedSkills,
+    final reconciled = BackgroundSkillOrigins.reapply(
+      grants: character.skillProficiencyGrants,
+      proficiencies: character.skillProficiencies,
+      grantedSkills: grantedSkills,
+      backgroundId: backgroundId,
+      backgroundName: backgroundName,
+      isCustom: isCustom,
     );
 
     final updatedCharacter = character.copyWith(
@@ -48,7 +56,8 @@ class UpdateCharacterIdentity {
       backgroundId: backgroundId,
       customBackground: effectiveCustomBackground,
       notes: notes,
-      skillProficiencies: skills,
+      skillProficiencies: reconciled.proficiencies,
+      skillProficiencyGrants: reconciled.grants,
       // Passado sem sentinela: a tela sempre manda o valor atual do campo, e
       // `null` aqui é uma escolha do jogador ("Não definido"), não omissão.
       alignment: alignment,

@@ -72,6 +72,13 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
   /// leitura do compêndio por quadro.
   bool _abilityBonusesReconciled = false;
 
+  /// Se o backfill das perícias de antecedente já rodou nesta sessão da tela.
+  ///
+  /// Mesmo motivo de [_abilityBonusesReconciled]: a operação é idempotente,
+  /// mas repeti-la a cada reconstrução custaria uma leitura do compêndio por
+  /// quadro.
+  bool _backgroundSkillsBackfilled = false;
+
   @override
   void initState() {
     super.initState();
@@ -79,7 +86,41 @@ class _CharacterSheetPageState extends ConsumerState<CharacterSheetPage> {
     // Depois do primeiro quadro, para não gravar durante a construção.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _reconcileFeatureAbilityBonuses();
+      _backfillBackgroundSkills();
     });
+  }
+
+  /// Dá ao personagem já salvo as perícias que o antecedente dele concede.
+  ///
+  /// Cobre as fichas criadas antes de a origem das proficiências passar a ser
+  /// gravada: nelas a coluna de origens nasce vazia e a perícia do antecedente
+  /// pode nunca ter entrado.
+  ///
+  /// Best-effort, como a reconciliação de atributos: falhar não impede a ficha
+  /// de abrir, e a próxima abertura tenta de novo.
+  Future<void> _backfillBackgroundSkills() async {
+    if (_backgroundSkillsBackfilled) return;
+    _backgroundSkillsBackfilled = true;
+
+    try {
+      final changed = await ref.read(backfillBackgroundSkillsProvider)(
+        widget.characterId,
+      );
+
+      // Avisa porque apareceu proficiência que o jogador não marcou agora.
+      if (changed && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'As perícias concedidas pelo seu antecedente foram aplicadas.',
+            ),
+          ),
+        );
+      }
+    } catch (error, stackTrace) {
+      debugPrint('Falha ao aplicar perícias do antecedente: $error');
+      debugPrintStack(stackTrace: stackTrace);
+    }
   }
 
   /// Dá ao personagem já salvo os aumentos de atributo que as características

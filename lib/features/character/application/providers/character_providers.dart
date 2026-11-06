@@ -4,6 +4,7 @@ import 'package:dnd_ficha_app/core/utils/dice_roller.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/class_mechanic_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/feature_providers.dart';
 import 'package:dnd_ficha_app/features/character/application/providers/invocation_providers.dart';
+import 'package:dnd_ficha_app/features/character/application/use_cases/character/backfill_background_skills.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/choose_subclass.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/create_character.dart';
 import 'package:dnd_ficha_app/features/character/application/use_cases/character/export_character.dart';
@@ -121,6 +122,28 @@ final exportCharacterPdfProvider = Provider<
     );
   };
 });
+
+/// Aplica as perícias do antecedente que faltarem no personagem já salvo.
+///
+/// Mesmo motivo de [reconcileFeatureAbilityBonusesProvider]: decidir o que
+/// falta exige ler o compêndio, e migração de banco não lê asset. Devolve se
+/// houve mudança, para a tela poder avisar o jogador de que apareceu
+/// proficiência que ele não marcou.
+final backfillBackgroundSkillsProvider =
+    Provider<Future<bool> Function(String characterId)>((ref) {
+      final repository = ref.watch(characterRepositoryProvider);
+
+      return (String characterId) async {
+        final useCase = BackfillBackgroundSkills(repository);
+
+        return useCase(
+          characterId: characterId,
+          backgrounds: await ref.read(backgroundEntriesProvider.future),
+          classes: await ref.read(classEntriesProvider.future),
+          races: await ref.read(raceEntriesProvider.future),
+        );
+      };
+    });
 
 final exportCharacterProvider = Provider<ExportCharacter>((ref) {
   final repository = ref.watch(characterRepositoryProvider);
